@@ -206,4 +206,11 @@ public class Tuple
 		
 		return builder.toString();
 	}
+	
+	public String getStringL() {
+		StringBuilder builder = new StringBuilder();
+		long l = Util.byteArrayToLong(L);
+		builder.append(Util.toKaryString(l, 2, L.length * 8));
+		return builder.toString();
+	}
 }

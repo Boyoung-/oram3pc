@@ -250,6 +250,16 @@ public class Tree
 		return ret;
 	}
 	
+	public Tuple getTuple(int tupleNum) throws TreeException {
+		byte[] buffer = new byte[tupleSize];
+		RC ret = readTuple(buffer, tupleNum);
+		if (ret != RC.SUCCESS)
+		{
+			throw new TreeException("Error getting tuple " + tupleNum);
+		}
+		return new Tuple(buffer, lBytes, nBytes, dBytes);
+	}
+	
 	/**
 	 * Write the specified tuple in place in the tree.
 	 * 
@@ -384,27 +394,6 @@ public class Tree
 	}
 	
 	/**
-	 * Retrieve the tuple slots that are occupied (full) at the given level in the tree.
-	 * 
-	 * @param level
-	 * @return
-	 * @throws TreeException 
-	 */
-	private List<Integer> getFullTuplesAtLevel(int level) throws TreeException
-	{
-		List<Integer> filled = new ArrayList<Integer>();
-		
-		int len = (int)Math.pow(fanout, level);
-		int low = len - 1;
-		for (int i = low; i < low + len; i++)
-		{
-			filled.addAll(getFullSlots(i));
-		}
-		
-		return filled;
-	}
-	
-	/**
 	 * Retrieve the tuple slots that are not occupied (empty) at the given level in the tree. 
 	 * 
 	 * @param level
@@ -425,6 +414,27 @@ public class Tree
 		return empties;
 	}
 	
+	/**
+	 * Retrieve the tuple slots that are occupied (full) at the given level in the tree.
+	 * 
+	 * @param level
+	 * @return
+	 * @throws TreeException 
+	 */
+	private List<Integer> getFullTuplesAtLevel(int level) throws TreeException
+	{
+		List<Integer> filled = new ArrayList<Integer>();
+		
+		int len = (int)Math.pow(fanout, level);
+		int low = len - 1;
+		for (int i = low; i < low + len; i++)
+		{
+			filled.addAll(getFullSlots(i));
+		}
+		
+		return filled;
+	}
+
 	/**
 	 * Determine the child index at the next lower layer in the tree
 	 * based on the leaf encoding L and the specified level in the tree.
@@ -615,6 +625,24 @@ public class Tree
 			{
 	 			indices.add(i);
 			}
+		}
+		
+		return indices;
+	}
+	
+	public List<Integer> getBucketIndicesOnPathToLeaf(long leafNum)
+	{
+		List<Integer> indices = new ArrayList<Integer>();
+		
+		// The root is always included in the path
+		indices.add(0);  
+		
+		// TODO: leaf level 4 buckets???
+		for (int l = 1; l < numLevels; l++)
+		{
+			String rep = Util.toKaryString(leafNum, fanout, lBits);
+			int bucketPos = (fanout * l) + 1 + Integer.parseInt("" + rep.charAt(l)); // levels are 0-based
+	 		indices.add(bucketPos);
 		}
 		
 		return indices;
