@@ -2,8 +2,6 @@ package sprout.ui;
 
 import java.math.BigInteger;
 
-import Program.*;
-
 public class EvictionTestClient
 {
 	

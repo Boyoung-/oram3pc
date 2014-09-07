@@ -1,15 +1,22 @@
 package sprout.crypto;
 
-import sprout.crypto.SecureRandom;
+import java.math.BigInteger;
 
-// Weak PRF defined built upon a PRG G with output length l bits (padded to nearest byte length)
+// Weak PRF defined built upon a DDHPRG G with output length m bits (as a String)
 public class WeakPRF {
 
-	private String k = null;
+	private BigInteger k = null;
 	private int l = 0; // in BITS
 
-	public WeakPRF(String k, int l) {
-		// asd
+	public WeakPRF(BigInteger k, int l) {
+		this.k = k;
+
+	}
+
+	// generate pseudorandom string of m bits
+	// f_k^l(x) = G^l(x^k)
+	public String generate(int m, BigInteger seed) {
+		return null;
 	}
 
 }

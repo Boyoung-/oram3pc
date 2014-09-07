@@ -30,7 +30,7 @@ public class BlockCipher {
 	public static void main(String [] args) {
 		try {
 			String IV = "AAAAAAAAAAAAAAAA";
-			String plaintext = "test text 123\0\0\0"; /*Note null padding*/
+			String plaintext = "test text 123\0\0\0"; // Note null padding
 			String encryptionKey = "0123456789abcdef";
 
 			System.out.println("PT: " + plaintext);
