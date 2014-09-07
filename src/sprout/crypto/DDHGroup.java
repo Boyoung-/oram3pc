@@ -10,6 +10,7 @@ public class DDHGroup {
 	private BigInteger gen;
 
 	public DDHGroup(int primeBits) {
+		// this creates a -probable- prime, but we want certainty 1
 		this.mod = new BigInteger(primeBits, 1, SecureRandom.getInstance("SHA1PRNG"));
 		this.q = BigInteger.toString();
 		setGenerator();
@@ -24,7 +25,7 @@ public class DDHGroup {
 	private void setGenerator() {
 		this.gen = new BigInteger("3");
 		while (gen.gcd(mod) == BigInteger.ZERO) {
-			gen = gen.add(BigInteger.ONE); // increment and try again...
+			gen = gen.add(BigInteger.ONE); 
 		}
 	}
 
