@@ -11,10 +11,16 @@ public class PRG {
 
 	private SecureRandom rand;
 	private int l;
-
-	public PRG(byte[] seed, int l) throws NoSuchAlgorithmException {
+	
+	public PRG(int l) throws NoSuchAlgorithmException {
+		this.rand = SecureRandom.getInstance("SHA1PRNG");
+		this.l = l;
+	}
+	
+	public PRG(int l, byte[] seed) throws NoSuchAlgorithmException {
 		this.rand = SecureRandom.getInstance("SHA1PRNG");
 		this.rand.setSeed(seed);
+		this.l = l;
 	}
 
 	public byte[] generateBytes(int m) {
