@@ -130,6 +130,18 @@ public class Tree
 		return numTuples * tupleSize;
 	}
 	
+	public int getLBytes() {
+		return lBytes;
+	}
+	
+	public int getNBytes() {
+		return nBytes;
+	}
+	
+	public int getDBytes() {
+		return dBytes;
+	}
+	
 	/**
 	 * Find the tuple in the tree that matches the specified tag.
 	 * @param tag

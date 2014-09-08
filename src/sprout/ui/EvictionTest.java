@@ -23,12 +23,6 @@ public class EvictionTest
 {
 	
 	public static void main(String[] args) throws Exception {
-		byte[] binary = new byte[3];
-		Arrays.fill(binary, (byte)1);
-		SecureRandom rnd = new SecureRandom();
-		BigInteger bi = new BigInteger(5, rnd);
-		System.out.println("biginteger: " + bi.bitLength() + "  " + bi);
-		
 		Forest forest = null;
 		try
 		{
