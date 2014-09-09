@@ -28,7 +28,7 @@ public class Access2Test
 		return "";
 	}
 	
-	static String executeAOT_2tau(int j, String[] y) {
+	static String executeAOT_2tau(String j, String[] y) {
 		// fake function
 		return "";
 	}
@@ -61,22 +61,23 @@ public class Access2Test
 		// Access-2 inputs (suppose we know)
 		int i = 1; // current tree index
 		Tree t = forest.getTree(i);
-		String Ni = "";   // ????
-		String Nip1 = ""; // ????
-		String Li = "";   // ????
+		String Ni = "";   // input
+		String Nip1_p = "";  // input
+		String Nip1 = Ni + Nip1_p; // input
+		String Li = "";   // input
 		int d_i = forest.getTree(i).getNumLevels();
 		int n = t.getBucketDepth() * (d_i + 4);
 		int ll = t.getLBytes() * 8;
 		int ln = t.getNBytes() * 8;
 		int ld = t.getDBytes() * 8;
 		int tupleBitLength = 1 + ll + ln + ld;
-		String secretC_P = addZero("", tupleBitLength);
-		String secretE_P = addZero("", tupleBitLength);
+		String secretC_P = addZero("", tupleBitLength); // input
+		String secretE_P = addZero("", tupleBitLength); // input
 		
 		// start testing Access-2
 		// step 1
-		int tau = 3; // for testing
-		int l = (int) Math.pow(2, tau); // overflow???
+		int tau = 5; // for testing
+		int l = (int) Math.pow(2, tau); 
 		int d_ip1 = forest.getTree(i+1).getNumLevels();
 		SecureRandom rnd = new SecureRandom();
 		String[] y = new String[l];
@@ -87,7 +88,7 @@ public class Access2Test
 		}
 		
 		String secretE_Ti = "0" + addZero("", i*tau) + addZero ("", d_i) + y_all;
-		String secretE_Pprime = secretE_P; // should be equal to secretE_P
+		String secretE_Pprime = secretE_P; 
 		
 		// step 2
 		String[] a = new String[n];
@@ -98,7 +99,7 @@ public class Access2Test
 				   secretC_P.substring(j*tupleBitLength+1+ll, j*tupleBitLength+1+ll+ln); // N
 			b[j] = secretE_P.substring(j*tupleBitLength, j*tupleBitLength+1) +  // fb
 				   secretE_P.substring(j*tupleBitLength+1+ll, j*tupleBitLength+1+ll+ln); // N
-			c[j] = new BigInteger(a[j], 2).xor(new BigInteger("1"+addZero("", ln), 2)).toString(2);
+			c[j] = new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2);
 		}
 		int j_1 = executePET(c, b);
 		
@@ -106,30 +107,31 @@ public class Access2Test
 		String[] e = new String[n];
 		String[] f = new String[n];
 		for (int k=0; k<n; k++) {
-			e[k] = secretE_P.substring(k*tupleBitLength+1+ll+ln, (k+1)*tupleBitLength);
+			e[k] = secretE_P.substring(k*tupleBitLength+1+ll+ln, (k+1)*tupleBitLength); // A
 			f[k] = new BigInteger(e[k], 2).xor(new BigInteger(y_all, 2)).toString(2);
 		}
 		String fbar = executeAOT_n(j_1, f);
 		
 		// step 4
-		int j_2 = 0;
+		String j_2 = Nip1_p;
 		String ybar_j2 = executeAOT_2tau(j_2, y);
 		
 		// step 5
 		String ybar = "";
 		String zeros = addZero("", d_ip1);
+		int j_2_int = new BigInteger(j_2, 2).intValue();
 		for (int k=0; k<l; k++) {
-			if (k == j_2)
+			if (k == j_2_int)
 				ybar += ybar_j2;
 			else
 				ybar += zeros;
 		}
 		String secretC_Aj1 = secretC_P.substring(j_1*tupleBitLength, (j_1+1)*tupleBitLength);
 		String Abar = new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).xor(new BigInteger(ybar, 2)).toString(2);
-		String Lip1 = Abar.substring(j_2*ll, (j_2+1)*ll); // ????
+		String Lip1 = Abar.substring(j_2_int*d_ip1, (j_2_int+1)*d_ip1);
 		String secretC_Ti = "1" + Ni + Li + new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).toString(2);
-		String replace = "0" + addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength-1);
-		String secretC_Pprime = secretC_P.substring(0, j_1*tupleBitLength) + replace + secretC_P.substring((j_1+1)*tupleBitLength, (j_1+2)*tupleBitLength);
+		String newTuple = addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength);
+		String secretC_Pprime = secretC_P.substring(0, j_1*tupleBitLength) + newTuple + secretC_P.substring((j_1+1)*tupleBitLength);
 		
 		// outputs
 		System.out.println(Lip1);
