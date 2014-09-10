@@ -438,4 +438,9 @@ public class Forest implements Iterator<Tree>
 	{
 		currTreeIndex = trees.size() - 1;
 	}
+	
+	public String getInitialORAMTreeString() {
+		long n = Util.byteArrayToLong(initialEntry);
+		return Util.toKaryString(n, 2, initialEntry.length * 8);
+	}
 }

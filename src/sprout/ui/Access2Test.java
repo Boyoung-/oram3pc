@@ -59,20 +59,22 @@ public class Access2Test
 				
 		
 		// Access-2 inputs (suppose we know)
-		int i = 1; // current tree index
+		boolean initialTree = false;    // OT_0 or not
+		int h = forest.getNumberOfTrees();
+		int i = 0; // current tree index
 		Tree t = forest.getTree(i);
-		String Ni = "";   // input
-		String Nip1_p = "";  // input
-		String Nip1 = Ni + Nip1_p; // input
-		String Li = "";   // input
+		String Ni = "";                                  // input
+		String Nip1_p = "";                              // input
+		String Nip1 = Ni + Nip1_p;                       // input
+		String Li = "";                                  // input
 		int d_i = forest.getTree(i).getNumLevels();
 		int n = t.getBucketDepth() * (d_i + 4);
 		int ll = t.getLBytes() * 8;
 		int ln = t.getNBytes() * 8;
 		int ld = t.getDBytes() * 8;
 		int tupleBitLength = 1 + ll + ln + ld;
-		String secretC_P = addZero("", tupleBitLength); // input
-		String secretE_P = addZero("", tupleBitLength); // input
+		String secretC_P = addZero("", tupleBitLength);  // input
+		String secretE_P = addZero("", tupleBitLength);  // input
 		
 		// start testing Access-2
 		// step 1
@@ -82,56 +84,91 @@ public class Access2Test
 		SecureRandom rnd = new SecureRandom();
 		String[] y = new String[l];
 		String y_all = "";
-		for (int k=0; k<l; k++) {
-			y[k] = addZero(new BigInteger(d_ip1, rnd).toString(2), d_ip1);
-			y_all += y[k];
+		if (initialTree) {
+			String A_1 = forest.getInitialORAMTreeString();
+			int length = A_1.length() / l;
+			for (int k=0; k<l; k++) {
+				y[k] = A_1.substring(k*length, (k+1)*length);
+			}
+			y_all = A_1;
+		}
+		else {
+			for (int k=0; k<l; k++) {
+				y[k] = addZero(new BigInteger(d_ip1, rnd).toString(2), d_ip1);
+				y_all += y[k];
+			}
+		}
+		if (i == (h-1)){
+			y_all = addZero("", y.length);
 		}
 		
 		String secretE_Ti = "0" + addZero("", i*tau) + addZero ("", d_i) + y_all;
-		String secretE_Pprime = secretE_P; 
+		String secretE_Pprime = "";
+		if (!initialTree) {
+			secretE_Pprime = secretE_P;
+		}
 		
 		// step 2
-		String[] a = new String[n];
-		String[] b = new String[n];
-		String[] c = new String[n];
-		for (int j=0; j<n; j++) {
-			a[j] = secretC_P.substring(j*tupleBitLength, j*tupleBitLength+1) +  // fb
-				   secretC_P.substring(j*tupleBitLength+1+ll, j*tupleBitLength+1+ll+ln); // N
-			b[j] = secretE_P.substring(j*tupleBitLength, j*tupleBitLength+1) +  // fb
-				   secretE_P.substring(j*tupleBitLength+1+ll, j*tupleBitLength+1+ll+ln); // N
-			c[j] = new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2);
+		int j_1 = 1;
+		if (!initialTree) {
+			String[] a = new String[n];
+			String[] b = new String[n];
+			String[] c = new String[n];
+			for (int j=0; j<n; j++) {
+				a[j] = secretC_P.substring(j*tupleBitLength, j*tupleBitLength+1) +  // fb
+					   secretC_P.substring(j*tupleBitLength+1+ll, j*tupleBitLength+1+ll+ln); // N
+				b[j] = secretE_P.substring(j*tupleBitLength, j*tupleBitLength+1) +  // fb
+					   secretE_P.substring(j*tupleBitLength+1+ll, j*tupleBitLength+1+ll+ln); // N
+				c[j] = new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2);
+			}
+			j_1 = executePET(c, b);
 		}
-		int j_1 = executePET(c, b);
 		
 		// step 3
-		String[] e = new String[n];
-		String[] f = new String[n];
-		for (int k=0; k<n; k++) {
-			e[k] = secretE_P.substring(k*tupleBitLength+1+ll+ln, (k+1)*tupleBitLength); // A
-			f[k] = new BigInteger(e[k], 2).xor(new BigInteger(y_all, 2)).toString(2);
+		String fbar = addZero("", y_all.length());
+		if (!initialTree) {
+			String[] e = new String[n];
+			String[] f = new String[n];
+			for (int k=0; k<n; k++) {
+				e[k] = secretE_P.substring(k*tupleBitLength+1+ll+ln, (k+1)*tupleBitLength); // A
+				f[k] = new BigInteger(e[k], 2).xor(new BigInteger(y_all, 2)).toString(2);
+			}
+			fbar = executeAOT_n(j_1, f);
 		}
-		String fbar = executeAOT_n(j_1, f);
 		
 		// step 4
 		String j_2 = Nip1_p;
-		String ybar_j2 = executeAOT_2tau(j_2, y);
+		String ybar_j2 = "";
+		if (i < (h-1)) {
+			ybar_j2 = executeAOT_2tau(j_2, y);
+		}
 		
 		// step 5
 		String ybar = "";
 		String zeros = addZero("", d_ip1);
 		int j_2_int = new BigInteger(j_2, 2).intValue();
 		for (int k=0; k<l; k++) {
-			if (k == j_2_int)
+			if (k == j_2_int && i < (h-1))
 				ybar += ybar_j2;
 			else
 				ybar += zeros;
 		}
 		String secretC_Aj1 = secretC_P.substring(j_1*tupleBitLength, (j_1+1)*tupleBitLength);
 		String Abar = new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).xor(new BigInteger(ybar, 2)).toString(2);
-		String Lip1 = Abar.substring(j_2_int*d_ip1, (j_2_int+1)*d_ip1);
+		String d = "";
+		String Lip1 = "";
+		if (i < (h-1)) {
+			Lip1 = Abar.substring(j_2_int*d_ip1, (j_2_int+1)*d_ip1);
+		}
+		else {
+			d = Abar;
+		}
 		String secretC_Ti = "1" + Ni + Li + new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).toString(2);
-		String newTuple = addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength);
-		String secretC_Pprime = secretC_P.substring(0, j_1*tupleBitLength) + newTuple + secretC_P.substring((j_1+1)*tupleBitLength);
+		String secretC_Pprime = "";
+		if (!initialTree) {
+			String newTuple = addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength);
+			secretC_Pprime = secretC_P.substring(0, j_1*tupleBitLength) + newTuple + secretC_P.substring((j_1+1)*tupleBitLength);
+		}
 		
 		// outputs
 		System.out.println(Lip1);
@@ -139,6 +176,7 @@ public class Access2Test
 		System.out.println(secretE_Ti);
 		System.out.println(secretC_Pprime);
 		System.out.println(secretE_Pprime);
+		System.out.println(d);
 	}
 
 }
