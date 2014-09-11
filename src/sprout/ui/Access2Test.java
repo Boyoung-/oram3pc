@@ -67,7 +67,7 @@ public class Access2Test
 		String Nip1_p = "";                              // input
 		String Nip1 = Ni + Nip1_p;                       // input
 		String Li = "";                                  // input
-		int d_i = forest.getTree(i).getNumLevels();
+		int d_i = t.getNumLevels();
 		int n = t.getBucketDepth() * (d_i + 4);
 		int ll = t.getLBytes() * 8;
 		int ln = t.getNBytes() * 8;
@@ -84,7 +84,7 @@ public class Access2Test
 		SecureRandom rnd = new SecureRandom();
 		String[] y = new String[l];
 		String y_all = "";
-		if (initialTree) {
+		if (initialTree) { // i = 0 case
 			String A_1 = forest.getInitialORAMTreeString();
 			int length = A_1.length() / l;
 			for (int k=0; k<l; k++) {
@@ -92,24 +92,24 @@ public class Access2Test
 			}
 			y_all = A_1;
 		}
-		else {
+		else { // 0 < i < h case
 			for (int k=0; k<l; k++) {
 				y[k] = addZero(new BigInteger(d_ip1, rnd).toString(2), d_ip1);
 				y_all += y[k];
 			}
 		}
-		if (i == (h-1)){
+		if (i == (h-1)){ // i = h case
 			y_all = addZero("", y.length);
 		}
 		
 		String secretE_Ti = "0" + addZero("", i*tau) + addZero ("", d_i) + y_all;
 		String secretE_Pprime = "";
-		if (!initialTree) {
+		if (!initialTree) { // i > 0
 			secretE_Pprime = secretE_P;
 		}
 		
 		// step 2
-		int j_1 = 1;
+		int j_1 = 0; // first tuple when i = 0
 		if (!initialTree) {
 			String[] a = new String[n];
 			String[] b = new String[n];
@@ -121,7 +121,7 @@ public class Access2Test
 					   secretE_P.substring(j*tupleBitLength+1+ll, j*tupleBitLength+1+ll+ln); // N
 				c[j] = new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2);
 			}
-			j_1 = executePET(c, b);
+			j_1 = PET.executePET(c, b);
 		}
 		
 		// step 3
