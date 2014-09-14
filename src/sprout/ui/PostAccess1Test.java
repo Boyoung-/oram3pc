@@ -1,6 +1,3 @@
-// run this program first
-// when seeing the prompt for needing the client
-// start EvictionTestClient
 package sprout.ui;
 
 import sprout.crypto.PRG;
@@ -72,12 +69,13 @@ public class PostAccess1Test
 		int j_p = new BigInteger(Nip1_pr, 2).add(BigInteger.valueOf(alpha)).mod(BigInteger.valueOf(twotaupow)).intValue();
 		
 		// step 3
-		byte[] s = rnd.generateSeed(10);  // seed bytes?
-		PRG G = new PRG(l, s);
+		byte[] s = rnd.generateSeed(16);  // 128 bits
+		PRG G = new PRG(l);
 		String[] a = new String[twotaupow];
 		String[] a_p = new String[twotaupow];
+		String a_all = G.generateBitString(l, s);
 		for (int k=0; k<twotaupow; k++) {
-			a[k] = G.generateBitString(dip1);
+			a[k] = a_all.substring(k*dip1, (k+1)*dip1);
 			if (k != j_p)
 				a_p[k] = a[k];
 			else

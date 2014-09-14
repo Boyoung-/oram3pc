@@ -84,6 +84,10 @@ public class Tree
 		return bucketDepth;
 	}
 	
+	public int getBucketSize() {
+		return bucketSize;
+	}
+	
 	public int getFanout()
 	{
 		return fanout;
