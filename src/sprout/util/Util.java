@@ -177,4 +177,10 @@ public class Util
 	{
 		LOG.fine(m);
 	}
+	
+	public static String addZero(String s, int l) {
+		for (int i=s.length(); i<l; i++)
+			s = "0" + s;
+		return s;
+	}
 }
