@@ -12,7 +12,7 @@ public class Access2Test
 	}
 	
 	public static void main(String[] args) throws Exception {
-		// TODO: d_ip1 for i = h case?
+		// TODO: tests for i=0 and i=h cases (hooking to ORAM forest)?
 		SecureRandom rnd = new SecureRandom();
 		
 		// parameters
