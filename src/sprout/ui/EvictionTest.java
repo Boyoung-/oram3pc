@@ -5,14 +5,11 @@ package sprout.ui;
 
 import sprout.crypto.Random;
 
-import java.security.SecureRandom;
-
 import sprout.oram.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import Program.*;

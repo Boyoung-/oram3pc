@@ -43,6 +43,9 @@ public class Access2Test
 		String Nip1_pr = Nip1.substring(ln);               
 		String Li = addZero(new BigInteger(ll, rnd).toString(2), ll); 																// input     
 		String sigmaPath = addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
+		String T_i = "1" + Ni + Li + addZero(new BigInteger(ld, rnd).toString(2), ld); // for testing correctness
+		int test_j1 = rnd.nextInt(n);
+		sigmaPath = sigmaPath.substring(0, test_j1*tupleBitLength) + T_i + sigmaPath.substring((test_j1+1)*tupleBitLength);
 		String secretC_P = addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);							// input
 		String secretE_P = addZero(new BigInteger(sigmaPath, 2).xor(new BigInteger(secretC_P, 2)).toString(2), tupleBitLength*n);  	// input
 		
@@ -76,16 +79,20 @@ public class Access2Test
 		
 		// step 2
 		int j_1 = 0; // first tuple when i = 0
+		String[] a = new String[n];
+		String[] b = new String[n];
+		String[] c = new String[n];
 		if (i > 0) {
-			String[] a = new String[n];
-			String[] b = new String[n];
-			String[] c = new String[n];
 			for (int j=0; j<n; j++) {
 				a[j] = secretC_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln);
 				b[j] = secretE_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln);
 				c[j] = addZero(new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2), 1+ln);
 			}
 			j_1 = PET.executePET(c, b);
+		}
+		if (j_1 < 0) {
+			System.out.println("PET error!");
+			return;
 		}
 		
 		// step 3
@@ -129,7 +136,8 @@ public class Access2Test
 		String secretC_Ti = "1" + Ni + Li + addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).toString(2), ld);
 		String secretC_P_p = "";
 		if (i > 0) {
-			String newTuple = addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength);
+			int flipBit = 1 - Integer.parseInt(secretC_P.substring(j_1*tupleBitLength, j_1*tupleBitLength+1));
+			String newTuple = flipBit + addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength-1);
 			secretC_P_p = secretC_P.substring(0, j_1*tupleBitLength) + newTuple + secretC_P.substring((j_1+1)*tupleBitLength);
 		}
 		
@@ -140,6 +148,17 @@ public class Access2Test
 		System.out.println(secretC_P_p);
 		System.out.println(secretE_P_p);
 		System.out.println(d);
+		
+		// check correctness
+		System.out.println("------------------------------------");
+		System.out.println("j1: " + test_j1 + " =? " + j_1);
+		for (int k=0; k<n; k++)
+			if (b[k].equals(c[k]))
+				System.out.println("  " + k + ":\tmatch");
+		System.out.println("Ti: " + addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(secretE_Ti, 2)).toString(2), tupleBitLength).equals(T_i));
+		System.out.println("Lip1: " + T_i.substring(1+ln+ll).substring(j_2*d_ip1, (j_2+1)*d_ip1).equals(Lip1));
+		System.out.println("Original Ti:\t" + T_i);
+		System.out.println("Ti in new path:\t" + addZero(new BigInteger(secretC_P_p, 2).xor(new BigInteger(secretE_P_p, 2)).toString(2), n*tupleBitLength).substring(j_1*tupleBitLength, (j_1+1)*tupleBitLength));
 	}
 
 }
