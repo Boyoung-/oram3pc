@@ -4,6 +4,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import sprout.crypto.CryptoException;
+import sprout.util.Util;
 
 import java.math.BigInteger;
 
@@ -40,16 +41,25 @@ public class PRG {
 
 	public String generateBitString(int m) {
 		byte[] bytes = generateBytes(m);
-		return new BigInteger(bytes).toString(2).substring(0, m); // bit string of length m
+		String s = new BigInteger(1, bytes).toString(2);
+		if (s.length() < m)
+			return Util.addZero(s, m);
+		return s.substring(0, m); // bit string of length m
 	}
 
 	public String generateBitString(int m, byte[] seed) {
 		byte[] bytes = generateBytes(m, seed);
-		return new BigInteger(bytes).toString(2).substring(0, m); // bit string of length m
+		String s = new BigInteger(1, bytes).toString(2);
+		if (s.length() < m)
+			return Util.addZero(s, m);
+		return s.substring(0, m); // bit string of length m
 	}
 
 	public String generateBitString(int m, BigInteger seed) {
 		byte[] bytes = generateBytes(m, seed);
-		return new BigInteger(bytes).toString(2).substring(0, m); // bit string of length m
+		String s = new BigInteger(1, bytes).toString(2);
+		if (s.length() < m)
+			return Util.addZero(s, m);
+		return s.substring(0, m); // bit string of length m
 	}
 }

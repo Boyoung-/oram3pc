@@ -33,12 +33,12 @@ public class Access2Test
 		String Nip1 = Util.addZero(new BigInteger(ln+tau, rnd).toString(2), ln+tau);														// input                          
 		String Ni = Nip1.substring(0, ln);                         
 		String Nip1_pr = Nip1.substring(ln);               
-		String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll); 																// input     
+		String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll); 																	// input     
 		String sigmaPath = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
 		String T_i = "1" + Ni + Li + Util.addZero(new BigInteger(ld, rnd).toString(2), ld); // for testing correctness
 		int test_j1 = rnd.nextInt(n);
 		sigmaPath = sigmaPath.substring(0, test_j1*tupleBitLength) + T_i + sigmaPath.substring((test_j1+1)*tupleBitLength);
-		String secretC_P = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);							// input
+		String secretC_P = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);								// input
 		String secretE_P = Util.addZero(new BigInteger(sigmaPath, 2).xor(new BigInteger(secretC_P, 2)).toString(2), tupleBitLength*n);  	// input
 		
 		// start testing Access-2
