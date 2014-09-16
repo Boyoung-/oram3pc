@@ -6,10 +6,9 @@ import sprout.util.Util;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-public class PostAccess1Test
+public class PostAccessTest
 {
 	public static void main(String[] args) throws Exception {		
-		// TODO: add i=0 and i=h cases
 		SecureRandom rnd = new SecureRandom();
 		
 		// parameter
@@ -26,7 +25,7 @@ public class PostAccess1Test
 		int tupleBitLength 	= 1 + ln + ll + ld;
 		
 		// PostAccess-1 inputs
-		String Li				= Util.addZero(new BigInteger(ll, rnd).toString(2), ll);													// input
+		String Li				= Util.addZero(new BigInteger(ll, rnd).toString(2), ll);												// input
 		String Lip1				= Util.addZero(new BigInteger(d_ip1, rnd).toString(2), d_ip1);											// input
 		String Nip1_pr			= Util.addZero(new BigInteger(tau, rnd).toString(2), tau);												// input
 		int Nip1_pr_int			= new BigInteger(Nip1_pr, 2).intValue();
@@ -36,12 +35,29 @@ public class PostAccess1Test
 		String T_i_A			= Util.addZero(new BigInteger(ld, rnd).toString(2), ld);
 		T_i_A					= T_i_A.substring(0, Nip1_pr_int*d_ip1) + Lip1 + T_i_A.substring((Nip1_pr_int+1)*d_ip1);
 		String T_i 				= T_i_fb + T_i_N + T_i_L + T_i_A;
-		String secretC_Ti 		= Util.addZero(new BigInteger(tupleBitLength, rnd).toString(2), tupleBitLength);							// input
+		String secretC_Ti 		= Util.addZero(new BigInteger(tupleBitLength, rnd).toString(2), tupleBitLength);						// input
 		String secretE_Ti		= Util.addZero(new BigInteger(T_i, 2).xor(new BigInteger(secretC_Ti, 2)).toString(2), tupleBitLength);	// input
 		String secretC_Li_p		= Util.addZero(new BigInteger(d_i, rnd).toString(2), d_i);												// input
 		String secretE_Li_p		= Util.addZero(new BigInteger(d_i, rnd).toString(2), d_i);												// input
 		String secretC_Lip1_p 	= Util.addZero(new BigInteger(d_ip1, rnd).toString(2), d_ip1);											// input
 		String secretE_Lip1_p	= Util.addZero(new BigInteger(d_ip1, rnd).toString(2), d_ip1);
+		if (i == 0) {
+			Li = "";
+			secretC_Li_p = "";
+			secretE_Li_p = "";
+		}
+		
+		// protocol doesn't run for i=h case
+		if (i == h) {
+			int d_size = 9;
+			String triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(new BigInteger(secretC_Li_p, 2)).toString(2), ll) + Util.addZero("", d_size);	
+			String secretC_Ti_p = Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(triangle_C, 2)).toString(2), tupleBitLength);
+			String triangle_E = "0" + Util.addZero("", i*tau) + secretE_Li_p + Util.addZero("", d_size);
+			String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBitLength);
+			System.out.println(secretC_Ti_p);
+			System.out.println(secretE_Ti_p);
+			return;			
+		}
 		
 		// protocol
 		// step 1
