@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -182,5 +183,29 @@ public class Util
 		for (int i=s.length(); i<l; i++)
 			s = "0" + s;
 		return s;
+	}
+
+	public static String[] reversePermutation(String[] s, List<Integer> p) {
+		String[] s_new = new String[s.length];
+		for (int i=0; i<s.length; i++) {
+			s_new[p.get(i)] = s[i];
+		}
+		return s_new;
+	}
+	
+	public static BigInteger[] reversePermutation(BigInteger[] s, List<Integer> p) {
+		BigInteger[] s_new = new BigInteger[s.length];
+		for (int i=0; i<s.length; i++) {
+			s_new[p.get(i)] = s[i];
+		}
+		return s_new;
+	}
+	
+	public static String[] permute(String[] s, List<Integer> p) {
+		String[] s_new = new String[s.length];
+		for (int i=0; i<s.length; i++) {
+			s_new[i] = s[p.get(i)];
+		}
+		return s_new;
 	}
 }
