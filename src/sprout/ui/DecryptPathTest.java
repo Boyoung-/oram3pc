@@ -60,10 +60,11 @@ public class DecryptPathTest
 		
 		// step 4
 		// PRG is used here instead of OPRF for testing purpose
-		PRG G = new PRG(l);
 		String secretC_P = "";
-		for (int j=0; j<d_i+4; j++)
+		for (int j=0; j<d_i+4; j++) {
+			PRG G = new PRG(l); // non-fresh SecureRandom cannot guarantee determinism... (why???)
 			secretC_P += G.generateBitString(l, new BigInteger(sigma_x[j], 2).modPow(k, q));
+		}
 		
 		// outputs
 		System.out.println(secretE_P);

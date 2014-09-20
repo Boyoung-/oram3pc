@@ -193,14 +193,6 @@ public class Util
 		return s_new;
 	}
 	
-	public static BigInteger[] reversePermutation(BigInteger[] s, List<Integer> p) {
-		BigInteger[] s_new = new BigInteger[s.length];
-		for (int i=0; i<s.length; i++) {
-			s_new[p.get(i)] = s[i];
-		}
-		return s_new;
-	}
-	
 	public static String[] permute(String[] s, List<Integer> p) {
 		String[] s_new = new String[s.length];
 		for (int i=0; i<s.length; i++) {

@@ -51,13 +51,13 @@ public class EncryptPathTest
 			v[j] = y.modPow(r[j], q);
 		}
 		PRG G1 = new PRG(l*(d_i+4));
-		PRG G2 = new PRG(l);
 		String a_all = G1.generateBitString(l*(d_i+4), s);
 		String[] a = new String[d_i+4];
 		String[] b = new String[d_i+4];
 		String[] c = new String[d_i+4];
 		for (int j=0; j<d_i+4; j++) {
 			a[j] = a_all.substring(j*l, (j+1)*l);
+			PRG G2 = new PRG(l); // non-fresh SecureRandom cannot guarantee determinism... (why???)
 			b[j] = G2.generateBitString(l, v[j]);
 			c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger(b[j], 2)).toString(2), l);
 		}
