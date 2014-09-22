@@ -15,12 +15,6 @@ import java.util.List;
 
 public class DecResEncTest
 {
-	static void printArr(String[] s) {
-		for (int i=0; i<s.length; i++)
-			//System.out.println(s[i].substring(s[i].length()-12));
-			System.out.println(s[i]);
-	}
-	
 	public static void main(String[] args) throws Exception {
 		SecureRandom rnd = new SecureRandom();
 		
@@ -30,13 +24,13 @@ public class DecResEncTest
 		int i 				= 1;
 		int d_i				= 1;
 		int d_ip1 			= 4;
-		int tau 			= 1;
+		int tau 			= 3;
 		int twotaupow 		= (int) Math.pow(2, tau);
 		int ln 				= i * tau;					
 		int ll 				= d_i;						
 		int ld 				= twotaupow * d_ip1;					
 		int tupleBitLength 	= 1 + ln + ll + ld;
-		int w 				= 1;
+		int w 				= 4;
 		int l				= tupleBitLength * w; 
 		int n				= d_i + 4;
 
@@ -170,13 +164,13 @@ public class DecResEncTest
 		}
 		
 		System.out.println("xx: ");
-		printArr(xx);
+		Util.printArrV(xx);
 		System.out.println("sigma_x: ");
-		printArr(sigma_x);
+		Util.printArrV(sigma_x);
 		System.out.println("Bbar: ");
-		printArr(Bbar);
+		Util.printArrV(Bbar);
 		System.out.println("secretE_P_arr: ");
-		printArr(secretE_P_arr);
+		Util.printArrV(secretE_P_arr);
 		
 		String td = Util.addZero(new BigInteger(secretC_P, 2).xor(new BigInteger(secretE_P, 2)).toString(2), n*l);
 		String[] tt = new String[n];

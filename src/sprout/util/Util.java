@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -184,7 +185,8 @@ public class Util
 			s = "0" + s;
 		return s;
 	}
-
+	
+	/*
 	public static String[] reversePermutation(String[] s, List<Integer> p) {
 		String[] s_new = new String[s.length];
 		for (int i=0; i<s.length; i++) {
@@ -199,5 +201,53 @@ public class Util
 			s_new[i] = s[p.get(i)];
 		}
 		return s_new;
+	}
+	*/
+	
+	public static List<Integer> getInversePermutation(List<Integer> p) {
+		List<Integer> p_new = new ArrayList<Integer>(p);
+		for (int i=0; i<p.size(); i++)
+			p_new.set(p.get(i), i);
+		return p_new;
+	}
+	
+	// should be abandoned
+	public static <T> T[] permute(T[] arr, List<Integer> p) {
+		T[] arr_new = arr.clone();
+		for (int i=0; i<arr.length; i++) {
+			arr_new[p.get(i)] = arr[i];
+		}
+		return arr_new;
+	}
+	
+	// should be abandoned
+	public static <T> T[] reversePermutation(T[] arr, List<Integer> p) {
+		T[] arr_new = arr.clone();
+		for (int i=0; i<arr.length; i++) {
+			arr_new[i] = arr[p.get(i)];
+		}
+		return arr_new;
+	}
+
+	public static <T> void printArrV(T[] arr) {
+		for (int i=0; i<arr.length; i++)
+			System.out.println(arr[i]);
+	}
+	
+	public static <T> void printArrH(T[] arr) {
+		for (int i=0; i<arr.length; i++)
+			System.out.print(arr[i] + " ");
+		System.out.println();
+	}
+	
+	public static <T> void printListV(List<T> l) {
+		for (int i=0; i<l.size(); i++)
+			System.out.println(l.get(i));
+	}
+	
+	public static <T> void printListH(List<T> l) {
+		for (int i=0; i<l.size(); i++)
+			System.out.print(l.get(i) + " ");
+		System.out.println();
 	}
 }

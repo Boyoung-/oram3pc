@@ -1,6 +1,3 @@
-// run this program first
-// when seeing the prompt for needing the client
-// start EvictionTestClient
 package sprout.ui;
 
 import java.math.BigInteger;
