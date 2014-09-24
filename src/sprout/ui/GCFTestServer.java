@@ -1,0 +1,118 @@
+package sprout.ui;
+
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.math.BigInteger;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.security.SecureRandom;
+
+import org.apache.commons.io.input.CountingInputStream;
+import org.apache.commons.io.output.CountingOutputStream;
+
+import sprout.util.Util;
+import Program.ORAMTrialCommon;
+import Program.ProgCommon;
+import YaoGC.*;
+
+public class GCFTestServer
+{
+	final static  int         serverPort   = 12346;             // server port number
+    static ServerSocket       sock         = null;              // original server socket
+    static Socket             clientSocket = null;              // socket created by accept
+	
+	static SecureRandom rnd = new SecureRandom();
+	
+	public static String executeGCF(String sC, String sE, String circuit) throws Exception {	    
+	    sock = new ServerSocket(serverPort);            // create socket and bind to port
+		System.out.println("waiting for client to connect");
+		clientSocket = sock.accept();                   // wait for client to connect
+		System.out.println("client has connected");
+
+		CountingOutputStream cos = new CountingOutputStream(clientSocket.getOutputStream());
+		CountingInputStream  cis = new CountingInputStream(clientSocket.getInputStream());
+		
+		ProgCommon.oos = new ObjectOutputStream(cos);
+		ProgCommon.ois = new ObjectInputStream(cis);
+		
+		//int labelBitLength = 80;
+		int n = sC.length();
+		String input = Util.addZero(new BigInteger(sC, 2).xor(new BigInteger(sE, 2)).toString(2), n);
+		
+		/*
+		// pre-computed
+		int w = n - 2;
+		if (circuit.equals("F2FT"))
+			w /= 2;
+		int tmp1 = rnd.nextInt(w) + 1;
+		int tmp2 = rnd.nextInt(w) + 1;
+		int s1 = Math.min(tmp1, tmp2);
+		int s2 = Math.max(tmp1, tmp2);
+		*/
+		
+		Circuit gc_S = null;
+		Circuit.isForGarbling = true;
+		//if (circuit.equals("F2ET"))
+		//	gc_S = new F2ET_Wplus2_Wplus2(w, 1, 4);
+		//else
+		//	gc_S = new F2FT_2Wplus2_Wplus2(w, s1, s2);
+		gc_S = new F2FT_2Wplus2_Wplus2(8, 1, 2);
+		Circuit.setIOStream(ProgCommon.ois, ProgCommon.oos);
+		gc_S.build();
+		
+		BigInteger[][] lbs = new BigInteger[n][2];
+		for (int i = 0; i < n; i++) {
+		    BigInteger glb0 = new BigInteger(Wire.labelBitLength, rnd);
+		    BigInteger glb1 = glb0.xor(Wire.R.shiftLeft(1).setBit(0));
+		    lbs[i][0] = glb0;
+		    lbs[i][1] = glb1;
+		}
+		
+		// protocol
+		// step 1
+		BigInteger[][] A = new BigInteger[n][2];
+		for (int i=0; i<n; i++) {
+			int alpha = Character.getNumericValue(sE.charAt(i));
+			A[i][0] = lbs[i][alpha];
+			A[i][1] = lbs[i][1-alpha];
+		}
+		
+		// step 2
+		BigInteger[] K_S = new BigInteger[n];
+		BigInteger[] K_C = new BigInteger[n];
+		for (int i=0; i<n; i++) {
+			int beta = Character.getNumericValue(sC.charAt(i));
+			K_C[i] = A[i][beta];
+			K_S[i] = lbs[i][0];
+		}
+		
+		ORAMTrialCommon.oos.writeObject(K_C);
+		ORAMTrialCommon.oos.flush();
+		
+		// step 3
+		State in_S = State.fromLabels(K_S);
+		gc_S.startExecuting(in_S);		
+		BigInteger[] outLbs = (BigInteger[]) ORAMTrialCommon.ois.readObject();
+		
+		// close everything
+		ProgCommon.oos.close();                          
+		ProgCommon.ois.close();
+		clientSocket.close();
+		sock.close();
+		
+		// interpret results		
+		System.out.println("input:\t" + input);
+		return Util.addZero(gc_S.interpretOutputELabels(outLbs).toString(2), n);
+	}
+	
+	public static void main(String[] args) throws Exception {
+		int n = 18;
+		String circuit = "F2ET";
+		//String sC = Util.addZero(new BigInteger(n-1, rnd).toString(2), n);
+		String sC = "0011111111" + Util.addZero(new BigInteger(n-10, rnd).toString(2), n-10);
+		//String sC = "11";
+		String sE = Util.addZero("", n);
+		System.out.println("output:\t" + executeGCF(sC, sE, circuit));
+	}
+
+}

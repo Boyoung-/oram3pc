@@ -186,24 +186,6 @@ public class Util
 		return s;
 	}
 	
-	/*
-	public static String[] reversePermutation(String[] s, List<Integer> p) {
-		String[] s_new = new String[s.length];
-		for (int i=0; i<s.length; i++) {
-			s_new[p.get(i)] = s[i];
-		}
-		return s_new;
-	}
-	
-	public static String[] permute(String[] s, List<Integer> p) {
-		String[] s_new = new String[s.length];
-		for (int i=0; i<s.length; i++) {
-			s_new[i] = s[p.get(i)];
-		}
-		return s_new;
-	}
-	*/
-	
 	public static List<Integer> getInversePermutation(List<Integer> p) {
 		List<Integer> p_new = new ArrayList<Integer>(p);
 		for (int i=0; i<p.size(); i++)
