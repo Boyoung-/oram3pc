@@ -21,10 +21,13 @@ public class GCFTestClient
 		ProgCommon.oos  = new java.io.ObjectOutputStream(sock.getOutputStream());  
 		ProgCommon.ois  = new java.io.ObjectInputStream(sock.getInputStream());
 		
-		
+		int[] msg = (int[]) ORAMTrialCommon.ois.readObject();
 		Circuit.isForGarbling = false;
-		Circuit gc_C = new F2ET_Wplus2_Wplus2(8, 1, 4);
-		gc_C = new F2FT_2Wplus2_Wplus2(8, 1, 2);
+		Circuit gc_C = null;
+		if (msg[0] == 0)
+			gc_C = new F2ET_Wplus2_Wplus2(msg[1], msg[2], msg[3]);
+		else
+			gc_C = new F2FT_2Wplus2_Wplus2(msg[1], msg[2], msg[3]);
 		Circuit.setIOStream(ProgCommon.ois, ProgCommon.oos);
 		gc_C.build();
 		

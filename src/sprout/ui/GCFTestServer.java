@@ -39,7 +39,6 @@ public class GCFTestServer
 		int n = sC.length();
 		String input = Util.addZero(new BigInteger(sC, 2).xor(new BigInteger(sE, 2)).toString(2), n);
 		
-		/*
 		// pre-computed
 		int w = n - 2;
 		if (circuit.equals("F2FT"))
@@ -48,15 +47,17 @@ public class GCFTestServer
 		int tmp2 = rnd.nextInt(w) + 1;
 		int s1 = Math.min(tmp1, tmp2);
 		int s2 = Math.max(tmp1, tmp2);
-		*/
+		System.out.println("w:\t" + w);
+		System.out.println("sigma:\t" + s1 + " " + s2);
+		int[] msg = new int[]{circuit.equals("F2ET")?0:1, w, s1, s2};
+		ORAMTrialCommon.oos.writeObject(msg);
 		
 		Circuit gc_S = null;
 		Circuit.isForGarbling = true;
-		//if (circuit.equals("F2ET"))
-		//	gc_S = new F2ET_Wplus2_Wplus2(w, 1, 4);
-		//else
-		//	gc_S = new F2FT_2Wplus2_Wplus2(w, s1, s2);
-		gc_S = new F2FT_2Wplus2_Wplus2(8, 1, 2);
+		if (circuit.equals("F2ET"))
+			gc_S = new F2ET_Wplus2_Wplus2(w, s1, s2);
+		else
+			gc_S = new F2FT_2Wplus2_Wplus2(w, s1, s2);
 		Circuit.setIOStream(ProgCommon.ois, ProgCommon.oos);
 		gc_S.build();
 		
@@ -102,15 +103,20 @@ public class GCFTestServer
 		
 		// interpret results		
 		System.out.println("input:\t" + input);
-		return Util.addZero(gc_S.interpretOutputELabels(outLbs).toString(2), n);
+		String output = gc_S.interpretOutputELabels(outLbs).toString(2);
+		if (circuit.equals("F2ET"))
+			output = Util.addZero(output, n);
+		else
+			output = Util.addZero(output, w+2);
+		return output;
 	}
 	
 	public static void main(String[] args) throws Exception {
 		int n = 18;
-		String circuit = "F2ET";
-		//String sC = Util.addZero(new BigInteger(n-1, rnd).toString(2), n);
+		//String circuit = "F2ET";
+		//String sC = "00" + Util.addZero(new BigInteger(n-2, rnd).toString(2), n-2);
+		String circuit = "F2FT";
 		String sC = "0011111111" + Util.addZero(new BigInteger(n-10, rnd).toString(2), n-10);
-		//String sC = "11";
 		String sE = Util.addZero("", n);
 		System.out.println("output:\t" + executeGCF(sC, sE, circuit));
 	}
