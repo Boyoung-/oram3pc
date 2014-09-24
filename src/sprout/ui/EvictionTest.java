@@ -1,177 +1,123 @@
-// OUT OF DATE !!!!
-
-// run this program first
-// when seeing the prompt for needing the client
-// start EvictionTestClient
-
 package sprout.ui;
 
-import sprout.crypto.Random;
+import sprout.util.Util;
 
-import sprout.oram.*;
-
-import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
-import Program.*;
-import sprout.oram.Forest;
-import sprout.oram.ForestException;
+import java.security.SecureRandom;
 
 public class EvictionTest
 {
-	
-	public static void main(String[] args) throws Exception {
-		Forest forest = null;
-		try
-		{
-			forest = new Forest();
-			forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
-		}
-		catch (NumberFormatException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (ForestException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public static void main(String[] args) throws Exception {		
+		SecureRandom rnd = new SecureRandom();
+		
+		// parameter
+		int i 				= 2;
+		int d_i				= 4;
+		int d_ip1 			= 7;
+		int tau 			= 3;
+		int twotaupow 		= (int) Math.pow(2, tau);
+		int ln 				= i * tau;					
+		int ll 				= d_i;						
+		int ld 				= twotaupow * d_ip1;					
+		int tupleBitLength 	= 1 + ln + ll + ld;
+		int w				= 4;
+		int bucketSize		= tupleBitLength * w;
+		int n				= d_i + 4;
+		
+		// PostAccess-1 inputs
+		String sC_P_p		= Util.addZero(new BigInteger(n*bucketSize, rnd).toString(2), n*bucketSize);
+		String sC_T_p		= Util.addZero(new BigInteger(tupleBitLength, rnd).toString(2), tupleBitLength);
+		String sE_P_p		= Util.addZero(new BigInteger(n*bucketSize, rnd).toString(2), n*bucketSize);
+		String sE_T_p		= Util.addZero(new BigInteger(tupleBitLength, rnd).toString(2), tupleBitLength);
+		String Li			= Util.addZero(new BigInteger(ll, rnd).toString(2), ll);		
+		
+		// protocol
+		// step 1
+		int[] alpha1_j = new int[w];
+		int[] alpha2_j = new int[w];
+		for (int j=0; j<d_i; j++) {
+			String sC_input1 = "";
+			String sE_input1 = "";
+			String sC_input2 = "";
+			String sE_input2 = "";
+			String sC_bucket = sC_P_p.substring(j*bucketSize, (j+1)*bucketSize);
+			String sE_bucket = sE_P_p.substring(j*bucketSize, (j+1)*bucketSize);
+			for (int l=0; l<w; l++) {
+				String sC_tuple = sC_bucket.substring(l*tupleBitLength, (l+1)*tupleBitLength);
+				sC_input1 += sC_tuple.substring(0, 1);
+				sC_input2 += sC_tuple.substring(1+ln, 1+ln+ll).substring(j+1, j+2);
+				String sE_tuple = sE_bucket.substring(l*tupleBitLength, (l+1)*tupleBitLength);
+				sE_input1 += sC_tuple.substring(0, 1);
+				sE_input2 += (Character.getNumericValue(sE_tuple.substring(1+ln, 1+ln+ll).charAt(j+1))^1^Character.getNumericValue(Li.charAt(j+1)));
+			}
+			String sC_input = "00" + sC_input2 + sC_input1; // enable + dir + fb
+			String sE_input = "00" + sE_input2 + sE_input1;
+			String GCFOutput = GCFTestServer.executeGCF(sC_input, sE_input, "F2FT");
+			alpha1_j[j] = GCFOutput.substring(2).indexOf('1', 2);
+			alpha2_j[j] = GCFOutput.substring(2).indexOf('1', alpha1_j[j]+1);
 		}
 		
-		// eviction takes place for OT in range 0 < i < h
-		for (int i = 1; i < forest.getNumberOfTrees(); i++)
-		{
-			try
-			{
-				// 1. retrieve all buckets in the path from root to a random leaf L
-				System.out.println("Working on ORAM-" + i);
-				Tree t = forest.getTree(i);
-				long numLeaves = t.getNumLeaves();
-				long l = Random.generateRandomLong(0,  numLeaves - 1);
-				System.out.println("\tFetch leaf path: " + l);
-				List<Integer> buckets = t.getBucketIndicesOnPathToLeaf(l);
-				//List<Tuple> tuples = t.getPathToLeaf(l);
-				//System.out.println("numlevels: " + t.getNumLevels());
-				//System.out.println("numtuples: " + tuples.size());
-				
-				// 2. decrypt all buckets
-				// TODO: right now I'm not clear how the encryption/decryption work.
-				//       Tree.getPathToLeaf() may be used to retrieve buckets and tuples
-				//       in step 3 & 4 since on most levels we'll retrieve the same # of tuples
-				
-				// 3. for the leaf level, find two random empty tuples
-				// first get tuples
-				// TODO: should be 4 buckets instead of 1
-				List<Tuple> leafTuples = new ArrayList<Tuple>();
-				int leafBucket = buckets.get(buckets.size()-1);
-				int bucketDepth = t.getBucketDepth();
-		 		for (int tuple = leafBucket; tuple < leafBucket + bucketDepth; tuple++)
-				{
-		 			leafTuples.add(t.getTuple(tuple));
-				}
-		 		String leafL = leafTuples.get(0).getStringL();
-		 		// get full bits and form a vector
-		 		String bits = "00";
-		 		for (int leaf = 0; leaf < leafTuples.size(); leaf++) {
-		 			if (leafTuples.get(leaf).isOccupied())
-		 				bits += "1";
-		 			else
-		 				bits += "0";
-		 		}
-		 		System.out.println("F2ET inputBits: " + bits);
-		 		// feed to F2ET to find empty tuples
-		 		ORAMTrialCommon.circuit = "F2ET";
-		 		BigInteger inputBits = new BigInteger(new StringBuilder(bits).reverse().toString(), 2);
-		 		ORAMTrialServer oramtrialserver = new ORAMTrialServer(inputBits, bits.length());
-		 		oramtrialserver.run();
-		 		System.out.println("F2ET outputBits:" + oramtrialserver.getOutput());
-		 		String outputBits = oramtrialserver.getOutput();
-		 		// find tuples' indices
-		 		outputBits = outputBits.substring(2);
-		 		int Epos1, Epos2;
-		 		Epos1 = outputBits.indexOf('1');
-		 		outputBits = outputBits.substring(Epos1+1);
-		 		Epos2 = outputBits.indexOf('1') + Epos1 + 1;
-		 		System.out.println("F2ET tuples positions: " + Epos1 + "  " + Epos2);
-		 		
-				// 4. TODO: for each non-leaf level, find two random full tuples
-		 		//    now:  do (leaf - 1) level for testing
-				//for (int j = 0; j < buckets.size(); j++) {
-				//}
-		 		List<Tuple> non_leafTuples = new ArrayList<Tuple>();
-				int non_leafBucket = buckets.get(buckets.size()-2);
-		 		for (int tuple = non_leafBucket; tuple < non_leafBucket + bucketDepth; tuple++)
-				{
-		 			non_leafTuples.add(t.getTuple(tuple));
-				}
-		 		// get full and direction bits and form a vector
-		 		bits = "";
-		 		String direcBits = "";
-		 		for (int non_leaf = 0; non_leaf < non_leafTuples.size(); non_leaf++) {
-		 			int level = buckets.size() - 2;
-		 			String non_leafL = non_leafTuples.get(non_leaf).getStringL();
-		 			if (non_leafL.charAt(level) == (leafL.charAt(level)))
-		 				direcBits += "1";
-		 			else
-		 				direcBits += "0";
-		 			if (non_leafTuples.get(non_leaf).isOccupied())
-		 				bits += "1";
-		 			else
-		 				bits += "0";
-		 		}
-		 		bits = "00" + direcBits + bits;
-		 		System.out.println("F2FT inputBits: " + bits);
-		 		// feed to F2FT to find full tuples
-		 		ORAMTrialCommon.circuit = "F2FT";
-		 		inputBits = new BigInteger(new StringBuilder(bits).reverse().toString(), 2);
-		 		oramtrialserver = new ORAMTrialServer(inputBits, bits.length());
-		 		oramtrialserver.run();
-		 		System.out.println("F2FT outputBits:" + oramtrialserver.getOutput());
-		 		outputBits = oramtrialserver.getOutput();
-		 		// find tuples' indices
-		 		outputBits = outputBits.substring(2);
-		 		int Fpos1, Fpos2;
-		 		Fpos1 = outputBits.indexOf('1');
-		 		outputBits = outputBits.substring(Fpos1+1);
-		 		Fpos2 = outputBits.indexOf('1') + Fpos1 + 1;
-		 		System.out.println("F2FT tuples positions: " + Fpos1 + "  " + Fpos2);
-				
-				// 5. push down
-		 		leafTuples.set(Epos1, non_leafTuples.get(Fpos1));
-		 		non_leafTuples.get(Fpos1).setOccupied(false);
-		 		leafTuples.set(Epos2, non_leafTuples.get(Fpos2));
-		 		non_leafTuples.get(Fpos2).setOccupied(false);
-				
-				// 6. re-encrypt all the buckets
-				
-				// 7. put them back to the tree
-		 		// TODO: right now the only access provided is updatePathToLeaf()
-		 		List<Tuple> allTuples = t.getPathToLeaf(l);
-		 		for (int k=0; k<non_leafTuples.size(); k++) {
-		 			allTuples.set(k+(buckets.size()-2)*bucketDepth, non_leafTuples.get(k));
-		 		}
-		 		for (int k=0; k<leafTuples.size(); k++) {
-		 			allTuples.set(k+(buckets.size()-1)*bucketDepth, leafTuples.get(k));
-		 		}
-		 		t.updatePathToLeaf(allTuples, l);
-		 		System.out.println("\ntuples updated");
-		 		
-		 		// for testing, only do one iteration
-		 		break;
-			}
-			
-			catch (ForestException e)
-			{
-				e.printStackTrace();
+		// step 2
+		String sC_fb = "00";
+		String sE_fb = "00";
+		for (int j=d_i; j<n; j++) {
+			String sC_bucket = sC_P_p.substring(j*bucketSize, (j+1)*bucketSize);
+			String sE_bucket = sE_P_p.substring(j*bucketSize, (j+1)*bucketSize);
+			for (int l=0; l<w; l++) {
+				sC_fb += sC_bucket.substring(l*tupleBitLength, l*tupleBitLength+1);
+				sE_fb += sE_bucket.substring(l*tupleBitLength, l*tupleBitLength+1);
 			}
 		}
+		String GCFOutput = GCFTestServer.executeGCF(sC_fb, sE_fb, "F2ET");
+		int alpha1_d = GCFOutput.substring(2).indexOf('1');
+		int alpha2_d = GCFOutput.substring(2).indexOf('1', alpha1_d+1);
+		
+		// step 3
+		int k = w * n;
+		Integer[] beta = new Integer[k];
+		for (int j=0; j<n; j++)
+			for (int l=0; l<w; l++) {
+				if (j == 0 && l == alpha1_j[0])
+					beta[w*j+l] = k + 1;
+				else if (j == 0 && l == alpha2_j[0])
+					beta[w*j+l] = k + 2;
+				else if (1 <= j && j <= (d_i-1) && l == alpha1_j[j])
+					beta[w*j+l] = w * (j-1) + alpha1_j[j-1];
+				else if (1 <= j && j <= (d_i-1) && l == alpha2_j[j])
+					beta[w*j+l] = w * (j-1) + alpha2_j[j-1];
+				else if (j >= d_i && (w*(j-d_i)+l) == alpha1_d)
+					beta[w*j+l] = w * (d_i-1) + alpha1_j[d_i-1];
+				else if (j >= d_i && (w*(j-d_i)+l) == alpha2_d)
+					beta[w*j+l] = w * (d_i-1) + alpha2_j[d_i-1];
+				else
+					beta[w*j+l] = w * j + l;
+			}
+		Integer[] I = beta;
+		
+		// step 4
+		String[] sC_a = new String[k+2];
+		String[] sE_a = new String[k+2];
+		for (int j=0; j<n; j++)
+			for (int l=0; l<w; l++) {
+				sC_a[w*j+l] = sC_P_p.substring(j*bucketSize, (j+1)*bucketSize).substring(l*tupleBitLength, l*tupleBitLength);
+				sE_a[w*j+l] = sE_P_p.substring(j*bucketSize, (j+1)*bucketSize).substring(l*tupleBitLength, l*tupleBitLength);
+			}
+		sC_a[k] = sC_T_p;
+		sC_a[k+1] = Util.addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength);
+		sE_a[k] = sE_T_p;
+		sE_a[k+1] = Util.addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength);
+		
+		// step 5
+		String[][] output = SSOT.executeSSOT(sC_a, sE_a, I);
+		
+		// outputs
+		System.out.println("sC: ");
+		Util.printArrV(output[0]);
+		System.out.println("sE: ");
+		Util.printArrV(output[1]);
+		
+		// check correctness
+		// TODO
 	}
 
 }

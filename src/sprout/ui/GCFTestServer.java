@@ -17,7 +17,7 @@ import YaoGC.*;
 
 public class GCFTestServer
 {
-	final static  int         serverPort   = 12346;             // server port number
+	public final static  int         serverPort   = 12345;             // server port number
     static ServerSocket       sock         = null;              // original server socket
     static Socket             clientSocket = null;              // socket created by accept
 	
@@ -108,6 +108,7 @@ public class GCFTestServer
 			output = Util.addZero(output, n);
 		else
 			output = Util.addZero(output, w+2);
+		System.out.println("output:\t" + output);
 		return output;
 	}
 	
@@ -118,7 +119,7 @@ public class GCFTestServer
 		String circuit = "F2FT";
 		String sC = "0011111111" + Util.addZero(new BigInteger(n-10, rnd).toString(2), n-10);
 		String sE = Util.addZero("", n);
-		System.out.println("output:\t" + executeGCF(sC, sE, circuit));
+		executeGCF(sC, sE, circuit);
 	}
 
 }

@@ -8,7 +8,7 @@ import java.math.BigInteger;
 
 import Program.*;
 
-public class EvictionTestClient
+public class OldEvictionTestClient
 {
 	
 	public static void main(String[] args) throws Exception {

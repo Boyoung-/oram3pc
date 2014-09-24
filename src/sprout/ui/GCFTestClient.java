@@ -11,7 +11,7 @@ import YaoGC.*;
 public class GCFTestClient
 {
 	public static String serverIPname = "localhost";             // server IP name
-    private final static int    serverPort   = 12346;                   // server port number
+    private final static int    serverPort   = GCFTestServer.serverPort;                   // server port number
     private static Socket       sock         = null;                    // Socket object for communicating
 	
 	static SecureRandom rnd = new SecureRandom();
