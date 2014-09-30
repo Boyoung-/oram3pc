@@ -62,6 +62,26 @@ public class Tree
 		Util.disp("Tree size in bytes = " + (tupleSize * numTuples));
 		Util.disp("Num levels = " + numLevels);
 		Util.disp("Database file offset = " + offset);
+		
+		Util.disp("***************************************************");
+		Util.disp("level:\t" + level);
+		Util.disp("fanout:\t" + fanout);
+		Util.disp("bucketSize:\t" + bucketSize);
+		Util.disp("bucketDepth:\t" + bucketDepth);
+		Util.disp("tupleSize:\t" + tupleSize);
+		Util.disp("numTuples:\t" + numTuples);
+		Util.disp("numLevels:\t" + numLevels);
+		Util.disp("leafExpansion:\t" + leafExpansion);
+		Util.disp("N:\t" + N);
+		Util.disp("lBits:\t" + lBits);
+		Util.disp("lBytes:\t" + lBytes);
+		Util.disp("nBytes:\t" + nBytes);
+		Util.disp("dBytes:\t" + dBytes);
+		Util.disp("***************************************************");		
+	}
+	
+	public int getTreeLevel() {
+		return level;
 	}
 	
 	public int getNumberOfNonExpandedBuckets()
@@ -653,12 +673,18 @@ public class Tree
 		// The root is always included in the path
 		indices.add(0);  
 		
-		// TODO: leaf level 4 buckets???
+		// non-leaf buckets
 		for (int l = 1; l < numLevels; l++)
 		{
 			String rep = Util.toKaryString(leafNum, fanout, lBits);
 			int bucketPos = (fanout * l) + 1 + Integer.parseInt("" + rep.charAt(l)); // levels are 0-based
 	 		indices.add(bucketPos);
+		}
+		
+		// leaf buckets
+		int leafBucket = (int) (leafNum * bucketDepth + Math.pow(2, numLevels));
+		for (int i=0; i<bucketDepth; i++) {
+			indices.add(leafBucket + i);
 		}
 		
 		return indices;

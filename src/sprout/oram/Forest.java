@@ -343,6 +343,10 @@ public class Forest implements Iterator<Tree>
 		metadata = data;
 	}
 	
+	public ForestMetadata getMetadata() {
+		return metadata;
+	}
+	
 	/**
 	 * Retrieve the contents of the initial entry (the initial ORAM).
 	 * @return

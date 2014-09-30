@@ -14,10 +14,10 @@ leafExpansion: 4
 tau: 8
 
 # size of the virtual address space taking leaf expansion into account == 2^k (k >= 2), so k = log(this number)
-addressSpace: 128
+addressSpace: 64
 
 # parameters for the base tree
-tupleBitsN: 9
-tupleBitsL: 9
+tupleBitsN: 6
+# tupleBitsL: 9
 bucketDepth: 4
 dataSize: 5 # bytes?
