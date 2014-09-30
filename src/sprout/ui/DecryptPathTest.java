@@ -17,7 +17,7 @@ public class DecryptPathTest
 	static SecureRandom rnd = new SecureRandom();
 	static BigInteger q = BigInteger.valueOf(953);  // small prime for testing
 	
-	public static String[] execute(String Li, Tree OT, BigInteger k, ForestMetadata metadata) throws Exception {
+	public static String[] execute(String Li, BigInteger k, Tree OT, ForestMetadata metadata) throws Exception {
 		// TODO: i = 0 case
 		
 		// parameters
@@ -74,10 +74,7 @@ public class DecryptPathTest
 			secretC_P += G.generateBitString(l, new BigInteger(sigma_x[j], 2).modPow(k, q));
 		}
 		
-		// outputs
-		System.out.println(secretE_P);
-		System.out.println(secretC_P);
-		
+		// outputs		
 		String[] out = new String[2];
 		out[0] = secretC_P;
 		out[1] = secretE_P;
@@ -94,7 +91,7 @@ public class DecryptPathTest
 			int ll = OT.getNumLevels();
 			String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll);
 			BigInteger k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());	
-			execute(Li, OT, k, forest.getMetadata());
+			Util.printArrV(execute(Li, k, OT, forest.getMetadata()));
 		}
 	}
 }

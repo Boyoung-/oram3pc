@@ -72,9 +72,6 @@ public class ReshuffleTest
 			secretE_pi_P += secretE_pi_P_arr[j];
 		
 		// outputs
-		System.out.println(secretE_pi_P);
-		System.out.println(secretC_pi_P);
-		
 		String[] output = new String[2];
 		output[0] = secretC_pi_P;
 		output[1] = secretE_pi_P;
@@ -114,7 +111,7 @@ public class ReshuffleTest
 			for (int j=0; j<d_i+4; j++)
 				pi.add(j);
 			Collections.shuffle(pi); // random permutation
-			execute(secretC_P, secretE_P, pi, OT, forest.getMetadata());
+			Util.printArrV(execute(secretC_P, secretE_P, pi, OT, forest.getMetadata()));
 		}
 	}
 }

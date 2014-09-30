@@ -8,9 +8,9 @@ import sprout.util.Util;
 
 public class SSOT
 {
+	static SecureRandom rnd = new SecureRandom();
 	
 	public static String[][] executeSSOT(String[] sC, String[] sE, Integer[] i) throws NoSuchAlgorithmException {
-		SecureRandom rnd = new SecureRandom();
 		String[][] ret = new String[2][];
 		
 		// parameters

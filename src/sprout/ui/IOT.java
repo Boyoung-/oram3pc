@@ -12,10 +12,9 @@ import sprout.util.Util;
 
 public class IOT
 {
+	static SecureRandom rnd = new SecureRandom();
 	
 	public static String[] executeIOT(String[] m, Integer[] i, String[] delta) throws NoSuchAlgorithmException {
-		SecureRandom rnd = new SecureRandom();
-		
 		// parameters
     	int N = m.length;
     	int k = i.length;
