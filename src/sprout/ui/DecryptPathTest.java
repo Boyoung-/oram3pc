@@ -7,7 +7,6 @@ import sprout.oram.Tree;
 import sprout.util.Util;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,13 +17,15 @@ public class DecryptPathTest
 	static SecureRandom rnd = new SecureRandom();
 	static BigInteger q = BigInteger.valueOf(953);  // small prime for testing
 	
-	public static String[] execute(String Li, Tree OT, BigInteger k, ForestMetadata metadata) throws NoSuchAlgorithmException {
+	public static String[] execute(String Li, Tree OT, BigInteger k, ForestMetadata metadata) throws Exception {
 		// TODO: i = 0 case
 		
 		// parameters
 		int tau 			= metadata.getTauExponent();
 		int twotaupow 		= metadata.getTau();
 		int h				= metadata.getLevels();
+		int w 				= metadata.getBucketDepth();
+		int e 				= metadata.getLeafExpansion();
 		int treeLevel 		= OT.getTreeLevel();
 		int i 				= h - treeLevel;
 		int d_i				= OT.getNumLevels();
@@ -37,9 +38,7 @@ public class DecryptPathTest
 		int ll 				= d_i;						
 		int ld 				= twotaupow * d_ip1;					
 		int tupleBitLength 	= 1 + ln + ll + ld;
-		int w 				= OT.getBucketDepth();
 		int l				= tupleBitLength * w;    // bucket size (bits)
-		int e 				= metadata.getLeafExpansion();
 		
 		
 		// protocol

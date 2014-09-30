@@ -1,6 +1,9 @@
 package sprout.ui;
 
 import sprout.crypto.PRG;
+import sprout.oram.Forest;
+import sprout.oram.ForestMetadata;
+import sprout.oram.Tree;
 import sprout.util.Util;
 
 import java.math.BigInteger;
@@ -11,31 +14,30 @@ import java.util.List;
 
 public class ReshuffleTest
 {
-	public static void main(String[] args) throws Exception {
-		SecureRandom rnd = new SecureRandom();
-		
+	static SecureRandom rnd = new SecureRandom();
+	
+	public static String[] execute(String secretC_P, String secretE_P, List<Integer> pi, Tree OT, ForestMetadata metadata) throws Exception {
 		// parameters
-		int i 				= 1;
-		int d_i				= 1;
-		int d_ip1 			= 4;
-		int tau 			= 3;
-		int twotaupow 		= (int) Math.pow(2, tau);
+		int tau 			= metadata.getTauExponent();
+		int twotaupow 		= metadata.getTau();
+		int h				= metadata.getLevels();
+		int w 				= metadata.getBucketDepth();
+		int e 				= metadata.getLeafExpansion();
+		int treeLevel 		= OT.getTreeLevel();
+		int i 				= h - treeLevel;
+		int d_i				= OT.getNumLevels();
+		int d_ip1 			= -1;
+		if (i == h)
+			d_ip1			= OT.getDBytes() * 8 / twotaupow;
+		else
+			d_ip1			= metadata.getTupleBitsL(treeLevel-1);
 		int ln 				= i * tau;					
 		int ll 				= d_i;						
 		int ld 				= twotaupow * d_ip1;					
 		int tupleBitLength 	= 1 + ln + ll + ld;
-		int w 				= 4;
-		int l				= tupleBitLength * w;  
-		int n				= d_i + 4;
-		
-		// inputs
-		String secretC_P = Util.addZero(new BigInteger(l*n, rnd).toString(2), l*n);
-		String secretE_P = Util.addZero(new BigInteger(l*n, rnd).toString(2), l*n);
-		List<Integer> pi	= new ArrayList<Integer>();												
-		for (int j=0; j<d_i+4; j++)
-			pi.add(j);
-		if (i > 0)
-			Collections.shuffle(pi); // random permutation
+		int l				= tupleBitLength * w;    // bucket size (bits)
+		int n				= d_i + e;
+
 		
 		// protocol
 		// step 1
@@ -51,7 +53,7 @@ public class ReshuffleTest
 		String[] a = new String[n];
 		for (int j=0; j<n; j++)
 			a[j] = a_all.substring(j*l, (j+1)*l);
-		String[] secretC_pi_P_arr = Util.reversePermutation(a, pi);
+		String[] secretC_pi_P_arr = Util.permute(a, pi);
 		String secretC_pi_P = "";
 		for (int j=0; j<n; j++)
 			secretC_pi_P += secretC_pi_P_arr[j];
@@ -64,7 +66,7 @@ public class ReshuffleTest
 		String[] b = new String[n];
 		for (int j=0; j<n; j++)
 			b[j] = b_all.substring(j*l, (j+1)*l);
-		String[] secretE_pi_P_arr = Util.reversePermutation(b, pi);
+		String[] secretE_pi_P_arr = Util.permute(b, pi);
 		String secretE_pi_P = "";
 		for (int j=0; j<n; j++)
 			secretE_pi_P += secretE_pi_P_arr[j];
@@ -72,6 +74,47 @@ public class ReshuffleTest
 		// outputs
 		System.out.println(secretE_pi_P);
 		System.out.println(secretC_pi_P);
+		
+		String[] output = new String[2];
+		output[0] = secretC_pi_P;
+		output[1] = secretE_pi_P;
+		return output;
 	}
 
+	public static void main(String args[]) throws Exception {
+		Forest forest = new Forest();
+		forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
+		System.out.println("Forest loaded.\n");
+		
+		int tau 			= forest.getMetadata().getTauExponent();
+		int twotaupow 		= forest.getMetadata().getTau();
+		int h				= forest.getMetadata().getLevels();
+		int w 				= forest.getMetadata().getBucketDepth();
+		int e 				= forest.getMetadata().getLeafExpansion();
+		
+		for (int treeLevel = forest.getNumberOfTrees()-1; treeLevel >= 0; treeLevel--) {
+			Tree OT = forest.getTree(treeLevel);
+			int i 				= h - treeLevel;
+			int d_i				= OT.getNumLevels();
+			int d_ip1 			= -1;
+			if (i == h)
+				d_ip1			= OT.getDBytes() * 8 / twotaupow;
+			else
+				d_ip1			= forest.getMetadata().getTupleBitsL(treeLevel-1);
+			int ln 				= i * tau;					
+			int ll 				= d_i;						
+			int ld 				= twotaupow * d_ip1;					
+			int tupleBitLength 	= 1 + ln + ll + ld;
+			int l				= tupleBitLength * w;    // bucket size (bits)
+			int n				= d_i + e;
+			
+			String secretC_P = Util.addZero(new BigInteger(l*n, rnd).toString(2), l*n);
+			String secretE_P = Util.addZero(new BigInteger(l*n, rnd).toString(2), l*n);
+			List<Integer> pi	= new ArrayList<Integer>();												
+			for (int j=0; j<d_i+4; j++)
+				pi.add(j);
+			Collections.shuffle(pi); // random permutation
+			execute(secretC_P, secretE_P, pi, OT, forest.getMetadata());
+		}
+	}
 }
