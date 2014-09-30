@@ -5,12 +5,8 @@ import java.math.BigInteger;
 
 import sprout.util.Util;
 
-public class Access2Test
+public class AccessTest
 {	
-	static String executeAOT(int j, String[] f) {
-		return f[j];
-	}
-	
 	public static void main(String[] args) throws Exception {
 		// TODO: tests for i=0 and i=h cases (hooking to ORAM forest)?
 		SecureRandom rnd = new SecureRandom();
@@ -96,14 +92,14 @@ public class Access2Test
 				e[k] = secretE_P.substring(k*tupleBitLength+1+ln+ll, (k+1)*tupleBitLength);
 				f[k] = Util.addZero(new BigInteger(e[k], 2).xor(new BigInteger(y_all, 2)).toString(2), ld);
 			}
-			fbar = executeAOT(j_1, f);
+			fbar = AOT.executeAOT(f, j_1);
 		}
 		
 		// step 4
 		int j_2 = new BigInteger(Nip1_pr, 2).intValue();
 		String ybar_j2 = "";  // i = h case
 		if (i < h) {
-			ybar_j2 = executeAOT(j_2, y);
+			ybar_j2 = AOT.executeAOT(y, j_2);
 		}
 		
 		// step 5

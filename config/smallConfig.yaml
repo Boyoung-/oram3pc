@@ -5,7 +5,7 @@
 fanout: 2 
 
 # levels in ORAM hierarchy
-levels: 3
+levels: 2
 
 # number of buckets contained in each leaf
 leafExpansion: 4
@@ -14,7 +14,7 @@ leafExpansion: 4
 tau: 8
 
 # size of the virtual address space taking leaf expansion into account == 2^k (k >= 2), so k = log(this number)
-addressSpace: 512
+addressSpace: 128
 
 # parameters for the base tree
 tupleBitsN: 9
