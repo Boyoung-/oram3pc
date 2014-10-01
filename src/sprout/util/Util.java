@@ -198,7 +198,7 @@ public class Util
 		//return arr;
 		T[] arr_new = arr.clone();
 		for (int i=0; i<arr.length; i++) {
-			arr_new[i] = arr[p.get(i)];
+			arr_new[p.get(i)] = arr[i];
 		}
 		return arr_new;
 	}
@@ -207,7 +207,7 @@ public class Util
 	public static <T> T[] reversePermutation(T[] arr, List<Integer> p) {
 		T[] arr_new = arr.clone();
 		for (int i=0; i<arr.length; i++) {
-			arr_new[p.get(i)] = arr[i];
+			arr_new[i] = arr[p.get(i)];			
 		}
 		return arr_new;
 	}

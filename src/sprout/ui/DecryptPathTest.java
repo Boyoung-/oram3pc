@@ -66,8 +66,7 @@ public class DecryptPathTest
 		List<Integer> sigma	= new ArrayList<Integer>();												// input
 		for (int j=0; j<d_i+e; j++)
 			sigma.add(j);
-		// TODO: fix the shuffled case
-		//Collections.shuffle(sigma); // random permutation
+		Collections.shuffle(sigma); // random permutation
 		String[] x = new String[d_i+e];
 		String[] Bbar = new String[d_i+e];
 		for (int j=0; j<d_i+e; j++) {

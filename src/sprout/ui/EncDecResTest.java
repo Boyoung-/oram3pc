@@ -54,12 +54,12 @@ public class EncDecResTest
 			String EncOutput = EncryptPathTest.execute(secretC_P, secretE_P, k, OT, forest.getMetadata());
 			DPOutput DecOutput = DecryptPathTest.execute(EncOutput, k, OT, forest.getMetadata());
 			List<Integer> pi = Util.getInversePermutation(DecOutput.p);
-			String[] ResOutput = ReshuffleTest.execute(secretC_P, secretE_P, pi, OT, forest.getMetadata());
+			String[] ResOutput = ReshuffleTest.execute(DecOutput.secretC_P, DecOutput.secretE_P, pi, OT, forest.getMetadata());
 			
 			// check correctness
 			String in = new BigInteger(secretC_P, 2).xor(new BigInteger(secretE_P, 2)).toString(2);
 			String out = new BigInteger(ResOutput[0], 2).xor(new BigInteger(ResOutput[1], 2)).toString(2);
-			System.out.println("Checking correctness:\n" + in + "\n" + out + "\n" + in.equals(out));
+			System.out.println("Checking correctness: in equals out?: " + in.equals(out));
 		}
 	}
 }
