@@ -80,8 +80,6 @@ public class EncryptPathTest
 			secretE_B[j] = secretE_P.substring(j*l, (j+1)*l);
 			Bbar[j] = Util.addZero(new BigInteger(secretE_B[j], 2).xor(new BigInteger(a[j], 2)).xor(new BigInteger(d[j], 2)).toString(2), l);
 		}
-		//String[] Bbar_pi = reversePermutation(Bbar, sigma);
-		//BigInteger[] x_p_pi = reversePermutation(x_p, sigma);
 		String Pbar = "";
 		for (int j=0; j<n; j++) {
 			Pbar += Util.addZero(x[j].toString(2), l) + Bbar[j]; 

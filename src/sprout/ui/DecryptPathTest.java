@@ -14,10 +14,22 @@ import java.util.List;
 
 public class DecryptPathTest
 {
+	public static class DPOutput {
+		public String secretC_P;
+		public String secretE_P;
+		List<Integer> p;
+		
+		DPOutput(String c, String e, List<Integer> per) {
+			secretC_P = c;
+			secretE_P = e;
+			p = new ArrayList<Integer>(per);
+		}
+	}
+	
 	static SecureRandom rnd = new SecureRandom();
 	static BigInteger q = BigInteger.valueOf(953);  // small prime for testing
 	
-	public static String[] execute(String Li, BigInteger k, Tree OT, ForestMetadata metadata) throws Exception {
+	public static DPOutput execute(String Li, BigInteger k, Tree OT, ForestMetadata metadata) throws Exception {
 		// TODO: i = 0 case
 		
 		// parameters
@@ -47,13 +59,15 @@ public class DecryptPathTest
 		
 		// step 2
 		// TODO: encrypt data when building the forest, so we can retrieve path using Li
-		String Pbar	= Util.addZero(new BigInteger(l*(d_i+e)*2, rnd).toString(2), l*(d_i+e)*2);
+		//String Pbar	= Util.addZero(new BigInteger(l*(d_i+e)*2, rnd).toString(2), l*(d_i+e)*2);
+		String Pbar = Li; // for testing correctness
 		
 		// step 3
 		List<Integer> sigma	= new ArrayList<Integer>();												// input
 		for (int j=0; j<d_i+e; j++)
 			sigma.add(j);
-		Collections.shuffle(sigma); // random permutation
+		// TODO: fix the shuffled case
+		//Collections.shuffle(sigma); // random permutation
 		String[] x = new String[d_i+e];
 		String[] Bbar = new String[d_i+e];
 		for (int j=0; j<d_i+e; j++) {
@@ -74,11 +88,8 @@ public class DecryptPathTest
 			secretC_P += G.generateBitString(l, new BigInteger(sigma_x[j], 2).modPow(k, q));
 		}
 		
-		// outputs		
-		String[] out = new String[2];
-		out[0] = secretC_P;
-		out[1] = secretE_P;
-		return out;
+		// outputs	
+		return new DPOutput(secretC_P, secretE_P, sigma);
 	}
 
 	public static void main(String[] args) throws Exception {	
@@ -90,8 +101,11 @@ public class DecryptPathTest
 			Tree OT = forest.getTree(i);
 			int ll = OT.getNumLevels();
 			String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll);
-			BigInteger k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());	
-			Util.printArrV(execute(Li, k, OT, forest.getMetadata()));
+			BigInteger k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());
+			DPOutput out = execute(Li, k, OT, forest.getMetadata());
+			System.out.println(out.secretC_P);
+			System.out.println(out.secretE_P);
+			Util.printListH(out.p);
 		}
 	}
 }

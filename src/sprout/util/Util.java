@@ -187,6 +187,7 @@ public class Util
 	}
 	
 	public static List<Integer> getInversePermutation(List<Integer> p) {
+		// p;
 		List<Integer> p_new = new ArrayList<Integer>(p);
 		for (int i=0; i<p.size(); i++)
 			p_new.set(p.get(i), i);
@@ -194,6 +195,7 @@ public class Util
 	}
 	
 	public static <T> T[] permute(T[] arr, List<Integer> p) {
+		//return arr;
 		T[] arr_new = arr.clone();
 		for (int i=0; i<arr.length; i++) {
 			arr_new[i] = arr[p.get(i)];
