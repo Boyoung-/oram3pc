@@ -48,7 +48,7 @@ public class ForestTest
 	{
 		long address = 0L;
 		
-		byte[] entryBucket = forest.getInitialORAM();
+		byte[] entryBucket = forest.getInitialORAM().initialEntry;
 		int initialBytes = forest.getInitialEntryTupleSize();
 		
 		System.out.println("Searching for leaf: " + 0L);

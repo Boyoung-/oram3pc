@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,9 +16,22 @@ import sprout.util.RC;
 
 public class Forest implements Iterator<Tree> 
 {	
+	public static class TreeZero {
+		public BigInteger nonce = BigInteger.ZERO;
+		public byte[] initialEntry;
+		
+		TreeZero() {}
+		
+		TreeZero(BigInteger n, byte[] E) {
+			nonce = n;
+			initialEntry = E.clone();
+		}
+	}
+	
 	private ForestMetadata metadata;
 	private ArrayList<Tree> trees;
-	private byte[] initialEntry;
+	private TreeZero OT0 = new TreeZero();
+	//private byte[] initialEntry;
 	private int initialEntryTupleSize;
 	private int currTreeIndex;
 	
@@ -278,7 +292,7 @@ public class Forest implements Iterator<Tree>
 			// Add the final "ORAM", which is just a single bucket
 			// L1 || L2 || ... || Ln,
 			// where n = #leaves in last tree and the tags are implicit!
-			initialEntry = new byte[entryBucketSize];
+			OT0.initialEntry = new byte[entryBucketSize];
 			int entryOffset = 0;
 			for (int i = 0; i < lastLeaves.size(); i++)
 			{
@@ -299,7 +313,7 @@ public class Forest implements Iterator<Tree>
 				// Save the tuple in the initial ORAM
 				for (int j = 0; j < leaf.length; j++)
 				{
-					initialEntry[entryOffset++] = leaf[j];
+					OT0.initialEntry[entryOffset++] = leaf[j];
 				}
 			}
 		}
@@ -351,9 +365,9 @@ public class Forest implements Iterator<Tree>
 	 * Retrieve the contents of the initial entry (the initial ORAM).
 	 * @return
 	 */
-	public byte[] getInitialORAM()
+	public TreeZero getInitialORAM()
 	{
-		return initialEntry;
+		return OT0;
 	}
 	
 	public byte[] getEntryInInitialORAM(int index)
@@ -364,7 +378,7 @@ public class Forest implements Iterator<Tree>
 		byte[] entry = new byte[initialBytes];
 		for (int i = 0; i < initialBytes; i++)
 		{
-			entry[i] = initialEntry[offset + i];
+			entry[i] = OT0.initialEntry[offset + i];
 		}
 		return entry;
 	}
@@ -444,7 +458,7 @@ public class Forest implements Iterator<Tree>
 	}
 	
 	public String getInitialORAMTreeString() {
-		long n = Util.byteArrayToLong(initialEntry);
-		return Util.toKaryString(n, 2, initialEntry.length * 8);
+		long n = Util.byteArrayToLong(OT0.initialEntry);
+		return Util.toKaryString(n, 2, OT0.initialEntry.length * 8);
 	}
 }

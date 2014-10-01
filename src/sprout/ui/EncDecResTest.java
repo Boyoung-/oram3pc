@@ -7,6 +7,7 @@ package sprout.ui;
 import sprout.oram.Forest;
 import sprout.oram.Tree;
 import sprout.ui.DecryptPathTest.DPOutput;
+import sprout.ui.EncryptPathTest.EPath;
 import sprout.util.Util;
 
 import java.math.BigInteger;
@@ -51,10 +52,10 @@ public class EncDecResTest
 			
 			
 			// start testing Enc/Dec/Res
-			String EncOutput = EncryptPathTest.execute(secretC_P, secretE_P, k, OT, forest.getMetadata());
-			DPOutput DecOutput = DecryptPathTest.execute(EncOutput, k, OT, forest.getMetadata());
+			EPath EncOutput = EncryptPathTest.execute(secretC_P, secretE_P, k, OT, forest.getMetadata());
+			DPOutput DecOutput = DecryptPathTest.execute(null, k, forest.getInitialORAM(), OT, forest.getMetadata(), EncOutput);
 			List<Integer> pi = Util.getInversePermutation(DecOutput.p);
-			String[] ResOutput = ReshuffleTest.execute(DecOutput.secretC_P, DecOutput.secretE_P, pi, OT, forest.getMetadata());
+			String[] ResOutput = ReshuffleTest.execute(DecOutput.secretC_P, DecOutput.secretE_P, pi, forest.getInitialORAM(), OT, forest.getMetadata());
 			
 			// check correctness
 			String in = new BigInteger(secretC_P, 2).xor(new BigInteger(secretE_P, 2)).toString(2);

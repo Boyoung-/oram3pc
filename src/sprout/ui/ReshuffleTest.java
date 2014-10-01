@@ -2,6 +2,7 @@ package sprout.ui;
 
 import sprout.crypto.PRG;
 import sprout.oram.Forest;
+import sprout.oram.Forest.TreeZero;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Tree;
 import sprout.util.Util;
@@ -16,16 +17,22 @@ public class ReshuffleTest
 {
 	static SecureRandom rnd = new SecureRandom();
 	
-	public static String[] execute(String secretC_P, String secretE_P, List<Integer> pi, Tree OT, ForestMetadata metadata) throws Exception {
+	public static String[] execute(String secretC_P, String secretE_P, List<Integer> pi, TreeZero OT_0, Tree OT, ForestMetadata metadata) throws Exception {
 		// parameters
 		int tau 			= metadata.getTauExponent();
 		int twotaupow 		= metadata.getTau();
 		int h				= metadata.getLevels();
 		int w 				= metadata.getBucketDepth();
 		int e 				= metadata.getLeafExpansion();
-		int treeLevel 		= OT.getTreeLevel();
+		int treeLevel 		= -1;
+		if (OT != null)
+			treeLevel		= OT.getTreeLevel();
+		else
+			treeLevel		= h;
 		int i 				= h - treeLevel;
-		int d_i				= OT.getNumLevels();
+		int d_i				= 0;
+		if (i > 0)
+			d_i				= OT.getNumLevels();
 		int d_ip1 			= -1;
 		if (i == h)
 			d_ip1			= OT.getDBytes() * 8 / twotaupow;
@@ -37,7 +44,14 @@ public class ReshuffleTest
 		int tupleBitLength 	= 1 + ln + ll + ld;
 		int l				= tupleBitLength * w;    // bucket size (bits)
 		int n				= d_i + e;
-
+		
+		// i = 0 case: no shuffle needed
+		String[] output = new String[2];
+		if (i == 0) {
+			output[0] = secretC_P;
+			output[1] = secretE_P;
+			return output;
+		}
 		
 		// protocol
 		// step 1
@@ -72,7 +86,6 @@ public class ReshuffleTest
 			secretE_pi_P += secretE_pi_P_arr[j];
 		
 		// outputs
-		String[] output = new String[2];
 		output[0] = secretC_pi_P;
 		output[1] = secretE_pi_P;
 		return output;
@@ -111,7 +124,8 @@ public class ReshuffleTest
 			for (int j=0; j<d_i+4; j++)
 				pi.add(j);
 			Collections.shuffle(pi); // random permutation
-			Util.printArrV(execute(secretC_P, secretE_P, pi, OT, forest.getMetadata()));
+			System.out.println("i:" + i);
+			Util.printArrV(execute(secretC_P, secretE_P, pi, forest.getInitialORAM(), OT, forest.getMetadata()));
 		}
 	}
 }
