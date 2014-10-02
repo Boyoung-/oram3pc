@@ -41,8 +41,6 @@ public class AccessTest
 	}
 	
 	public static AOutput execute(String Li, String Nip1, BigInteger k, TreeZero OT_0, Tree OT, ForestMetadata metadata) throws Exception {
-		// TODO: test i = 0 cases
-		
 		// parameters
 		int tau 			= metadata.getTauExponent();
 		int twotaupow 		= metadata.getTau();
