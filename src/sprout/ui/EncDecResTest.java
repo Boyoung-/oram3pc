@@ -17,7 +17,6 @@ import java.util.List;
 public class EncDecResTest
 {
 	static SecureRandom rnd = new SecureRandom();
-	static BigInteger q = BigInteger.valueOf(953);  // small prime for testing
 	
 	public static void main(String[] args) throws Exception {
 		Forest forest = new Forest();
@@ -48,7 +47,7 @@ public class EncDecResTest
 			
 			String secretC_P 		= Util.addZero(new BigInteger(l*(n), rnd).toString(2), l*(n));
 			String secretE_P		= Util.addZero(new BigInteger(l*(n), rnd).toString(2), l*(n));
-			BigInteger k			= BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());	
+			BigInteger k			= BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());	
 			
 			
 			// start testing Enc/Dec/Res

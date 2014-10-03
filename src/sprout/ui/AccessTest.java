@@ -16,7 +16,6 @@ import sprout.util.Util;
 public class AccessTest
 {	
 	static SecureRandom rnd = new SecureRandom();
-	static BigInteger q = BigInteger.valueOf(953);  // small prime for testing
 	
 	public static class AOutput {
 		String Lip1;
@@ -225,7 +224,7 @@ public class AccessTest
 		
 		// i = 0 case
 		String Nip1 = Util.addZero(new BigInteger(tau, rnd).toString(2), tau);	
-		BigInteger k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());  
+		BigInteger k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());  
 		AOutput AOut = execute("", Nip1, k, forest.getInitialORAM(), null, forest.getMetadata());
 		
 		for (int treeLevel = forest.getNumberOfTrees()-1; treeLevel >= 0; treeLevel--) {
@@ -246,7 +245,7 @@ public class AccessTest
 		
 			String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll); 		
 			Nip1 = Util.addZero(new BigInteger(ln+tau, rnd).toString(2), ln+tau);	
-			k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());  	
+			k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());  	
 			AOut = execute(Li, Nip1, k, forest.getInitialORAM(), OT, forest.getMetadata());
 		}
 	}

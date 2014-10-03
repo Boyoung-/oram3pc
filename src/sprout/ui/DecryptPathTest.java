@@ -29,7 +29,6 @@ public class DecryptPathTest
 	}
 	
 	static SecureRandom rnd = new SecureRandom();
-	static BigInteger q = BigInteger.valueOf(953);  // small prime for testing
 	
 	// testing now
 	// when Pbar can be retrieved using Li, it should be removed from the args
@@ -96,7 +95,7 @@ public class DecryptPathTest
 		String secretC_P = "";
 		for (int j=0; j<d_i+e; j++) {
 			PRG G = new PRG(l); // non-fresh SecureRandom cannot guarantee determinism... (why???)
-			secretC_P += G.generateBitString(l, sigma_x[j].modPow(k, q));
+			secretC_P += G.generateBitString(l, sigma_x[j].modPow(k, CryptoParam.p));
 		}
 		
 		// outputs	
@@ -115,7 +114,7 @@ public class DecryptPathTest
 		int e 				= forest.getMetadata().getLeafExpansion();
 		
 		// test i = 0;
-		BigInteger k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());
+		BigInteger k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());
 		DPOutput out = execute("", k, forest.getInitialORAM(), null, forest.getMetadata(), null);
 		System.out.println(out.secretC_P);
 		System.out.println(out.secretE_P);
@@ -139,7 +138,7 @@ public class DecryptPathTest
 			int n				= d_i + e;
 			
 			String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll);
-			k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());
+			k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());
 			EPath Pbar = new EPath(n, l);
 			out = execute(Li, k, null, OT, forest.getMetadata(), Pbar);
 			System.out.println(out.secretC_P);

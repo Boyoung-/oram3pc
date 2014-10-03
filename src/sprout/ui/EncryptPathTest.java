@@ -12,8 +12,6 @@ import java.security.SecureRandom;
 public class EncryptPathTest
 {	
 	static SecureRandom rnd = new SecureRandom();
-	static BigInteger q = BigInteger.valueOf(953);  // small prime for testing
-	static BigInteger g = BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());
 	
 	public static class EPath {
 		BigInteger[] x;
@@ -29,7 +27,7 @@ public class EncryptPathTest
 			x = new BigInteger[n];
 			Bbar = new String[n];
 			for (int i=0; i<n; i++) {
-				x[i] = BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());
+				x[i] = BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());
 				Bbar[i] = Util.addZero(new BigInteger(l, rnd).toString(2), l);
 			}
 		}
@@ -71,15 +69,15 @@ public class EncryptPathTest
 		
 		// protocol
 		// step 1
-		BigInteger y = g.modPow(k, q);
+		BigInteger y = CryptoParam.g.modPow(k, CryptoParam.p);
 		byte[] s = rnd.generateSeed(16);  // 128 bits
 		BigInteger[] r = new BigInteger[n];
 		BigInteger[] x = new BigInteger[n];
 		BigInteger[] v = new BigInteger[n];
 		for (int j=0; j<n; j++) {
-			r[j] = BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());	
-			x[j] = g.modPow(r[j], q);
-			v[j] = y.modPow(r[j], q);
+			r[j] = BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());	
+			x[j] = CryptoParam.g.modPow(r[j], CryptoParam.p);
+			v[j] = y.modPow(r[j], CryptoParam.p);
 		}
 		PRG G1 = new PRG(l*(n));
 		String a_all = G1.generateBitString(l*(n), s);
@@ -127,7 +125,7 @@ public class EncryptPathTest
 		
 		// i = 0 case
 		int ldata 				= twotaupow * forest.getMetadata().getTupleBitsL(h-1);
-		BigInteger k			= BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());	
+		BigInteger k			= BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());	
 		String secretC_P		 = Util.addZero(new BigInteger(ldata, rnd).toString(2), ldata);
 		String secretE_P		 = Util.addZero(new BigInteger(ldata, rnd).toString(2), ldata);
 		EPath Pbar = execute(secretC_P, secretE_P, k, null, forest.getMetadata());
@@ -154,7 +152,7 @@ public class EncryptPathTest
 			
 			secretC_P 			= Util.addZero(new BigInteger(l*(n), rnd).toString(2), l*(n));
 			secretE_P			= Util.addZero(new BigInteger(l*(n), rnd).toString(2), l*(n));
-			k					= BigInteger.valueOf(Math.abs(rnd.nextLong()) % q.longValue());	
+			k					= BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());	
 			Pbar = execute(secretC_P, secretE_P, k, OT, forest.getMetadata());
 			System.out.println("i: " + i);
 			Util.printArrH(Pbar.x);
