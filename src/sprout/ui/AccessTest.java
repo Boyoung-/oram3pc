@@ -105,23 +105,15 @@ public class AccessTest
 		
 		// step 2
 		String[] y = new String[twotaupow];
-		String y_all = "";
-		if (i == 0) { 
-			String A_1 = Util.addZero(new BigInteger(secretC_P, 2).xor(new BigInteger(secretE_P, 2)).toString(2), twotaupow*d_ip1);
-			A_1 = T_i; // for testing i = 0 case
-			for (int o=0; o<twotaupow; o++) {
-				y[o] = A_1.substring(o*d_ip1, (o+1)*d_ip1);
-			}
-			y_all = A_1;
-		}
-		else {
-			if (i < h)
-				y_all = Util.addZero(new BigInteger(ld, rnd).toString(2), ld);
-			else // i = h
-				y_all = Util.addZero("", ld);
-			for (int o=0; o<twotaupow; o++) {
-				y[o] = y_all.substring(o*d_ip1, (o+1)*d_ip1);
-			}
+		String y_all;
+		if (i == 0) 
+			y_all = secretE_P;
+		else if (i < h)
+			y_all = Util.addZero(new BigInteger(ld, rnd).toString(2), ld);
+		else // i = h
+			y_all = Util.addZero("", ld);
+		for (int o=0; o<twotaupow; o++) {
+			y[o] = y_all.substring(o*d_ip1, (o+1)*d_ip1);
 		}
 		
 		String secretE_Ti = "0" + Util.addZero("", i*tau) + Util.addZero ("", d_i) + y_all;
@@ -161,8 +153,6 @@ public class AccessTest
 			}
 			fbar = AOT.executeAOT(f, j_1);
 		}
-		else
-			fbar = Util.addZero(new BigInteger(secretE_P, 2).xor(new BigInteger(y_all, 2)).toString(2), ld); // is this right?
 		
 		// step 5
 		int j_2 = new BigInteger(Nip1_pr, 2).intValue();
