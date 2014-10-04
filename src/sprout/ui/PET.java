@@ -57,7 +57,7 @@ public class PET
     	}
     	// C sends u to E
     	
-    	// step 3 
+    	// step 2
     	// party E
     	BigInteger[] w = new BigInteger[n];
     	for (int j=0; j<n; j++) {
@@ -66,7 +66,7 @@ public class PET
     	}
     	// E sends w to C
     	
-    	// step 4 
+    	// step 3
     	// party C
     	BigInteger[] v = new BigInteger[n];
     	for (int j=0; j<n; j++) {
