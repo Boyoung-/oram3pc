@@ -5,19 +5,20 @@
 fanout: 2 
 
 # levels in ORAM hierarchy
-levels: 2
+levels: 3
 
 # number of buckets contained in each leaf
 leafExpansion: 4
 
 # this is tau, basically, it corresponds to the number of sub-tree leaves encoded in the leaf nodes of each non-base tree
+# (this is actually 2^tau in the writeup)
 tau: 8
 
 # size of the virtual address space taking leaf expansion into account == 2^k (k >= 2), so k = log(this number)
-addressSpace: 64
+addressSpace: 512
 
 # parameters for the base tree
-tupleBitsN: 6
-# tupleBitsL: 9
+tupleBitsN: 9
+# tupleBitsL: 9  # (not really used in the forest generation)
 bucketDepth: 4
 dataSize: 5 # bytes?
