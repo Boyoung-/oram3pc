@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.FileHandler;
@@ -14,7 +15,7 @@ import java.util.logging.SimpleFormatter;
 
 public class Util
 {
-
+	static SecureRandom rnd = new SecureRandom();
 	public static FileHandler fh = null;
 	public static Logger LOG = initLog();
 
@@ -232,5 +233,13 @@ public class Util
 		for (int i=0; i<l.size(); i++)
 			System.out.print(l.get(i) + " ");
 		System.out.println();
+	}
+	
+	public static BigInteger randomBigInteger(BigInteger range) {
+		BigInteger r;
+		do {
+		    r = new BigInteger(range.bitLength(), rnd);
+		} while (r.compareTo(range) >= 0);
+		return r;
 	}
 }

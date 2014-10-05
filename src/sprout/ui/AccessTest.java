@@ -41,31 +41,31 @@ public class AccessTest
 	
 	public static AOutput execute(String Li, String Nip1, BigInteger k, TreeZero OT_0, Tree OT, ForestMetadata metadata) throws Exception {
 		// parameters
-		int tau 			= metadata.getTauExponent();
-		int twotaupow 		= metadata.getTau();
-		int h				= metadata.getLevels();
-		int w 				= metadata.getBucketDepth();
-		int expen			= metadata.getLeafExpansion();
-		int treeLevel 		= -1;
-		if (OT != null)
-			treeLevel		= OT.getTreeLevel();
+		int tau 			= metadata.getTauExponent();		// tau in the writeup
+		int twotaupow 		= metadata.getTau();            	// 2^tau
+		int h				= metadata.getLevels();         	// # trees
+		int w 				= metadata.getBucketDepth();		// # tuples in each bucket
+		int expen			= metadata.getLeafExpansion();		// # buckets in each leaf
+		int treeLevel;
+		if (OT != null)											// we are dealing with the initial tree
+			treeLevel		= OT.getTreeLevel();				
 		else
-			treeLevel		= h;
-		int i 				= h - treeLevel;
-		int d_i				= 0;
+			treeLevel		= h;								// tree index in ORAM forest
+		int i 				= h - treeLevel;					// tree index in the writeup
+		int d_i				= 0;								// # levels in this tree (excluding the root level)
 		if (i > 0)
 			d_i				= OT.getNumLevels();
-		int d_ip1 			= -1;
+		int d_ip1;												// # levels in the next tree (excluding the root level)
 		if (i == h)
 			d_ip1			= OT.getDBytes() * 8 / twotaupow;
 		else
 			d_ip1			= metadata.getTupleBitsL(treeLevel-1);
-		int ln 				= i * tau;					
-		int ll 				= d_i;						
-		int ld 				= twotaupow * d_ip1;					
-		int tupleBitLength 	= 1 + ln + ll + ld;
-		int l				= tupleBitLength * w;    // bucket size (bits)
-		int n				= w * (d_i + expen);     // # tuples in one path
+		int ln 				= i * tau;							// # N bits
+		int ll 				= d_i;								// # L bits
+		int ld 				= twotaupow * d_ip1;				// # data bits
+		int tupleBitLength 	= 1 + ln + ll + ld;					// # tuple size (bits)
+		int l				= tupleBitLength * w;   		    // # bucket size (bits)
+		int n				= w * (d_i + expen);    			// # tuples in one path
 		if (i == 0) {
 			tupleBitLength 	= ld;
 			l 				= ld;
@@ -79,6 +79,7 @@ public class AccessTest
 		
 		// protocol
 		// step 1
+		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
 		DPOutput DecOut;
 		if (i == 0)
 			DecOut = DecryptPathTest.execute("", k, OT_0, null, metadata, null);
@@ -88,8 +89,9 @@ public class AccessTest
 		}
 		String secretC_P = DecOut.secretC_P;
 		String secretE_P = DecOut.secretE_P;
+		// DecryptPath outpus sigma and secretE_P for E and secretC_P for C
 		
-		// below are for checking correctness
+		//////////////////////// below are for checking correctness /////////////////////
 		System.out.println("-----checking correctness-----");
 		String sigmaPath = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
 		String T_i = "1" + Ni + Li + Util.addZero(new BigInteger(ld, rnd).toString(2), ld);
@@ -101,8 +103,10 @@ public class AccessTest
 			sigmaPath = T_i;
 		secretC_P = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);								
 		secretE_P = Util.addZero(new BigInteger(sigmaPath, 2).xor(new BigInteger(secretC_P, 2)).toString(2), tupleBitLength*n);
+		//////////////////////// above are for checking correctness /////////////////////
 		
 		// step 2
+		// party E
 		String[] y = new String[twotaupow];
 		String y_all;
 		if (i == 0) 
@@ -122,19 +126,22 @@ public class AccessTest
 		if (i > 0) { 
 			secretE_P_p = secretE_P;
 		}
+		// E outputs secretE_Ti and secretE_P_p
 		
 		// step 3
+		// party C and E
 		int j_1 = 0; // i = 0 case; as the j_1 = 1 in the write up
 		String[] a = new String[n];
 		String[] b = new String[n];
 		String[] c = new String[n];
 		if (i > 0) {
 			for (int j=0; j<n; j++) {
-				a[j] = secretC_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln);
-				b[j] = secretE_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln);
-				c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2), 1+ln);
+				a[j] = secretC_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln); // party C
+				b[j] = secretE_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln); // party E
+				c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2), 1+ln); // party C
 			}
 			j_1 = PET.executePET(c, b);
+			// PET outputs j_1 for C
 		}
 		if (j_1 < 0) {
 			System.out.println("PET error!");
@@ -142,6 +149,7 @@ public class AccessTest
 		}
 		
 		// step 4
+		// party E
 		String fbar = Util.addZero("", ld); // i = 0 case
 		if (i > 0) {
 			String[] e = new String[n];
@@ -150,17 +158,22 @@ public class AccessTest
 				e[o] = secretE_P.substring(o*tupleBitLength+1+ln+ll, (o+1)*tupleBitLength);
 				f[o] = Util.addZero(new BigInteger(e[o], 2).xor(new BigInteger(y_all, 2)).toString(2), ld);
 			}
+			// AOT(E, C, D)
 			fbar = AOT.executeAOT(f, j_1);
+			// outputs fbar for C
 		}
 		
 		// step 5
 		int j_2 = new BigInteger(Nip1_pr, 2).intValue();
 		String ybar_j2 = "";  // i = h case
 		if (i < h) {
+			// AOT(E, C, D)
 			ybar_j2 = AOT.executeAOT(y, j_2);
+			// outputs ybar_j2 for C
 		}
 		
 		// step 6
+		// party C
 		String ybar = "";
 		String zeros = Util.addZero("", d_ip1);
 		for (int o=0; o<twotaupow; o++) {
@@ -192,8 +205,10 @@ public class AccessTest
 			String newTuple = flipBit + Util.addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength-1);
 			secretC_P_p = secretC_P.substring(0, j_1*tupleBitLength) + newTuple + secretC_P.substring((j_1+1)*tupleBitLength);
 		}
+		// C outputs Lip1, secretC_Ti, secretC_P_p
 		
-		// for checking correctness
+		
+		//////////////////////// below are for checking correctness /////////////////////
 		System.out.println("j1: " + test_j1 + " =? " + j_1);
 		if (i > 0) {
 			for (int o=0; o<n; o++)
@@ -206,12 +221,14 @@ public class AccessTest
 		else if (i < h)
 			System.out.println("Lip1: " + T_i.substring(1+ln+ll).substring(j_2*d_ip1, (j_2+1)*d_ip1).equals(Lip1));
 		System.out.println("------------------------------");
+		//////////////////////// above are for checking correctness /////////////////////
 		
 		// outputs
 		return new AOutput(Lip1, DecOut.p, secretC_Ti, secretE_Ti, secretC_P_p, secretE_P_p, d);
 	}
 
 	public static void main(String[] args) throws Exception{      
+		// for testing
 		Forest forest = new Forest();
 		forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
 		System.out.println("Forest loaded.\n");
@@ -224,7 +241,7 @@ public class AccessTest
 		
 		// i = 0 case
 		String Nip1 = Util.addZero(new BigInteger(tau, rnd).toString(2), tau);	
-		BigInteger k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());  
+		BigInteger k = Util.randomBigInteger(CryptoParam.q);
 		AOutput AOut = execute("", Nip1, k, forest.getInitialORAM(), null, forest.getMetadata());
 		
 		for (int treeLevel = forest.getNumberOfTrees()-1; treeLevel >= 0; treeLevel--) {
@@ -245,7 +262,7 @@ public class AccessTest
 		
 			String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll); 		
 			Nip1 = Util.addZero(new BigInteger(ln+tau, rnd).toString(2), ln+tau);	
-			k = BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());  	
+			k = Util.randomBigInteger(CryptoParam.q);
 			AOut = execute(Li, Nip1, k, forest.getInitialORAM(), OT, forest.getMetadata());
 		}
 	}

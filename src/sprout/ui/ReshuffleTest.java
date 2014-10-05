@@ -19,31 +19,31 @@ public class ReshuffleTest
 	
 	public static String[] execute(String secretC_P, String secretE_P, List<Integer> pi, TreeZero OT_0, Tree OT, ForestMetadata metadata) throws Exception {
 		// parameters
-		int tau 			= metadata.getTauExponent();
-		int twotaupow 		= metadata.getTau();
-		int h				= metadata.getLevels();
-		int w 				= metadata.getBucketDepth();
-		int e 				= metadata.getLeafExpansion();
-		int treeLevel 		= -1;
-		if (OT != null)
-			treeLevel		= OT.getTreeLevel();
+		int tau 			= metadata.getTauExponent();		// tau in the writeup
+		int twotaupow 		= metadata.getTau();            	// 2^tau
+		int h				= metadata.getLevels();         	// # trees
+		int w 				= metadata.getBucketDepth();		// # tuples in each bucket
+		int e 				= metadata.getLeafExpansion();		// # buckets in each leaf
+		int treeLevel;
+		if (OT != null)											// we are dealing with the initial tree
+			treeLevel		= OT.getTreeLevel();				
 		else
-			treeLevel		= h;
-		int i 				= h - treeLevel;
-		int d_i				= 0;
+			treeLevel		= h;								// tree index in ORAM forest
+		int i 				= h - treeLevel;					// tree index in the writeup
+		int d_i				= 0;								// # levels in this tree (excluding the root level)
 		if (i > 0)
 			d_i				= OT.getNumLevels();
-		int d_ip1 			= -1;
+		int d_ip1;												// # levels in the next tree (excluding the root level)
 		if (i == h)
 			d_ip1			= OT.getDBytes() * 8 / twotaupow;
 		else
 			d_ip1			= metadata.getTupleBitsL(treeLevel-1);
-		int ln 				= i * tau;					
-		int ll 				= d_i;						
-		int ld 				= twotaupow * d_ip1;					
-		int tupleBitLength 	= 1 + ln + ll + ld;
-		int l				= tupleBitLength * w;    // bucket size (bits)
-		int n				= d_i + e;
+		int ln 				= i * tau;							// # N bits
+		int ll 				= d_i;								// # L bits
+		int ld 				= twotaupow * d_ip1;				// # data bits
+		int tupleBitLength 	= 1 + ln + ll + ld;					// # tuple size (bits)
+		int l				= tupleBitLength * w;   		    // # bucket size (bits)
+		int n				= d_i + e;							// # buckets in one path
 		
 		// i = 0 case: no shuffle needed
 		String[] output = new String[2];
@@ -55,12 +55,16 @@ public class ReshuffleTest
 		
 		// protocol
 		// step 1
+		// party C
 		byte[] s1 = rnd.generateSeed(16);
 		PRG G = new PRG(n*l);
 		String p1 = G.generateBitString(n*l, s1);
 		String z = Util.addZero(new BigInteger(secretC_P, 2).xor(new BigInteger(p1, 2)).toString(2), l);
+		// C sends z to E
+		// C sends s1 to D
 		
 		// step 2
+		// party D
 		byte[] s2 = rnd.generateSeed(16);
 		String p2 = G.generateBitString(n*l, s2);
 		String a_all = Util.addZero(new BigInteger(p1, 2).xor(new BigInteger(p2, 2)).toString(2), n*l);
@@ -71,11 +75,15 @@ public class ReshuffleTest
 		String secretC_pi_P = "";
 		for (int j=0; j<n; j++)
 			secretC_pi_P += secretC_pi_P_arr[j];
+		// D sends secretC_pi_P to C
+		// D sends s2 to E
 		
 		// step 3
+		// party C
 		// C outputs secretC_pi_P
 		
 		// step 4
+		// party E
 		String b_all = Util.addZero(new BigInteger(secretE_P, 2).xor(new BigInteger(z, 2)).xor(new BigInteger(p2, 2)).toString(2), n*l);
 		String[] b = new String[n];
 		for (int j=0; j<n; j++)
@@ -84,6 +92,7 @@ public class ReshuffleTest
 		String secretE_pi_P = "";
 		for (int j=0; j<n; j++)
 			secretE_pi_P += secretE_pi_P_arr[j];
+		// E outputs secretE_pi_P
 		
 		// outputs
 		output[0] = secretC_pi_P;
@@ -92,6 +101,7 @@ public class ReshuffleTest
 	}
 
 	public static void main(String args[]) throws Exception {
+		// for testing
 		Forest forest = new Forest();
 		forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
 		System.out.println("Forest loaded.\n");
@@ -115,7 +125,7 @@ public class ReshuffleTest
 			int ll 				= d_i;						
 			int ld 				= twotaupow * d_ip1;					
 			int tupleBitLength 	= 1 + ln + ll + ld;
-			int l				= tupleBitLength * w;    // bucket size (bits)
+			int l				= tupleBitLength * w;   
 			int n				= d_i + e;
 			
 			String secretC_P = Util.addZero(new BigInteger(l*n, rnd).toString(2), l*n);
@@ -123,7 +133,7 @@ public class ReshuffleTest
 			List<Integer> pi	= new ArrayList<Integer>();												
 			for (int j=0; j<d_i+4; j++)
 				pi.add(j);
-			Collections.shuffle(pi); // random permutation
+			Collections.shuffle(pi);
 			System.out.println("i:" + i);
 			Util.printArrV(execute(secretC_P, secretE_P, pi, forest.getInitialORAM(), OT, forest.getMetadata()));
 		}

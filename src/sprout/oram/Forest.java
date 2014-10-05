@@ -17,6 +17,7 @@ import sprout.util.RC;
 public class Forest implements Iterator<Tree> 
 {	
 	public static class TreeZero {
+		// since right now trees are in plaintext, we keep the nonce to be all 0s
 		public BigInteger nonce = BigInteger.ZERO;
 		public byte[] initialEntry;
 		

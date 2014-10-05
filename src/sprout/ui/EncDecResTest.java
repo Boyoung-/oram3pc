@@ -47,7 +47,7 @@ public class EncDecResTest
 			
 			String secretC_P 		= Util.addZero(new BigInteger(l*(n), rnd).toString(2), l*(n));
 			String secretE_P		= Util.addZero(new BigInteger(l*(n), rnd).toString(2), l*(n));
-			BigInteger k			= BigInteger.valueOf(Math.abs(rnd.nextLong()) % CryptoParam.q.longValue());	
+			BigInteger k			= Util.randomBigInteger(CryptoParam.q);
 			
 			
 			// start testing Enc/Dec/Res
