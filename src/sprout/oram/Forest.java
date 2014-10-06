@@ -110,10 +110,13 @@ public class Forest implements Iterator<Tree>
 		long dbSize = metadata.getTotalSizeInBytes();
 		Util.disp("Total database size = " + dbSize);
 		RandomAccessFile ro = new RandomAccessFile(dbFile, "rw");
-		for (long i = 0L; i < dbSize; i++)
-		{
-			ro.write((byte)0);
-		}
+		byte[] tmp = new byte[(int) dbSize];
+		ro.write(tmp, 0, (int) dbSize);
+		//ro.setLength(dbSize);
+		//for (long i = 0L; i < dbSize; i++)
+		//{
+		//	ro.write((byte)0);
+		//}
 		ro.close();
 		
 		// Create the base ORAM tree
@@ -299,13 +302,14 @@ public class Forest implements Iterator<Tree>
 			}
 			
 			// Append entryBucketSize bytes to the ORAM database file
-			ro = new RandomAccessFile(dbFile, "rw");
-			ro.seek(ro.length()); // seek to the end
-			for (long i = 0L; i < entryBucketSize; i++)
-			{
-				ro.write((byte)0);
-			}
-			ro.close();
+			//ro = new RandomAccessFile(dbFile, "rw");
+			//ro.setLength(dbSize + entryBucketSize);
+			//ro.seek(ro.length()); // seek to the end
+			//for (long i = 0L; i < entryBucketSize; i++)
+			//{
+			//	ro.write((byte)0);
+			//}
+			//ro.close();
 			
 			// Add the final "ORAM", which is just a single bucket
 			// L1 || L2 || ... || Ln,
@@ -337,11 +341,12 @@ public class Forest implements Iterator<Tree>
 			
 			// write initial tree to dbFile
 			ro = new RandomAccessFile(dbFile, "rw");
-			ro.seek(dbSize); 
-			for (long i = 0L; i < entryBucketSize; i++)
-			{
-				ro.write(OT0.initialEntry[(int) i]);
-			}
+			ro.seek(ro.length()); 
+			//for (long i = 0L; i < entryBucketSize; i++)
+			//{
+				//ro.write(OT0.initialEntry[(int) i]);
+			//}
+			ro.write(OT0.initialEntry, 0, entryBucketSize);
 			ro.close();
 		}
 		catch (IOException e)
