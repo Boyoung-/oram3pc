@@ -58,7 +58,7 @@ public class DecryptPathTest
 		int ld 				= twotaupow * d_ip1;				// # data bits
 		int tupleBitLength 	= 1 + ln + ll + ld;					// # tuple size (bits)
 		int l				= tupleBitLength * w;   		    // # bucket size (bits)
-		
+
 		// i = 0 case
 		// TODO: encrypt data when generating the forest, then modify the code here
 		// right now the nonce are all 0s
@@ -112,7 +112,8 @@ public class DecryptPathTest
 	public static void main(String[] args) throws Exception {
 		// for testing
 		Forest forest = new Forest();
-		forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
+		//forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
+		forest.loadFile("config/smallConfig.yaml", "db.bin");
 		System.out.println("Forest loaded.\n");
 		
 		int tau 			= forest.getMetadata().getTauExponent();

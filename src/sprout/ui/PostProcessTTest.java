@@ -177,7 +177,8 @@ public class PostProcessTTest
 	
 	public static void main(String[] args) throws Exception {
 		Forest forest = new Forest();
-		forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
+		//forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
+		forest.loadFile("config/smallConfig.yaml", "db.bin");
 		System.out.println("Forest loaded.\n");
 		
 		int tau 			= forest.getMetadata().getTauExponent();
