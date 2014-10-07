@@ -1,6 +1,7 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import sprout.communication.Communication;
@@ -8,7 +9,6 @@ import sprout.crypto.PRG;
 import sprout.oram.Forest.TreeZero;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Tree;
-import sprout.ui.inte;
 import sprout.util.Util;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -33,7 +33,14 @@ public class Reshuffle extends Operation<String, Pair<String, List<Integer>>> {
     // step 1
     // party C
     byte[] s1 = rnd.generateSeed(16);
-    PRG G = new PRG(n*l);
+    PRG G;
+    try {
+      G = new PRG(n*l);
+    } catch (NoSuchAlgorithmException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return null;
+    }
     String p1 = G.generateBitString(n*l, s1);
     String z = Util.addZero(new BigInteger(secretC_P, 2).xor(new BigInteger(p1, 2)).toString(2), l);
     // C sends z to E
@@ -41,11 +48,10 @@ public class Reshuffle extends Operation<String, Pair<String, List<Integer>>> {
     eddie.write(z);
     debbie.write(s1);
     
-    // step 2
+    // step 2 & 3
     // D sends secretC_pi_P to C
-    String secretC_pi_P = debbie.readString();
-    
-    return null;
+    // C outputs secretC_pi_P
+    return debbie.readString();
   }
 
   @Override
@@ -85,7 +91,6 @@ public class Reshuffle extends Operation<String, Pair<String, List<Integer>>> {
       eddie.write(s2);
     } catch (Exception e) {
       e.printStackTrace();
-      return null;
     }
     return null;
   }
@@ -109,20 +114,15 @@ public class Reshuffle extends Operation<String, Pair<String, List<Integer>>> {
     // step 2
     // D sends s2 to E
     byte[] s2 = debbie.read();
-    
-    return null;
-  }
-  
-  public String[] execute(String secretC_P, String secretE_P, List<Integer> pi, TreeZero OT_0, Tree OT, ForestMetadata metadata) throws Exception {    
-    
-    
-    
-    
-    
-    
-    // step 3
-    // party C
-    // C outputs secretC_pi_P
+    PRG G;
+    try {
+      G = new PRG(n*l);
+    } catch (NoSuchAlgorithmException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return null;
+    }
+    String p2 = G.generateBitString(n*l, s2);
     
     // step 4
     // party E
@@ -135,11 +135,6 @@ public class Reshuffle extends Operation<String, Pair<String, List<Integer>>> {
     for (int j=0; j<n; j++)
       secretE_pi_P += secretE_pi_P_arr[j];
     // E outputs secretE_pi_P
-    
-    // outputs
-    output[0] = secretC_pi_P;
-    output[1] = secretE_pi_P;
-    return output;
+    return secretE_pi_P;
   }
-
 }
