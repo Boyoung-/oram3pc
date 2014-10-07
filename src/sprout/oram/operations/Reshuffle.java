@@ -137,4 +137,10 @@ public class Reshuffle extends Operation<String, Pair<String, List<Integer>>> {
     // E outputs secretE_pi_P
     return secretE_pi_P;
   }
+
+  @Override
+  public Pair<String, List<Integer>> prepareArgs() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

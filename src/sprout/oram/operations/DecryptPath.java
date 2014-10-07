@@ -138,4 +138,10 @@ public class DecryptPath extends Operation<DPOutput, EPath>{
     
     return new DPOutput(null, secretE_P, sigma);
   }
+
+  @Override
+  public EPath prepareArgs() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

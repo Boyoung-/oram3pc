@@ -121,4 +121,10 @@ public class EncryptPath extends Operation<EPath, String> {
       return null;
     }
   }
+
+  @Override
+  public String prepareArgs() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

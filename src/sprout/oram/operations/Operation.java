@@ -1,13 +1,20 @@
 package sprout.oram.operations;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
 import sprout.communication.Communication;
+import sprout.oram.Forest;
+import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.oram.Forest.TreeZero;
+import sprout.ui.CryptoParam;
+import sprout.ui.AccessTest.AOutput;
+import sprout.util.Util;
 
 public abstract class Operation<T, V> {
   
@@ -38,7 +45,18 @@ public abstract class Operation<T, V> {
    * con2 = charlie
    */
   
+  public Operation(Communication con1, Communication con2) {
+    this.con1 = con1;
+    this.con2 = con2;
+  }
+  
   Operation(Communication con1, Communication con2, ForestMetadata metadata) {
+    initializeMetadata(metadata);
+    this.con1 = con1;
+    this.con2 = con2;
+  }
+  
+  private void initializeMetadata(ForestMetadata metadata) {
     if (metadata != null) {
       // parameters
       tau       = metadata.getTauExponent();    
@@ -48,10 +66,8 @@ public abstract class Operation<T, V> {
       expen     = metadata.getLeafExpansion();    
       this.metadata = metadata;
     }
-    this.con1 = con1;
-    this.con2 = con2;
   }
-  
+
   int treeLevel;                      
   int i;                            // tree index in the writeup
   int d_i;                          // # levels in this tree (excluding the root level)
@@ -90,7 +106,7 @@ public abstract class Operation<T, V> {
     }
   }
   
-  public T execute(Party party, String Li, String Nip1, BigInteger k, TreeZero OT_0, Tree OT, V extraArgs) {
+  public T execute(Party party, String Li, BigInteger k, TreeZero OT_0, Tree OT, V extraArgs) {
     loadTreeSpecificParameters(OT);
     
     switch (party) {
@@ -104,10 +120,61 @@ public abstract class Operation<T, V> {
     return null;
   }
   
-  public abstract T executeCharlieSubTree(Communication debbie, Communication eddie, String Li, TreeZero OT_0, Tree OT, V extraArgs);
-  public abstract T executeDebbieSubTree(Communication charlie, Communication eddie,BigInteger k, TreeZero OT_0, Tree OT, V extraArgs);
-  public abstract T executeEddieSubTree(Communication charlie, Communication debbie, TreeZero OT_0, Tree OT, V extraArgs);
+  public void run(Party party) throws ForestException {
+    run(party, "config/smallConfig.yaml", "config/smallData.txt", "db.bin", false);
+  }
+  public void run(Party party, String configFile, String dbFile) throws ForestException {
+    run(party, configFile, dbFile, null, false);
+  }
+  public void run(Party party, String configFile, String dbFile, String dataFile, boolean build) throws ForestException {
+    if (build && (dataFile == null || !(new File(dataFile)).exists())) {
+      throw new IllegalArgumentException("Must supply a data file to build the database");
+    } else if (!build && !(new File(dbFile)).exists()) {
+      throw new IllegalArgumentException("DB file does not exist " + dbFile);
+    }
+    
+    Forest forest = new Forest();
+    try {
+      if (build) {
+        System.out.println("Creating forest at " + dbFile + " with parameters " + configFile);
+        forest.buildFromFile(configFile, dataFile, dbFile);
+        System.out.println("Forest built.\n");
+      } else {
+        System.out.println("Opening forest stored at " + configFile + " : " + dbFile);
+        forest.loadFile(configFile, dbFile);
+        System.out.println("Forest loaded.\n");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      return;
+    }
+    
+    run(party, forest);
+  }
   
+  /*
+   * This is mostly just testing code and may need to change for the purpose of an actual execution
+   */
+  public void run(Party party, Forest forest) throws ForestException {
+    initializeMetadata(forest.getMetadata());
+    
+    // i = 0 case
+    BigInteger k = Util.randomBigInteger(CryptoParam.q);
+    execute(party, "", k, forest.getInitialORAM(), null, prepareArgs());
+    for (int treeLevel = forest.getNumberOfTrees()-1; treeLevel >= 0; treeLevel--) {
+      Tree OT = forest.getTree(treeLevel);
+      this.loadTreeSpecificParameters(OT);
+    
+      String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll);    
+      k = Util.randomBigInteger(CryptoParam.q);
+      execute(party, Li, k, forest.getInitialORAM(), OT, prepareArgs());
+    }
+  }
+  
+  public abstract T executeCharlieSubTree(Communication debbie, Communication eddie, String Li, TreeZero OT_0, Tree OT, V extraArgs);
+  public abstract T executeDebbieSubTree(Communication charlie, Communication eddie, BigInteger k, TreeZero OT_0, Tree OT, V extraArgs);
+  public abstract T executeEddieSubTree(Communication charlie, Communication debbie, TreeZero OT_0, Tree OT, V extraArgs);
+  public abstract V prepareArgs();
   // TODO: Add timing information
 //TODO: Something of this form which actually performs a complete step
  //public void run(Party party) {

@@ -15,6 +15,10 @@ import sprout.util.Util;
 
 public class Access extends Operation<AOutput, String> {
   
+  public Access(Communication con1, Communication con2) {
+    super(con1, con2);
+  }
+  
   public Access(Communication con1, Communication con2, ForestMetadata metadata) {
     super(con2, con1, metadata);
   }
@@ -22,7 +26,6 @@ public class Access extends Operation<AOutput, String> {
   @Override
   public AOutput executeCharlieSubTree(Communication debbie, Communication eddie,
                                        String Li, TreeZero OT_0, Tree OT, String Nip1) {
-    // TODO: this is also shared but for now just dupe
     // prepare                                 
     String Ni = Nip1.substring(0, ln);                         
     String Nip1_pr = Nip1.substring(ln);
@@ -144,9 +147,6 @@ public class Access extends Operation<AOutput, String> {
   @Override
   public AOutput executeDebbieSubTree(Communication charlie, Communication eddie,
                                       BigInteger k, TreeZero OT_0, Tree OT, String Nip1) {
-    //String Ni = Nip1.substring(0, ln);                         
-    //String Nip1_pr = Nip1.substring(ln);
-    
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
@@ -264,5 +264,13 @@ public class Access extends Operation<AOutput, String> {
     // E outputs secretE_Ti and secretE_P_p
       
     return new AOutput(null, DecOut.p, null, secretE_Ti, null, secretE_P_p, null);
+  }
+
+  @Override
+  public String prepareArgs() {
+    // Nip1 
+    // Note: Originally i=0 case has just tau. This should be fine since
+    // ln = i*tau, thus when i=0 ln = 0 and ln+tau = tau
+    return  Util.addZero(new BigInteger(ln+tau, rnd).toString(2), ln+tau); 
   }
 }
