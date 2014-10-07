@@ -37,6 +37,7 @@ public class Access extends Operation<AOutput, String> {
     
     ////////////////////////below are for checking correctness /////////////////////
     System.out.println("-----checking correctness-----");
+    eddie.write(Li);
     String sigmaPath = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
     String T_i = "1" + Ni + Li + Util.addZero(new BigInteger(ld, rnd).toString(2), ld);
     if (i == 0)
@@ -47,7 +48,7 @@ public class Access extends Operation<AOutput, String> {
     sigmaPath = T_i;
     secretC_P = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
     //////////////////////// above are for checking correctness /////////////////////
-    
+
     // step 3
     // party C and E
     int j_1 = 0; // i = 0 case; as the j_1 = 1 in the write up
@@ -69,18 +70,82 @@ public class Access extends Operation<AOutput, String> {
     // step 4
     String fbar = Util.addZero("", ld); // i = 0 case
     if (i > 0) {
-      fbar = AOT.executeCharlie(debbie, eddie, j_1);
+      fbar = AOT.executeC(debbie, eddie, j_1);
       // outputs fbar for C
     }
     
-    return null;
+    // step 5
+    int j_2 = new BigInteger(Nip1_pr, 2).intValue();
+    String ybar_j2 = "";  // i = h case
+    if (i < h) {
+      // AOT(E, C, D)
+      ybar_j2 = AOT.executeC(debbie, eddie, j_2);
+      // outputs ybar_j2 for C
+    }
+    
+    // step 6
+    // party C
+    String ybar = "";
+    String zeros = Util.addZero("", d_ip1);
+    for (int o=0; o<twotaupow; o++) {
+      if (o == j_2 && i < h)
+        ybar += ybar_j2;
+      else // i = h case
+        ybar += zeros;
+    }
+    String secretC_Aj1;
+    if (i == 0)
+      secretC_Aj1 = secretC_P;
+    else
+      secretC_Aj1 = secretC_P.substring(j_1*tupleBitLength+1+ln+ll, (j_1+1)*tupleBitLength);
+    String Abar = Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).xor(new BigInteger(ybar, 2)).toString(2), ld);
+    String d = "";
+    String Lip1 = ""; // i = h case
+    if (i < h) {
+      Lip1 = Abar.substring(j_2*d_ip1, (j_2+1)*d_ip1);
+    }
+    else {
+      d = Abar;
+    }
+    String secretC_Ti = "1" + Ni + Li + Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).toString(2), ld);
+    if (i == 0)
+      secretC_Ti = Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).toString(2), ld);
+    String secretC_P_p = ""; // i = 0 case
+    if (i > 0) {
+      int flipBit = 1 - Integer.parseInt(secretC_P.substring(j_1*tupleBitLength, j_1*tupleBitLength+1));
+      String newTuple = flipBit + Util.addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength-1);
+      secretC_P_p = secretC_P.substring(0, j_1*tupleBitLength) + newTuple + secretC_P.substring((j_1+1)*tupleBitLength);
+    }
+    
+    //////////////////////// below are for checking correctness /////////////////////
+    System.out.println("Correctness Test Results");
+    
+    System.out.println("j1: " + test_j1 + " =? " + j_1);
+    String [] b = eddie.readStringArray();
+    String secretE_Ti = eddie.readString();
+    
+    if (i > 0) {
+      for (int o=0; o<n; o++)
+        if (b[o].equals(c[o]))
+          System.out.println("  " + o + ":\tmatch");
+    }
+    System.out.println("Ti: " + Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(secretE_Ti, 2)).toString(2), tupleBitLength).equals(T_i));
+    if (i == 0)
+      System.out.println("Lip1: " + T_i.substring(j_2*d_ip1, (j_2+1)*d_ip1).equals(Lip1));
+    else if (i < h)
+      System.out.println("Lip1: " + T_i.substring(1+ln+ll).substring(j_2*d_ip1, (j_2+1)*d_ip1).equals(Lip1));
+    System.out.println("------------------------------");
+    //////////////////////// above are for checking correctness /////////////////////
+    
+    // C outputs Lip1, secretC_Ti, secretC_P_p
+    return new AOutput(Lip1, DecOut.p, secretC_Ti, null, secretC_P_p, null, d);
   }
   
   @Override
   public AOutput executeDebbieSubTree(Communication charlie, Communication eddie,
                                       BigInteger k, TreeZero OT_0, Tree OT, String Nip1) {
-    String Ni = Nip1.substring(0, ln);                         
-    String Nip1_pr = Nip1.substring(ln);
+    //String Ni = Nip1.substring(0, ln);                         
+    //String Nip1_pr = Nip1.substring(ln);
     
     // protocol
     // step 1
@@ -94,19 +159,22 @@ public class Access extends Operation<AOutput, String> {
       // PET outputs j_1 for C
       
       // step 4
-      // AOT (TODO: Does debbie have any input?)
-      // AOT.executeEddie(charlie, eddie);
+      AOT.executeD(charlie, eddie);
     }
     
-    return null;
+    // step 5
+    if (i < h) {
+      // AOT(E, C, D)
+      AOT.executeD(charlie, eddie); 
+      // outputs ybar_j2 for C
+    }
+    
+    return new AOutput();
   }
   
   @Override
   public AOutput executeEddieSubTree(Communication charlie, Communication debbie,
                                      TreeZero OT_0, Tree OT, String Nip1) {
-    String Ni = Nip1.substring(0, ln);                         
-    String Nip1_pr = Nip1.substring(ln);
-    
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
@@ -118,6 +186,8 @@ public class Access extends Operation<AOutput, String> {
     
     ////////////////////////below are for checking correctness /////////////////////
     System.out.println("-----checking correctness-----");
+    String Ni = Nip1.substring(0, ln);   
+    String Li = charlie.readString();
     String sigmaPath = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
     String T_i = "1" + Ni + Li + Util.addZero(new BigInteger(ld, rnd).toString(2), ld);
     if (i == 0)
@@ -174,9 +244,22 @@ public class Access extends Operation<AOutput, String> {
         f[o] = Util.addZero(new BigInteger(e[o], 2).xor(new BigInteger(y_all, 2)).toString(2), ld);
       }
       // AOT(E, C, D)
-      AOT.executeEddie(charlie, debbie, f);
+      AOT.executeS(charlie, debbie, f);
       // outputs fbar for C
     }
+    
+    // step 5
+    if (i < h) {
+      // AOT(E, C, D)
+      AOT.executeS(charlie, debbie, y);
+      // outputs ybar_j2 for C
+    }
+    
+    ////////////////////////below are for checking correctness /////////////////////
+    System.out.println("Correctness Test Results");
+    charlie.write(b);
+    charlie.write(secretE_Ti);
+    ////////////////////////////////////////////////////////////////////////////////
     
     // E outputs secretE_Ti and secretE_P_p
       

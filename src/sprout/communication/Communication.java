@@ -412,6 +412,23 @@ public class Communication
     
     return ret;
   }
+  
+  public void write(String[] bigs) {
+    write(bigs.length);
+    for(int i=0; i<bigs.length; i++) {
+      write(bigs[i]);
+    }
+  }
+  
+  public String[] readStringArray() {
+    int length = readInt();
+    String[] ret = new String[length];
+    for (int i=0; i<length; i++) {
+      ret[i] = readString();
+    }
+    
+    return ret;
+  }
 
 	/**
 	 * Read from the ConnectedThread in an unsynchronized manner Note, this is a
