@@ -90,7 +90,7 @@ public class AccessTest
 		String secretC_P = DecOut.secretC_P;
 		String secretE_P = DecOut.secretE_P;
 		// DecryptPath outpus sigma and secretE_P for E and secretC_P for C
-		
+
 		//////////////////////// below are for checking correctness /////////////////////
 		System.out.println("-----checking correctness-----");
 		String sigmaPath = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
@@ -104,7 +104,7 @@ public class AccessTest
 		secretC_P = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);								
 		secretE_P = Util.addZero(new BigInteger(sigmaPath, 2).xor(new BigInteger(secretC_P, 2)).toString(2), tupleBitLength*n);
 		//////////////////////// above are for checking correctness /////////////////////
-		
+
 		// step 2
 		// party E
 		String[] y = new String[twotaupow];
@@ -230,7 +230,8 @@ public class AccessTest
 	public static void main(String[] args) throws Exception{      
 		// for testing
 		Forest forest = new Forest();
-		forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
+		//forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
+		forest.loadFile("config/smallConfig.yaml", "db.bin");
 		System.out.println("Forest loaded.\n");
 		
 		int tau 			= forest.getMetadata().getTauExponent();
@@ -243,6 +244,8 @@ public class AccessTest
 		String Nip1 = Util.addZero(new BigInteger(tau, rnd).toString(2), tau);	
 		BigInteger k = Util.randomBigInteger(CryptoParam.q);
 		AOutput AOut = execute("", Nip1, k, forest.getInitialORAM(), null, forest.getMetadata());
+		
+		System.out.println("here???");
 		
 		for (int treeLevel = forest.getNumberOfTrees()-1; treeLevel >= 0; treeLevel--) {
 			Tree OT = forest.getTree(treeLevel);

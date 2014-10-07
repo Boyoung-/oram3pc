@@ -41,12 +41,29 @@ public class Forest implements Iterator<Tree>
 	 * 
 	 * @param file - file from which to load the ORAM hierarchy.
 	 * @return RC.SUCCESS on success, something else otherwise
-	 * @throws FileNotFoundException 
 	 * @throws NumberFormatException 
+	 * @throws IOException 
 	 */
-	public RC loadFile(String file) throws NumberFormatException, FileNotFoundException
+	public RC loadFile(String file, String dbFile) throws NumberFormatException, IOException
 	{
 		metadata = new ForestMetadata(file);
+		trees = new ArrayList<Tree>();
+		long offset = 0L;
+		for (int i=0; i<metadata.getLevels(); i++) {
+			Tree t = new Tree(offset, i, dbFile, metadata);
+			trees.add(t);
+			offset += t.getSizeInBytes();
+		}
+		
+		RandomAccessFile ro = new RandomAccessFile(dbFile, "r");
+		long treeSize = metadata.getTotalSizeInBytes();
+		initialEntryTupleSize = (int) (ro.length() - treeSize);
+		OT0.initialEntry = new byte[initialEntryTupleSize];
+		ro.seek(treeSize);
+		ro.read(OT0.initialEntry, 0, initialEntryTupleSize);
+		ro.close();
+		
+		restart();
 		return RC.NOT_YET_IMPLEMENTED;
 	}
 	
@@ -317,6 +334,15 @@ public class Forest implements Iterator<Tree>
 					OT0.initialEntry[entryOffset++] = leaf[j];
 				}
 			}
+			
+			// write initial tree to dbFile
+			ro = new RandomAccessFile(dbFile, "rw");
+			ro.seek(dbSize); 
+			for (long i = 0L; i < entryBucketSize; i++)
+			{
+				ro.write(OT0.initialEntry[(int) i]);
+			}
+			ro.close();
 		}
 		catch (IOException e)
 		{

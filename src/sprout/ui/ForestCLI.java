@@ -102,7 +102,7 @@ public class ForestCLI
 
 				if (command == "load")
 				{
-					forest.loadFile(configFile);
+					forest.loadFile(configFile, cmd.getOptionValue("dbfile", DEFAULT_DB));
 				}
 				else
 				{
