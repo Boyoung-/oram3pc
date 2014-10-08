@@ -16,7 +16,8 @@ public class AOutput {
   
   AOutput(String l, List<Integer> per, String ct, String et, String cp, String ep, String d) {
     Lip1 = l;
-    p = new ArrayList<Integer>(per);
+    if (p != null)
+      p = new ArrayList<Integer>(per);
     secretC_Ti = ct;
     secretE_Ti = et;
     secretC_P_p = cp;

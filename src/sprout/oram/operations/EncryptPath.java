@@ -10,7 +10,7 @@ import sprout.oram.Tree;
 import sprout.ui.CryptoParam;
 import sprout.util.Util;
 
-public class EncryptPath extends Operation<EPath, String> {
+public class EncryptPath extends TreeOperation<EPath, String> {
 
   EncryptPath(Communication con1, Communication con2, ForestMetadata metadata) {
     super(con1, con2, metadata);

@@ -1,6 +1,8 @@
 package sprout.ui;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 
 import org.apache.commons.cli.CommandLine;
@@ -10,17 +12,20 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.Party;
 import sprout.oram.operations.Access;
 import sprout.util.Util;
 import sprout.communication.Communication;
+import sprout.oram.operations.*;
 
-public class AccessCLI
+public class TestCLI
 {
 	public static final int DEFAULT_PORT = 8000;
 	public static final String DEFAULT_IP = "localhost";
+	public static final String DEFAULT_CONFIG_FILE = "config/smallConfig.yaml";
+	public static final String DEFAULT_DB_FILE = "db.bin";
+	public static final String DEFAULT_DATA_FILE = "config/smallData.txt";
 
 	public static void main(String[] args)
 	{
@@ -29,10 +34,13 @@ public class AccessCLI
 		options.addOption("config", true, "ORAM config file");
 		options.addOption("debug", true, "Debug flag and output file");
 		options.addOption("dbfile", true, "Database file");
+		options.addOption("datafile", true, "File for generating forest data");
+		options.addOption("build", false, "If enabled, build the forest");
 		options.addOption("debbie_port", true, "Port to listen for Debbie");
 		options.addOption("charlie_port", true, "Port to listen for Charlie");
 		options.addOption("eddie_ip", true, "IP to look for eddie");
 		options.addOption("debbie_ip", true, "IP to look for debbie");
+		options.addOption("test_alg", true, "Algorithim to test");
 
 		// Parse the command line arguments
 		CommandLineParser cmdParser = new GnuParser();
@@ -68,6 +76,37 @@ public class AccessCLI
 			int charliePort = Integer.parseInt(cmd.getOptionValue("charlie_port",
 					Integer.toString(DEFAULT_PORT + 1 + extra_port)));
 			
+			String configFile = cmd.getOptionValue("config", DEFAULT_CONFIG_FILE);
+			String dbFile = cmd.getOptionValue("dbfile", DEFAULT_DB_FILE);
+			String dataFile = cmd.getOptionValue("datafile", DEFAULT_DATA_FILE);
+			boolean buildForest = false;
+			if (cmd.hasOption("build")) {
+			  buildForest = true;
+			}
+			
+			Class<? extends Operation> operation = null;
+			String alg = cmd.getOptionValue("test_alg", "access").toLowerCase();
+			
+			if (alg.equals("access")) {
+			  operation = Access.class;
+			} else if (alg.equals("encrypt")) {
+			  operation = EncryptPath.class;
+			} else if (alg.equals("decrypt")) {
+			  operation = DecryptPath.class;
+			} else if (alg.equals("aot")) {
+			  operation = sprout.oram.operations.AOT.class;
+			} else if (alg.equals("pet")) {
+			  operation = sprout.oram.operations.PET.class;
+			} else if (alg.equals("reshuffle")) {
+			  operation = Reshuffle.class;
+			} else {
+			  System.out.println("Method not supported");
+			  System.exit(-1);
+			}
+			
+			Constructor<? extends Operation> operationCtor = 
+			    operation.getDeclaredConstructor(Communication.class, Communication.class);
+			
 			// For now all logic happens here. Eventually this will get wrapped
 			// up in party specific classes.
 			System.out.println("Starting " + party + "...");
@@ -90,8 +129,8 @@ public class AccessCLI
 				charlieCon.write("Hello charlie, from eddie");
 				
 				try {
-          (new Access(charlieCon, debbieCon)).run(Party.Eddie);
-        } catch (ForestException e) {
+          operationCtor.newInstance(charlieCon, debbieCon).run(Party.Eddie, configFile, dbFile, dataFile, buildForest);
+        } catch (Exception e) {
           e.printStackTrace();
           System.out.println("Error in access exiting");
         }
@@ -118,8 +157,8 @@ public class AccessCLI
 				System.out.println("Charlie: " + charlieCon.readString());
 				
 				try {
-          (new Access(charlieCon, eddieCon)).run(Party.Debbie);
-        } catch (ForestException e) {
+				  operationCtor.newInstance(charlieCon, eddieCon).run(Party.Debbie, configFile, dbFile, dataFile, buildForest);
+        } catch (Exception e) {
           e.printStackTrace();
           System.out.println("Error in access exiting");
         }
@@ -142,8 +181,9 @@ public class AccessCLI
 				debbieCon.connect(debbieAddr);
 
 				System.out.println("Waiting to establish connections...");
-				while (eddieCon.getState() != Communication.STATE_CONNECTED || debbieCon.getState() != Communication.STATE_CONNECTED);
-//				while (eddieCon.getState() != Communication.STATE_CONNECTED);
+				while (eddieCon.getState() != Communication.STATE_CONNECTED ||
+				        debbieCon.getState() != Communication.STATE_CONNECTED);
+
 				System.out.println("Connection established");
 
 				eddieCon.write("Hello eddie, from charlie");
@@ -152,8 +192,8 @@ public class AccessCLI
 				System.out.println("Eddie: " + eddieCon.readString());
 				
 				try {
-          (new Access(eddieCon, debbieCon)).run(Party.Charlie);
-        } catch (ForestException e) {
+				  operationCtor.newInstance(debbieCon, eddieCon).run(Party.Charlie, configFile, dbFile, dataFile, buildForest);
+        } catch (Exception e) {
           e.printStackTrace();
           System.out.println("Error in access exiting");
         }
@@ -173,7 +213,13 @@ public class AccessCLI
 			Util.error("Parsing error: " + e.getMessage());
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("see the options below", options);
-		}
+		} catch (NoSuchMethodException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    } catch (SecurityException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
 
 	}
 }

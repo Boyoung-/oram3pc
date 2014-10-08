@@ -14,7 +14,7 @@ import sprout.oram.Forest.TreeZero;
 import sprout.ui.CryptoParam;
 import sprout.util.Util;
 
-public class DecryptPath extends Operation<DPOutput, EPath>{
+public class DecryptPath extends TreeOperation<DPOutput, EPath>{
   
    // Should only be used for reusing operations
    DecryptPath(ForestMetadata metadata) {

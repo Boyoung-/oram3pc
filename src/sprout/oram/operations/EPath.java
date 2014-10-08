@@ -20,7 +20,7 @@ public class EPath {
     Bbar = new String[n];
     for (int i=0; i<n; i++) {
       x[i] = Util.randomBigInteger(CryptoParam.q);
-      Bbar[i] = Util.addZero(new BigInteger(l, Operation.rnd).toString(2), l);
+      Bbar[i] = Util.addZero(new BigInteger(l, TreeOperation.rnd).toString(2), l);
     }
   }
 }

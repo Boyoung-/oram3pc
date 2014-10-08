@@ -13,7 +13,7 @@ import sprout.util.Util;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-public class Reshuffle extends Operation<String, Pair<String, List<Integer>>> {
+public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>> {
 
   Reshuffle(Communication con1, Communication con2, ForestMetadata metadata) {
     super(con1, con2, metadata);

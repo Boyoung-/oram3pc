@@ -13,14 +13,28 @@ import sprout.oram.Forest.TreeZero;
 import sprout.ui.CryptoParam;
 import sprout.util.Util;
 
-public class Access extends Operation<AOutput, String> {
+public class Access extends TreeOperation<AOutput, String> {
   
   public Access(Communication con1, Communication con2) {
     super(con1, con2);
   }
   
   public Access(Communication con1, Communication con2, ForestMetadata metadata) {
-    super(con2, con1, metadata);
+    super(con1, con2, metadata);
+  }
+  
+  public void sanityCheck() {
+    System.out.println("Performing sanity check");
+    con1.write("sanity");
+    con2.write("sanity");
+    
+    if (!con1.readString().equals("sanity")) {
+      System.out.println("Sanity check failed for con1");
+    } if (!con2.readString().equals("sanity")) {
+      System.out.println("Sanity check failed for con2");
+    }
+    
+    System.out.println("Sanity check finished");
   }
   
   @Override
@@ -50,6 +64,7 @@ public class Access extends Operation<AOutput, String> {
     if (i == 0)
     sigmaPath = T_i;
     secretC_P = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
+    System.out.println("-----done with correctness----");
     //////////////////////// above are for checking correctness /////////////////////
 
     // step 3
@@ -62,6 +77,8 @@ public class Access extends Operation<AOutput, String> {
         a[j] = secretC_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln); // party C
         c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2), 1+ln); // party C
       }
+      System.out.println("Made it to PET");
+      sanityCheck();
       j_1 = PET.executeCharlie(debbie, eddie, c);
       // PET outputs j_1 for C
     }
@@ -73,6 +90,8 @@ public class Access extends Operation<AOutput, String> {
     // step 4
     String fbar = Util.addZero("", ld); // i = 0 case
     if (i > 0) {
+      System.out.println("Made it to AOT");
+      sanityCheck();
       fbar = AOT.executeC(debbie, eddie, j_1);
       // outputs fbar for C
     }
@@ -82,6 +101,8 @@ public class Access extends Operation<AOutput, String> {
     String ybar_j2 = "";  // i = h case
     if (i < h) {
       // AOT(E, C, D)
+      System.out.println("Made it to second AOT");
+      sanityCheck();
       ybar_j2 = AOT.executeC(debbie, eddie, j_2);
       // outputs ybar_j2 for C
     }
@@ -123,11 +144,11 @@ public class Access extends Operation<AOutput, String> {
     //////////////////////// below are for checking correctness /////////////////////
     System.out.println("Correctness Test Results");
     
-    System.out.println("j1: " + test_j1 + " =? " + j_1);
-    String [] b = eddie.readStringArray();
     String secretE_Ti = eddie.readString();
-    
+    System.out.println("j1: " + test_j1 + " =? " + j_1);
     if (i > 0) {
+      String [] b = eddie.readStringArray();
+    
       for (int o=0; o<n; o++)
         if (b[o].equals(c[o]))
           System.out.println("  " + o + ":\tmatch");
@@ -140,6 +161,8 @@ public class Access extends Operation<AOutput, String> {
     System.out.println("------------------------------");
     //////////////////////// above are for checking correctness /////////////////////
     
+    System.out.println("Made it to end");
+    sanityCheck();
     // C outputs Lip1, secretC_Ti, secretC_P_p
     return new AOutput(Lip1, DecOut.p, secretC_Ti, null, secretC_P_p, null, d);
   }
@@ -155,9 +178,13 @@ public class Access extends Operation<AOutput, String> {
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
     if (i > 0) {
+      System.out.println("Made it to PET");
+      sanityCheck();
       PET.executeDebbie(charlie, eddie, n);
       // PET outputs j_1 for C
       
+      System.out.println("Made it to AOT");
+      sanityCheck();
       // step 4
       AOT.executeD(charlie, eddie);
     }
@@ -165,10 +192,14 @@ public class Access extends Operation<AOutput, String> {
     // step 5
     if (i < h) {
       // AOT(E, C, D)
+      System.out.println("Made it to second AOT");
+      sanityCheck();
       AOT.executeD(charlie, eddie); 
       // outputs ybar_j2 for C
     }
     
+    System.out.println("Finished");
+    sanityCheck();
     return new AOutput();
   }
   
@@ -186,7 +217,7 @@ public class Access extends Operation<AOutput, String> {
     
     ////////////////////////below are for checking correctness /////////////////////
     System.out.println("-----checking correctness-----");
-    String Ni = Nip1.substring(0, ln);   
+    String Ni = Nip1.substring(0, ln);  
     String Li = charlie.readString();
     String sigmaPath = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
     String T_i = "1" + Ni + Li + Util.addZero(new BigInteger(ld, rnd).toString(2), ld);
@@ -198,8 +229,9 @@ public class Access extends Operation<AOutput, String> {
     sigmaPath = T_i;
     String secretC_P = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);                
     secretE_P = Util.addZero(new BigInteger(sigmaPath, 2).xor(new BigInteger(secretC_P, 2)).toString(2), tupleBitLength*n);
+    System.out.println("-----done with correctness----");
     //////////////////////// above are for checking correctness /////////////////////
-    
+
     // step 2
     // party E
     String[] y = new String[twotaupow];
@@ -229,6 +261,8 @@ public class Access extends Operation<AOutput, String> {
       for (int j=0; j<n; j++) {
         b[j] = secretE_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln); // party E
       }
+      System.out.println("Made it to PET");
+      sanityCheck();
       PET.executeEddie(charlie, debbie, b);
       // PET outputs j_1 for C
     }
@@ -243,6 +277,9 @@ public class Access extends Operation<AOutput, String> {
         e[o] = secretE_P.substring(o*tupleBitLength+1+ln+ll, (o+1)*tupleBitLength);
         f[o] = Util.addZero(new BigInteger(e[o], 2).xor(new BigInteger(y_all, 2)).toString(2), ld);
       }
+      
+      System.out.println("Made it to AOT");
+      sanityCheck();
       // AOT(E, C, D)
       AOT.executeS(charlie, debbie, f);
       // outputs fbar for C
@@ -251,16 +288,22 @@ public class Access extends Operation<AOutput, String> {
     // step 5
     if (i < h) {
       // AOT(E, C, D)
+      System.out.println("Made it to second AOT");
+      sanityCheck();
       AOT.executeS(charlie, debbie, y);
       // outputs ybar_j2 for C
     }
     
     ////////////////////////below are for checking correctness /////////////////////
     System.out.println("Correctness Test Results");
-    charlie.write(b);
     charlie.write(secretE_Ti);
+    if (i > 0) {
+      charlie.write(b);
+    }
     ////////////////////////////////////////////////////////////////////////////////
     
+    System.out.println("Made it to end");
+    sanityCheck();
     // E outputs secretE_Ti and secretE_P_p
       
     return new AOutput(null, DecOut.p, null, secretE_Ti, null, secretE_P_p, null);

@@ -14,6 +14,9 @@ public class DPOutput {
   DPOutput(String c, String e, List<Integer> per) {
     secretC_P = c;
     secretE_P = e;
-    p = new ArrayList<Integer>(per);
+    
+    if (p != null) {
+      p = new ArrayList<Integer>(per);
+    }
   }
 }

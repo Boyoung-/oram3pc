@@ -6,9 +6,16 @@ import java.security.SecureRandom;
 
 import sprout.communication.Communication;
 import sprout.crypto.WeakPRF;
+import sprout.oram.Forest;
+import sprout.oram.ForestException;
+import sprout.oram.Party;
 import sprout.util.Util;
 
-public class AOT {
+public class AOT extends Operation {
+  public AOT(Communication con1, Communication con2) {
+    super(con1, con2);
+  }
+
   static SecureRandom rnd = new SecureRandom();
   
   // TODO: Rename (C,D) -> (R,H) or S->E for consistency
@@ -93,6 +100,35 @@ public class AOT {
       e.printStackTrace();
       System.out.println("Error occured, not completing AOT, C will block");
     }
+    
+  }
+
+  @Override
+  public void run(Party party, Forest forest) throws ForestException {
+ // for testing
+    
+    switch (party) {
+    case Charlie:
+      int j = rnd.nextInt(10);
+      System.out.println(j);
+      System.out.println(AOT.executeC(con1, con2, j));
+      break;
+    case Debbie:
+      AOT.executeD(con1, con2);
+      break;
+    case Eddie:
+      String t = Util.addZero(new BigInteger(50, rnd).toString(2), 50);
+      String[] m = new String[10];
+      
+      for (int i=0; i<10; i++)
+        m[i] = t.substring(i*5, (i+1)*5);
+      
+      Util.printArrH(m);
+      AOT.executeS(con1, con2, m);
+      break;
+    }
+    
+    System.out.println("Run completed");
     
   }
 }

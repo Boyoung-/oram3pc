@@ -1,25 +1,23 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
 import sprout.communication.Communication;
-import sprout.oram.ForestMetadata;
+import sprout.oram.Forest;
+import sprout.oram.ForestException;
 import sprout.oram.Party;
-import sprout.oram.Tree;
-import sprout.oram.Forest.TreeZero;
+
+import org.apache.commons.lang3.NotImplementedException;
 
 // TODO: PET doesn't need all of the paramaters that the other operations have, can we make it more generic?
-public class PET {
-  
-  static SecureRandom rnd = new SecureRandom();
+public class PET extends Operation {
   
   /* TODO: Work out how to do precomputation
   // We may want to extend operation and put that in there, not sure
   public void precompute(Party party) {
     switch (party) {
     case Charlie:
-      break;
+      break;forest
     case Debbie:
       break;
     case Eddie:
@@ -31,9 +29,18 @@ public class PET {
   }
   */
   
+  private static boolean D = true;
+  
+  public PET(Communication con1, Communication con2) {
+    super(con1, con2);
+  }
+
   public static Integer executeDebbie(Communication charlie, Communication eddie, int n) {
     // Debbie does nothing online
     //return -1;
+    
+    // m = 32
+    if (D) System.out.println("PET: n="+n);
     
     // TODO: Debbie should precompute these, but for now we just do it here
     // pre-computed inputs
@@ -52,7 +59,7 @@ public class PET {
       beta[j]  = BigInteger.valueOf(Math.abs(rnd.nextLong()) % p.longValue()); // [0, p-1], Z_p
       tau[j]   = BigInteger.valueOf(Math.abs(rnd.nextLong()) % p.longValue()); // [0, p-1], Z_p
       r[j]     = BigInteger.valueOf(Math.abs(rnd.nextLong()) % (p.longValue()-1L) + 1L); // [1, p-1], Z_p*
-    }     
+    }
     for (int j=0; j<n; j++) {
       // gama_j <- (alpha_j * beta_j - tau_j) mod p
       gama[j]  = alpha[j].multiply(beta[j]).subtract(tau[j]).mod(p);
@@ -74,9 +81,11 @@ public class PET {
 
   public static Integer executeCharlie(Communication debbie, Communication eddie, String[] cc) {
     // parameters
-    int m = 32;
     int n  = cc.length;
+    // m = 32
     BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p = 2^34 - 41
+    
+    if (D) System.out.println("PET: n="+n);
     
     // TODO: load precomputed values instead of reading here
     BigInteger[] alpha = debbie.readBigIntegerArray();
@@ -105,7 +114,7 @@ public class PET {
     BigInteger[] w = eddie.readBigIntegerArray();
     
     // step 3
-    // party C
+    // party Cforest
     BigInteger[] v = new BigInteger[n];
     for (int j=0; j<n; j++) {
       // v_j <- (c_j * delta_j + w_j - gama_j) mod p
@@ -121,9 +130,12 @@ public class PET {
   
   public static Integer executeEddie(Communication charlie, Communication debbie, String[] bb) {
     // parameters
-    int m = 32;
     int n  = bb.length;
+    // m = 32
+    
     BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p = 2^34 - 41
+    
+    if (D) System.out.println("PET: n="+n);
     
     // TODO: load precomputed values instead of reading here
     BigInteger[] beta = debbie.readBigIntegerArray();
@@ -151,5 +163,10 @@ public class PET {
     charlie.write(w);
     
     return -1;
+  }
+
+  @Override
+  public void run(Party party, Forest unused) throws ForestException {
+    throw new NotImplementedException("No testing for PET yet");
   }
 }
