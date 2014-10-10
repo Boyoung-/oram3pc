@@ -99,7 +99,9 @@ public class TestCLI
 			  operation = sprout.oram.operations.PET.class;
 			} else if (alg.equals("iot")) {
 			  operation = sprout.oram.operations.IOT.class;
-			} else if (alg.equals("reshuffle")) {
+			} else if (alg.equals("ssot")) {
+        operation = sprout.oram.operations.SSOT.class;
+      } else if (alg.equals("reshuffle")) {
 			  operation = Reshuffle.class;
 			} else {
 			  System.out.println("Method " + alg + " not supported");
