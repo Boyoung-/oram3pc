@@ -23,18 +23,22 @@ public class Access extends TreeOperation<AOutput, String> {
     super(con1, con2, metadata);
   }
   
+  private static final boolean ENSURE_SANITY = false;
+  // This function will test for synchrony between the parties.
   public void sanityCheck() {
-    System.out.println("Performing sanity check");
-    con1.write("sanity");
-    con2.write("sanity");
-    
-    if (!con1.readString().equals("sanity")) {
-      System.out.println("Sanity check failed for con1");
-    } if (!con2.readString().equals("sanity")) {
-      System.out.println("Sanity check failed for con2");
+    if (ENSURE_SANITY) {
+      System.out.println("Performing sanity check");
+      con1.write("sanity");
+      con2.write("sanity");
+      
+      if (!con1.readString().equals("sanity")) {
+        System.out.println("Sanity check failed for con1");
+      } if (!con2.readString().equals("sanity")) {
+        System.out.println("Sanity check failed for con2");
+      }
+      
+      System.out.println("Sanity check finished");
     }
-    
-    System.out.println("Sanity check finished");
   }
   
   @Override
@@ -55,12 +59,13 @@ public class Access extends TreeOperation<AOutput, String> {
     String secretC_P = DecOut.secretC_P;
     
     ////////////////////////below are for checking correctness /////////////////////
-    System.out.println("-----checking correctness-----");
+    //System.out.println("-----checking correctness-----");
+    eddie.write(Ni);
     eddie.write(Li);
     secretC_P = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
     
     eddie.write(secretC_P);
-    System.out.println("-----done with correctness----");
+    //System.out.println("-----done with correctness----");
     //////////////////////// above are for checking correctness /////////////////////
 
     // step 3
@@ -73,7 +78,6 @@ public class Access extends TreeOperation<AOutput, String> {
         a[j] = secretC_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln); // party C
         c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2), 1+ln); // party C
       }
-      System.out.println("Made it to PET");
       sanityCheck();
       j_1 = PET.executeCharlie(debbie, eddie, c);
       // PET outputs j_1 for C
@@ -86,7 +90,6 @@ public class Access extends TreeOperation<AOutput, String> {
     // step 4
     String fbar = Util.addZero("", ld); // i = 0 case
     if (i > 0) {
-      System.out.println("Made it to AOT");
       sanityCheck();
       fbar = AOT.executeC(debbie, eddie, j_1);
       // outputs fbar for C
@@ -97,7 +100,6 @@ public class Access extends TreeOperation<AOutput, String> {
     String ybar_j2 = "";  // i = h case
     if (i < h) {
       // AOT(E, C, D)
-      System.out.println("Made it to second AOT");
       sanityCheck();
       ybar_j2 = AOT.executeC(debbie, eddie, j_2);
       // outputs ybar_j2 for C
@@ -138,7 +140,7 @@ public class Access extends TreeOperation<AOutput, String> {
     }
     
     //////////////////////// below are for checking correctness /////////////////////
-    System.out.println("Correctness Test Results");
+    System.out.println("---Correctness Test Results---");
     
     String secretE_Ti = eddie.readString();
     String T_i = eddie.readString();
@@ -156,19 +158,21 @@ public class Access extends TreeOperation<AOutput, String> {
       System.out.println("Ti: true");
     } else {
       System.out.println("Ti: false");
-      System.out.println("Ti: " + T_i);
-      System.out.println("secretC_Ti: " + secretC_Ti);
-      System.out.println("secretE_Ti: " + secretE_Ti);
-      System.out.println("computed: " + Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(secretE_Ti, 2)).toString(2), tupleBitLength));
+      
+      if (test_j1 == j_1) {
+        System.out.println("Ti: " + T_i);
+        System.out.println("secretC_Ti: " + secretC_Ti);
+        System.out.println("secretE_Ti: " + secretE_Ti);
+        System.out.println("computed: " + Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(secretE_Ti, 2)).toString(2), tupleBitLength));
+      }
     }
     if (i == 0)
       System.out.println("Lip1: " + T_i.substring(j_2*d_ip1, (j_2+1)*d_ip1).equals(Lip1));
     else if (i < h)
       System.out.println("Lip1: " + T_i.substring(1+ln+ll).substring(j_2*d_ip1, (j_2+1)*d_ip1).equals(Lip1));
-    System.out.println("------------------------------");
+    System.out.println("----------- DONE -------------");
     //////////////////////// above are for checking correctness /////////////////////
     
-    System.out.println("Made it to end");
     sanityCheck();
     // C outputs Lip1, secretC_Ti, secretC_P_p
     return new AOutput(Lip1, null, secretC_Ti, null, secretC_P_p, null, d);
@@ -176,7 +180,7 @@ public class Access extends TreeOperation<AOutput, String> {
   
   @Override
   public AOutput executeDebbieSubTree(Communication charlie, Communication eddie,
-                                      BigInteger k, TreeZero OT_0, Tree OT, String Nip1) {
+                                      BigInteger k, TreeZero OT_0, Tree OT, String unused) {
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
@@ -185,12 +189,10 @@ public class Access extends TreeOperation<AOutput, String> {
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
     if (i > 0) {
-      System.out.println("Made it to PET");
       sanityCheck();
       PET.executeDebbie(charlie, eddie, n);
       // PET outputs j_1 for C
       
-      System.out.println("Made it to AOT");
       sanityCheck();
       // step 4
       AOT.executeD(charlie, eddie);
@@ -199,20 +201,18 @@ public class Access extends TreeOperation<AOutput, String> {
     // step 5
     if (i < h) {
       // AOT(E, C, D)
-      System.out.println("Made it to second AOT");
       sanityCheck();
       AOT.executeD(charlie, eddie); 
       // outputs ybar_j2 for C
     }
     
-    System.out.println("Finished");
     sanityCheck();
     return new AOutput();
   }
   
   @Override
   public AOutput executeEddieSubTree(Communication charlie, Communication debbie,
-                                     TreeZero OT_0, Tree OT, String Nip1) {
+                                     TreeZero OT_0, Tree OT, String unused) {
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
@@ -224,7 +224,7 @@ public class Access extends TreeOperation<AOutput, String> {
     
     ////////////////////////below are for checking correctness /////////////////////
     System.out.println("-----checking correctness-----");
-    String Ni = Nip1.substring(0, ln);  
+    String Ni = charlie.readString();
     String Li = charlie.readString();
     String secretC_P = charlie.readString();    
     String sigmaPath = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
@@ -236,7 +236,7 @@ public class Access extends TreeOperation<AOutput, String> {
     if (i == 0)
     sigmaPath = T_i;            
     secretE_P = Util.addZero(new BigInteger(sigmaPath, 2).xor(new BigInteger(secretC_P, 2)).toString(2), tupleBitLength*n);
-    System.out.println("-----done with correctness----");
+    //System.out.println("-----done with correctness----");
     //////////////////////// above are for checking correctness /////////////////////
 
     // step 2
@@ -268,7 +268,6 @@ public class Access extends TreeOperation<AOutput, String> {
       for (int j=0; j<n; j++) {
         b[j] = secretE_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln); // party E
       }
-      System.out.println("Made it to PET");
       sanityCheck();
       PET.executeEddie(charlie, debbie, b);
       // PET outputs j_1 for C
@@ -285,7 +284,6 @@ public class Access extends TreeOperation<AOutput, String> {
         f[o] = Util.addZero(new BigInteger(e[o], 2).xor(new BigInteger(y_all, 2)).toString(2), ld);
       }
       
-      System.out.println("Made it to AOT");
       sanityCheck();
       // AOT(E, C, D)
       AOT.executeS(charlie, debbie, f);
@@ -295,14 +293,13 @@ public class Access extends TreeOperation<AOutput, String> {
     // step 5
     if (i < h) {
       // AOT(E, C, D)
-      System.out.println("Made it to second AOT");
       sanityCheck();
       AOT.executeS(charlie, debbie, y);
       // outputs ybar_j2 for C
     }
     
     ////////////////////////below are for checking correctness /////////////////////
-    System.out.println("Correctness Test Results");
+    //System.out.println("Correctness Test Results");
     charlie.write(secretE_Ti);
     charlie.write(T_i);
     charlie.write(test_j1);
@@ -311,7 +308,6 @@ public class Access extends TreeOperation<AOutput, String> {
     }
     ////////////////////////////////////////////////////////////////////////////////
     
-    System.out.println("Made it to end");
     sanityCheck();
     // E outputs secretE_Ti and secretE_P_p
       

@@ -23,6 +23,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   int expen;                             // # buckets in each leaf
   ForestMetadata metadata;
   
+  static boolean print_out = false;
   
   
   public TreeOperation(Communication con1, Communication con2) {
@@ -109,7 +110,8 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
     // i = 0 case
     BigInteger k = Util.randomBigInteger(CryptoParam.q);
     T out = execute(party, "", k, forest.getInitialORAM(), null, prepareArgs());
-    System.out.println("Output i=0 : " + out.toString());
+    if (print_out) System.out.println("Output i=0 : " + out.toString());
+    else System.out.println("Finished round 0");
     for (int treeLevel = forest.getNumberOfTrees()-1; treeLevel >= 0; treeLevel--) {
       Tree OT = forest.getTree(treeLevel);
       this.loadTreeSpecificParameters(OT);
@@ -119,7 +121,8 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
       
       // TODO: Print out here too
       out = execute(party, Li, k, forest.getInitialORAM(), OT, prepareArgs());
-      System.out.println("Output i=" + i + " : " + out.toString());
+      if (print_out) System.out.println("Output i=" + i + " : " + out.toString());
+      else System.out.println("Finished round " + i);
     }
   }
   

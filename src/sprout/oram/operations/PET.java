@@ -1,6 +1,7 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import sprout.communication.Communication;
 import sprout.oram.Forest;
@@ -29,7 +30,7 @@ public class PET extends Operation {
   }
   */
   
-  private static boolean D = true;
+  private static boolean D = false;
   
   public PET(Communication con1, Communication con2) {
     super(con1, con2);
@@ -85,7 +86,10 @@ public class PET extends Operation {
     // m = 32
     BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p = 2^34 - 41
     
-    if (D) System.out.println("PET: n="+n);
+    if (D) {
+      System.out.println("PET: n="+n);
+      System.out.println("PET: cc="+Arrays.toString(cc));
+    }
     
     // TODO: load precomputed values instead of reading here
     BigInteger[] alpha = debbie.readBigIntegerArray();
@@ -135,7 +139,10 @@ public class PET extends Operation {
     
     BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p = 2^34 - 41
     
-    if (D) System.out.println("PET: n="+n);
+    if (D) {
+      System.out.println("PET: n="+n);
+      System.out.println("PET: bb="+Arrays.toString(bb));
+    }
     
     // TODO: load precomputed values instead of reading here
     BigInteger[] beta = debbie.readBigIntegerArray();
