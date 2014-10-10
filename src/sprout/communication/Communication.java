@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -388,6 +389,8 @@ public class Communication
     return NISTNamedCurves.getByName("P-224").getCurve().decodePoint(read());
   }
 
+  // TODO: These int methods are not very efficient
+  //  We should serialize as bytes not as ASCII
   public void write(int a) {
     write(String.valueOf(a)); // Probably more efficient to convert to bytes
   }
@@ -418,6 +421,23 @@ public class Communication
     for(int i=0; i<bigs.length; i++) {
       write(bigs[i]);
     }
+  }
+  
+  public void write(Integer[] bigs) {
+    write(bigs.length);
+    for(int i=0; i<bigs.length; i++) {
+      write(bigs[i]);
+    }
+  }
+  
+  public Integer[] readIntegerArray() {
+    int length = readInt();
+    Integer[] ret = new Integer[length];
+    for (int i=0; i<length; i++) {
+      ret[i] = readInt();
+    }
+    
+    return ret;
   }
   
   public String[] readStringArray() {

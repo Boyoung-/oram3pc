@@ -15,8 +15,6 @@ public class AOT extends Operation {
   public AOT(Communication con1, Communication con2) {
     super(con1, con2);
   }
-
-  static SecureRandom rnd = new SecureRandom();
   
   // TODO: Rename (C,D) -> (R,H) or S->E for consistency
   public static void executeS(Communication C, Communication D, String[] m) {

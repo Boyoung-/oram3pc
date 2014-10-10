@@ -97,6 +97,8 @@ public class TestCLI
 			  operation = sprout.oram.operations.AOT.class;
 			} else if (alg.equals("pet")) {
 			  operation = sprout.oram.operations.PET.class;
+			} else if (alg.equals("iot")) {
+			  operation = sprout.oram.operations.IOT.class;
 			} else if (alg.equals("reshuffle")) {
 			  operation = Reshuffle.class;
 			} else {
