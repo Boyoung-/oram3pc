@@ -100,7 +100,7 @@ public class TestCLI
 			} else if (alg.equals("reshuffle")) {
 			  operation = Reshuffle.class;
 			} else {
-			  System.out.println("Method not supported");
+			  System.out.println("Method " + alg + " not supported");
 			  System.exit(-1);
 			}
 			

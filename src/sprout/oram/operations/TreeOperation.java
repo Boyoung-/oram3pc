@@ -10,9 +10,11 @@ import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.oram.Forest.TreeZero;
 import sprout.ui.CryptoParam;
+import sprout.ui.DecryptPathTest.DPOutput;
+import sprout.ui.EncryptPathTest.EPath;
 import sprout.util.Util;
 
-public abstract class TreeOperation<T, V> extends Operation {
+public abstract class TreeOperation<T extends Object, V> extends Operation {
   
   int tau;                               // tau in the writeup
   int twotaupow;                         // 2^tau
@@ -106,14 +108,18 @@ public abstract class TreeOperation<T, V> extends Operation {
     
     // i = 0 case
     BigInteger k = Util.randomBigInteger(CryptoParam.q);
-    execute(party, "", k, forest.getInitialORAM(), null, prepareArgs());
+    T out = execute(party, "", k, forest.getInitialORAM(), null, prepareArgs());
+    System.out.println("Output i=0 : " + out.toString());
     for (int treeLevel = forest.getNumberOfTrees()-1; treeLevel >= 0; treeLevel--) {
       Tree OT = forest.getTree(treeLevel);
       this.loadTreeSpecificParameters(OT);
     
       String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll);    
       k = Util.randomBigInteger(CryptoParam.q);
-      execute(party, Li, k, forest.getInitialORAM(), OT, prepareArgs());
+      
+      // TODO: Print out here too
+      out = execute(party, Li, k, forest.getInitialORAM(), OT, prepareArgs());
+      System.out.println("Output i=" + i + " : " + out.toString());
     }
   }
   

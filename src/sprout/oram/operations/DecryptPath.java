@@ -20,6 +20,10 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
    DecryptPath(ForestMetadata metadata) {
     super(null, null, metadata);
   }
+   
+   public DecryptPath(Communication con1, Communication con2) {
+     super(con1, con2);
+   }
   
   public DecryptPath(Communication con1, Communication con2, ForestMetadata metadata) {
     super(con1, con2, metadata);
@@ -54,7 +58,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // TODO: add OPRF
     // PRG is used here instead of OPRF for testing purpose
     // SKY: it seems like a PRG of a PRF is used here instead of an OPRF. Isn't sigma_x^k a PRF??
-    //   This is only an issue because the rest of the code depends on an l length string as the secret, where as i'm not sure
+    //   This is only an issue because the rest of tEPath Pbar = he code depends on an l length string as the secret, where as i'm not sure
     //   that the OPRF will produce this. Because of this I've left the PRG in place
     String secretC_P = "";
     
@@ -138,10 +142,34 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     
     return new DPOutput(null, secretE_P, sigma);
   }
-
+  
+  // Temporarily redefine n for decrpyt
+  // We probably want to eventually unify the meaning of n
+  @Override
+  public void loadTreeSpecificParameters(Tree OT) {
+    super.loadTreeSpecificParameters(OT);
+    //n = n/w;
+    
+    // For now to be extra sure load parameters as originally written
+    // I don't think this is needed, but leave this here until we have it working
+    i         = h - treeLevel;
+    d_i       = OT.getNumLevels();
+    d_ip1       = -1;
+    if (i == h)
+      d_ip1     = OT.getDBytes() * 8 / twotaupow;
+    else
+      d_ip1     = metadata.getTupleBitsL(treeLevel-1);
+    ln        = i * tau;          
+    ll        = d_i;            
+    ld        = twotaupow * d_ip1;          
+    tupleBitLength  = 1 + ln + ll + ld;
+    l       = tupleBitLength * w;  
+    n       = d_i + expen;
+  }
   @Override
   public EPath prepareArgs() {
-    // TODO Auto-generated method stub
-    return null;
+    if (i==0)
+      return null;
+    return new EPath(n, l);
   }
 }

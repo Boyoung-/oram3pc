@@ -15,8 +15,21 @@ public class DPOutput {
     secretC_P = c;
     secretE_P = e;
     
-    if (p != null) {
+    if (per != null) {
       p = new ArrayList<Integer>(per);
     }
+  }
+  
+  @Override
+  public String toString() {
+    String out =  "";
+    if (secretC_P != null)
+      out += "secretC_P: " + secretC_P + "\n";
+    if (secretE_P != null)
+      out += "secretE_P: " + secretE_P + "\n";
+    if (p != null)
+      out += "p: " + p.toString() + "\n";
+    
+    return out;
   }
 }
