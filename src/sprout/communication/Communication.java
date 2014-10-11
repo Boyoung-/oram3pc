@@ -4,12 +4,17 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.StreamCorruptedException;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.bouncycastle.asn1.nist.NISTNamedCurves;
+import org.bouncycastle.math.ec.ECPoint;
 
 import sprout.util.Util;
 
@@ -349,6 +354,7 @@ public class Communication
 		write(out);
 	}
 
+	//TODO: Rather than having millions of write/read methods can we take advantage of DataStreams?
 	public void write(String buffer)
 	{
 		write(buffer.getBytes());
@@ -365,6 +371,84 @@ public class Communication
 	{
 		return new String(read());
 	}
+	
+	public void write(BigInteger out){
+    write(out.toByteArray());
+  }
+
+  public void write(ECPoint out){
+    write(out.getEncoded());
+  }
+
+  public BigInteger readBigInteger(){
+    return new BigInteger(read());
+  }
+
+  public ECPoint readECPoint(){
+    //TODO: This probably doesn't belong here. At least load curve from crypto params
+    return NISTNamedCurves.getByName("P-224").getCurve().decodePoint(read());
+  }
+
+  // TODO: These int methods are not very efficient
+  //  We should serialize as bytes not as ASCII
+  public void write(int a) {
+    write(String.valueOf(a)); // Probably more efficient to convert to bytes
+  }
+  
+  public int readInt() {
+    return Integer.parseInt(readString());
+  }
+  
+  public void write(BigInteger[] bigs) {
+    write(bigs.length);
+    for(int i=0; i<bigs.length; i++) {
+      write(bigs[i]);
+    }
+  }
+  
+  public BigInteger[] readBigIntegerArray() {
+    int length = readInt();
+    BigInteger[] ret = new BigInteger[length];
+    for (int i=0; i<length; i++) {
+      ret[i] = readBigInteger();
+    }
+    
+    return ret;
+  }
+  
+  public void write(String[] bigs) {
+    write(bigs.length);
+    for(int i=0; i<bigs.length; i++) {
+      write(bigs[i]);
+    }
+  }
+  
+  public void write(Integer[] bigs) {
+    write(bigs.length);
+    for(int i=0; i<bigs.length; i++) {
+      write(bigs[i]);
+    }
+  }
+  
+  public Integer[] readIntegerArray() {
+    int length = readInt();
+    Integer[] ret = new Integer[length];
+    for (int i=0; i<length; i++) {
+      ret[i] = readInt();
+    }
+    
+    return ret;
+  }
+  
+  public String[] readStringArray() {
+    int length = readInt();
+    String[] ret = new String[length];
+    for (int i=0; i<length; i++) {
+      ret[i] = readString();
+    }
+    
+    return ret;
+  }
 
 	/**
 	 * Read from the ConnectedThread in an unsynchronized manner Note, this is a
