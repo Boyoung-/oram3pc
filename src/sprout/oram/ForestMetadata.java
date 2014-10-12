@@ -31,47 +31,47 @@ public class ForestMetadata implements Serializable
 	private static final long serialVersionUID = 1L;
 	
 	// Tau in the write-up
-	private int tau;
-	private int twoTauPow;
+	private static int tau;
+	private static int twoTauPow;
 		
 	// Bucket depth (number of tuples per bucket)
-	private int w;
+	private static int w;
 	
 	// Number of buckets in each leaf
-	private int e;
+	private static int e;
 	
 	// Number of trees
-	private int levels;
+	private static int levels;
 	// Largest tree index
-	private int h;
+	private static int h;
 	
 	// nonce size
-	private int nonceBits;
+	private static int nonceBits;
 	
 	// Tuple info
-	private int[] lBits;
-	private int[] lBytes;
-	private int[] nBits;
-	private int[] nBytes;
-	private int[] aBits;
-	private int[] aBytes;
-	private int[] tupleBits;
-	private int[] tupleBytes;
+	private static int[] lBits;
+	private static int[] lBytes;
+	private static int[] nBits;
+	private static int[] nBytes;
+	private static int[] aBits;
+	private static int[] aBytes;
+	private static int[] tupleBits;
+	private static int[] tupleBytes;
 	
 	// Tree sizes
-	private long[] treeBytes;
+	private static long[] treeBytes;
 	
 	// Number of buckets in the ORAM
-	private long[] numBuckets;
+	private static long[] numBuckets;
 	
 	// Max number of records
-	private long addressSpace;
+	private static long addressSpace;
 	
 	// Size of each data element
-	private int DBytes;
+	private static int DBytes;
 	
 	// Size of the entire DB
-	private long totalSizeInBytes;
+	private static long totalSizeInBytes;
 	
 	/**
 	 * Construct the forest metadata from a previously generated config file.
@@ -102,6 +102,8 @@ public class ForestMetadata implements Serializable
 	 * Perform extra initialization of parameter values after loading 
 	 * from the config file.
 	 */
+	// TODO: change math.ceil to +7/8
+	// TODO: remove bytes??
 	private void init()
 	{
 		twoTauPow = (int) Math.pow(2, tau);
@@ -219,104 +221,104 @@ public class ForestMetadata implements Serializable
 	
 	///// ACCESSORS
 	
-	public int getLevels()
+	public static int getLevels()
 	{
 		return levels;
 	}
 	
-	public int getTupleBitsL(int level)
+	public static int getTupleBitsL(int level)
 	{
 		return lBits[level];
 	}
 	
-	public int getTupleBitsN(int level)
+	public static int getTupleBitsN(int level)
 	{
 		return nBits[level];
 	}
 
-	public int getTupleBytesL(int level)
+	public static int getTupleBytesL(int level)
 	{
 		return lBytes[level];
 	}
 	
-	public int getTupleBytesN(int level)
+	public static int getTupleBytesN(int level)
 	{
 		return nBytes[level];
 	}
 	
-	public int getTupleBitA(int level)
+	public static int getTupleBitA(int level)
 	{
 		return aBits[level];
 	}
 	
-	public int getTupleBytesA(int level)
+	public static int getTupleBytesA(int level)
 	{
 		return aBytes[level];
 	}
 	
-	public int getTupleSizeInBits(int level)
+	public static int getTupleSizeInBits(int level)
 	{
 		return tupleBits[level];
 	}
 	
-	public int getTupleSizeInBytes(int level)
+	public static int getTupleSizeInBytes(int level)
 	{
 		return tupleBytes[level];
 	}
 	
-	public long getTreeBytes(int level)
+	public static long getTreeBytes(int level)
 	{
 		return treeBytes[level];
 	}
 	
-	public int getBucketDepth()
+	public static int getBucketDepth()
 	{
 		return w;
 	}
 	
-	public long getNumBuckets(int level) {
+	public static long getNumBuckets(int level) {
 		return numBuckets[level];
 	}
 	
-	public long getNumLeaves(int level)
+	public static long getNumLeaves(int level)
 	{
 		return (long) Math.pow(2, lBits[level]);
 	}
 	
-	public int getDataSize()
+	public static int getDataSize()
 	{
 		return DBytes;
 	}
 	
-	public int getLeafExpansion()
+	public static int getLeafExpansion()
 	{
 		return e;
 	}
 	
-	public int getTau()
+	public static int getTau()
 	{
 		return tau;
 	}
 	
-	public int getTwoTauPow()
+	public static int getTwoTauPow()
 	{
 		return twoTauPow;
 	}
 	
-	public long getTotalSizeInBytes()
+	public static long getTotalSizeInBytes()
 	{
 		return totalSizeInBytes;
 	}
 	
-	public long getAddressSpace() {
+	public static long getAddressSpace() {
 		return addressSpace;
 	}
 	
-	public int getNonceBits() {
+	public static int getNonceBits() {
 		return nonceBits;
 	}
 	
-	public int getNonceBytes() {
+	public static int getNonceBytes() {
 		return (int) Math.ceil((double) nonceBits / 8);
 	}
 }

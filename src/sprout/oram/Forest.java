@@ -18,7 +18,7 @@ public class Forest implements Iterator<Tree>
 	private ForestMetadata metadata;
 	private ArrayList<Tree> trees;
 	
-	private byte[] data; // keep all data in memory for testing now
+	private static byte[] data; // keep all data in memory for testing now
 	
 	/**
 	 * Initialize an ORAM hierarchy (forest) from the specified configuration file
@@ -407,46 +407,14 @@ public class Forest implements Iterator<Tree>
 		}
 		return trees.get(index);
 	}
-
-	/**
-	 * Determine if there is a next tree after the current one.
-	 * 
-	 * @return true if currentTreeIndex != 0
-	 */
-	public boolean hasNext()
+	
+	public static byte[] getForestData()
 	{
-		return (currTreeIndex == 0);
-	}
-
-	/**
-	 * Return the next tree and advance the tree index. 
-	 * 
-	 * @return next tree
-	 */
-	public Tree next()
-	{
-		return trees.get(currTreeIndex--);
-	}
-
-	/**
-	 * Remove the tree at the current tree index
-	 */
-	public void remove()
-	{
-		trees.remove(currTreeIndex);
+		return data;
 	}
 	
-	/**
-	 * Reset the iterator to start at index #trees(the initial tree), which
-	 * isn't really a tree
-	 */
-	public void restart()
-	{
-		currTreeIndex = trees.size() - 1;
-	}
-	
-	public String getInitialORAMTreeString() {
-		long n = Util.byteArrayToLong(OT0.initialEntry);
-		return Util.toKaryString(n, 2, OT0.initialEntry.length * 8);
+	// TODO: overflow??
+	public static void setForestData(byte[] newData, long offset) {
+		System.arraycopy(newData, 0, data, (int) offset, newData.length); 
 	}
 }
