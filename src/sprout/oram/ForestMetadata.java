@@ -6,10 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
-import java.io.StringWriter;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,77 +17,61 @@ import sprout.util.Util;
 
 public class ForestMetadata implements Serializable
 {
-	public static final String CONFIG_FILE = "forest.cfg";
-	public static final String FANOUT_NAME = "fanout";
-	public static final String LEVELS_NAME = "levels";
-	public static final String TUPLEBITSN_NAME = "tupleBitsN";
-	public static final String BUCKETDEPTH_NAME = "bucketDepth";
-	public static final String ADDRSPACE_NAME = "addressSpace";
-	public static final String DATASIZE_NAME = "dataSize";
-	public static final String LEAFEXPANSION_NAME = "leafExpansion";
-	public static final String TAU_NAME = "tau";
+	public static final String CONFIG_FILE 			= "forest.cfg";
+	public static final String TAU_NAME 			= "tau";
+	public static final String W_NAME 				= "w";
+	public static final String E_NAME 				= "e";
+	public static final String LEVELS_NAME 			= "levles";
+	public static final String DBYTES_NAME 			= "DBYTES";
+	public static final String NONCEBITS_NAME		= "nonceBits";
 	
 	/**
 	 * Class version ID.
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	// Fanout for each tree in the forest
-	private int fanout;
+	// Tau in the write-up
+	private int tau;
+	private int twoTauPow;
+		
+	// Bucket depth (number of tuples per bucket)
+	private int w;
 	
-	// Number of ORAM hierarchy levels (number of trees, really)
+	// Number of buckets in each leaf
+	private int e;
+	
+	// Number of trees
 	private int levels;
+	// Largest tree index
+	private int h;
 	
-	// Tuple tag bit width
-	private int baseTupleBitsL;
-	private int baseTupleBitsN;
+	// nonce size
+	private int nonceBits;
+	
+	// Tuple info
 	private int[] lBits;
 	private int[] lBytes;
 	private int[] nBits;
 	private int[] nBytes;
-	private int[] tupleSizeInBytes;
+	private int[] aBits;
+	private int[] aBytes;
+	private int[] tupleBits;
+	private int[] tupleBytes;
 	
-	// Tau, the reduction factor
-	private int tau;
+	// Tree sizes
+	private long[] treeBytes;
 	
-	// Bucket depth (number of tuples per bucket)
-	private int bucketDepth;
+	// Number of buckets in the ORAM
+	private long[] numBuckets;
 	
-	// Number of leaves in the ORAM - N
-	private long addressSpaceSize;
-	private long baseNumLeaves;
-	private long[] numLeaves;
-	
-	// Expansion factor for leaves
-	private int leafExpansion;
+	// Max number of records
+	private long addressSpace;
 	
 	// Size of each data element
-	private int dataSize;
+	private int DBytes;
 	
 	// Size of the entire DB
 	private long totalSizeInBytes;
-	
-	/**
-	 * Basic constructor - only called once when the database is being created. 
-	 * Parameters are self-explanatory.
-	 * 
-	 * @param fanout
-	 * @param levels
-	 * @param tupleBitsN
-	 * @param bucketDepth
-	 * @param numLeaves
-	 * @param dataSize
-	 */
-	public ForestMetadata(int fanout, int levels, int tupleBitsN,  int bucketDepth, long numLeaves, int dataSize)
-	{
-		this.fanout = fanout;
-		this.levels = levels;
-		this.baseTupleBitsN = tupleBitsN;
-		this.bucketDepth = bucketDepth;
-		this.baseNumLeaves = numLeaves;
-		this.dataSize = dataSize;
-		init();
-	}
 	
 	/**
 	 * Construct the forest metadata from a previously generated config file.
@@ -103,21 +84,16 @@ public class ForestMetadata implements Serializable
 	{
 		Yaml yaml = new Yaml();
 		InputStream input = new FileInputStream(new File(filename));
-		Map<String, Object> configMap = (Map<String, Object>)yaml.load(input);
+		@SuppressWarnings("unchecked")
+		Map<String, Object> configMap = (Map<String, Object>) yaml.load(input);
 		
 		// Retrieve all of the required parameters
-		this.fanout = Integer.parseInt(configMap.get(FANOUT_NAME).toString());
-		this.levels = Integer.parseInt(configMap.get(LEVELS_NAME).toString());
-		this.baseTupleBitsN = Integer.parseInt(configMap.get(TUPLEBITSN_NAME).toString());
-		this.bucketDepth = Integer.parseInt(configMap.get(BUCKETDEPTH_NAME).toString());
-		this.addressSpaceSize = Long.parseLong(configMap.get(ADDRSPACE_NAME).toString());
-		this.dataSize = Integer.parseInt(configMap.get(DATASIZE_NAME).toString());
-		this.leafExpansion = Integer.parseInt(configMap.get(LEAFEXPANSION_NAME).toString());
-		this.tau = Integer.parseInt(configMap.get(TAU_NAME).toString());
-		
-		// Figure out how many bits are needed to store the tuple leaf element
-		BigInteger bi = new BigInteger("" + (baseNumLeaves - 1));
-		this.baseTupleBitsL = bi.bitLength();
+		tau = Integer.parseInt(configMap.get(TAU_NAME).toString());
+		w = Integer.parseInt(configMap.get(W_NAME).toString());
+		e = Integer.parseInt(configMap.get(E_NAME).toString());
+		levels = Integer.parseInt(configMap.get(LEVELS_NAME).toString());
+		DBytes = Integer.parseInt(configMap.get(DBYTES_NAME).toString());
+		nonceBits = Integer.parseInt(configMap.get(NONCEBITS_NAME).toString());
 		
 		init();
 	}
@@ -128,76 +104,80 @@ public class ForestMetadata implements Serializable
 	 */
 	private void init()
 	{
+		twoTauPow = (int) Math.pow(2, tau);
+		h = levels - 1;
+		
 		lBytes = new int[levels];
 		lBits = new int[levels];
 		nBytes = new int[levels];
 		nBits = new int[levels];
-		tupleSizeInBytes = new int[levels];
-		totalSizeInBytes = 0L;
-		numLeaves = new long[levels];
-		dataSize = getDataSize();
-		int tauExp = (int)(Math.log(tau) / Math.log(2));
+		aBytes = new int[levels];
+		aBits = new int[levels];
+		tupleBits = new int[levels];
+		tupleBytes = new int[levels];
+		numBuckets = new long[levels];
+		treeBytes = new long[levels];
 		
-		// TODO: some error checking here, if needed
+		totalSizeInBytes = 0L;
 		
 		// Compute the values for each of the ORAM levels
-		Util.disp("=====\nORAM parameters:");
-		Util.disp("tau = " + tau + ", e = " + leafExpansion + "\n");
-		for (int i = 0; i < levels; i++)
-		{
-			int tauPow = (int)(Math.pow(tau, i));
-			int tauExpPow = tauExp * i;
-			
-			// Compute the number of leaves
-			if (i == 0) // #leaves => (2^k) / e
-			{
-				numLeaves[i] = addressSpaceSize / leafExpansion; 
+		for (int i = h; i >= 0; i--)
+		{			
+			if (i == 0) {
+				nBits[i] = 0;
+				nBytes[i] = 0;
+				lBits[i] = 0;
+				lBytes[i] = 0;
+				numBuckets[i] = 1;
 			}
-			else // #leaves => (2^k) / (e * \tau*i)
-			{
-				numLeaves[i] = addressSpaceSize / (leafExpansion * tauPow); 
+			else {
+				nBits[i] = i * tau;
+				nBytes[i] = (int) Math.ceil((double) nBits[i] / 8);
+				lBits[i] = nBits[i] - (int) Math.floor(Math.log(w * e) / Math.log(2));
+				lBytes[i] = (int) Math.ceil((double) lBits[i] / 8);
+				long numLeaves = (long) Math.pow(2, lBits[i]);
+				numBuckets[i] = numLeaves * e + numLeaves - 1;
 			}
 			
-			// Extract the number of bits for leaves/tags
-			nBits[i] = baseTupleBitsN - tauExpPow;
-			lBits[i] = (int)(Math.ceil(Math.log(numLeaves[i]) / Math.log(2)));
-			
-			// Convert to bytes and sum for the total tuple size
-			nBytes[i] = (int)Math.ceil(((nBits[i] + 7) / 8));
-			lBytes[i] = (int)Math.ceil(((lBits[i] + 7) / 8));
-			
-			// Determine max data size
-			if (i > 0)
-			{
-				int subDataSize = getTupleBytesL(i - 1) * (int)(Math.pow(getTau(), i)); 
-				if (subDataSize > dataSize)
-				{
-					dataSize = subDataSize;
-				}
+			if (i == h) {
+				aBits[i] = DBytes * 8;
+				aBytes[i] = DBytes;
+				
+				addressSpace = (long) Math.pow(2, nBits[i]);
 			}
-		}
-		
-		// Update data taking into account length of D entry in tuples
-		for (int i = 0; i < levels; i++)
-		{
-			tupleSizeInBytes[i] = lBytes[i] + nBytes[i] + dataSize + 1; // additional 1 is for tuple metadata (e.g., full bit and whatnot)
+			else {
+				aBits[i] = twoTauPow * lBits[i+1];
+				aBytes[i] = (int) Math.ceil((double) aBits[i] / 8);
+			}
 			
-			// Accumulate the total size of the DB
-			long treeSize = (bucketDepth * (int)((numLeaves[i] * leafExpansion) + (numLeaves[i] - 1))) * tupleSizeInBytes[i];
-			totalSizeInBytes += treeSize;
+			if (i == 0) {
+				tupleBits[i] = aBits[i];
+				tupleBytes[i] = aBytes[i];
+				treeBytes[i] = tupleBytes[i] + getNonceBytes();
+				totalSizeInBytes += treeBytes[i];
+			}
+			else {
+				tupleBits[i] = 1 + nBits[i] + lBits[i] + aBits[i];
+				tupleBytes[i] = 1 + nBytes[i] + lBytes[i] + aBytes[i];
+				treeBytes[i] = (tupleBytes[i] + getNonceBytes()) * w * numBuckets[i];
+				totalSizeInBytes += treeBytes[i];
+			}
 			
-			// debug
-			Util.disp("    [Level " + i + "]");
-			Util.disp("    #leaves            => " + numLeaves[i]);
-			Util.disp("    tag bits           => " + nBits[i]);
-			Util.disp("    leaf bits          => " + lBits[i]);
-			Util.disp("    data size (bytes)  => " + dataSize);
-			Util.disp("    tuple size (bytes) => " + tupleSizeInBytes[i]);
-			Util.disp("    tree size (bytes)  => " + treeSize);
+			// debug info
+			Util.disp("[Level " + i + "]");
+			Util.disp("    lBits			=> " + lBits[i]);
+			Util.disp("    lBytes			=> " + lBytes[i]);
+			Util.disp("    nBits			=> " + nBits[i]);
+			Util.disp("    nBytes			=> " + nBytes[i]);
+			Util.disp("    aBits			=> " + aBits[i]);
+			Util.disp("    aBytes			=> " + aBytes[i]);
+			Util.disp("    tupleBits		=> " + tupleBits[i]);
+			Util.disp("    tupleBytes		=> " + tupleBytes[i]);
+			Util.disp("    numBuckets		=> " + numBuckets[i]);
 			Util.disp("");
 		}
 		
-		Util.disp("   Total size (in bytes) => " + totalSizeInBytes);
+		Util.disp("Total size (in bytes) => " + totalSizeInBytes);
 		Util.disp("=====");
 	}
 	
@@ -225,12 +205,12 @@ public class ForestMetadata implements Serializable
 	    
 	    // Cached configuration map
 		Map<String, String> configMap = new HashMap<String, String>();
-		configMap.put(FANOUT_NAME, "" + fanout);
+		configMap.put(TAU_NAME, "" + tau);
+		configMap.put(W_NAME, "" + w);
+		configMap.put(E_NAME, "" + e);
 		configMap.put(LEVELS_NAME, "" + levels);
-		configMap.put(TUPLEBITSN_NAME, "" + baseTupleBitsN);
-		configMap.put(BUCKETDEPTH_NAME, "" + bucketDepth);
-		configMap.put(ADDRSPACE_NAME, "" + addressSpaceSize);
-		configMap.put(DATASIZE_NAME, "" + dataSize);
+		configMap.put(DBYTES_NAME, "" + DBytes);
+		configMap.put(NONCEBITS_NAME, "" + nonceBits);
 	    
 	    yaml.dump(configMap, writer);
 	    
@@ -238,11 +218,6 @@ public class ForestMetadata implements Serializable
 	}
 	
 	///// ACCESSORS
-	
-	public int getFanout()
-	{
-		return fanout;
-	}
 	
 	public int getLevels()
 	{
@@ -269,34 +244,53 @@ public class ForestMetadata implements Serializable
 		return nBytes[level];
 	}
 	
-	public int getTupleBytesD()
+	public int getTupleBitA(int level)
 	{
-		return dataSize;
+		return aBits[level];
+	}
+	
+	public int getTupleBytesA(int level)
+	{
+		return aBytes[level];
+	}
+	
+	public int getTupleSizeInBits(int level)
+	{
+		return tupleBits[level];
 	}
 	
 	public int getTupleSizeInBytes(int level)
 	{
-		return tupleSizeInBytes[level];
+		return tupleBytes[level];
+	}
+	
+	public long getTreeBytes(int level)
+	{
+		return treeBytes[level];
 	}
 	
 	public int getBucketDepth()
 	{
-		return bucketDepth;
+		return w;
+	}
+	
+	public long getNumBuckets(int level) {
+		return numBuckets[level];
 	}
 	
 	public long getNumLeaves(int level)
 	{
-		return numLeaves[level];
+		return (long) Math.pow(2, lBits[level]);
 	}
 	
 	public int getDataSize()
 	{
-		return dataSize;
+		return DBytes;
 	}
 	
 	public int getLeafExpansion()
 	{
-		return leafExpansion;
+		return e;
 	}
 	
 	public int getTau()
@@ -304,13 +298,25 @@ public class ForestMetadata implements Serializable
 		return tau;
 	}
 	
-	public int getTauExponent()
+	public int getTwoTauPow()
 	{
-		return (int)(Math.log(tau) / Math.log(2));
+		return twoTauPow;
 	}
 	
 	public long getTotalSizeInBytes()
 	{
 		return totalSizeInBytes;
+	}
+	
+	public long getAddressSpace() {
+		return addressSpace;
+	}
+	
+	public int getNonceBits() {
+		return nonceBits;
+	}
+	
+	public int getNonceBytes() {
+		return (int) Math.ceil((double) nonceBits / 8);
 	}
 }
