@@ -1,19 +1,14 @@
 package sprout.oram;
 
-import java.util.Arrays;
-
 import sprout.util.Util;
-import sprout.util.RC;
 
 public class Tree
 {	
 	private int index;
-	private long offset;
 	
-	public Tree(int index, long offset)
+	public Tree(int index)
 	{
 		this.index = index;
-		this.offset = offset;
 	}
 	
 	public int getTreeIndex() 
@@ -21,18 +16,14 @@ public class Tree
 		return index;
 	}
 	
-	public long getDataOffset() 
+	public byte[] readTuple(long tupleNum) throws TreeException
 	{
-		return offset;
-	}
-	
-	// TODO: overflow??
-	public byte[] readTuple(long tupleNum)
-	{
-		int realTupleBytes = getRealTupleBytes();
-		long start = offset + tupleNum * realTupleBytes;
-		long end = start + realTupleBytes;
-		return Arrays.copyOfRange(Forest.getForestData(), (int) start, (int) end);
+		if (tupleNum > 0 && tupleNum < ForestMetadata.getNumTuples(index))
+			throw new TreeException("Tuple number error");
+		
+		int wholeTupleBytes = ForestMetadata.getWholeTupleBytes(index);
+		long start = ForestMetadata.getTreeOffset(index) + tupleNum * wholeTupleBytes;
+		return Forest.getForestData(start, wholeTupleBytes);
 	}
 	
 	/*
@@ -47,35 +38,26 @@ public class Tree
 	}
 	*/
 	
-	// TODO: overflow??
-	public RC writeTuple(byte[] tuple, long tupleNum)
+	public void writeTuple(byte[] tuple, long tupleNum) throws TreeException
 	{
-		if (tupleNum > 0 && tupleNum < getNumberOfTuples())
-		{
-			int realTupleBytes = getRealTupleBytes();
-			if (realTupleBytes != tuple.length)
-			{
-				return RC.INVALID_TUPLE_SIZE;
-			}
-			long start = offset + tupleNum * realTupleBytes;
-			System.arraycopy(tuple, 0, data, (int) start, realTupleBytes);
-		}
-		return RC.TREE_INVALID_SLOT_INDEX;
+		if (tupleNum > 0 && tupleNum < ForestMetadata.getNumTuples(index))
+			throw new TreeException("Tuple number error");
+		
+		int wholeTupleBytes = ForestMetadata.getWholeTupleBytes(index);
+		if (wholeTupleBytes != tuple.length)
+			throw new TreeException("Tuple length error");
+		
+		long start = ForestMetadata.getTreeOffset(index) + tupleNum * wholeTupleBytes;
+		Forest.setForestData(tuple, start);
 	}
 	
-	public RC initialInsertTuple(Tuple t, long n) throws TreeException 
+	// only inserting tuples into leaves
+	public void initialInsertTuple(Tuple t, long n) throws TreeException 
 	{
 		Util.disp("ORAM-" + index + " inserting: " + t);		
-		byte[] raw = t.toArray();
-		long base = (long) (Math.pow(2, lBits) - 1) * w;
-		RC ret = writeTuple(raw, base + n);
-		if (ret != RC.SUCCESS)
-		{
-			System.out.println(ret.toString());
-			throw new TreeException("Failed to write tuple at number " + (base+n));
-		}
-		
-		return RC.SUCCESS;
+		byte[] raw = t.getWhole();
+		long base = (ForestMetadata.getNumLeaves(index) - 1) * ForestMetadata.getBucketDepth();
+		writeTuple(raw, base + n);
 	}
 	
 	/*

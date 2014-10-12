@@ -45,6 +45,9 @@ public class ForestMetadata implements Serializable
 	// Largest tree index
 	private static int h;
 	
+	// Size of each data element in the last tree
+	private static int DBytes;
+	
 	// nonce size
 	private static int nonceBits;
 	
@@ -58,7 +61,8 @@ public class ForestMetadata implements Serializable
 	private static int[] tupleBits;
 	private static int[] tupleBytes;
 	
-	// Tree sizes
+	// Tree info
+	private static long[] offset;
 	private static long[] treeBytes;
 	
 	// Number of buckets in the ORAM
@@ -67,20 +71,18 @@ public class ForestMetadata implements Serializable
 	// Max number of records
 	private static long addressSpace;
 	
-	// Size of each data element
-	private static int DBytes;
-	
 	// Size of the entire DB
-	private static long totalSizeInBytes;
+	private static long forestBytes;
 	
 	/**
 	 * Construct the forest metadata from a previously generated config file.
 	 * 
 	 * @param filename - config file name
+	 * @return 
 	 * @throws FileNotFoundException
 	 * @throws NumberFormatException
 	 */
-	public ForestMetadata(String filename) throws FileNotFoundException, NumberFormatException
+	public static void setup(String filename) throws FileNotFoundException
 	{
 		Yaml yaml = new Yaml();
 		InputStream input = new FileInputStream(new File(filename));
@@ -102,9 +104,8 @@ public class ForestMetadata implements Serializable
 	 * Perform extra initialization of parameter values after loading 
 	 * from the config file.
 	 */
-	// TODO: change math.ceil to +7/8
 	// TODO: remove bytes??
-	private void init()
+	private static void init()
 	{
 		twoTauPow = (int) Math.pow(2, tau);
 		h = levels - 1;
@@ -120,7 +121,7 @@ public class ForestMetadata implements Serializable
 		numBuckets = new long[levels];
 		treeBytes = new long[levels];
 		
-		totalSizeInBytes = 0L;
+		forestBytes = 0L;
 		
 		// Compute the values for each of the ORAM levels
 		for (int i = h; i >= 0; i--)
@@ -134,9 +135,9 @@ public class ForestMetadata implements Serializable
 			}
 			else {
 				nBits[i] = i * tau;
-				nBytes[i] = (int) Math.ceil((double) nBits[i] / 8);
+				nBytes[i] = (nBits[i] + 7) / 8;
 				lBits[i] = nBits[i] - (int) Math.floor(Math.log(w * e) / Math.log(2));
-				lBytes[i] = (int) Math.ceil((double) lBits[i] / 8);
+				lBytes[i] = (lBits[i] + 7 ) / 8;
 				long numLeaves = (long) Math.pow(2, lBits[i]);
 				numBuckets[i] = numLeaves * e + numLeaves - 1;
 			}
@@ -149,23 +150,23 @@ public class ForestMetadata implements Serializable
 			}
 			else {
 				aBits[i] = twoTauPow * lBits[i+1];
-				aBytes[i] = (int) Math.ceil((double) aBits[i] / 8);
+				aBytes[i] = (aBits[i] + 7 ) / 8;
 			}
 			
 			if (i == 0) {
 				tupleBits[i] = aBits[i];
 				tupleBytes[i] = aBytes[i];
 				treeBytes[i] = tupleBytes[i] + getNonceBytes();
-				totalSizeInBytes += treeBytes[i];
+				forestBytes += treeBytes[i];
 			}
 			else {
 				tupleBits[i] = 1 + nBits[i] + lBits[i] + aBits[i];
-				tupleBytes[i] = 1 + nBytes[i] + lBytes[i] + aBytes[i];
+				tupleBytes[i] = (tupleBits[i] + 7) / 8;
 				treeBytes[i] = (tupleBytes[i] + getNonceBytes()) * w * numBuckets[i];
-				totalSizeInBytes += treeBytes[i];
+				forestBytes += treeBytes[i];
 			}
 			
-			// debug info
+			// TODO: add more debug info
 			Util.disp("[Level " + i + "]");
 			Util.disp("    lBits			=> " + lBits[i]);
 			Util.disp("    lBytes			=> " + lBytes[i]);
@@ -179,8 +180,15 @@ public class ForestMetadata implements Serializable
 			Util.disp("");
 		}
 		
-		Util.disp("Total size (in bytes) => " + totalSizeInBytes);
+		Util.disp("Total size (in bytes) => " + forestBytes);
 		Util.disp("=====");
+		
+		// calculate tree offsets
+		long os = 0L;
+		for (int i=0; i<levels; i++) {
+			offset[i] = os;
+			os += treeBytes[i];
+		}
 	}
 	
 	/**
@@ -189,7 +197,7 @@ public class ForestMetadata implements Serializable
 	 * @return success, else an exception is thrown
 	 * @throws IOException
 	 */
-	public RC write() throws IOException
+	public static RC write() throws IOException
 	{
 		return write(CONFIG_FILE);
 	}
@@ -200,7 +208,7 @@ public class ForestMetadata implements Serializable
 	 * @return success, else an exception is thrown
 	 * @throws IOException
 	 */
-	public RC write(String filename) throws IOException
+	public static RC write(String filename) throws IOException
 	{	
 		Yaml yaml = new Yaml();
 	    FileWriter writer = new FileWriter(filename);
@@ -226,44 +234,54 @@ public class ForestMetadata implements Serializable
 		return levels;
 	}
 	
-	public static int getTupleBitsL(int level)
+	public static int getLBits(int level)
 	{
 		return lBits[level];
 	}
 	
-	public static int getTupleBitsN(int level)
+	public static int getNBits(int level)
 	{
 		return nBits[level];
 	}
 
-	public static int getTupleBytesL(int level)
+	public static int getLBytes(int level)
 	{
 		return lBytes[level];
 	}
 	
-	public static int getTupleBytesN(int level)
+	public static int getNBytes(int level)
 	{
 		return nBytes[level];
 	}
 	
-	public static int getTupleBitA(int level)
+	public static int getABits(int level)
 	{
 		return aBits[level];
 	}
 	
-	public static int getTupleBytesA(int level)
+	public static int getABytes(int level)
 	{
 		return aBytes[level];
 	}
 	
-	public static int getTupleSizeInBits(int level)
+	public static int getTupleBits(int level)
 	{
 		return tupleBits[level];
 	}
 	
-	public static int getTupleSizeInBytes(int level)
+	public static int getTupleBytes(int level)
 	{
 		return tupleBytes[level];
+	}
+	
+	public static int getWholeTupleBytes(int level)
+	{
+		return getNonceBytes() + getTupleBytes(level);
+	}
+	
+	public static long getTreeOffset(int level)
+	{
+		return offset[level];
 	}
 	
 	public static long getTreeBytes(int level)
@@ -276,8 +294,14 @@ public class ForestMetadata implements Serializable
 		return w;
 	}
 	
-	public static long getNumBuckets(int level) {
+	public static long getNumBuckets(int level) 
+	{
 		return numBuckets[level];
+	}
+	
+	public static long getNumTuples(int level)
+	{
+		return numBuckets[level] * w;
 	}
 	
 	public static long getNumLeaves(int level)
@@ -305,9 +329,9 @@ public class ForestMetadata implements Serializable
 		return twoTauPow;
 	}
 	
-	public static long getTotalSizeInBytes()
+	public static long getForestBytes()
 	{
-		return totalSizeInBytes;
+		return forestBytes;
 	}
 	
 	public static long getAddressSpace() {
@@ -319,6 +343,6 @@ public class ForestMetadata implements Serializable
 	}
 	
 	public static int getNonceBytes() {
-		return (int) Math.ceil((double) nonceBits / 8);
+		return (nonceBits + 7 ) / 8;
 	}
 }

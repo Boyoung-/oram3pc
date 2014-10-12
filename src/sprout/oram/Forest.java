@@ -13,67 +13,18 @@ import sprout.crypto.Random;
 import sprout.util.Util;
 import sprout.util.RC;
 
-public class Forest implements Iterator<Tree> 
+public class Forest
 {	
-	private ForestMetadata metadata;
-	private ArrayList<Tree> trees;
-	
+	private ArrayList<Tree> trees;	
 	private static byte[] data; // keep all data in memory for testing now
 	
-	/**
-	 * Initialize an ORAM hierarchy (forest) from the specified configuration file
-	 * and data file.
-	 * 
-	 * @param cfgFile - file from which to get the ORAM parameters.
-	 * @param dataFile - file containing the data to be used during initialization.
-	 * @return RC.SUCCESS on success, something else otherwise
-	 * @throws NumberFormatException 
-	 * @throws ForestException 
-	 * @throws IOException 
-	 */
-	public RC buildFromFile(String cfgFile, String dataFile, String dbFile) throws NumberFormatException, ForestException, IOException
+	public Forest(String dataFile)
 	{
-		metadata = new ForestMetadata(cfgFile);
-		return buildFromFile(dataFile, dbFile);
-	}
-	
-	/**
-	 * Initialize an ORAM hierarchy (forest) from the specified data file. 
-	 * 
-	 * @precondition - the metadata object is set.
-	 * 
-	 * @param dataFile - file containing the data to be used during initialization.
-	 * @return RC.SUCCESS on success, something else otherwise
-	 * @throws NumberFormatException 
-	 * @throws ForestException 
-	 * @throws IOException 
-	 */
-	public RC buildFromFile(String dataFile, String dbFile) throws NumberFormatException, ForestException, IOException
-	{
-		if (metadata == null)
-		{
-			throw new ForestException("Uninitialized metadata during ORAM creation");
-		}
-		
-		//RC ret = RC.SUCCESS; // assume success
 		//byte[] buffer = new byte[metadata.getDataSize()];
 		FileInputStream is = new FileInputStream(dataFile);
 		
-		// Allocate space for the whole tree so that writing to disk actually works!
-		//long dbSize = metadata.getTotalSizeInBytes();
-		//Util.disp("Total database size = " + dbSize);
-		//RandomAccessFile ro = new RandomAccessFile(dbFile, "rw");
-		//byte[] tmp = new byte[(int) dbSize];
-		//ro.write(tmp, 0, (int) dbSize);
-		//ro.setLength(dbSize);
-		//for (long i = 0L; i < dbSize; i++)
-		//{
-		//	ro.write((byte)0);
-		//}
-		//ro.close();
-		
-		// TODO: avoid overflow by writing to disk
-		data = new byte[(int) metadata.getTotalSizeInBytes()];
+		// TODO: overflow??
+		data = new byte[(int) ForestMetadata.getForestBytes()];
 		
 		// Create the base ORAM tree
 		long offset = 0L;
@@ -414,7 +365,16 @@ public class Forest implements Iterator<Tree>
 	}
 	
 	// TODO: overflow??
-	public static void setForestData(byte[] newData, long offset) {
+	public static byte[] getForestData(long offset, int length)
+	{
+		byte[] tmp = new byte[length];
+		System.arraycopy(data, (int) offset, tmp, 0, length);
+		return tmp;
+	}
+	
+	// TODO: overflow??
+	public static void setForestData(byte[] newData, long offset) 
+	{
 		System.arraycopy(newData, 0, data, (int) offset, newData.length); 
 	}
 }
