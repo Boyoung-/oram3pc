@@ -53,13 +53,14 @@ public class Forest
 					N[i] = BigInteger.valueOf(address >> ((h-i)*tau));
 					//System.out.println("???");
 					//System.out.println("ni: " + N[i]);
-					L[i] = BigInteger.valueOf(2).pow(N[i].intValue()).divide(BigInteger.valueOf(ForestMetadata.getBucketDepth()*ForestMetadata.getLeafExpansion()));
+					L[i] = N[i].divide(BigInteger.valueOf(ForestMetadata.getBucketDepth()*ForestMetadata.getLeafExpansion()));
 				}
 				if (i == h)
 					A = new BigInteger(ForestMetadata.getABits(i), rnd);
 				else {
 					BigInteger indexN = Util.getSubBits(N[i+1], 0, tau);
 					int start = (ForestMetadata.getTwoTauPow()-indexN.intValue()-1) * ForestMetadata.getLBits(i+1);
+					//System.out.println(N[i].longValue());
 					Tuple old = trees.get(i).readLeafTuple(N[i].longValue());
 					A = Util.setSubBits(new BigInteger(1, old.getA()), L[i+1], start, start+ForestMetadata.getLBits(i+1));
 				}
