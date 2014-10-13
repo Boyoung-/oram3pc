@@ -21,8 +21,8 @@ public class ForestMetadata implements Serializable
 	public static final String TAU_NAME 			= "tau";
 	public static final String W_NAME 				= "w";
 	public static final String E_NAME 				= "e";
-	public static final String LEVELS_NAME 			= "levles";
-	public static final String DBYTES_NAME 			= "DBYTES";
+	public static final String LEVELS_NAME 			= "levels";
+	public static final String DBYTES_NAME 			= "dBytes";
 	public static final String NONCEBITS_NAME		= "nonceBits";
 	
 	/**
@@ -46,7 +46,7 @@ public class ForestMetadata implements Serializable
 	private static int h;
 	
 	// Size of each data element in the last tree
-	private static int DBytes;
+	private static int dBytes;
 	
 	// nonce size
 	private static int nonceBits;
@@ -63,6 +63,7 @@ public class ForestMetadata implements Serializable
 	
 	// Tree info
 	private static long[] offset;
+	private static long[] numLeaves;
 	private static long[] treeBytes;
 	
 	// Number of buckets in the ORAM
@@ -94,7 +95,7 @@ public class ForestMetadata implements Serializable
 		w = Integer.parseInt(configMap.get(W_NAME).toString());
 		e = Integer.parseInt(configMap.get(E_NAME).toString());
 		levels = Integer.parseInt(configMap.get(LEVELS_NAME).toString());
-		DBytes = Integer.parseInt(configMap.get(DBYTES_NAME).toString());
+		dBytes = Integer.parseInt(configMap.get(DBYTES_NAME).toString());
 		nonceBits = Integer.parseInt(configMap.get(NONCEBITS_NAME).toString());
 		
 		init();
@@ -120,6 +121,8 @@ public class ForestMetadata implements Serializable
 		tupleBytes = new int[levels];
 		numBuckets = new long[levels];
 		treeBytes = new long[levels];
+		offset = new long[levels];
+		numLeaves = new long[levels];
 		
 		forestBytes = 0L;
 		
@@ -131,20 +134,22 @@ public class ForestMetadata implements Serializable
 				nBytes[i] = 0;
 				lBits[i] = 0;
 				lBytes[i] = 0;
+				numLeaves[i] = 0;
 				numBuckets[i] = 1;
 			}
 			else {
 				nBits[i] = i * tau;
 				nBytes[i] = (nBits[i] + 7) / 8;
-				lBits[i] = nBits[i] - (int) Math.floor(Math.log(w * e) / Math.log(2));
+				int leastNumLeaves = (int) Math.ceil(Math.pow(2, nBits[i]) / (w * e));
+				lBits[i] = Math.max((int) Math.ceil(Math.log(leastNumLeaves) / Math.log(2)), 1);
 				lBytes[i] = (lBits[i] + 7 ) / 8;
-				long numLeaves = (long) Math.pow(2, lBits[i]);
-				numBuckets[i] = numLeaves * e + numLeaves - 1;
+				numLeaves[i] = (long) Math.pow(2, lBits[i]);
+				numBuckets[i] = numLeaves[i] * e + numLeaves[i] - 1;
 			}
 			
 			if (i == h) {
-				aBits[i] = DBytes * 8;
-				aBytes[i] = DBytes;
+				aBits[i] = dBytes * 8;
+				aBytes[i] = dBytes;
 				
 				addressSpace = (long) Math.pow(2, nBits[i]);
 			}
@@ -156,27 +161,26 @@ public class ForestMetadata implements Serializable
 			if (i == 0) {
 				tupleBits[i] = aBits[i];
 				tupleBytes[i] = aBytes[i];
-				treeBytes[i] = tupleBytes[i] + getNonceBytes();
-				forestBytes += treeBytes[i];
 			}
 			else {
 				tupleBits[i] = 1 + nBits[i] + lBits[i] + aBits[i];
 				tupleBytes[i] = (tupleBits[i] + 7) / 8;
-				treeBytes[i] = (tupleBytes[i] + getNonceBytes()) * w * numBuckets[i];
-				forestBytes += treeBytes[i];
 			}
+			treeBytes[i] = (tupleBytes[i] + getNonceBytes()) * getNumTuples(i);
+			forestBytes += treeBytes[i];
 			
 			// TODO: add more debug info
 			Util.disp("[Level " + i + "]");
-			Util.disp("    lBits			=> " + lBits[i]);
-			Util.disp("    lBytes			=> " + lBytes[i]);
-			Util.disp("    nBits			=> " + nBits[i]);
-			Util.disp("    nBytes			=> " + nBytes[i]);
-			Util.disp("    aBits			=> " + aBits[i]);
-			Util.disp("    aBytes			=> " + aBytes[i]);
-			Util.disp("    tupleBits		=> " + tupleBits[i]);
-			Util.disp("    tupleBytes		=> " + tupleBytes[i]);
-			Util.disp("    numBuckets		=> " + numBuckets[i]);
+			Util.disp("    lBits          => " + lBits[i]);
+			Util.disp("    lBytes         => " + lBytes[i]);
+			Util.disp("    nBits          => " + nBits[i]);
+			Util.disp("    nBytes         => " + nBytes[i]);
+			Util.disp("    aBits          => " + aBits[i]);
+			Util.disp("    aBytes         => " + aBytes[i]);
+			Util.disp("    tupleBits      => " + tupleBits[i]);
+			Util.disp("    tupleBytes     => " + tupleBytes[i]);
+			Util.disp("    treeBytes      => " + treeBytes[i]);
+			Util.disp("    numBuckets     => " + numBuckets[i]);
 			Util.disp("");
 		}
 		
@@ -219,7 +223,7 @@ public class ForestMetadata implements Serializable
 		configMap.put(W_NAME, "" + w);
 		configMap.put(E_NAME, "" + e);
 		configMap.put(LEVELS_NAME, "" + levels);
-		configMap.put(DBYTES_NAME, "" + DBytes);
+		configMap.put(DBYTES_NAME, "" + dBytes);
 		configMap.put(NONCEBITS_NAME, "" + nonceBits);
 	    
 	    yaml.dump(configMap, writer);
@@ -301,17 +305,20 @@ public class ForestMetadata implements Serializable
 	
 	public static long getNumTuples(int level)
 	{
-		return numBuckets[level] * w;
+		if (level == 0)
+			return 1;
+		else
+			return numBuckets[level] * w;
 	}
 	
 	public static long getNumLeaves(int level)
 	{
-		return (long) Math.pow(2, lBits[level]);
+		return numLeaves[level];
 	}
 	
 	public static int getDataSize()
 	{
-		return DBytes;
+		return dBytes;
 	}
 	
 	public static int getLeafExpansion()

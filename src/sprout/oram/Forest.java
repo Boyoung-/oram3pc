@@ -20,29 +20,24 @@ public class Forest
 	
 	public Forest(String dataFile)
 	{
-		//byte[] buffer = new byte[metadata.getDataSize()];
+		int dBytes = ForestMetadata.getDataSize()
+		byte[] buffer = new byte[dBytes];
 		FileInputStream is = new FileInputStream(dataFile);
 		
 		// TODO: overflow??
 		data = new byte[(int) ForestMetadata.getForestBytes()];
 		
-		// Create the base ORAM tree
-		long offset = 0L;
-		Tree base = new Tree(offset, 0, dbFile, metadata);
-		try
+		Tree last = new Tree(ForestMetadata.getLevels()-1);
+		
+		long addressSpace = ForestMetadata.getAddressSpace();
+		for (long address = 0L; address < addressSpace; address++)
 		{
-			// Recall: numLeaves is specified as k*2^k, so we need to multiply by k to get the actual number of data elements
-			HashMap<Long, Integer> leaves = new HashMap<Long, Integer>();
-			long address = 0;
-			long baseNumEntries = metadata.getNumLeaves(0) * metadata.getLeafExpansion();
-			while (address < baseNumEntries) 
+			int bytesRead = is.read(buffer, 0, ForestMetadata.getDataSize());
+			if (bytesRead == 0)
 			{
-				int bytesRead = is.read(buffer, 0, metadata.getDataSize());
-				if (bytesRead == 0)
-				{
-					is.close();
-					throw new ForestException("Invalid data file contents (insufficient data).");
-				}
+				is.close();
+				throw new ForestException("Invalid data file contents (insufficient data).");
+			}
 				
 				// 1. Encrypt the data
 				// TODO

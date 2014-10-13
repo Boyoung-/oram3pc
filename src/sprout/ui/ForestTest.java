@@ -10,7 +10,7 @@ public class ForestTest
 	public static void main(String[] args) throws FileNotFoundException
 	{
 		ForestMetadata.setup("config/newConfig.yaml");
-		Forest forest = new Forest("config/smallData.txt");		
+		//Forest forest = new Forest("config/smallData.txt");		
 	}
 
 }
