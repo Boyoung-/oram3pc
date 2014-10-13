@@ -1,10 +1,11 @@
 package sprout.oram;
 
 import java.math.BigInteger;
-import java.util.BitSet;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.util.Arrays;
+
+import sprout.util.Util;
 
 public class Tuple
 {
@@ -17,6 +18,14 @@ public class Tuple
 		this.treeIndex = treeIndex;
 		setWhole(nonce, tuple);
 	}
+	
+	public Tuple(int treeIndex, byte[] nt) throws TupleException
+	{
+		this.treeIndex = treeIndex;
+		setWhole(nt);
+	}
+	
+	// TODO: add tuple(ti, nonce, fb, n, l, a)???
 	
 	public void setTuple(byte[] tuple) throws TupleException
 	{
@@ -80,32 +89,41 @@ public class Tuple
 	
 	public byte[] getFB() 
 	{
+		if (treeIndex == 0)
+			return new byte[0];
+		
 		int tupleBits = ForestMetadata.getTupleBits(treeIndex);
-		BitSet bs = BitSet.valueOf(tuple);
-		return bs.get(tupleBits-1, tupleBits).toByteArray();
+		BigInteger t = new BigInteger(1, tuple);
+		return Util.getSubBits(t, tupleBits-1, tupleBits).toByteArray();
 	}
 	
 	public byte[] getN()
 	{
+		if (treeIndex == 0)
+			return new byte[0];
+		
 		int tupleBits = ForestMetadata.getTupleBits(treeIndex);
 		int nBits = ForestMetadata.getNBits(treeIndex);
-		BitSet bs = BitSet.valueOf(tuple);
-		return bs.get(tupleBits-1-nBits, tupleBits-1).toByteArray();
+		BigInteger t = new BigInteger(1, tuple);
+		return Util.getSubBits(t, tupleBits-1-nBits, tupleBits-1).toByteArray();
 	}
 	
 	public byte[] getL()
 	{
+		if (treeIndex == 0)
+			return new byte[0];
+		
 		int aBits = ForestMetadata.getABits(treeIndex);
 		int lBits = ForestMetadata.getLBits(treeIndex);
-		BitSet bs = BitSet.valueOf(tuple);
-		return bs.get(aBits, aBits+lBits).toByteArray();
+		BigInteger t = new BigInteger(1, tuple);
+		return Util.getSubBits(t, aBits, aBits+lBits).toByteArray();
 	}
 	
 	public byte[] getA()
 	{
 		int aBits = ForestMetadata.getABits(treeIndex);
-		BitSet bs = BitSet.valueOf(tuple);
-		return bs.get(0, aBits).toByteArray();
+		BigInteger t = new BigInteger(1, tuple);
+		return Util.getSubBits(t, 0, aBits).toByteArray();
 	}
 	
 	@Override
@@ -121,13 +139,16 @@ public class Tuple
 		else
 			builder.append(new BigInteger(1, nonce).toString(10) + ", ");
 		
-		builder.append("FB(2)=" + new BigInteger(1, getFB()).toString(2) + ", ");
+		if (treeIndex > 0) {
+			builder.append("FB(2)=" + new BigInteger(1, getFB()).toString(2) + ", ");
 		
-		builder.append("N(2)=" + new BigInteger(1, getN()).toString(2) + ", ");
+			builder.append("N(2)=" + Util.addZero(new BigInteger(1, getN()).toString(2), ForestMetadata.getNBits(treeIndex)) + ", ");
 		
-		builder.append("L(2)=" + new BigInteger(1, getL()).toString(2) + ", ");
+			builder.append("L(2)=" + Util.addZero(new BigInteger(1, getL()).toString(2), ForestMetadata.getLBits(treeIndex)) + ", ");
+		}
 		
-		builder.append("A(16)=" + new BigInteger(1, getA()).toString(16));
+		//builder.append("A(16)=" + new BigInteger(1, getA()).toString(16));
+		builder.append("A(2)=" + Util.addZero(new BigInteger(1, getA()).toString(2), ForestMetadata.getABits(treeIndex)));
 		
 		return builder.toString();
 	}

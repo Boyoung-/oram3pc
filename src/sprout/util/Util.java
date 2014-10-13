@@ -242,4 +242,20 @@ public class Util
 		} while (r.compareTo(range) >= 0);
 		return r;
 	}
+	
+	public static BigInteger getSubBits(BigInteger n, int i, int j)
+	{
+		return BigInteger.ONE.shiftLeft(j-i).subtract(BigInteger.ONE).shiftLeft(i).and(n).shiftRight(i);
+	}
+	
+	public static BigInteger setSubBits(BigInteger target, BigInteger input, int i, int j)
+	{
+		for (int k=0; k<j-i; k++) {
+			if (input.testBit(k))
+				target = target.setBit(i+k);
+			else
+				target = target.clearBit(i+k);
+		}
+		return target;
+	}
 }

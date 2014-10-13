@@ -137,7 +137,7 @@ public class ForestMetadata implements Serializable
 				nBytes[i] = 0;
 				lBits[i] = 0;
 				lBytes[i] = 0;
-				numLeaves[i] = 0;
+				numLeaves[i] = 1;
 				numBuckets[i] = 1;
 			}
 			else {

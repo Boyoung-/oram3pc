@@ -40,7 +40,7 @@ public class Tree
 	
 	public void writeTuple(byte[] tuple, long tupleNum) throws TreeException
 	{
-		if (tupleNum > 0 && tupleNum < ForestMetadata.getNumTuples(index))
+		if (tupleNum < 0 || tupleNum >= ForestMetadata.getNumTuples(index))
 			throw new TreeException("Tuple number error");
 		
 		int wholeTupleBytes = ForestMetadata.getWholeTupleBytes(index);
@@ -51,10 +51,18 @@ public class Tree
 		Forest.setForestData(tuple, start);
 	}
 	
-	// only inserting tuples into leaves
-	public void initialInsertTuple(Tuple t, long n) throws TreeException 
+	public Tuple readLeafTuple(long n) throws TreeException, TupleException
 	{
-		Util.disp("ORAM-" + index + " inserting: " + t);		
+		if (n < 0 || n >= ForestMetadata.getNumLeaves(index))
+			throw new TreeException("Leaf tuple number error");
+		
+		long base = (ForestMetadata.getNumLeaves(index) - 1) * ForestMetadata.getBucketDepth();
+		return new Tuple(index, readTuple(base + n));
+	}
+	
+	public void writeLeafTuple(Tuple t, long n) throws TreeException 
+	{
+		Util.disp("ORAM-" + index + " writing: " + t);		
 		byte[] raw = t.getWhole();
 		long base = (ForestMetadata.getNumLeaves(index) - 1) * ForestMetadata.getBucketDepth();
 		writeTuple(raw, base + n);
