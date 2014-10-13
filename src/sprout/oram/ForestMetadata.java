@@ -30,6 +30,9 @@ public class ForestMetadata implements Serializable
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	// status
+	private static boolean status = false;
+	
 	// Tau in the write-up
 	private static int tau;
 	private static int twoTauPow;
@@ -193,6 +196,8 @@ public class ForestMetadata implements Serializable
 			offset[i] = os;
 			os += treeBytes[i];
 		}
+		
+		status = true;
 	}
 	
 	/**
@@ -232,6 +237,10 @@ public class ForestMetadata implements Serializable
 	}
 	
 	///// ACCESSORS
+	public static boolean getStatus()
+	{
+		return status;
+	}
 	
 	public static int getLevels()
 	{

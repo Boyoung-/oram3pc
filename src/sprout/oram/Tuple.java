@@ -82,7 +82,7 @@ public class Tuple
 	{
 		int tupleBits = ForestMetadata.getTupleBits(treeIndex);
 		BitSet bs = BitSet.valueOf(tuple);
-		return bs.get(bs.size()-tupleBits, bs.size()-tupleBits+1).toByteArray();
+		return bs.get(tupleBits-1, tupleBits).toByteArray();
 	}
 	
 	public byte[] getN()
@@ -90,23 +90,22 @@ public class Tuple
 		int tupleBits = ForestMetadata.getTupleBits(treeIndex);
 		int nBits = ForestMetadata.getNBits(treeIndex);
 		BitSet bs = BitSet.valueOf(tuple);
-		return bs.get(bs.size()-tupleBits+1, bs.size()-tupleBits+1+nBits).toByteArray();
+		return bs.get(tupleBits-1-nBits, tupleBits-1).toByteArray();
 	}
 	
 	public byte[] getL()
 	{
-		int tupleBits = ForestMetadata.getTupleBits(treeIndex);
-		int nBits = ForestMetadata.getNBits(treeIndex);
+		int aBits = ForestMetadata.getABits(treeIndex);
 		int lBits = ForestMetadata.getLBits(treeIndex);
 		BitSet bs = BitSet.valueOf(tuple);
-		return bs.get(bs.size()-tupleBits+1+nBits, bs.size()-tupleBits+1+nBits+lBits).toByteArray();
+		return bs.get(aBits, aBits+lBits).toByteArray();
 	}
 	
 	public byte[] getA()
 	{
 		int aBits = ForestMetadata.getABits(treeIndex);
 		BitSet bs = BitSet.valueOf(tuple);
-		return bs.get(bs.size()-aBits, bs.size()).toByteArray();
+		return bs.get(0, aBits).toByteArray();
 	}
 	
 	@Override
