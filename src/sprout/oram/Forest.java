@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,23 +16,46 @@ import sprout.util.RC;
 
 public class Forest
 {	
+	static SecureRandom rnd = new SecureRandom();
+	
 	private ArrayList<Tree> trees;	
 	private static byte[] data; // keep all data in memory for testing now
 	
-	public Forest(String dataFile)
-	{
-		int dBytes = ForestMetadata.getDataSize()
-		byte[] buffer = new byte[dBytes];
-		FileInputStream is = new FileInputStream(dataFile);
-		
+	public Forest()
+	{		
 		// TODO: overflow??
 		data = new byte[(int) ForestMetadata.getForestBytes()];
 		
-		Tree last = new Tree(ForestMetadata.getLevels()-1);
+		int levels = ForestMetadata.getLevels();
+		int h = levels - 1;
+		trees = new ArrayList<Tree>();
+		for (int i=0; i<levels; i++)
+			trees.add(new Tree(i));
 		
 		long addressSpace = ForestMetadata.getAddressSpace();
+		BigInteger FB;
+		BigInteger[] N = new BigInteger[levels];
+		BigInteger[] L = new BigInteger[levels];
+		BigInteger A;
 		for (long address = 0L; address < addressSpace; address++)
 		{
+			for (int i=h; i>=0; i--) 
+			{
+				if (i > 0) 
+				{
+					FB = BigInteger.ONE.shiftLeft(ForestMetadata.getNBits(i)+ForestMetadata.getLBits(i)+ForestMetadata.getABits(i));
+					N[i] = BigInteger.valueOf(address >> ((h-i)*ForestMetadata.getTau())).shiftLeft(ForestMetadata.getLBits(i)+ForestMetadata.getABits(i));
+					L[i] = BigInteger.valueOf(address/(ForestMetadata.getBucketDepth()*ForestMetadata.getLeafExpansion())).shiftLeft(ForestMetadata.getABits(i));
+				}
+				if (i == h)
+					A = new BigInteger(ForestMetadata.getABits(i), rnd);
+				else {
+					A = BigInteger.ZERO;
+				}
+			}
+		}
+		
+		
 			int bytesRead = is.read(buffer, 0, ForestMetadata.getDataSize());
 			if (bytesRead == 0)
 			{
@@ -90,7 +114,6 @@ public class Forest
 			// Save the tree in the forest
 			trees = new ArrayList<Tree>();
 			trees.add(base);
-			offset += base.getSizeInBytes();
 			
 			// Encode the higher-order trees
 			int entryBucketSize = 0;
