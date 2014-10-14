@@ -16,15 +16,15 @@ import sprout.util.Util;
 
 public class DecryptPath extends TreeOperation<DPOutput, EPath>{
   
-   // Should only be used for reusing operations
-   DecryptPath(ForestMetadata metadata) {
+  // Should only be used for reusing operations
+  DecryptPath(ForestMetadata metadata) {
     super(null, null, metadata);
   }
-   
-   public DecryptPath(Communication con1, Communication con2) {
-     super(con1, con2);
-   }
-  
+
+  public DecryptPath(Communication con1, Communication con2) {
+    super(con1, con2);
+  }
+
   public DecryptPath(Communication con1, Communication con2, ForestMetadata metadata) {
     super(con1, con2, metadata);
   }
