@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -257,5 +258,12 @@ public class Util
 				target = target.clearBit(i+k);
 		}
 		return target;
+	}
+	
+	public static byte[] rmSignBit(byte[] arr) 
+	{
+		if (arr[0] == 0)
+			return Arrays.copyOfRange(arr, 1, arr.length);
+		return arr;
 	}
 }

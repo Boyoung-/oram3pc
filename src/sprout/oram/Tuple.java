@@ -105,7 +105,7 @@ public class Tuple
 		int tupleBits = ForestMetadata.getTupleBits(treeIndex);
 		int nBits = ForestMetadata.getNBits(treeIndex);
 		BigInteger t = new BigInteger(1, tuple);
-		return Util.getSubBits(t, tupleBits-1-nBits, tupleBits-1).toByteArray();
+		return Util.rmSignBit(Util.getSubBits(t, tupleBits-1-nBits, tupleBits-1).toByteArray());
 	}
 	
 	public byte[] getL()
@@ -116,14 +116,14 @@ public class Tuple
 		int aBits = ForestMetadata.getABits(treeIndex);
 		int lBits = ForestMetadata.getLBits(treeIndex);
 		BigInteger t = new BigInteger(1, tuple);
-		return Util.getSubBits(t, aBits, aBits+lBits).toByteArray();
+		return Util.rmSignBit(Util.getSubBits(t, aBits, aBits+lBits).toByteArray());
 	}
 	
 	public byte[] getA()
 	{
 		int aBits = ForestMetadata.getABits(treeIndex);
 		BigInteger t = new BigInteger(1, tuple);
-		return Util.getSubBits(t, 0, aBits).toByteArray();
+		return Util.rmSignBit(Util.getSubBits(t, 0, aBits).toByteArray());
 	}
 	
 	@Override

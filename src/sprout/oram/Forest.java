@@ -77,13 +77,15 @@ public class Forest
 							A);
 				}
 				
-				Tuple newTuple = new Tuple(i, BigInteger.ZERO.toByteArray(), tuple.toByteArray());
+				Tuple newTuple = new Tuple(i, BigInteger.ZERO.toByteArray(), Util.rmSignBit(tuple.toByteArray()));
 				Util.disp("ORAM-" + i + " writing: " + newTuple);		
 				trees.get(i).writeLeafTuple(newTuple, N[i].longValue());
 			}
 		}
 		
 		// TODO: encrypt all tuples in all trees??
+		Util.disp("");
+		Util.disp("===== Encryption ===== ");
 		encryptFullTuples();
 	}
 	
@@ -94,12 +96,12 @@ public class Forest
 			Tree t = trees.get(i);
 			for (int j=0; j<ForestMetadata.getNumTuples(i); j++) {
 				Tuple tp = new Tuple(i, t.readTuple(j));
-				if (new BigInteger(1, tp.getFB()).intValue() == 1) {
+				if (new BigInteger(1, tp.getFB()).intValue() == 1 || i == 0) {
 					BigInteger nonce = new BigInteger(ForestMetadata.getNonceBits(), rnd);
 					PRG G = new PRG(ForestMetadata.getTupleBits(i));
 					BigInteger mask = new BigInteger(G.generateBitString(ForestMetadata.getTupleBits(i), nonce), 2);
 					BigInteger ctext = new BigInteger(1, tp.getTuple()).xor(mask);
-					tp.setWhole(nonce.toByteArray(), ctext.toByteArray());
+					tp.setWhole(Util.rmSignBit(nonce.toByteArray()), Util.rmSignBit(ctext.toByteArray()));
 					Util.disp("ORAM-" + i + " writing encrypted " + tp);		
 					t.writeTuple(tp.toByteArray(), j);
 				}

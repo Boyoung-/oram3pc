@@ -1,7 +1,5 @@
 package sprout.oram;
 
-import sprout.util.Util;
-
 public class Tree
 {	
 	private int index;
