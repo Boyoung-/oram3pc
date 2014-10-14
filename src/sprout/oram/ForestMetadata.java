@@ -25,6 +25,8 @@ public class ForestMetadata implements Serializable
 	public static final String DBYTES_NAME 			= "dBytes";
 	public static final String NONCEBITS_NAME		= "nonceBits";
 	
+	public static final String INSERT_NAME			= "insert";
+	
 	/**
 	 * Class version ID.
 	 */
@@ -78,6 +80,9 @@ public class ForestMetadata implements Serializable
 	// Size of the entire DB
 	private static long forestBytes;
 	
+	// Number of records we want to initially insert
+	private static long numInsert;
+	
 	/**
 	 * Construct the forest metadata from a previously generated config file.
 	 * 
@@ -101,6 +106,8 @@ public class ForestMetadata implements Serializable
 		dBytes = Integer.parseInt(configMap.get(DBYTES_NAME).toString());
 		nonceBits = Integer.parseInt(configMap.get(NONCEBITS_NAME).toString());
 		
+		numInsert = Integer.parseInt(configMap.get(INSERT_NAME).toString());
+		
 		init();
 	}
 	
@@ -108,7 +115,6 @@ public class ForestMetadata implements Serializable
 	 * Perform extra initialization of parameter values after loading 
 	 * from the config file.
 	 */
-	// TODO: remove bytes??
 	private static void init()
 	{
 		twoTauPow = (int) Math.pow(2, tau);
@@ -171,24 +177,7 @@ public class ForestMetadata implements Serializable
 			}
 			treeBytes[i] = (tupleBytes[i] + getNonceBytes()) * getNumTuples(i);
 			forestBytes += treeBytes[i];
-			
-			// TODO: add more debug info
-			Util.disp("[Level " + i + "]");
-			Util.disp("    lBits          => " + lBits[i]);
-			Util.disp("    lBytes         => " + lBytes[i]);
-			Util.disp("    nBits          => " + nBits[i]);
-			Util.disp("    nBytes         => " + nBytes[i]);
-			Util.disp("    aBits          => " + aBits[i]);
-			Util.disp("    aBytes         => " + aBytes[i]);
-			Util.disp("    tupleBits      => " + tupleBits[i]);
-			Util.disp("    tupleBytes     => " + tupleBytes[i]);
-			Util.disp("    treeBytes      => " + treeBytes[i]);
-			Util.disp("    numBuckets     => " + numBuckets[i]);
-			Util.disp("");
 		}
-		
-		Util.disp("Total size (in bytes) => " + forestBytes);
-		Util.disp("=====");
 		
 		// calculate tree offsets
 		long os = 0L;
@@ -198,6 +187,42 @@ public class ForestMetadata implements Serializable
 		}
 		
 		status = true;
+		
+		printInfo();
+	}
+	
+	public static void printInfo() 
+	{
+		Util.disp("===== ForestMetadata =====");
+		Util.disp("tau:\t" + tau);
+		Util.disp("w:\t" + w);
+		Util.disp("e:\t" + e);
+		Util.disp("trees:\t" + levels);
+		Util.disp("D bytes:\t" + dBytes);
+		Util.disp("nonce bits:\t" + nonceBits);
+		Util.disp("max # records:\t" + addressSpace);
+		Util.disp("forest bytes:\t" + forestBytes);
+		Util.disp("");
+		
+		for (int i=0; i<levels; i++) {
+			Util.disp("[Level " + i + "]");
+			Util.disp("    lBits          => " + lBits[i]);
+			Util.disp("    lBytes         => " + lBytes[i]);
+			Util.disp("    nBits          => " + nBits[i]);
+			Util.disp("    nBytes         => " + nBytes[i]);
+			Util.disp("    aBits          => " + aBits[i]);
+			Util.disp("    aBytes         => " + aBytes[i]);
+			Util.disp("    tupleBits      => " + tupleBits[i]);
+			Util.disp("    tupleBytes     => " + tupleBytes[i]);
+			Util.disp("    numLeaves      => " + numLeaves[i]);
+			Util.disp("    numBuckets     => " + numBuckets[i]);
+			Util.disp("    numTuples      => " + getNumTuples(i));
+			Util.disp("    treeOffset     => " + offset[i]);
+			Util.disp("    treeBytes      => " + treeBytes[i]);
+			Util.disp("");
+		}
+		Util.disp("=============");
+		Util.disp("");
 	}
 	
 	/**
@@ -230,6 +255,8 @@ public class ForestMetadata implements Serializable
 		configMap.put(LEVELS_NAME, "" + levels);
 		configMap.put(DBYTES_NAME, "" + dBytes);
 		configMap.put(NONCEBITS_NAME, "" + nonceBits);
+		
+		configMap.put(INSERT_NAME, "" + numInsert);
 	    
 	    yaml.dump(configMap, writer);
 	    
@@ -350,15 +377,23 @@ public class ForestMetadata implements Serializable
 		return forestBytes;
 	}
 	
-	public static long getAddressSpace() {
+	public static long getAddressSpace() 
+	{
 		return addressSpace;
 	}
 	
-	public static int getNonceBits() {
+	public static int getNonceBits() 
+	{
 		return nonceBits;
 	}
 	
-	public static int getNonceBytes() {
+	public static int getNonceBytes() 
+	{
 		return (nonceBits + 7 ) / 8;
+	}
+	
+	public static long getNumInsert() 
+	{
+		return numInsert;
 	}
 }

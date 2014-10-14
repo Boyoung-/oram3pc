@@ -6,7 +6,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
-import sprout.crypto.PRG;
 import sprout.util.Util;
 
 public class Forest
@@ -18,6 +17,9 @@ public class Forest
 	
 	public Forest() throws NoSuchAlgorithmException, TupleException, TreeException
 	{		
+		if (!ForestMetadata.getStatus())
+			throw new TreeException("ForestMetadata is not setup");
+		
 		// TODO: overflow??
 		data = new byte[(int) ForestMetadata.getForestBytes()];
 		
@@ -28,19 +30,21 @@ public class Forest
 			trees.add(new Tree(i));
 		
 		long addressSpace = ForestMetadata.getAddressSpace();
+		long numInsert = ForestMetadata.getNumInsert();
+		if (numInsert < 0 || numInsert > addressSpace)
+			numInsert = addressSpace;
 		int tau = ForestMetadata.getTau();
 		BigInteger FB = null;
 		BigInteger[] N = new BigInteger[levels];
 		BigInteger[] L = new BigInteger[levels];
 		BigInteger A;
 		BigInteger tuple;
-		for (long address = 0L; address < addressSpace; address++)
+		for (long address = 0L; address < numInsert; address++)
 		{
 			System.out.println("--------------------");
 			System.out.println("addr: " + address);
 			for (int i=h; i>=0; i--) 
 			{
-				System.out.println("i: " + i);
 				if (i == 0) 
 				{
 					//FB = BigInteger.ONE;
@@ -51,8 +55,6 @@ public class Forest
 				{
 					FB = BigInteger.ONE;
 					N[i] = BigInteger.valueOf(address >> ((h-i)*tau));
-					//System.out.println("???");
-					//System.out.println("ni: " + N[i]);
 					L[i] = N[i].divide(BigInteger.valueOf(ForestMetadata.getBucketDepth()*ForestMetadata.getLeafExpansion()));
 				}
 				if (i == h)
@@ -60,7 +62,6 @@ public class Forest
 				else {
 					BigInteger indexN = Util.getSubBits(N[i+1], 0, tau);
 					int start = (ForestMetadata.getTwoTauPow()-indexN.intValue()-1) * ForestMetadata.getLBits(i+1);
-					//System.out.println(N[i].longValue());
 					Tuple old = trees.get(i).readLeafTuple(N[i].longValue());
 					A = Util.setSubBits(new BigInteger(1, old.getA()), L[i+1], start, start+ForestMetadata.getLBits(i+1));
 				}
@@ -74,16 +75,6 @@ public class Forest
 							A);
 				}
 				
-				/*
-				if (i > 0) {
-					System.out.println(FB);
-					System.out.println(Util.addZero(N[i].toString(2), ForestMetadata.getNBits(i)));
-					System.out.println(Util.addZero(L[i].toString(2), ForestMetadata.getLBits(i)));
-				}
-				System.out.println(Util.addZero(A.toString(2), ForestMetadata.getABits(i)));
-				System.out.println(tuple.toString(2));
-				*/
-					
 				Tuple newTuple = new Tuple(i, BigInteger.ZERO.toByteArray(), tuple.toByteArray());
 				trees.get(i).writeLeafTuple(newTuple, N[i].longValue());
 			}

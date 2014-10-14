@@ -2,5 +2,7 @@ tau: 3				# tau in the write-up
 w: 4				# number of tuples in each bucket
 e: 4 				# number of buckets contained in each leaf
 levels: 4			# number of trees (including tree 0)
-dBytes: 1 			# record D bytes
+dBytes: 8 			# record D bytes
 nonceBits: 128		# nonce bits
+
+insert: -1			# number of records we want to initially insert
