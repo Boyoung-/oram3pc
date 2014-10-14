@@ -6,19 +6,21 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
+import sprout.crypto.PRG;
 import sprout.util.Util;
 
 public class Forest
 {	
 	static SecureRandom rnd = new SecureRandom();
 	
-	private ArrayList<Tree> trees;	
+	private static ArrayList<Tree> trees;	
 	private static byte[] data; // keep all data in memory for testing now
 	
-	public Forest() throws NoSuchAlgorithmException, TupleException, TreeException
+	// TODO: randomize L
+	public Forest() throws NoSuchAlgorithmException, TupleException, TreeException, ForestException
 	{		
 		if (!ForestMetadata.getStatus())
-			throw new TreeException("ForestMetadata is not setup");
+			throw new ForestException("ForestMetadata is not setup");
 		
 		// TODO: overflow??
 		data = new byte[(int) ForestMetadata.getForestBytes()];
@@ -76,11 +78,33 @@ public class Forest
 				}
 				
 				Tuple newTuple = new Tuple(i, BigInteger.ZERO.toByteArray(), tuple.toByteArray());
+				Util.disp("ORAM-" + i + " writing: " + newTuple);		
 				trees.get(i).writeLeafTuple(newTuple, N[i].longValue());
 			}
 		}
 		
-		// TODO: encrypt all tuples in all trees
+		// TODO: encrypt all tuples in all trees??
+		encryptFullTuples();
+	}
+	
+	// TODO: change PRG
+	private static void encryptFullTuples() throws TupleException, TreeException, NoSuchAlgorithmException
+	{
+		for (int i=0; i<trees.size(); i++) {
+			Tree t = trees.get(i);
+			for (int j=0; j<ForestMetadata.getNumTuples(i); j++) {
+				Tuple tp = new Tuple(i, t.readTuple(j));
+				if (new BigInteger(1, tp.getFB()).intValue() == 1) {
+					BigInteger nonce = new BigInteger(ForestMetadata.getNonceBits(), rnd);
+					PRG G = new PRG(ForestMetadata.getTupleBits(i));
+					BigInteger mask = new BigInteger(G.generateBitString(ForestMetadata.getTupleBits(i), nonce), 2);
+					BigInteger ctext = new BigInteger(1, tp.getTuple()).xor(mask);
+					tp.setWhole(nonce.toByteArray(), ctext.toByteArray());
+					Util.disp("ORAM-" + i + " writing encrypted " + tp);		
+					t.writeTuple(tp.toByteArray(), j);
+				}
+			}
+		}
 	}
 	
 	/**

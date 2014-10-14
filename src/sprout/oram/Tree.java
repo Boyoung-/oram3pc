@@ -65,8 +65,7 @@ public class Tree
 		if (n < 0 || n >= ForestMetadata.getNumLeaves(index)*ForestMetadata.getBucketDepth()*ForestMetadata.getLeafExpansion())
 			throw new TreeException("Leaf tuple number error");
 		
-		Util.disp("ORAM-" + index + " writing: " + t);		
-		byte[] raw = t.getWhole();
+		byte[] raw = t.toByteArray();
 		long base = (ForestMetadata.getNumLeaves(index) - 1) * ForestMetadata.getBucketDepth();
 		writeTuple(raw, base + n);
 	}

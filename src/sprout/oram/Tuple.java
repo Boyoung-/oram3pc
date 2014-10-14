@@ -82,7 +82,7 @@ public class Tuple
 		setWhole(n, t);
 	}
 	
-	public byte[] getWhole()
+	public byte[] toByteArray()
 	{
 		return ArrayUtils.addAll(nonce, tuple);
 	}
