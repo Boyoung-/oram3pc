@@ -2,6 +2,8 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
@@ -109,7 +111,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
     
     // i = 0 case
     BigInteger k = Util.randomBigInteger(CryptoParam.q);
-    T out = execute(party, "", k, forest.getInitialORAM(), null, prepareArgs());
+    T out = execute(party, "", k, forest.getInitialORAM(), null, prepareArgs(party));
     if (print_out && out!=null) System.out.println("Output i=0 : " + out.toString());
     else System.out.println("Finished round 0");
     for (int treeLevel = forest.getNumberOfTrees()-1; treeLevel >= 0; treeLevel--) {
@@ -120,7 +122,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
       k = Util.randomBigInteger(CryptoParam.q);
       
       // TODO: Print out here too
-      out = execute(party, Li, k, forest.getInitialORAM(), OT, prepareArgs());
+      out = execute(party, Li, k, forest.getInitialORAM(), OT, prepareArgs(party));
       if (print_out && out!=null) System.out.println("Output i=" + i + " : " + out.toString());
       else System.out.println("Finished round " + i);
     }
@@ -129,7 +131,17 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   public abstract T executeCharlieSubTree(Communication debbie, Communication eddie, String Li, TreeZero OT_0, Tree OT, V extraArgs);
   public abstract T executeDebbieSubTree(Communication charlie, Communication eddie, BigInteger k, TreeZero OT_0, Tree OT, V extraArgs);
   public abstract T executeEddieSubTree(Communication charlie, Communication debbie, TreeZero OT_0, Tree OT, V extraArgs);
-  public abstract V prepareArgs();
+  
+  public V prepareArgs() {
+    return prepareArgs(null);
+  }
+  
+  public V prepareArgs(Party party) {
+    if (party == null) {
+      throw new NotImplementedException("Must overide prepareArgs() or prepareArgs(Party)");
+    }
+    return prepareArgs();
+  }
   // TODO: Add timing information
   
 }

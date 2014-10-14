@@ -103,7 +103,11 @@ public class TestCLI
         operation = sprout.oram.operations.SSOT.class;
       } else if (alg.equals("reshuffle")) {
 			  operation = Reshuffle.class;
-			} else {
+			} else if (alg.equals("post")) {
+			  //operation = PostProcess.class;
+			} else if (alg.equals("evict")){
+			  operation = Eviction.class;
+		  } else {
 			  System.out.println("Method " + alg + " not supported");
 			  System.exit(-1);
 			}
@@ -199,7 +203,7 @@ public class TestCLI
 				  operationCtor.newInstance(debbieCon, eddieCon).run(Party.Charlie, configFile, dbFile, dataFile, buildForest);
         } catch (Exception e) {
           e.printStackTrace();
-          System.out.println("Error in access exiting");
+          System.out.println("Error exiting");
         }
 				
 				eddieCon.stop();
