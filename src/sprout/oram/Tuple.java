@@ -133,11 +133,11 @@ public class Tuple
 		
 		builder.append("Tuple: TreeIndex=" + treeIndex + ", ");
 		
-		builder.append("Nonce(10)=");
+		builder.append("Nonce(16)=");
 		if (nonce == null)
 			builder.append("null, ");
 		else
-			builder.append(new BigInteger(1, nonce).toString(10) + ", ");
+			builder.append(new BigInteger(1, nonce).toString(16) + ", ");
 		
 		if (treeIndex > 0) {
 			builder.append("FB(2)=" + new BigInteger(1, getFB()).toString(2) + ", ");

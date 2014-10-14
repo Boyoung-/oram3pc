@@ -32,28 +32,28 @@ public class ForestMetadata implements Serializable
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	// status
+	// Whether ForestMetadata is configured
 	private static boolean status = false;
 	
 	// Tau in the write-up
 	private static int tau;
-	private static int twoTauPow;
+	private static int twoTauPow; // 2^tau
 		
 	// Bucket depth (number of tuples per bucket)
 	private static int w;
 	
-	// Number of buckets in each leaf
+	// Leaf expansion (number of buckets in each leaf)
 	private static int e;
 	
-	// Number of trees
+	// Number of trees (including tree 0)
 	private static int levels;
 	// Largest tree index
 	private static int h;
 	
-	// Size of each data element in the last tree
+	// Size of each data element in the last tree h
 	private static int dBytes;
 	
-	// nonce size
+	// nonce size in bits
 	private static int nonceBits;
 	
 	// Tuple info
@@ -69,28 +69,19 @@ public class ForestMetadata implements Serializable
 	// Tree info
 	private static long[] offset;
 	private static long[] numLeaves;
+	private static long[] numBuckets;
 	private static long[] treeBytes;
 	
-	// Number of buckets in the ORAM
-	private static long[] numBuckets;
-	
-	// Max number of records
+	// Max number of records can be inserted
 	private static long addressSpace;
-	
-	// Size of the entire DB
-	private static long forestBytes;
 	
 	// Number of records we want to initially insert
 	private static long numInsert;
 	
-	/**
-	 * Construct the forest metadata from a previously generated config file.
-	 * 
-	 * @param filename - config file name
-	 * @return 
-	 * @throws FileNotFoundException
-	 * @throws NumberFormatException
-	 */
+	// Size of the entire DB
+	private static long forestBytes;
+	
+	
 	public static void setup(String filename) throws FileNotFoundException
 	{
 		Yaml yaml = new Yaml();
@@ -113,7 +104,7 @@ public class ForestMetadata implements Serializable
 	
 	/**
 	 * Perform extra initialization of parameter values after loading 
-	 * from the config file.
+	 * from the configuration file.
 	 */
 	private static void init()
 	{
@@ -135,6 +126,8 @@ public class ForestMetadata implements Serializable
 		
 		forestBytes = 0L;
 		
+		int logW = (int) (Math.log(w) / Math.log(2));
+		
 		// Compute the values for each of the ORAM levels
 		for (int i = h; i >= 0; i--)
 		{			
@@ -149,8 +142,7 @@ public class ForestMetadata implements Serializable
 			else {
 				nBits[i] = i * tau;
 				nBytes[i] = (nBits[i] + 7) / 8;
-				int leastNumLeaves = (int) Math.ceil(Math.pow(2, nBits[i]) / (w * e));
-				lBits[i] = Math.max((int) Math.ceil(Math.log(leastNumLeaves) / Math.log(2)), 1);
+				lBits[i] = nBits[i] - logW;
 				lBytes[i] = (lBits[i] + 7 ) / 8;
 				numLeaves[i] = (long) Math.pow(2, lBits[i]);
 				numBuckets[i] = numLeaves[i] * e + numLeaves[i] - 1;

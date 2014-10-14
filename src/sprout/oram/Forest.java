@@ -16,7 +16,7 @@ public class Forest
 	private static ArrayList<Tree> trees;	
 	private static byte[] data; // keep all data in memory for testing now
 	
-	// TODO: randomize L
+	// TODO: randomize L??
 	public Forest() throws NoSuchAlgorithmException, TupleException, TreeException, ForestException
 	{		
 		if (!ForestMetadata.getStatus())
@@ -95,7 +95,7 @@ public class Forest
 		for (int i=0; i<trees.size(); i++) {
 			Tree t = trees.get(i);
 			for (int j=0; j<ForestMetadata.getNumTuples(i); j++) {
-				Tuple tp = new Tuple(i, t.readTuple(j));
+				Tuple tp = t.readTuple(j);
 				if (new BigInteger(1, tp.getFB()).intValue() == 1 || i == 0) {
 					BigInteger nonce = new BigInteger(ForestMetadata.getNonceBits(), rnd);
 					PRG G = new PRG(ForestMetadata.getTupleBits(i));
@@ -103,7 +103,7 @@ public class Forest
 					BigInteger ctext = new BigInteger(1, tp.getTuple()).xor(mask);
 					tp.setWhole(Util.rmSignBit(nonce.toByteArray()), Util.rmSignBit(ctext.toByteArray()));
 					Util.disp("ORAM-" + i + " writing encrypted " + tp);		
-					t.writeTuple(tp.toByteArray(), j);
+					t.writeTuple(tp, j);
 				}
 			}
 		}

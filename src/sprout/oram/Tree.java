@@ -17,7 +17,7 @@ public class Tree
 		return index;
 	}
 	
-	public byte[] readTuple(long tupleNum) throws TreeException
+	private byte[] getTuple(long tupleNum) throws TreeException
 	{
 		if (tupleNum < 0 || tupleNum >= ForestMetadata.getNumTuples(index))
 			throw new TreeException("Tuple number error");
@@ -27,19 +27,12 @@ public class Tree
 		return Forest.getForestData(start, wholeTupleBytes);
 	}
 	
-	/*
-	public Tuple getTuple(int tupleNum) throws TreeException {
-		byte[] buffer = new byte[tupleSize];
-		RC ret = readTuple(buffer, tupleNum);
-		if (ret != RC.SUCCESS)
-		{
-			throw new TreeException("Error getting tuple " + tupleNum);
-		}
-		return new Tuple(buffer, lBytes, nBytes, dBytes);
+	public Tuple readTuple(int tupleNum) throws TreeException, TupleException 
+	{
+		return new Tuple(index, getTuple(tupleNum));
 	}
-	*/
 	
-	public void writeTuple(byte[] tuple, long tupleNum) throws TreeException
+	private void setTuple(byte[] tuple, long tupleNum) throws TreeException
 	{
 		if (tupleNum < 0 || tupleNum >= ForestMetadata.getNumTuples(index))
 			throw new TreeException("Tuple number error");
@@ -52,13 +45,18 @@ public class Tree
 		Forest.setForestData(tuple, start);
 	}
 	
+	public void writeTuple(Tuple tuple, int tupleNum) throws TreeException, TupleException 
+	{
+		setTuple(tuple.toByteArray(), tupleNum);
+	}
+	
 	public Tuple readLeafTuple(long n) throws TreeException, TupleException
 	{
 		if (n < 0 || n >= ForestMetadata.getNumLeaves(index)*ForestMetadata.getBucketDepth()*ForestMetadata.getLeafExpansion())
 			throw new TreeException("Leaf tuple number error");
 		
 		long base = (ForestMetadata.getNumLeaves(index) - 1) * ForestMetadata.getBucketDepth();
-		return new Tuple(index, readTuple(base + n));
+		return new Tuple(index, getTuple(base + n));
 	}
 	
 	public void writeLeafTuple(Tuple t, long n) throws TreeException 
@@ -68,7 +66,7 @@ public class Tree
 		
 		byte[] raw = t.toByteArray();
 		long base = (ForestMetadata.getNumLeaves(index) - 1) * ForestMetadata.getBucketDepth();
-		writeTuple(raw, base + n);
+		setTuple(raw, base + n);
 	}
 	
 	private List<Long> getTupleIndicesOnPath(long L) throws TreeException
@@ -94,7 +92,6 @@ public class Tree
 		return indices;
 	}
 	
-	// TODO: test this function
 	public List<Tuple> getTuplesOnPath(long L) throws TreeException, TupleException
 	{
 		if (L < 0 || L >= ForestMetadata.getNumLeaves(index))
@@ -104,15 +101,14 @@ public class Tree
 		
 		for (long tupleIndex : getTupleIndicesOnPath(L))
 		{
-			Tuple t = new Tuple(index, readTuple(tupleIndex));
+			Tuple t = new Tuple(index, getTuple(tupleIndex));
 			path.add(t);
 		}
 		
 		return path;
 	}
 	
-	// TODO: test this function
-	public void updatePathToLeaf(List<Tuple> tuples, long L) throws TreeException
+	public void setTuplesOnPath(List<Tuple> tuples, long L) throws TreeException
 	{
 		if (L < 0 || L >= ForestMetadata.getNumLeaves(index))
 			throw new TreeException("Invalid path");
@@ -121,7 +117,7 @@ public class Tree
 			throw new TreeException("Number of tuples is not correct");
 		
 		for (int i=0; i<indices.size(); i++)
-			writeTuple(tuples.get(i).toByteArray(), indices.get(i));
+			setTuple(tuples.get(i).toByteArray(), indices.get(i));
 	}
 	
 }
