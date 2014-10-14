@@ -1,5 +1,8 @@
 package sprout.oram;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Tree
 {	
 	private int index;
@@ -68,72 +71,57 @@ public class Tree
 		writeTuple(raw, base + n);
 	}
 	
-	/*
-	private List<Integer> getTupleIndicesOnPathToLeaf(long leafNum)
+	private List<Long> getTupleIndicesOnPath(long L) throws TreeException
 	{
-		List<Integer> indices = new ArrayList<Integer>();
+		if (L < 0 || L >= ForestMetadata.getNumLeaves(index))
+			throw new TreeException("Invalid path");
 		
-		// The root is always included in the path
-		for (int i = 0; i < this.bucketDepth; i++)
-		{
-			indices.add(i);  
+		int w = ForestMetadata.getBucketDepth();
+		int e = ForestMetadata.getLeafExpansion();
+		int lBits = ForestMetadata.getLBits(index);
+		List<Long> indices = new ArrayList<Long>();
+		
+		for (int i=0; i<lBits; i++) {
+			long bucketIndex = (L >> (lBits-i)) + (long) Math.pow(2, i) - 1;
+			for (long j=bucketIndex*w; j<bucketIndex*w+w; j++)
+				indices.add(j);
 		}
 		
-		// Add the tuple indices in the bucket based on the leaf k-ary representation
-		for (int l = 1; l < numLevels; l++)
-		{
-			String rep = Util.toKaryString(leafNum, fanout, lBits);
-			int bucketPos = (fanout * l) + 1 + Integer.parseInt("" + rep.charAt(l)); // levels are 0-based
-			int start = bucketPos * bucketDepth;
-			int len = bucketDepth;
-	 		for (int i = start; i < start + len; i++)
-			{
-	 			indices.add(i);
-			}
-		}
+		long startTuple = (ForestMetadata.getNumLeaves(index)-1 + L*e) * w;
+		for (long j=startTuple; j<startTuple+w*e; j++)
+			indices.add(j);
 		
 		return indices;
 	}
 	
-	public List<Tuple> getPathToLeaf(long leafNum) throws TreeException
+	// TODO: test this function
+	public List<Tuple> getTuplesOnPath(long L) throws TreeException, TupleException
 	{
+		if (L < 0 || L >= ForestMetadata.getNumLeaves(index))
+			throw new TreeException("Invalid path");
+		
 		List<Tuple> path = new ArrayList<Tuple>();
 		
-		for (Integer i : getTupleIndicesOnPathToLeaf(leafNum))
+		for (long tupleIndex : getTupleIndicesOnPath(L))
 		{
-			byte[] buffer = new byte[tupleSize];
-			RC ret = readTuple(buffer, i);
-			if (ret != RC.SUCCESS)
-			{
-				throw new TreeException("Error extracting root-to-leaf " + leafNum + " tuples given tuple " + i);
-			}
-			path.add(new Tuple(buffer, lBytes, nBytes, dBytes));
+			Tuple t = new Tuple(index, readTuple(tupleIndex));
+			path.add(t);
 		}
 		
 		return path;
 	}
 	
-	public RC updatePathToLeaf(List<Tuple> tuples, long leafNum)
+	// TODO: test this function
+	public void updatePathToLeaf(List<Tuple> tuples, long L) throws TreeException
 	{
-		RC ret = RC.SUCCESS;
-		
-		int tupleIndex = 0;
-		List<Integer> indices = getTupleIndicesOnPathToLeaf(leafNum);
+		if (L < 0 || L >= ForestMetadata.getNumLeaves(index))
+			throw new TreeException("Invalid path");
+		List<Long> indices = getTupleIndicesOnPath(L);
 		if (indices.size() != tuples.size())
-		{
-			return RC.TREE_INVALID_PATH_LENGTH;
-		}
-		for (Integer i : getTupleIndicesOnPathToLeaf(leafNum))
-		{
-			ret = writeTuple(tuples.get(tupleIndex++).toArray(), i);
-			if (ret != RC.SUCCESS)
-			{
-				return ret;
-			}
-		}
+			throw new TreeException("Number of tuples is not correct");
 		
-		return ret;
+		for (int i=0; i<indices.size(); i++)
+			writeTuple(tuples.get(i).toByteArray(), indices.get(i));
 	}
-	*/
 	
 }
