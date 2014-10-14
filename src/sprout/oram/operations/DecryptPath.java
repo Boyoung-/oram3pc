@@ -148,23 +148,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
   @Override
   public void loadTreeSpecificParameters(Tree OT) {
     super.loadTreeSpecificParameters(OT);
-    //n = n/w;
-    
-    // For now to be extra sure load parameters as originally written
-    // I don't think this is needed, but leave this here until we have it working
-    i         = h - treeLevel;
-    d_i       = OT.getNumLevels();
-    d_ip1       = -1;
-    if (i == h)
-      d_ip1     = OT.getDBytes() * 8 / twotaupow;
-    else
-      d_ip1     = metadata.getTupleBitsL(treeLevel-1);
-    ln        = i * tau;          
-    ll        = d_i;            
-    ld        = twotaupow * d_ip1;          
-    tupleBitLength  = 1 + ln + ll + ld;
-    l       = tupleBitLength * w;  
-    n       = d_i + expen;
+    n = n/w;
   }
   @Override
   public EPath prepareArgs() {
