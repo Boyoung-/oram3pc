@@ -126,6 +126,13 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
       if (print_out && out!=null) System.out.println("Output i=" + i + " : " + out.toString());
       else System.out.println("Finished round " + i);
     }
+    
+    // Synchronization. This ensures we don't exit early
+    // This should not be timed
+    con1.write("end");
+    con2.write("end");
+    con1.readString();
+    con2.readString();
   }
   
   public abstract T executeCharlieSubTree(Communication debbie, Communication eddie, String Li, TreeZero OT_0, Tree OT, V extraArgs);

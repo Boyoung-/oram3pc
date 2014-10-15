@@ -104,7 +104,7 @@ public class TestCLI
       } else if (alg.equals("reshuffle")) {
 			  operation = Reshuffle.class;
 			} else if (alg.equals("post")) {
-			  //operation = PostProcess.class;
+			  operation = PostProcessT.class;
 			} else if (alg.equals("evict")){
 			  operation = Eviction.class;
 		  } else {
