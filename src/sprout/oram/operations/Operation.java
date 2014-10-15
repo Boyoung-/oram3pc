@@ -33,6 +33,24 @@ public abstract class Operation {
     this.con2 = con2;
   }
   
+  private static final boolean ENSURE_SANITY = false;
+  // Utility function will test for synchrony between the parties.
+  public void sanityCheck() {
+    if (ENSURE_SANITY) {
+      System.out.println("Performing sanity check");
+      con1.write("sanity");
+      con2.write("sanity");
+      
+      if (!con1.readString().equals("sanity")) {
+        System.out.println("Sanity check failed for con1");
+      } if (!con2.readString().equals("sanity")) {
+        System.out.println("Sanity check failed for con2");
+      }
+      
+      System.out.println("Sanity check finished");
+    }
+  }
+  
   // Even though many operations don't rely on the existance of a forest, we include it here to have a 
   //  unifying api
   public void run(Party party) throws ForestException {

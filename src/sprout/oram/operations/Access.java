@@ -23,24 +23,6 @@ public class Access extends TreeOperation<AOutput, String> {
     super(con1, con2, metadata);
   }
   
-  private static final boolean ENSURE_SANITY = false;
-  // This function will test for synchrony between the parties.
-  public void sanityCheck() {
-    if (ENSURE_SANITY) {
-      System.out.println("Performing sanity check");
-      con1.write("sanity");
-      con2.write("sanity");
-      
-      if (!con1.readString().equals("sanity")) {
-        System.out.println("Sanity check failed for con1");
-      } if (!con2.readString().equals("sanity")) {
-        System.out.println("Sanity check failed for con2");
-      }
-      
-      System.out.println("Sanity check finished");
-    }
-  }
-  
   @Override
   public AOutput executeCharlieSubTree(Communication debbie, Communication eddie,
                                        String Li, TreeZero OT_0, Tree OT, String Nip1) {

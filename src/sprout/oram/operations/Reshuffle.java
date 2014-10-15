@@ -2,7 +2,11 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
@@ -18,6 +22,11 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
   Reshuffle(Communication con1, Communication con2, ForestMetadata metadata) {
     super(con1, con2, metadata);
   }
+  
+  public Reshuffle(Communication con1, Communication con2) {
+    super(con1, con2);
+  }
+  
 
   @Override
   public String executeCharlieSubTree(Communication debbie,
@@ -138,9 +147,28 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     return secretE_pi_P;
   }
 
+  // Temporarily redefine n
+  // We probably want to eventually unify the meaning of n
+  @Override
+  public void loadTreeSpecificParameters(Tree OT) {
+    super.loadTreeSpecificParameters(OT);
+    n = n/w;
+  }
+
   @Override
   public Pair<String, List<Integer>> prepareArgs() {
-    // TODO Auto-generated method stub
-    return null;
+    String secret_P = Util.addZero(new BigInteger(l*n, rnd).toString(2), l*n);
+    List<Integer> pi  = new ArrayList<Integer>(); 
+    for (int j=0; j<d_i+4; j++)
+      pi.add(j);
+    Collections.shuffle(pi, new Random(32547689L));
+    
+    
+    if (print_out) {
+      System.out.println("secret: " + secret_P);
+      System.out.println("pi: " + pi);
+    }
+    
+    return Pair.of(secret_P, pi);
   }
 }

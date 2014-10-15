@@ -96,7 +96,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 
       // step 3
       // party E
-      // generation of a[], boyang can you double check this?
+      // generation of a[], TODO: boyang can you double check this?
 
       PRG G1 = new PRG(l*(n));
       String a_all = G1.generateBitString(l*(n), s);
@@ -121,10 +121,18 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       return null;
     }
   }
+  
+  //Temporarily redefine n
+  // We probably want to eventually unify the meaning of n
+ @Override
+ public void loadTreeSpecificParameters(Tree OT) {
+   super.loadTreeSpecificParameters(OT);
+   n = n/w;
+ }
 
   @Override
   public String prepareArgs() {
-    // TODO Auto-generated method stub
-    return null;
+    int ldata         = twotaupow * metadata.getTupleBitsL(h-1);
+    return Util.addZero(new BigInteger(ldata, rnd).toString(2), ldata);
   }
 }
