@@ -377,6 +377,10 @@ public class Communication
   }
 
   public void write(ECPoint out){
+    if (out == null) {
+      write(new byte[] {});
+      return;
+    }
     write(out.getEncoded());
   }
 
@@ -386,7 +390,12 @@ public class Communication
 
   public ECPoint readECPoint(){
     //TODO: This probably doesn't belong here. At least load curve from crypto params
-    return NISTNamedCurves.getByName("P-224").getCurve().decodePoint(read());
+    byte[] msg = read();
+    
+    if (msg.length == 0)
+      return null;
+    
+    return NISTNamedCurves.getByName("P-224").getCurve().decodePoint(msg);
   }
 
   // TODO: These int methods are not very efficient
@@ -397,6 +406,19 @@ public class Communication
   
   public int readInt() {
     return Integer.parseInt(readString());
+  }
+  
+  // TODO: rather than implementing specific class read/writes support an interface (e.g. serializable)
+  public void write(sprout.crypto.oprf.Message m) {
+    write(m.getV());
+    write(m.getW());
+  }
+  
+  public sprout.crypto.oprf.Message readMessage() {
+    ECPoint v = readECPoint();
+    ECPoint w = readECPoint();
+    
+    return new sprout.crypto.oprf.Message(v,w);
   }
   
   public void write(BigInteger[] bigs) {

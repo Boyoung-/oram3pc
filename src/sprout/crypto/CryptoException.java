@@ -1,6 +1,6 @@
 package sprout.crypto;
 
-public class CryptoException extends Exception
+public class CryptoException extends RuntimeException
 {
 	/**
 	 * Default serial ID.

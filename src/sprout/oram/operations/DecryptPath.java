@@ -6,8 +6,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.bouncycastle.math.ec.ECPoint;
+
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
+import sprout.crypto.oprf.Message;
+import sprout.crypto.oprf.OPRF;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Tree;
 import sprout.oram.Forest.TreeZero;
@@ -55,24 +59,32 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     
     // step 4
     // party C and D run OPRF on C's input sigma_x and D's input k
-    // TODO: add OPRF
-    // PRG is used here instead of OPRF for testing purpose
-    // SKY: it seems like a PRG of a PRF is used here instead of an OPRF. Isn't sigma_x^k a PRF??
-    //   This is only an issue because the rest of tEPath Pbar = he code depends on an l length string as the secret, where as i'm not sure
-    //   that the OPRF will produce this. Because of this I've left the PRG in place
+    // TODO: For now we leave the PRG in place, this may eventually need to change (or be integrated into the prf)
+    // TODO: PK should be precomputed
+    ECPoint pk = debbie.readECPoint();
+    OPRF oprf = new OPRF(pk);
+    PRG G;
+    try {
+      G = new PRG(l);
+    } catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+      return null;
+    }
+    
     String secretC_P = "";
-    
-    BigInteger k = debbie.readBigInteger();
-    
     for (int j=0; j<d_i+expen; j++) {
-      PRG G;
-      try {
-        G = new PRG(l);
-      } catch (NoSuchAlgorithmException e) {
-        e.printStackTrace();
-        return null;
-      } // non-fresh generated SecureRandom cannot guarantee determinism... (why???) Sky: Did you seed it explicitly?
-      secretC_P += G.generateBitString(l, sigma_x[j].modPow(k, CryptoParam.p));
+      // This oprf should possibly be evaulated in as an Operation
+      // For an easier description of the flow look at OPRFTest.java
+      // TODO: May want a different encoding here we leave this until OPRF changes
+      Message msg1 = oprf.prepare(sigma_x[j].toString(16));
+      debbie.write(new Message(msg1.getV()));
+      
+      Message msg2 = debbie.readMessage();
+      msg2.setW(msg1.getW());
+      Message res = oprf.deblind(msg2);
+      
+      // TODO: may need some other encoding here
+      secretC_P += G.generateBitString(l, res.getResult().getEncoded());
     }
     // C outputs secretC_P
     
@@ -88,9 +100,17 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       return out;
     }
     
-    // TODO: add OPRF
-    // For now PRG is used here instead
-    charlie.write(k);
+    // TODO: This shoudl be precomputed (or established earlier)
+    OPRF oprf = new OPRF();
+    charlie.write(oprf.getY());
+
+    
+    // TODO: This is probably too many instantiations of the OPRF
+    for (int j=0; j < d_i+expen; j++) {
+      Message msg = charlie.readMessage();
+      msg = oprf.evaluate(msg);
+      charlie.write(msg);
+    }
     
     // D outputs nothing
     return out;

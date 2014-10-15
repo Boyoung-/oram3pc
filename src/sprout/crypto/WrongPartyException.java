@@ -1,6 +1,6 @@
 package sprout.crypto;
 
-public class WrongPartyException extends Exception {
+public class WrongPartyException extends RuntimeException {
 
   public WrongPartyException() {
     super();
