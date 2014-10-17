@@ -43,7 +43,7 @@ public class OPRFTest {
     }
   }
   
-  public static String test_file_dir = ".";
+  public static String test_file_dir = "test";
   @Test
   public void testSaveLoad() {
     OPRF serverOprf = new OPRF();
