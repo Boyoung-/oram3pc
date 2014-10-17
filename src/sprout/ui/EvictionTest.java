@@ -108,6 +108,7 @@ public class EvictionTest
 		sE_a[k+1] = Util.addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength);
 		
 		// step 5
+		/* Commented out to compile
 		String[][] output = SSOT.executeSSOT(sC_a, sE_a, I);
 		
 		// outputs
@@ -115,6 +116,7 @@ public class EvictionTest
 		Util.printArrV(output[0]);
 		System.out.println("sE: ");
 		Util.printArrV(output[1]);
+		*/
 		
 		// check correctness
 		// TODO

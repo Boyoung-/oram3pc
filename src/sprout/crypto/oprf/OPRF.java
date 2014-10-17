@@ -100,7 +100,7 @@ public class OPRF {
    * Is this the OPRF owner/server (with the key)
    */
   public boolean hasKey() {
-    return k == null;
+    return k != null;
   }
   
   /* **********************
@@ -153,9 +153,8 @@ public class OPRF {
    */
   public Message prepare(String msg) throws CryptoException, WrongPartyException {
     if (hasKey()) {
-      throw new WrongPartyException("Key holder cannot prepare messages");
+      throw new WrongPartyException("Key holder cannot prepare messages, use evaluate instead");
     }
-    
     
     return prepare(hash(msg));
   }
@@ -178,7 +177,7 @@ public class OPRF {
    */
   // 
   public Message evaluate(Message msg) throws CryptoException, WrongPartyException {
-    if (hasKey()) {
+    if (!hasKey()) {
       throw new WrongPartyException("Only the key holder can evaluate");
     }
     return new Message( msg.getV().multiply(k) );
@@ -200,7 +199,7 @@ public class OPRF {
    * @throws WrongPartyException If you do not hold k.
    */
   public Message evaluate(String msg) throws CryptoException, WrongPartyException {
-    if (hasKey()) {
+    if (!hasKey()) {
       throw new WrongPartyException("Only the key holder can evaluate");
     }
     
@@ -213,7 +212,7 @@ public class OPRF {
    * @return
    */
   public Message evaluate(ECPoint msg) throws WrongPartyException {
-    if (hasKey()) {
+    if (!hasKey()) {
       throw new WrongPartyException("Only the key holder can evaluate");
     }
     
@@ -226,6 +225,10 @@ public class OPRF {
   
   public ECPoint randomPoint() {
     return g.multiply(randomRange(n));
+  }
+  
+  public BigInteger randomExponent() {
+    return randomRange(n);
   }
   
   public BigInteger generateSecretKey() {

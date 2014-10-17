@@ -6,8 +6,8 @@ package sprout.ui;
 
 import sprout.oram.Forest;
 import sprout.oram.Tree;
-import sprout.ui.DecryptPathTest.DPOutput;
-import sprout.ui.EncryptPathTest.EPath;
+//import sprout.ui.DecryptPathTest.DPOutput;
+//import sprout.ui.EncryptPathTest.EPath;
 import sprout.util.Util;
 
 import java.math.BigInteger;
@@ -18,6 +18,7 @@ public class EncDecResTest
 {
 	static SecureRandom rnd = new SecureRandom();
 	
+	/* Commented to compile
 	public static void main(String[] args) throws Exception {
 		Forest forest = new Forest();
 		//forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
@@ -61,6 +62,6 @@ public class EncDecResTest
 			String in = new BigInteger(secretC_P, 2).xor(new BigInteger(secretE_P, 2)).toString(2);
 			String out = new BigInteger(ResOutput[0], 2).xor(new BigInteger(ResOutput[1], 2)).toString(2);
 			System.out.println("Checking correctness: in equals out?: " + in.equals(out));
-		}
-	}
+		} 
+	}*/
 }

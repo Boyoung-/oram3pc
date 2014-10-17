@@ -8,6 +8,8 @@ import sprout.util.Util;
 
 import java.math.BigInteger;
 
+import org.bouncycastle.math.ec.ECPoint;
+
 public class PRG {
 
 	private SecureRandom rand;
@@ -47,6 +49,10 @@ public class PRG {
 		return s.substring(0, m); // bit string of length m
 	}
 
+	public String generateBitString(int m, ECPoint seed) {
+	  return generateBitString(m, seed.getEncoded());
+	}
+	
 	public String generateBitString(int m, byte[] seed) {
 		byte[] bytes = generateBytes(m, seed);
 		String s = new BigInteger(1, bytes).toString(2);
