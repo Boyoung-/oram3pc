@@ -15,7 +15,6 @@ import sprout.crypto.oprf.OPRF;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Tree;
 import sprout.oram.Forest.TreeZero;
-import sprout.ui.CryptoParam;
 import sprout.util.Util;
 
 public class DecryptPath extends TreeOperation<DPOutput, EPath>{
