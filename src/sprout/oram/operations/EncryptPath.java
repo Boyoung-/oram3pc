@@ -60,10 +60,14 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       ECPoint[] v = new ECPoint[n];
       BigInteger r;
       for (int j=0; j<n; j++) {
-        // This computaiton is repeated in oprf in some form
+        // This computation is repeated in oprf in some form
         r = oprf.randomExponent();
         x[j] = oprf.getG().multiply(r);
         v[j] = oprf.getY().multiply(r);
+        // below is a version using only the exposed methods, however the above should eventually be used
+        // once same base optimizations are implemented
+        // x[j] = oprf.randomPoint();
+        // v[j] = oprf.evaluate(x[j]).getResult();
       }
       PRG G1 = new PRG(l*(n));
       String a_all = G1.generateBitString(l*(n), s);
