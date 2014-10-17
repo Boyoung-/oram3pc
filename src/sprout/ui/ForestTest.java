@@ -18,6 +18,7 @@ public class ForestTest
 	public static void main(String[] args) throws FileNotFoundException, NoSuchAlgorithmException, TupleException, TreeException, ForestException
 	{
 		ForestMetadata.setup("config/newConfig.yaml");
+		/*
 		Forest forest = new Forest();		
 		
 		System.out.println();
@@ -29,6 +30,7 @@ public class ForestTest
 		Util.printListV(p1);
 		System.out.println();
 		Util.printListV(p2);
+		*/
 	}
 
 }

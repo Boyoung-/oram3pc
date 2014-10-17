@@ -47,24 +47,18 @@ public class ForestMetadata implements Serializable
 	
 	// Number of trees (including tree 0)
 	private static int levels;
-	// Largest tree index
-	private static int h;
 	
 	// Size of each data element in the last tree h
 	private static int dBytes;
 	
-	// nonce size in bits
-	private static int nonceBits;
-	
 	// Tuple info
 	private static int[] lBits;
-	private static int[] lBytes;
 	private static int[] nBits;
-	private static int[] nBytes;
 	private static int[] aBits;
-	private static int[] aBytes;
 	private static int[] tupleBits;
-	private static int[] tupleBytes;
+	
+	// Bucket info
+	private static int nonceBits;
 	
 	// Tree info
 	private static long[] offset;
@@ -72,14 +66,14 @@ public class ForestMetadata implements Serializable
 	private static long[] numBuckets;
 	private static long[] treeBytes;
 	
+	// Size of the entire DB
+	private static long forestBytes;
+	
 	// Max number of records can be inserted
 	private static long addressSpace;
 	
 	// Number of records we want to initially insert
 	private static long numInsert;
-	
-	// Size of the entire DB
-	private static long forestBytes;
 	
 	
 	public static void setup(String filename) throws FileNotFoundException
@@ -109,16 +103,11 @@ public class ForestMetadata implements Serializable
 	private static void init()
 	{
 		twoTauPow = (int) Math.pow(2, tau);
-		h = levels - 1;
 		
-		lBytes = new int[levels];
 		lBits = new int[levels];
-		nBytes = new int[levels];
 		nBits = new int[levels];
-		aBytes = new int[levels];
 		aBits = new int[levels];
 		tupleBits = new int[levels];
-		tupleBytes = new int[levels];
 		numBuckets = new long[levels];
 		treeBytes = new long[levels];
 		offset = new long[levels];
@@ -126,48 +115,39 @@ public class ForestMetadata implements Serializable
 		
 		forestBytes = 0L;
 		
+		// Compute the values for each of the ORAM levels
+		int h = levels - 1;
 		int logW = (int) (Math.log(w) / Math.log(2));
 		
-		// Compute the values for each of the ORAM levels
 		for (int i = h; i >= 0; i--)
 		{			
 			if (i == 0) {
 				nBits[i] = 0;
-				nBytes[i] = 0;
 				lBits[i] = 0;
-				lBytes[i] = 0;
-				numLeaves[i] = 1;
+				numLeaves[i] = 1; // TODO: set this to 0???
 				numBuckets[i] = 1;
 			}
 			else {
 				nBits[i] = i * tau;
-				nBytes[i] = (nBits[i] + 7) / 8;
 				lBits[i] = nBits[i] - logW;
-				lBytes[i] = (lBits[i] + 7 ) / 8;
 				numLeaves[i] = (long) Math.pow(2, lBits[i]);
 				numBuckets[i] = numLeaves[i] * e + numLeaves[i] - 1;
 			}
 			
 			if (i == h) {
 				aBits[i] = dBytes * 8;
-				aBytes[i] = dBytes;
 				
 				addressSpace = (long) Math.pow(2, nBits[i]);
 			}
 			else {
 				aBits[i] = twoTauPow * lBits[i+1];
-				aBytes[i] = (aBits[i] + 7 ) / 8;
 			}
 			
-			if (i == 0) {
+			if (i == 0) 
 				tupleBits[i] = aBits[i];
-				tupleBytes[i] = aBytes[i];
-			}
-			else {
-				tupleBits[i] = 1 + nBits[i] + lBits[i] + aBits[i];
-				tupleBytes[i] = (tupleBits[i] + 7) / 8;
-			}
-			treeBytes[i] = (tupleBytes[i] + getNonceBytes()) * getNumTuples(i);
+			else 
+				tupleBits[i] = 1 + nBits[i] + lBits[i] + aBits[i];			
+			treeBytes[i] = getBucketBytes(i) * numBuckets[i];
 			forestBytes += treeBytes[i];
 		}
 		
@@ -196,16 +176,14 @@ public class ForestMetadata implements Serializable
 		Util.disp("forest bytes:\t" + forestBytes);
 		Util.disp("");
 		
+		// TODO: add more
 		for (int i=0; i<levels; i++) {
 			Util.disp("[Level " + i + "]");
 			Util.disp("    lBits          => " + lBits[i]);
-			Util.disp("    lBytes         => " + lBytes[i]);
 			Util.disp("    nBits          => " + nBits[i]);
-			Util.disp("    nBytes         => " + nBytes[i]);
 			Util.disp("    aBits          => " + aBits[i]);
-			Util.disp("    aBytes         => " + aBytes[i]);
 			Util.disp("    tupleBits      => " + tupleBits[i]);
-			Util.disp("    tupleBytes     => " + tupleBytes[i]);
+			Util.disp("    bucketBytes    => " + getBucketBytes(i));
 			Util.disp("    numLeaves      => " + numLeaves[i]);
 			Util.disp("    numBuckets     => " + numBuckets[i]);
 			Util.disp("    numTuples      => " + getNumTuples(i));
@@ -270,20 +248,20 @@ public class ForestMetadata implements Serializable
 	{
 		return lBits[level];
 	}
+
+	public static int getLBytes(int level)
+	{
+		return (lBits[level] + 7) / 8;
+	}
 	
 	public static int getNBits(int level)
 	{
 		return nBits[level];
 	}
-
-	public static int getLBytes(int level)
-	{
-		return lBytes[level];
-	}
 	
 	public static int getNBytes(int level)
 	{
-		return nBytes[level];
+		return (nBits[level] + 7) / 8;
 	}
 	
 	public static int getABits(int level)
@@ -293,7 +271,10 @@ public class ForestMetadata implements Serializable
 	
 	public static int getABytes(int level)
 	{
-		return aBytes[level];
+		if (level == (levels-1))
+			return dBytes;
+		else
+			return (aBits[level] + 7) / 8;
 	}
 	
 	public static int getTupleBits(int level)
@@ -303,12 +284,7 @@ public class ForestMetadata implements Serializable
 	
 	public static int getTupleBytes(int level)
 	{
-		return tupleBytes[level];
-	}
-	
-	public static int getWholeTupleBytes(int level)
-	{
-		return getNonceBytes() + getTupleBytes(level);
+		return (tupleBits[level] + 7) / 8;
 	}
 	
 	public static long getTreeOffset(int level)
@@ -387,5 +363,23 @@ public class ForestMetadata implements Serializable
 	public static long getNumInsert() 
 	{
 		return numInsert;
+	}
+	
+	public static int getBucketTupleBits(int level)
+	{
+		if (level == 0)
+			return tupleBits[level];
+		else
+			return tupleBits[level] * w;
+	}
+	
+	public static int getBucketTupleBytes(int level)
+	{
+		return (getBucketTupleBits(level) + 7) / 8;
+	}
+	
+	public static int getBucketBytes(int level)
+	{
+		return getNonceBytes() + getBucketTupleBytes(level);
 	}
 }

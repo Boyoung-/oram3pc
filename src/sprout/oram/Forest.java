@@ -96,7 +96,7 @@ public class Forest
 			Tree t = trees.get(i);
 			for (int j=0; j<ForestMetadata.getNumTuples(i); j++) {
 				Tuple tp = t.readTuple(j);
-				if (new BigInteger(1, tp.getFB()).intValue() == 1 || i == 0) {
+				//if (new BigInteger(1, tp.getFB()).intValue() == 1 || i == 0) {
 					BigInteger nonce = new BigInteger(ForestMetadata.getNonceBits(), rnd);
 					PRG G = new PRG(ForestMetadata.getTupleBits(i));
 					BigInteger mask = new BigInteger(G.generateBitString(ForestMetadata.getTupleBits(i), nonce), 2);
@@ -104,7 +104,7 @@ public class Forest
 					tp.setWhole(Util.rmSignBit(nonce.toByteArray()), Util.rmSignBit(ctext.toByteArray()));
 					Util.disp("ORAM-" + i + " writing encrypted " + tp);		
 					t.writeTuple(tp, j);
-				}
+				//}
 			}
 		}
 	}
