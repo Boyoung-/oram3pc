@@ -13,9 +13,9 @@ import sprout.crypto.PRG;
 import sprout.crypto.oprf.Message;
 import sprout.crypto.oprf.OPRF;
 import sprout.oram.ForestMetadata;
+import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.oram.Forest.TreeZero;
-import sprout.ui.CryptoParam;
 import sprout.util.Util;
 
 public class DecryptPath extends TreeOperation<DPOutput, EPath>{
@@ -53,16 +53,13 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // step 3   
     // party C
     // E sends sigma_x to C
-    BigInteger[] sigma_x = new BigInteger[d_i+expen];
+    ECPoint[] sigma_x = new ECPoint[d_i+expen];
     for (int j=0; j<d_i+expen; j++)
-      sigma_x[j] = eddie.readBigInteger();
+      sigma_x[j] = eddie.readECPoint();
     
     // step 4
     // party C and D run OPRF on C's input sigma_x and D's input k
-    // TODO: For now we leave the PRG in place, this may eventually need to change (or be integrated into the prf)
-    // TODO: PK should be precomputed
-    ECPoint pk = debbie.readECPoint();
-    OPRF oprf = new OPRF(pk);
+    OPRF oprf = OPRFHelper.getOPRF();
     PRG G;
     try {
       G = new PRG(l);
@@ -76,15 +73,14 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       // This oprf should possibly be evaulated in as an Operation
       // For an easier description of the flow look at OPRFTest.java
       // TODO: May want a different encoding here we leave this until OPRF changes
-      Message msg1 = oprf.prepare(sigma_x[j].toString(16));
+      Message msg1 = oprf.prepare(sigma_x[j]);
       debbie.write(new Message(msg1.getV()));
       
       Message msg2 = debbie.readMessage();
       msg2.setW(msg1.getW());
       Message res = oprf.deblind(msg2);
       
-      // TODO: may need some other encoding here
-      secretC_P += G.generateBitString(l, res.getResult().getEncoded());
+      secretC_P += G.generateBitString(l, res.getResult());
     }
     // C outputs secretC_P
     
@@ -100,12 +96,8 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       return out;
     }
     
-    // TODO: This shoudl be precomputed (or established earlier)
-    OPRF oprf = new OPRF();
-    charlie.write(oprf.getY());
-
+    OPRF oprf = OPRFHelper.getOPRF(false);
     
-    // TODO: This is probably too many instantiations of the OPRF
     for (int j=0; j < d_i+expen; j++) {
       Message msg = charlie.readMessage();
       msg = oprf.evaluate(msg);
@@ -148,9 +140,9 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     for (int j=0; j<d_i+expen; j++)
       sigma.add(j);
     Collections.shuffle(sigma); // random permutation // TODO: This may  not be random enough
-    BigInteger[] x = Pbar.x.clone();
+    ECPoint[] x = Pbar.x.clone();
     String[] Bbar = Pbar.Bbar.clone();
-    BigInteger[] sigma_x = Util.permute(x, sigma);
+    ECPoint[] sigma_x = Util.permute(x, sigma);
     String[] secretE_P_arr = Util.permute(Bbar, sigma);
     String secretE_P = "";
     for (int j=0; j<d_i+expen; j++)

@@ -11,9 +11,6 @@ import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.oram.Forest.TreeZero;
-import sprout.ui.CryptoParam;
-import sprout.ui.DecryptPathTest.DPOutput;
-import sprout.ui.EncryptPathTest.EPath;
 import sprout.util.Util;
 
 public abstract class TreeOperation<T extends Object, V> extends Operation {
@@ -25,7 +22,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   int expen;                             // # buckets in each leaf
   ForestMetadata metadata;
   
-  static boolean print_out = true;
+  static boolean print_out = false;
   
   
   public TreeOperation(Communication con1, Communication con2) {
@@ -110,7 +107,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
     initializeMetadata(forest.getMetadata());
     
     // i = 0 case
-    BigInteger k = Util.randomBigInteger(CryptoParam.q);
+    BigInteger k = OPRFHelper.getOPRF(party).getK();
     T out = execute(party, "", k, forest.getInitialORAM(), null, prepareArgs(party));
     if (print_out && out!=null) System.out.println("Output i=0 : " + out.toString());
     else System.out.println("Finished round 0");
@@ -119,7 +116,6 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
       this.loadTreeSpecificParameters(OT);
     
       String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll);    
-      k = Util.randomBigInteger(CryptoParam.q);
       
       // TODO: Print out here too
       out = execute(party, Li, k, forest.getInitialORAM(), OT, prepareArgs(party));

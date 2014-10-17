@@ -438,6 +438,23 @@ public class Communication
     return ret;
   }
   
+  public void write(ECPoint[] bigs) {
+    write(bigs.length);
+    for(int i=0; i<bigs.length; i++) {
+      write(bigs[i]);
+    }
+  }
+  
+  public ECPoint[] readECPointArray() {
+    int length = readInt();
+    ECPoint[] ret = new ECPoint[length];
+    for (int i=0; i<length; i++) {
+      ret[i] = readECPoint();
+    }
+    
+    return ret;
+  }
+  
   public void write(String[] bigs) {
     write(bigs.length);
     for(int i=0; i<bigs.length; i++) {

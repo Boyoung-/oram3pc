@@ -1,5 +1,7 @@
 package sprout.crypto;
 
+import java.io.IOException;
+
 import org.bouncycastle.math.ec.ECPoint;
 import org.junit.Test;
 
@@ -39,6 +41,32 @@ public class OPRFTest {
     } catch (Exception exception) {
       System.out.println("Exception occured " + exception.getMessage());
     }
+  }
+  
+  public static String test_file_dir = "test";
+  @Test
+  public void testSaveLoad() {
+    OPRF serverOprf = new OPRF();
+    OPRF clientOprf = new OPRF(serverOprf.getY());
+   
+    try {
+      serverOprf.save(test_file_dir + "/" + "pub");
+      clientOprf.save(test_file_dir + "/" + "priv");
+      
+      OPRF s2 = new OPRF(test_file_dir + "/" + "pub");
+      OPRF c2 = new OPRF().load(test_file_dir+"/"+"priv");
+      
+      assertEquals(serverOprf.getK(), s2.getK());
+      assertNull(clientOprf.getK());
+      assertNull(c2.getK());
+      
+      assertEquals(serverOprf.getY(), s2.getY());
+      assertEquals(clientOprf.getY(), c2.getY());
+    } catch (IOException e) {
+      e.printStackTrace();
+      fail("IOException");
+    }
+    
   }
   
   @Test

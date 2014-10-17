@@ -2,18 +2,24 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 
+import org.bouncycastle.math.ec.ECPoint;
+
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
+import sprout.crypto.oprf.OPRF;
 import sprout.oram.Forest.TreeZero;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Tree;
-import sprout.ui.CryptoParam;
 import sprout.util.Util;
 
 public class EncryptPath extends TreeOperation<EPath, String> {
 
   EncryptPath(Communication con1, Communication con2, ForestMetadata metadata) {
     super(con1, con2, metadata);
+  }
+  
+  public EncryptPath(Communication con1, Communication con2) {
+    super(con1, con2);
   }
 
   @Override
@@ -43,18 +49,25 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       Communication eddie, BigInteger k, TreeZero OT_0, Tree OT,
       String unused) {
     try {
+      OPRF oprf = OPRFHelper.getOPRF(false);
       // protocol
       // step 1
       // party D
-      BigInteger y = CryptoParam.g.modPow(k, CryptoParam.p);
+      ECPoint y = oprf.getY();
       byte[] s = rnd.generateSeed(16);  // 128 bits
-      BigInteger[] r = new BigInteger[n];
-      BigInteger[] x = new BigInteger[n];
-      BigInteger[] v = new BigInteger[n];
+      //BigInteger[] r = new BigInteger[n];
+      ECPoint[] x = new ECPoint[n];
+      ECPoint[] v = new ECPoint[n];
+      BigInteger r;
       for (int j=0; j<n; j++) {
-        r[j] = Util.randomBigInteger(CryptoParam.q);
-        x[j] = CryptoParam.g.modPow(r[j], CryptoParam.p);
-        v[j] = y.modPow(r[j], CryptoParam.p);
+        // This computation is repeated in oprf in some form
+        r = oprf.randomExponent();
+        x[j] = oprf.getG().multiply(r);
+        v[j] = oprf.getY().multiply(r);
+        // below is a version using only the exposed methods, however the above should eventually be used
+        // once same base optimizations are implemented
+        // x[j] = oprf.randomPoint();
+        // v[j] = oprf.evaluate(x[j]).getResult();
       }
       PRG G1 = new PRG(l*(n));
       String a_all = G1.generateBitString(l*(n), s);
@@ -88,7 +101,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       // D sends s and x to E
       // D sends c to C
       byte[] s = debbie.read();
-      BigInteger[] x = debbie.readBigIntegerArray();
+      ECPoint[] x = debbie.readECPointArray();
 
       // Step 2
       // C sends d to E
@@ -132,7 +145,12 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 
   @Override
   public String prepareArgs() {
-    int ldata         = twotaupow * metadata.getTupleBitsL(h-1);
-    return Util.addZero(new BigInteger(ldata, rnd).toString(2), ldata);
+    int length;
+    if (i == 0) {
+      length = twotaupow * metadata.getTupleBitsL(h-1);
+    } else {
+      length = l * n;
+    }
+    return Util.addZero(new BigInteger(length, rnd).toString(2), length);
   }
 }

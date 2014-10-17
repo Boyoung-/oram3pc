@@ -1,5 +1,10 @@
 package sprout.crypto.oprf;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -22,24 +27,45 @@ public class OPRF {
 
   // Private keys
   protected BigInteger k;
+  
+  static SecureRandom rand = new SecureRandom();
 
   /** 
    * Create a new keyed PRF
    */
   public OPRF() {
-    loadSharedKeys();
+    loadSharedParams();
     k = generateSecretKey();
+  }
+  
+  /**
+   * Create a new PRF from saved keys
+   */
+  public OPRF(BigInteger k, ECPoint y) {
+    loadSharedParams();
+    this.k = k;
+    this.y = y;
+  }
+  
+  /**
+   * Create a new PRF from a saved file
+   * @param file containing the keys
+   * @throws IOException 
+   */
+  public OPRF(String file) throws IOException {
+    loadSharedParams();
+    load(file);
   }
 
   /**
    * @param y public key of the secret holder
    */
   public OPRF(ECPoint y) {
-    loadSharedKeys();
+    loadSharedParams();
     this.y = y;
   }
 
-  protected void loadSharedKeys() {
+  protected void loadSharedParams() {
     // TODO: Is this the curve we want to use? 
     X9ECParameters x9 = NISTNamedCurves.getByName("P-224");
     g = x9.getG();
@@ -65,10 +91,54 @@ public class OPRF {
 
     return y;
   }
-
-  protected BigInteger generateSecretKey() {
-    return randomRange(n);
+  
+  public ECPoint getPK() {
+    return getY();
   }
+
+  /**
+   * Is this the OPRF owner/server (with the key)
+   */
+  public boolean hasKey() {
+    return k != null;
+  }
+  
+  /* **********************
+   *      Save / Load     *
+   ************************/
+  
+  public OPRF save(String filename) throws IOException {
+    FileOutputStream fout = new FileOutputStream(filename);
+    ObjectOutputStream oos = null;
+    try {
+      oos = new ObjectOutputStream(fout);
+      oos.writeObject(k);
+      oos.writeObject(y.getEncoded());
+      return this;
+    } finally {
+      if (oos != null)
+        oos.close();
+    }
+  }
+  
+  public OPRF load(String filename) throws IOException {
+    FileInputStream fin = new FileInputStream(filename);
+    ObjectInputStream ois = null;
+    try {
+      ois = new ObjectInputStream(fin);
+      k = (BigInteger) ois.readObject();
+      byte[] yEnc = (byte[]) ois.readObject();
+      y = NISTNamedCurves.getByName("P-224").getCurve().decodePoint(yEnc);
+      
+      return this;
+    } catch (ClassNotFoundException e) {
+      throw new IOException("File contains invalid structure.", e);
+    } finally {
+      if (ois != null)
+        ois.close();
+    }
+  }
+  
 
   /* **********************
    *  Protocol directives *
@@ -82,19 +152,20 @@ public class OPRF {
    * @throws WrongPartyException If you already hold k 
    */
   public Message prepare(String msg) throws CryptoException, WrongPartyException {
-
-    if (k != null) {
-      throw new WrongPartyException("Key holder cannot prepare messages");
+    if (hasKey()) {
+      throw new WrongPartyException("Key holder cannot prepare messages, use evaluate instead");
     }
     
-    
-    BigInteger t = generateSecretKey();
+    return prepare(hash(msg));
+  }
+  
+  public Message prepare(ECPoint msg) throws CryptoException, WrongPartyException {
+    BigInteger t = randomRange(n);
     
     ECPoint gt = g.multiply(t);
-    ECPoint v = hash(msg).add(gt);
+    ECPoint v = msg.add(gt);
     
     ECPoint w = y.multiply(t).negate();
-   
     return new Message(v,w);
   }
 
@@ -106,7 +177,7 @@ public class OPRF {
    */
   // 
   public Message evaluate(Message msg) throws CryptoException, WrongPartyException {
-    if (k == null) {
+    if (!hasKey()) {
       throw new WrongPartyException("Only the key holder can evaluate");
     }
     return new Message( msg.getV().multiply(k) );
@@ -128,14 +199,44 @@ public class OPRF {
    * @throws WrongPartyException If you do not hold k.
    */
   public Message evaluate(String msg) throws CryptoException, WrongPartyException {
-    if (k == null) {
+    if (!hasKey()) {
       throw new WrongPartyException("Only the key holder can evaluate");
     }
     
     return new Message( hash(msg).multiply(k) );
   }
+  
+  /**
+   * Compute the PRF on msg
+   * @param msg
+   * @return
+   */
+  public Message evaluate(ECPoint msg) throws WrongPartyException {
+    if (!hasKey()) {
+      throw new WrongPartyException("Only the key holder can evaluate");
+    }
+    
+    return new Message(msg.multiply(k));
+  }
+  
+  /* **********************
+   *        Utilities     *
+   ************************/
+  
+  public ECPoint randomPoint() {
+    return g.multiply(randomRange(n));
+  }
+  
+  public BigInteger randomExponent() {
+    return randomRange(n);
+  }
+  
+  public BigInteger generateSecretKey() {
+    return randomRange(n);
+  }
+  
 
-  protected ECPoint hash(String input) throws CryptoException{
+  ECPoint hash(String input) throws CryptoException{
     return g.multiply(hash(input.getBytes(), (byte)0).mod(n));
   }
 
@@ -147,7 +248,7 @@ public class OPRF {
    * @return H(selector | message)
    * @throws CryptoException if SHA-1 is not available
    */
-  protected BigInteger hash(byte [] message, byte selector) throws CryptoException{
+  static BigInteger hash(byte [] message, byte selector) throws CryptoException{
 
     // input = selector | message
     byte [] input = new byte[message.length + 1];
@@ -165,18 +266,17 @@ public class OPRF {
     return new BigInteger(digest.digest(input));
   }
 
-  // TODO: integrate this into the alreday existing random class
   /**
    * Calculate a random number between 0 and range (exclusive)
    * 
    * @param range
    */
-  protected BigInteger randomRange(BigInteger range){
+  static BigInteger randomRange(BigInteger range){
     //TODO: Is there anything else we should fall back on here perhaps openssl bn_range
     //         another option is using an AES based key generator (the only algorithim supported by android)
 
     // TODO: Should we be keeping this rand around? 
-    SecureRandom rand = new SecureRandom();
+    
     BigInteger temp = new BigInteger(range.bitLength(), rand);
     while(temp.compareTo(range) >= 0 || temp.equals(BigInteger.ZERO)){
       temp = new BigInteger(range.bitLength(), rand);
