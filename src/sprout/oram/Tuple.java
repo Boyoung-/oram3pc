@@ -16,6 +16,11 @@ public class Tuple
 	
 	// TODO: add Tuple(ti, fb, n, l, a)???
 	
+	public void setIndex(int treeIndex)
+	{
+		this.treeIndex = treeIndex;
+	}
+	
 	public void setTuple(byte[] tuple) throws TupleException
 	{
 		int tupleBytes = ForestMetadata.getTupleBytes(treeIndex);

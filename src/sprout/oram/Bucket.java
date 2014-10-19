@@ -31,6 +31,11 @@ public class Bucket
 		setBucket(nonce, tuples);
 	}
 	
+	public void setIndex(int treeIndex)
+	{
+		this.treeIndex = treeIndex;
+	}
+	
 	public void setBucket(byte[] nonce, byte[] tuples) throws BucketException
 	{
 		setNonce(nonce);
@@ -179,8 +184,8 @@ public class Bucket
 		else
 			builder.append(new BigInteger(1, nonce).toString(16) + ", ");
 		
-		//builder.append("Tuples(16)=" + new BigInteger(1, tuples).toString(16));
-		builder.append("Tuples(2)=" + Util.addZero(new BigInteger(1, tuples).toString(2), ForestMetadata.getBucketTupleBits(treeIndex)));
+		builder.append("Tuples(16)=" + new BigInteger(1, tuples).toString(16));
+		//builder.append("Tuples(2)=" + Util.addZero(new BigInteger(1, tuples).toString(2), ForestMetadata.getBucketTupleBits(treeIndex)));
 
 		return builder.toString();
 	}

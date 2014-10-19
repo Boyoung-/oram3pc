@@ -12,6 +12,11 @@ public class Tree
 		this.index = index;
 	}
 	
+	public void setIndex(int index)
+	{
+		this.index = index;
+	}
+	
 	public int getTreeIndex() 
 	{
 		return index;
@@ -50,7 +55,6 @@ public class Tree
 		setByteBucket(bucket.toByteArray(), bucketNum);
 	}
 	
-	// TODO: test it
 	private List<Long> getBucketIndicesOnPath(long L) throws TreeException
 	{
 		List<Long> indices = new ArrayList<Long>();

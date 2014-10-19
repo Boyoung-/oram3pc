@@ -17,7 +17,7 @@ public class Forest
 	private static byte[] data; // keep all data in memory for testing now
 	
 	// TODO: insert record sparsely
-	public Forest() throws NoSuchAlgorithmException, TupleException, TreeException, ForestException
+	public Forest() throws Exception
 	{		
 		if (!ForestMetadata.getStatus())
 			throw new ForestException("ForestMetadata is not setup");
@@ -36,11 +36,17 @@ public class Forest
 		if (numInsert < 0 || numInsert > addressSpace)
 			numInsert = addressSpace;
 		int tau = ForestMetadata.getTau();
+		int w = ForestMetadata.getBucketDepth();
+		// following used to hold new tuple content
 		BigInteger FB = null;
 		BigInteger[] N = new BigInteger[levels];
 		BigInteger[] L = new BigInteger[levels];
 		BigInteger A;
-		BigInteger tuple;
+		BigInteger tuple; // new tuple to be inserted
+		Bucket bucket; // bucket to be updated
+		long bucketIndex; // bucket index in the tree
+		int tupleIndex; // tuple index in the bucket
+		
 		for (long address = 0L; address < numInsert; address++)
 		{
 			System.out.println("--------------------");
@@ -52,19 +58,27 @@ public class Forest
 					//FB = BigInteger.ONE;
 					N[i] = BigInteger.ZERO;
 					//L[i] = BigInteger.ZERO;
+					bucketIndex = 0;
+					tupleIndex = 0;
 				}
 				else
 				{
 					FB = BigInteger.ONE;
 					N[i] = BigInteger.valueOf(address >> ((h-i)*tau));
-					L[i] = N[i].divide(BigInteger.valueOf(ForestMetadata.getBucketDepth()*ForestMetadata.getLeafExpansion()));
+					L[i] = N[i].divide(BigInteger.valueOf(w*ForestMetadata.getLeafExpansion()));
+					bucketIndex = N[i].longValue() / w + ForestMetadata.getNumLeaves(i) - 1;
+					tupleIndex = (int) (N[i].longValue() % w);
 				}
+				
+				bucket = trees.get(i).getBucket(bucketIndex);
+				bucket.setIndex(i);
+				
 				if (i == h)
-					A = new BigInteger(ForestMetadata.getABits(i), rnd);
+					A = new BigInteger(ForestMetadata.getABits(i), rnd); // generate random record content
 				else {
 					BigInteger indexN = Util.getSubBits(N[i+1], 0, tau);
 					int start = (ForestMetadata.getTwoTauPow()-indexN.intValue()-1) * ForestMetadata.getLBits(i+1);
-					Tuple old = trees.get(i).readLeafTuple(N[i].longValue());
+					Tuple old = bucket.getTuple(tupleIndex);
 					A = Util.setSubBits(new BigInteger(1, old.getA()), L[i+1], start, start+ForestMetadata.getLBits(i+1));
 				}
 				
@@ -78,35 +92,36 @@ public class Forest
 				}
 				
 				Tuple newTuple = new Tuple(i, Util.rmSignBit(tuple.toByteArray()));
-				Util.disp("ORAM-" + i + " writing: " + newTuple);		
-				trees.get(i).writeLeafTuple(newTuple, N[i].longValue());
+				bucket.setTuple(newTuple, tupleIndex);
+				Util.disp("Tree-" + i + " writing: " + newTuple);		
+				trees.get(i).setBucket(bucket, bucketIndex);
 			}
 		}
 		
-		// TODO: encrypt all tuples in all trees??
 		Util.disp("");
-		Util.disp("===== Encryption ===== ");
-		encryptFullTuples();
+		
+		encryptAllBuckets();
 	}
 	
-	// TODO: change PRG
-	private static void encryptFullTuples() throws TupleException, TreeException, NoSuchAlgorithmException
+	// TODO: correct encryption
+	private static void encryptAllBuckets() throws BucketException, NoSuchAlgorithmException, TreeException
 	{
+		Util.disp("===== Encryption ===== ");
 		for (int i=0; i<trees.size(); i++) {
 			Tree t = trees.get(i);
-			for (int j=0; j<ForestMetadata.getNumTuples(i); j++) {
-				Tuple tp = t.readTuple(j);
-				//if (new BigInteger(1, tp.getFB()).intValue() == 1 || i == 0) {
-					BigInteger nonce = new BigInteger(ForestMetadata.getNonceBits(), rnd);
-					PRG G = new PRG(ForestMetadata.getTupleBits(i));
-					BigInteger mask = new BigInteger(G.generateBitString(ForestMetadata.getTupleBits(i), nonce), 2);
-					BigInteger ctext = new BigInteger(1, tp.getTuple()).xor(mask);
-					tp.setWhole(Util.rmSignBit(nonce.toByteArray()), Util.rmSignBit(ctext.toByteArray()));
-					Util.disp("ORAM-" + i + " writing encrypted " + tp);		
-					t.writeTuple(tp, j);
-				//}
+			int bucketTupleBits = ForestMetadata.getBucketTupleBits(i);
+			for (long j=0; j<ForestMetadata.getNumBuckets(i); j++) {
+				Bucket bucket = t.getBucket(j);
+				BigInteger nonce = new BigInteger(ForestMetadata.getNonceBits(), rnd);
+				PRG G = new PRG(bucketTupleBits);
+				BigInteger mask = new BigInteger(G.generateBitString(bucketTupleBits, nonce), 2);
+				BigInteger ctext = new BigInteger(1, bucket.toByteArray()).xor(mask);
+				bucket.setBucket(Util.rmSignBit(nonce.toByteArray()), Util.rmSignBit(ctext.toByteArray()));
+				Util.disp("Tree-" + i + " writing encrypted " + bucket);		
+				t.setBucket(bucket, j);
 			}
 		}
+		Util.disp("");
 	}
 	
 	/**

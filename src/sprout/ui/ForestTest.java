@@ -1,20 +1,14 @@
 package sprout.ui;
 
-import java.io.FileNotFoundException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
 
 import sprout.oram.Bucket;
-import sprout.oram.BucketException;
 import sprout.oram.Forest;
-import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Tree;
-import sprout.oram.TreeException;
 import sprout.oram.Tuple;
-import sprout.oram.TupleException;
 import sprout.util.Util;
 
 public class ForestTest
@@ -34,6 +28,7 @@ public class ForestTest
 		*/
 		
 		// test bucket
+		/*
 		Tuple[] tuples = new Tuple[4];
 		for (int i=0; i<4; i++) {
 			BigInteger input = new BigInteger(80, rnd).setBit(80);
@@ -68,20 +63,22 @@ public class ForestTest
 			Tuple tmp = b3.getTuple(i);
 			System.out.println(new BigInteger(1, tmp.toByteArray()).compareTo(new BigInteger(1, tuples[i].toByteArray())) == 0);
 		}
+		*/
 		
+		// test forest generation
+		Forest forest = new Forest();
 		
+		// test get/set path
 		/*
-		Forest forest = new Forest();		
-		
-		System.out.println();
 		System.out.println("===== Testing get/set path =====");
 		Tree t = forest.getTree(3);
-		List<Tuple> p1 = t.getTuplesOnPath(1);
-		t.setTuplesOnPath(p1, 3);
-		List<Tuple> p2 = t.getTuplesOnPath(3);
-		Util.printListV(p1);
+		List<Bucket> b1 = t.getBucketsOnPath(1);
+		t.setBucketsOnPath(b1, 3);
+		List<Bucket> b2 = t.getBucketsOnPath(3);
+		Util.printListV(b1);
 		System.out.println();
-		Util.printListV(p2);
+		Util.printListV(b2);
+		System.out.println();
 		*/
 	}
 
