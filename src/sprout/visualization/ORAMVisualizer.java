@@ -13,6 +13,8 @@ public class ORAMVisualizer
 	 * @return
 	 * @throws TreeException 
 	 */
+	
+	// TODO: create a visualization for the new forest???
 	public static String renderTree(Tree tree, PrintStream out) throws TreeException
 	{
 		StringBuilder builder = new StringBuilder();
@@ -20,6 +22,7 @@ public class ORAMVisualizer
 		out.print("    node [shape = record];\n");
 		out.print("    rankdir=LR;\n");
 
+		/*
 		// Add the nodes 
 		int tupleOffset = 0;
 		long numLeaves = tree.getNumLeaves();
@@ -66,6 +69,7 @@ public class ORAMVisualizer
 				}
 			}
 		}
+		*/
 
 		out.print("}\n");
 		return builder.toString();

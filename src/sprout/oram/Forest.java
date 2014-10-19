@@ -7,7 +7,10 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.bouncycastle.math.ec.ECPoint;
+
 import sprout.crypto.PRG;
+import sprout.crypto.oprf.OPRF;
 import sprout.util.Util;
 
 public class Forest
@@ -117,20 +120,27 @@ public class Forest
 		encryptAllBuckets();
 	}
 	
-	// TODO: correct encryption
 	private static void encryptAllBuckets() throws BucketException, NoSuchAlgorithmException, TreeException
 	{
 		Util.disp("===== Encryption ===== ");
+		OPRF oprf = new OPRF();
+		ECPoint g = oprf.getG();
+		ECPoint y = oprf.getY();
+		
 		for (int i=0; i<trees.size(); i++) {
 			Tree t = trees.get(i);
 			int bucketTupleBits = ForestMetadata.getBucketTupleBits(i);
 			for (long j=0; j<ForestMetadata.getNumBuckets(i); j++) {
 				Bucket bucket = t.getBucket(j);
-				BigInteger nonce = new BigInteger(ForestMetadata.getNonceBits(), rnd);
-				PRG G = new PRG(bucketTupleBits);
-				BigInteger mask = new BigInteger(G.generateBitString(bucketTupleBits, nonce), 2);
+				BigInteger r = oprf.randomExponent();
+				ECPoint x = g.multiply(r);
+				ECPoint v = y.multiply(r);
+				PRG G = new PRG(bucketTupleBits); // TODO: why only fresh PRG works??
+				BigInteger mask = new BigInteger(G.generateBitString(bucketTupleBits, v), 2);
 				BigInteger ctext = new BigInteger(1, bucket.toByteArray()).xor(mask);
-				bucket.setBucket(Util.rmSignBit(nonce.toByteArray()), Util.rmSignBit(ctext.toByteArray()));
+				// TODO: is nonce bits correct?
+				//System.out.println("nonce bytes:" + x.getEncoded().length);
+				bucket.setBucket(x.getEncoded(), Util.rmSignBit(ctext.toByteArray()));
 				Util.disp("Tree-" + i + " writing encrypted " + bucket);		
 				t.setBucket(bucket, j);
 			}

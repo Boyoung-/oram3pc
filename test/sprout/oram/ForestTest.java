@@ -1,9 +1,5 @@
 package sprout.oram;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-
 import org.junit.Test;
 
 import sprout.util.Util;
@@ -16,22 +12,11 @@ public class ForestTest
 	{
 		try
 		{
+			ForestMetadata.setup("config/newConfig.yaml");
 			// Create the tree so we can actually run some tests on it...
 			forest = new Forest();
-			forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
-		}
-		catch (NumberFormatException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (ForestException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
+			//forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -48,8 +33,16 @@ public class ForestTest
 	{
 		long address = 0L;
 		
-		byte[] entryBucket = forest.getInitialORAM().initialEntry;
-		int initialBytes = forest.getInitialEntryTupleSize();
+		//byte[] entryBucket = forest.getInitialORAM().initialEntry;
+		//int initialBytes = forest.getInitialEntryTupleSize();
+		byte[] entryBucket = null;
+		try {
+			entryBucket = forest.getTree(0).getBucket(0).getByteTuple(0);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		int initialBytes = ForestMetadata.getBucketBytes(0);
 		
 		System.out.println("Searching for leaf: " + 0L);
 		int offset = ((int) address) * initialBytes;

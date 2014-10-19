@@ -2,7 +2,6 @@ package sprout.oram;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
@@ -18,20 +17,11 @@ public class TreeTest
 		// create the tree so we can actually run some tests on it...
 		try
 		{
+			ForestMetadata.setup("config/newConfig.yaml");
 			forest = new Forest();
-			forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
+			//forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
 		}
-		catch (NumberFormatException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (ForestException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -41,25 +31,20 @@ public class TreeTest
 	@Test
 	public void testLevels()
 	{
-		for (int i = 0; i < forest.getNumberOfTrees(); i++)
+		for (int i = 0; i < ForestMetadata.getLevels(); i++)
 		{
 			try
 			{
 				Util.disp("Working on ORAM-" + i);
 				Tree t = forest.getTree(i);
-				long numLeaves = t.getNumLeaves();
+				long numLeaves = ForestMetadata.getNumLeaves(i);
 				for (long l = 0; l < numLeaves; l++)
 				{
 					Util.disp("\tFetch leaf path: " + l);
-					List<Tuple> tuples = t.getPathToLeaf(l);
+					List<Bucket> buckets = t.getBucketsOnPath(l);
 				}
 			}
-			catch (ForestException e)
-			{
-				e.printStackTrace();
-				assertEquals(false, true); // this won't happen
-			}
-			catch (TreeException e)
+			catch (Exception e)
 			{
 				e.printStackTrace();
 				assertEquals(false, true); // this won't happen
