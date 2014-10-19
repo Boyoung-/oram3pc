@@ -16,7 +16,7 @@ public class Forest
 	private static ArrayList<Tree> trees;	
 	private static byte[] data; // keep all data in memory for testing now
 	
-	// TODO: randomize L??
+	// TODO: insert record sparsely
 	public Forest() throws NoSuchAlgorithmException, TupleException, TreeException, ForestException
 	{		
 		if (!ForestMetadata.getStatus())
@@ -77,7 +77,7 @@ public class Forest
 							A);
 				}
 				
-				Tuple newTuple = new Tuple(i, BigInteger.ZERO.toByteArray(), Util.rmSignBit(tuple.toByteArray()));
+				Tuple newTuple = new Tuple(i, Util.rmSignBit(tuple.toByteArray()));
 				Util.disp("ORAM-" + i + " writing: " + newTuple);		
 				trees.get(i).writeLeafTuple(newTuple, N[i].longValue());
 			}

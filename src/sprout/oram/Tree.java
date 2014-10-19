@@ -69,6 +69,28 @@ public class Tree
 		setTuple(raw, base + n);
 	}
 	
+	private List<Long> getBucketIndicesOnPath(long L) throws TreeException
+	{
+		if (L < 0 || L >= ForestMetadata.getNumLeaves(index))
+			throw new TreeException("Invalid path");
+		
+		int w = ForestMetadata.getBucketDepth();
+		int e = ForestMetadata.getLeafExpansion();
+		int lBits = ForestMetadata.getLBits(index);
+		List<Long> indices = new ArrayList<Long>();
+		
+		for (int i=0; i<lBits; i++) {
+			long bucketIndex = (L >> (lBits-i)) + (long) Math.pow(2, i) - 1;
+			indices.add(bucketIndex);
+		}
+		
+		long bucketIndex = ForestMetadata.getNumLeaves(index)-1 + L*e;
+		for (int i=0; i<w; i++)
+			indices.add(bucketIndex+i);
+		
+		return indices;
+	}
+	
 	private List<Long> getTupleIndicesOnPath(long L) throws TreeException
 	{
 		if (L < 0 || L >= ForestMetadata.getNumLeaves(index))

@@ -179,8 +179,8 @@ public class ForestMetadata implements Serializable
 		// TODO: add more
 		for (int i=0; i<levels; i++) {
 			Util.disp("[Level " + i + "]");
-			Util.disp("    lBits          => " + lBits[i]);
 			Util.disp("    nBits          => " + nBits[i]);
+			Util.disp("    lBits          => " + lBits[i]);
 			Util.disp("    aBits          => " + aBits[i]);
 			Util.disp("    tupleBits      => " + tupleBits[i]);
 			Util.disp("    bucketBytes    => " + getBucketBytes(i));

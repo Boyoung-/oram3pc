@@ -14,7 +14,7 @@ public class Tuple
 		setTuple(tuple);
 	}
 	
-	// TODO: add tuple(ti, nonce, fb, n, l, a)???
+	// TODO: add Tuple(ti, fb, n, l, a)???
 	
 	public void setTuple(byte[] tuple) throws TupleException
 	{
@@ -27,10 +27,8 @@ public class Tuple
 		}
 	}
 	
-	public byte[] getTuple()
-	{
-		return tuple;
-	}
+
+	// TODO: add setFB/N/L/A???
 	
 	public byte[] getFB() 
 	{
@@ -71,12 +69,17 @@ public class Tuple
 		return Util.rmSignBit(Util.getSubBits(t, 0, aBits).toByteArray());
 	}
 	
+	public byte[] toByteArray()
+	{
+		return tuple;
+	}
+	
 	@Override
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
 		
-		builder.append("Tuple: ");
+		builder.append("Tuple-" + treeIndex + ": ");
 		
 		if (treeIndex > 0) {
 			builder.append("FB(2)=" + new BigInteger(1, getFB()).toString(2) + ", ");
