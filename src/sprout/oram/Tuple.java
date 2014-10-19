@@ -27,6 +27,10 @@ public class Tuple
 		}
 	}
 	
+	public int getTreeIndex()
+	{
+		return treeIndex;
+	}	
 
 	// TODO: add setFB/N/L/A???
 	

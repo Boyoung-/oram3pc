@@ -120,6 +120,11 @@ public class Bucket
 		setTuple(t.toByteArray(), tupleIndex);
 	}
 	
+	public int getTreeIndex()
+	{
+		return treeIndex;
+	}
+	
 	public byte[] getNonce()
 	{
 		return nonce;
