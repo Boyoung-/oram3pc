@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import sprout.crypto.PRG;
 import sprout.util.Util;
@@ -16,7 +17,7 @@ public class Forest
 	private static ArrayList<Tree> trees;	
 	private static byte[] data; // keep all data in memory for testing now
 	
-	// TODO: insert record sparsely
+	@SuppressWarnings("unchecked")
 	public Forest() throws Exception
 	{		
 		if (!ForestMetadata.getStatus())
@@ -37,6 +38,7 @@ public class Forest
 			numInsert = addressSpace;
 		int tau = ForestMetadata.getTau();
 		int w = ForestMetadata.getBucketDepth();
+		int e = ForestMetadata.getLeafExpansion();
 		// following used to hold new tuple content
 		BigInteger FB = null;
 		BigInteger[] N = new BigInteger[levels];
@@ -47,10 +49,14 @@ public class Forest
 		long bucketIndex; // bucket index in the tree
 		int tupleIndex; // tuple index in the bucket
 		
+		HashMap<Long, Long>[] nToSlot = new HashMap[levels];
+		for (int i=1; i<levels; i++)
+			nToSlot[i] = new HashMap<Long, Long>();
+		
+		System.out.println("===== Forest Generation =====");
 		for (long address = 0L; address < numInsert; address++)
 		{
-			System.out.println("--------------------");
-			System.out.println("addr: " + address);
+			System.out.println("record: " + address);
 			for (int i=h; i>=0; i--) 
 			{
 				if (i == 0) 
@@ -65,9 +71,16 @@ public class Forest
 				{
 					FB = BigInteger.ONE;
 					N[i] = BigInteger.valueOf(address >> ((h-i)*tau));
-					L[i] = N[i].divide(BigInteger.valueOf(w*ForestMetadata.getLeafExpansion()));
-					bucketIndex = N[i].longValue() / w + ForestMetadata.getNumLeaves(i) - 1;
-					tupleIndex = (int) (N[i].longValue() % w);
+					Long slot = nToSlot[i].get(N[i].longValue());
+					if (slot == null) {
+						do {
+							slot = Util.nextLong(ForestMetadata.getNumLeafTuples(i));
+						} while (nToSlot[i].containsValue(slot));
+						nToSlot[i].put(N[i].longValue(), slot);
+					}
+					L[i] = BigInteger.valueOf(slot / (w * e));
+					bucketIndex = slot / w + ForestMetadata.getNumLeaves(i) - 1;
+					tupleIndex = (int) (slot % w);
 				}
 				
 				bucket = trees.get(i).getBucket(bucketIndex);
@@ -93,9 +106,13 @@ public class Forest
 				
 				Tuple newTuple = new Tuple(i, Util.rmSignBit(tuple.toByteArray()));
 				bucket.setTuple(newTuple, tupleIndex);
-				Util.disp("Tree-" + i + " writing: " + newTuple);		
+				Util.disp("Tree-" + i + " writing " + newTuple);		
 				trees.get(i).setBucket(bucket, bucketIndex);
+				//System.out.println(bucket.getTuple(tupleIndex));
+				//System.out.println(bucket);
+				//System.out.println(trees.get(i).getBucket(bucketIndex));
 			}
+			System.out.println("--------------------");
 		}
 		
 		Util.disp("");

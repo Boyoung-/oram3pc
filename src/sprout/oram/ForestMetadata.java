@@ -91,7 +91,7 @@ public class ForestMetadata implements Serializable
 		dBytes = Integer.parseInt(configMap.get(DBYTES_NAME).toString());
 		nonceBits = Integer.parseInt(configMap.get(NONCEBITS_NAME).toString());
 		
-		numInsert = Integer.parseInt(configMap.get(INSERT_NAME).toString());
+		numInsert = Long.parseLong(configMap.get(INSERT_NAME).toString(), 10);
 		
 		init();
 	}
@@ -176,22 +176,21 @@ public class ForestMetadata implements Serializable
 		Util.disp("forest bytes:\t" + forestBytes);
 		Util.disp("");
 		
-		// TODO: add more
 		for (int i=0; i<levels; i++) {
 			Util.disp("[Level " + i + "]");
-			Util.disp("    nBits          => " + nBits[i]);
-			Util.disp("    lBits          => " + lBits[i]);
-			Util.disp("    aBits          => " + aBits[i]);
-			Util.disp("    tupleBits      => " + tupleBits[i]);
-			Util.disp("    bucketBytes    => " + getBucketBytes(i));
-			Util.disp("    numLeaves      => " + numLeaves[i]);
-			Util.disp("    numBuckets     => " + numBuckets[i]);
-			Util.disp("    numTuples      => " + getNumTuples(i));
-			Util.disp("    treeOffset     => " + offset[i]);
-			Util.disp("    treeBytes      => " + treeBytes[i]);
+			Util.disp("    nBits             => " + nBits[i]);
+			Util.disp("    lBits             => " + lBits[i]);
+			Util.disp("    aBits             => " + aBits[i]);
+			Util.disp("    tupleBits         => " + tupleBits[i]);
+			Util.disp("    bucketTupleBytes  => " + getBucketTupleBytes(i));	
+			Util.disp("    bucketBytes       => " + getBucketBytes(i));
+			Util.disp("    numLeaves         => " + numLeaves[i]);
+			Util.disp("    numBuckets        => " + numBuckets[i]);
+			Util.disp("    numTuples         => " + getNumTuples(i));
+			Util.disp("    treeOffset        => " + offset[i]);
+			Util.disp("    treeBytes         => " + treeBytes[i]);
 			Util.disp("");
 		}
-		Util.disp("=============");
 		Util.disp("");
 	}
 	
@@ -381,5 +380,13 @@ public class ForestMetadata implements Serializable
 	public static int getBucketBytes(int level)
 	{
 		return getNonceBytes() + getBucketTupleBytes(level);
+	}
+	
+	public static long getNumLeafTuples(int level)
+	{
+		if (level == 0)
+			return (long) twoTauPow;
+		else
+			return numLeaves[level] * w * e;
 	}
 }

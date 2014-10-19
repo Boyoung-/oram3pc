@@ -266,4 +266,19 @@ public class Util
 			return Arrays.copyOfRange(arr, 1, arr.length);
 		return arr;
 	}
+	
+	public static long nextLong(long n)
+	{
+		long bits, val;
+		do {
+			bits = (rnd.nextLong() << 1) >>> 1;
+		    val = bits % n;
+		} while (bits-val+(n-1) < 0L);
+		return val;
+	}
+	
+	public static long nextLong(long start, long end)
+	{
+		return nextLong(end-start) + start;
+	}
 }

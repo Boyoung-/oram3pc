@@ -89,6 +89,13 @@ public class Bucket
 	
 	public void setTuples(Tuple[] tuples) throws BucketException
 	{
+		if (treeIndex == 0) {
+			if (tuples.length != 1)
+				throw new BucketException("Tuple array length error");
+			setTuples(tuples[0].toByteArray());
+			return;
+		}
+		
 		int w = ForestMetadata.getBucketDepth();
 		if (tuples.length != w)
 			throw new BucketException("Tuple array length error");
@@ -104,8 +111,15 @@ public class Bucket
 		System.arraycopy(ts,  0, this.tuples, bucketTupleBytes-ts.length, ts.length);
 	}
 	
-	public void setTuple(byte[] t, int tupleIndex) throws BucketException
+	public void setByteTuple(byte[] t, int tupleIndex) throws BucketException
 	{
+		if (treeIndex == 0) {
+			if (tupleIndex != 0)
+				throw new BucketException("Tuple index error");
+			setTuples(t);
+			return;
+		}
+		
 		int w = ForestMetadata.getBucketDepth();
 		if (tupleIndex < 0 || tupleIndex >= w)
 			throw new BucketException("Tuple index error");
@@ -122,7 +136,7 @@ public class Bucket
 	
 	public void setTuple(Tuple t, int tupleIndex) throws BucketException
 	{
-		setTuple(t.toByteArray(), tupleIndex);
+		setByteTuple(t.toByteArray(), tupleIndex);
 	}
 	
 	public int getTreeIndex()
@@ -142,6 +156,12 @@ public class Bucket
 	
 	public byte[] getByteTuple(int tupleIndex) throws BucketException
 	{
+		if (treeIndex == 0) {
+			if (tupleIndex != 0)
+				throw new BucketException("Tuple index error");
+			return tuples;
+		}
+		
 		int w = ForestMetadata.getBucketDepth();
 		if (tupleIndex < 0 || tupleIndex >= w)
 			throw new BucketException("Tuple index error");
@@ -160,6 +180,8 @@ public class Bucket
 	public Tuple[] getTuples() throws TupleException, BucketException
 	{
 		int w = ForestMetadata.getBucketDepth();
+		if (treeIndex == 0)
+			w = 1;
 		Tuple[] ts = new Tuple[w];
 		for (int i=0; i<w; i++) 
 			ts[i] = getTuple(i);
