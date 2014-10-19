@@ -66,7 +66,12 @@ public class ForestTest
 		*/
 		
 		// test forest generation
+		long start = System.currentTimeMillis();;
+		
 		Forest forest = new Forest();
+		
+	    long end = System.currentTimeMillis();;
+	    System.out.println("Execution time: " + (end-start)/1000 + "s");
 		
 		// test get/set path
 		/*

@@ -108,9 +108,6 @@ public class Forest
 				bucket.setTuple(newTuple, tupleIndex);
 				Util.disp("Tree-" + i + " writing " + newTuple);		
 				trees.get(i).setBucket(bucket, bucketIndex);
-				//System.out.println(bucket.getTuple(tupleIndex));
-				//System.out.println(bucket);
-				//System.out.println(trees.get(i).getBucket(bucketIndex));
 			}
 			System.out.println("--------------------");
 		}
