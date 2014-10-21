@@ -25,9 +25,9 @@ public class GCFTestClient
 		Circuit.isForGarbling = false;
 		Circuit gc_C = null;
 		if (msg[0] == 0)
-			gc_C = new F2ET_Wplus2_Wplus2(msg[1], msg[2], msg[3]);
+			gc_C = new F2ET_Wplus2_Wplus2(msg[1], 1, 1);
 		else
-			gc_C = new F2FT_2Wplus2_Wplus2(msg[1], msg[2], msg[3]);
+			gc_C = new F2FT_2Wplus2_Wplus2(msg[1], 1, 1);
 		Circuit.setIOStream(ProgCommon.ois, ProgCommon.oos);
 		gc_C.build();
 		

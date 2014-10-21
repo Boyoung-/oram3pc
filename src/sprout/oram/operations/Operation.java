@@ -1,11 +1,13 @@
 package sprout.oram.operations;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.security.SecureRandom;
 
 import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
+import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 
 public abstract class Operation {
@@ -54,7 +56,7 @@ public abstract class Operation {
   // Even though many operations don't rely on the existance of a forest, we include it here to have a 
   //  unifying api
   public void run(Party party) throws ForestException {
-    run(party, "config/smallConfig.yaml", "config/smallData.txt", "db.bin", false);
+    run(party, "config/newConfig.yaml", "config/smallData.txt", "db.bin", false);
   }
   public void run(Party party, String configFile, String dbFile) throws ForestException {
     run(party, configFile, dbFile, null, false);
@@ -66,6 +68,7 @@ public abstract class Operation {
       throw new IllegalArgumentException("DB file does not exist " + dbFile);
     }
     
+    /*
     Forest forest = new Forest();
     try {
       if (build) {
@@ -81,6 +84,21 @@ public abstract class Operation {
       e.printStackTrace();
       return;
     }
+    */
+    
+    try {
+		ForestMetadata.setup(configFile);
+	} catch (FileNotFoundException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}
+    Forest forest = null;
+	try {
+		forest = new Forest();
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     
     run(party, forest);
   }

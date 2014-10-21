@@ -49,7 +49,7 @@ public class GCFTestServer
 		int s2 = Math.max(tmp1, tmp2);
 		System.out.println("w:\t" + w);
 		System.out.println("sigma:\t" + s1 + " " + s2);
-		int[] msg = new int[]{circuit.equals("F2ET")?0:1, w, s1, s2};
+		int[] msg = new int[]{circuit.equals("F2ET")?0:1, w};
 		ORAMTrialCommon.oos.writeObject(msg);
 		
 		Circuit gc_S = null;

@@ -23,7 +23,7 @@ public class TestCLI
 {
 	public static final int DEFAULT_PORT = 8000;
 	public static final String DEFAULT_IP = "localhost";
-	public static final String DEFAULT_CONFIG_FILE = "config/smallConfig.yaml";
+	public static final String DEFAULT_CONFIG_FILE = "config/newConfig.yaml";
 	public static final String DEFAULT_DB_FILE = "db.bin";
 	public static final String DEFAULT_DATA_FILE = "config/smallData.txt";
 
@@ -100,14 +100,16 @@ public class TestCLI
 			} else if (alg.equals("iot")) {
 			  operation = sprout.oram.operations.IOT.class;
 			} else if (alg.equals("ssot")) {
-        operation = sprout.oram.operations.SSOT.class;
-      } else if (alg.equals("reshuffle")) {
+			  operation = sprout.oram.operations.SSOT.class;
+			} else if (alg.equals("reshuffle")) {
 			  operation = Reshuffle.class;
 			} else if (alg.equals("post")) {
 			  operation = PostProcessT.class;
-			} else if (alg.equals("evict")){
+			} else if (alg.equals("evict")) {
 			  operation = Eviction.class;
-		  } else {
+			} else if (alg.equals("gcf")) {
+			  operation = GCF.class;
+			} else {
 			  System.out.println("Method " + alg + " not supported");
 			  System.exit(-1);
 			}
