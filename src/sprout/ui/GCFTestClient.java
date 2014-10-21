@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.security.SecureRandom;
 
+import sprout.util.Util;
 import Program.ORAMTrialCommon;
 import Program.ProgCommon;
 import YaoGC.*;

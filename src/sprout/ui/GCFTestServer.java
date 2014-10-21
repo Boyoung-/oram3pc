@@ -92,8 +92,9 @@ public class GCFTestServer
 		
 		// step 3
 		State in_S = State.fromLabels(K_S);
-		gc_S.startExecuting(in_S);		
-		BigInteger[] outLbs = (BigInteger[]) ORAMTrialCommon.ois.readObject();
+		State out_S = gc_S.startExecuting(in_S);		
+		BigInteger[] outLabels = (BigInteger[]) ORAMTrialCommon.ois.readObject();
+		State outputState = State.fromLabels(out_S.toLabels());
 		
 		// close everything
 		ProgCommon.oos.close();                          
@@ -103,21 +104,44 @@ public class GCFTestServer
 		
 		// interpret results		
 		System.out.println("input:\t" + input);
-		String output = gc_S.interpretOutputELabels(outLbs).toString(2);
+		
+		//String output = gc_S.interpretOutputELabels(outLbs).toString(2);
+		BigInteger output = BigInteger.ZERO;
+		for (int i = 0; i < outLabels.length; i++) {
+		    if (outputState.wires[i].value != Wire.UNKNOWN_SIG) {
+			if (outputState.wires[i].value == 1)
+			    output = output.setBit(i);
+			continue;
+		    }
+		    else if (outLabels[i].equals(outputState.wires[i].invd ? 
+						 outputState.wires[i].lbl :
+						 outputState.wires[i].lbl.xor(Wire.R.shiftLeft(1).setBit(0)))) {
+			    output = output.setBit(i);
+		    }
+		    else if (!outLabels[i].equals(outputState.wires[i].invd ? 
+						  outputState.wires[i].lbl.xor(Wire.R.shiftLeft(1).setBit(0)) :
+						  outputState.wires[i].lbl)) 
+			throw new Exception("Bad label encountered: i = " + i + "\t" +
+					    outLabels[i] + " != (" + 
+					    outputState.wires[i].lbl + ", " +
+					    outputState.wires[i].lbl.xor(Wire.R.shiftLeft(1).setBit(0)) + ")");
+		}
+		
+		String out = output.toString(2);
 		if (circuit.equals("F2ET"))
-			output = Util.addZero(output, n);
+			out = Util.addZero(out, n);
 		else
-			output = Util.addZero(output, w+2);
-		System.out.println("output:\t" + output);
-		return output;
+			out = Util.addZero(out, w+2);
+		System.out.println("output:\t" + out);
+		return out;
 	}
 	
 	public static void main(String[] args) throws Exception {
 		int n = 18;
-		//String circuit = "F2ET";
-		//String sC = "00" + Util.addZero(new BigInteger(n-2, rnd).toString(2), n-2);
-		String circuit = "F2FT";
-		String sC = "0011111111" + Util.addZero(new BigInteger(n-10, rnd).toString(2), n-10);
+		String circuit = "F2ET";
+		String sC = "00" + Util.addZero(new BigInteger(n-2, rnd).toString(2), n-2);
+		//String circuit = "F2FT";
+		//String sC = "0011111111" + Util.addZero(new BigInteger(n-10, rnd).toString(2), n-10);
 		String sE = Util.addZero("", n);
 		executeGCF(sC, sE, circuit);
 	}
