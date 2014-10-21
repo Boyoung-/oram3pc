@@ -86,15 +86,12 @@ public abstract class Operation {
     }
     */
     
-    try {
-		ForestMetadata.setup(configFile);
-	} catch (FileNotFoundException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	}
     Forest forest = null;
 	try {
-		forest = new Forest();
+		if (build) {
+			ForestMetadata.setup(configFile);
+			forest = new Forest();
+		}
 	} catch (Exception e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

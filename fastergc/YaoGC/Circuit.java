@@ -5,6 +5,8 @@ package YaoGC;
 import java.math.*;
 import java.io.*;
 
+import sprout.communication.Communication;
+
 abstract public class Circuit implements TransitiveObserver {
     public static boolean isForGarbling;
 
@@ -16,6 +18,17 @@ abstract public class Circuit implements TransitiveObserver {
 
     public static ObjectOutputStream oos = null;
     public static ObjectInputStream  ois = null;
+    
+    public static Communication sender = null;
+    public static Communication receiver = null;
+    
+    public static void setSender(Communication s) {
+    	sender = s;
+    }
+    
+    public static void setReceiver(Communication r) {
+    	receiver = r;
+    }
 
     private int inputWireCount = 0;
 

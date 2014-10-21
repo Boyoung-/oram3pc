@@ -78,6 +78,7 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
     protected abstract boolean collapse();
 
     protected void sendGTT() {
+    	/*
     	try {
 	    Utils.writeBigInteger(gtt[0][1], 10, oos);
 	    Utils.writeBigInteger(gtt[1][0], 10, oos);
@@ -89,16 +90,26 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
     	    e.printStackTrace();
     	    System.exit(1);
     	}
+	    */
+    	receiver.write(gtt[0][1]);
+    	receiver.write(gtt[1][0]);
+    	receiver.write(gtt[1][1]);
     }
     
     protected void receiveGTT() {
 	try {
 	    gtt = new BigInteger[2][2];
-
+	    
+	    /*
 	    gtt[0][0] = BigInteger.ZERO;
 	    gtt[0][1] = Utils.readBigInteger(10, ois);
 	    gtt[1][0] = Utils.readBigInteger(10, ois);
 	    gtt[1][1] = Utils.readBigInteger(10, ois);
+	    */
+	    gtt[0][0] = BigInteger.ZERO;
+	    gtt[0][1] = sender.readBigInteger();
+	    gtt[1][0] = sender.readBigInteger();
+	    gtt[1][1] = sender.readBigInteger();
 	}
 	catch (Exception e) {
 	    e.printStackTrace();

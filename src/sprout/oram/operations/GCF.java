@@ -37,8 +37,7 @@ public class GCF extends Operation {
 		gc_E = new F2ET_Wplus2_Wplus2(w, s1, s2);
 	else
 		gc_E = new F2FT_2Wplus2_Wplus2(w, s1, s2);
-	// TODO: add communication
-	// Circuit.setIOStream(ProgCommon.ois, ProgCommon.oos);
+	Circuit.setReceiver(D);
 	try {
 		gc_E.build();
 	} catch (Exception e) {
@@ -102,8 +101,7 @@ public class GCF extends Operation {
 		  gc_D = new F2ET_Wplus2_Wplus2(w, 1, 1);
 	  else
 		  gc_D = new F2FT_2Wplus2_Wplus2(w, 1, 1);
-	  // TODO: add communication
-	  //Circuit.setIOStream(ProgCommon.ois, ProgCommon.oos);
+	  Circuit.setSender(E);
 	  try {
 		gc_D.build();
 	  } catch (Exception e) {
@@ -152,6 +150,8 @@ public class GCF extends Operation {
 		else
 			out = Util.addZero(out, w+2);
 		return out;
+		
+	  //return "";
   }
 
   @Override
@@ -174,6 +174,7 @@ public class GCF extends Operation {
       break;
     case Debbie:
       output = GCF.executeD(con1, con2, circuit, n);
+      System.out.println("--- D: output " + output);
       break;
     case Eddie:
       sE = Util.addZero("", n);
@@ -181,9 +182,9 @@ public class GCF extends Operation {
       break;
     }
     
-    String input = Util.addZero(new BigInteger(sC, 2).xor(new BigInteger(sE, 2)).toString(2), n);
-    System.out.println("--- input:\t" + input);
-    System.out.println("--- output:\t" + output);
+    //String input = Util.addZero(new BigInteger(sC, 2).xor(new BigInteger(sE, 2)).toString(2), n);
+    //System.out.println("--- input:\t" + input);
+    //System.out.println("--- output:\t" + output);
     
     System.out.println("Run completed");
     
