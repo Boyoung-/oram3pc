@@ -189,13 +189,6 @@ public class GCF extends Operation {
       break;
     }
     
-    // Synchronization. This ensures we don't exit early
-    // This should not be timed
-    con1.write("end");
-    con2.write("end");
-    con1.readString();
-    con2.readString();
-    
     System.out.println("Run completed");
     
   }

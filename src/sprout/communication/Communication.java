@@ -300,16 +300,16 @@ public class Communication
 			Util.debug("stop");
 		setState(STATE_STOPPED);
 
-		if (mConnectThread != null)
-		{
-			mConnectThread.cancel();
-			mConnectThread = null;
-		}
-
 		if (mConnectedThread != null)
 		{
 			mConnectedThread.cancel();
 			mConnectedThread = null;
+		}
+
+		if (mConnectThread != null)
+		{
+			mConnectThread.cancel();
+			mConnectThread = null;
 		}
 
 		if (mSecureAcceptThread != null)
@@ -789,6 +789,7 @@ public class Communication
 			{
 				mmOutStream.writeInt(buffer.length);
 				mmOutStream.write(buffer);
+				mmOutStream.flush();
 			}
 			catch (IOException e)
 			{
@@ -839,6 +840,8 @@ public class Communication
 		{
 			try
 			{
+				mmInStream.close();
+				mmOutStream.close();
 				mmSocket.close();
 			}
 			catch (IOException e)

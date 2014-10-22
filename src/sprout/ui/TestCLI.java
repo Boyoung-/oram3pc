@@ -145,6 +145,17 @@ public class TestCLI
           System.out.println("Error in access exiting");
         }
 
+				charlieCon.write("end");
+				debbieCon.write("end");
+			    charlieCon.readString();
+			    debbieCon.readString();
+			    try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			    
 				charlieCon.stop();
 				debbieCon.stop();
 			}
@@ -172,7 +183,17 @@ public class TestCLI
           e.printStackTrace();
           System.out.println("Error in access exiting");
         }
-
+				charlieCon.write("end");
+				eddieCon.write("end");
+			    charlieCon.readString();
+			    eddieCon.readString();
+			    try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				eddieCon.stop();
 				charlieCon.stop();
 			}
@@ -207,6 +228,16 @@ public class TestCLI
           e.printStackTrace();
           System.out.println("Error exiting");
         }
+				debbieCon.write("end");
+				eddieCon.write("end");
+				debbieCon.readString();
+			    eddieCon.readString();
+			    try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
 				eddieCon.stop();
 				debbieCon.stop();
