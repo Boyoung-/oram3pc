@@ -13,13 +13,15 @@ import sprout.oram.ForestException;
 import sprout.oram.Party;
 import sprout.util.Util;
 
+// TODO: check collapse() and shortcut()
 public class GCF extends Operation {
   public GCF(Communication con1, Communication con2) {
     super(con1, con2);
   }
   
   public static void executeE(Communication C, Communication D, String circuit, int n, String sE) {
-    System.out.println("--- E: hello");
+	  // TODO: this line is only for checking correctness; should be removed for ORAM
+	  D.write(sE);
     
     // setup circuit
 	int w = n - 2;
@@ -70,10 +72,12 @@ public class GCF extends Operation {
 	State out_E = gc_E.startExecuting(in_E);
 	BigInteger[] outLbs_E = out_E.toLabels();
 	D.write(outLbs_E);
+	D.write(Wire.R);
   }
   
   public static void executeC(Communication D, Communication E, int n, String sC) {
-	  System.out.println("--- C: hello");
+	  // TODO: this line is only for checking correctness; should be removed for ORAM
+	  D.write(sC);
 	  
 	  // protocol
 	  // step 1, 2
@@ -88,7 +92,11 @@ public class GCF extends Operation {
   }
   
   public static String executeD(Communication C, Communication E, String circuit, int n) {
-	  System.out.println("--- D: hello");
+	  // TODO: these lines are only for checking correctness; should be removed for ORAM
+	  String sE = E.readString();
+	  String sC = C.readString();
+	  String input = Util.addZero(new BigInteger(sE, 2).xor(new BigInteger(sC, 2)).toString(2), n);
+	  System.out.println("--- D: input:\t" + input);
 	  
 	  // setup circuit
 	  int w = n - 2;
@@ -117,6 +125,7 @@ public class GCF extends Operation {
 	  State out_D = gc_D.startExecuting(in_D);
 	  BigInteger[] outLbs_D = out_D.toLabels();
 	  BigInteger[] outLbs_E = E.readBigIntegerArray();
+	  BigInteger R = E.readBigInteger();
 	  State state_E = State.fromLabels(outLbs_E);
 	  
 	  BigInteger output = BigInteger.ZERO;
@@ -128,17 +137,17 @@ public class GCF extends Operation {
 		    }
 		    else if (outLbs_D[i].equals(state_E.wires[i].invd ? 
 						 state_E.wires[i].lbl :
-						 state_E.wires[i].lbl.xor(Wire.R.shiftLeft(1).setBit(0)))) {
+						 state_E.wires[i].lbl.xor(R.shiftLeft(1).setBit(0)))) {
 			    output = output.setBit(i);
 		    }
 		    else if (!outLbs_D[i].equals(state_E.wires[i].invd ? 
-						  state_E.wires[i].lbl.xor(Wire.R.shiftLeft(1).setBit(0)) :
+						  state_E.wires[i].lbl.xor(R.shiftLeft(1).setBit(0)) :
 						  state_E.wires[i].lbl))
 				try {
 					throw new Exception("Bad label encountered: i = " + i + "\t" +
 							    outLbs_D[i] + " != (" + 
 							    state_E.wires[i].lbl + ", " +
-							    state_E.wires[i].lbl.xor(Wire.R.shiftLeft(1).setBit(0)) + ")");
+							    state_E.wires[i].lbl.xor(R.shiftLeft(1).setBit(0)) + ")");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -150,8 +159,6 @@ public class GCF extends Operation {
 		else
 			out = Util.addZero(out, w+2);
 		return out;
-		
-	  //return "";
   }
 
   @Override
@@ -159,8 +166,8 @@ public class GCF extends Operation {
  // for testing
 	  
 	  int n = 18;
-	  String circuit = "F2ET";
-	  circuit = "F2FT";
+	  //String circuit = "F2ET";
+	  String circuit = "F2FT";
 	  String sC = null, sE = null;
 	  String output = null;
     
@@ -174,7 +181,7 @@ public class GCF extends Operation {
       break;
     case Debbie:
       output = GCF.executeD(con1, con2, circuit, n);
-      System.out.println("--- D: output " + output);
+      System.out.println("--- D: output:\t" + output);
       break;
     case Eddie:
       sE = Util.addZero("", n);
@@ -182,9 +189,12 @@ public class GCF extends Operation {
       break;
     }
     
-    //String input = Util.addZero(new BigInteger(sC, 2).xor(new BigInteger(sE, 2)).toString(2), n);
-    //System.out.println("--- input:\t" + input);
-    //System.out.println("--- output:\t" + output);
+    // Synchronization. This ensures we don't exit early
+    // This should not be timed
+    con1.write("end");
+    con2.write("end");
+    con1.readString();
+    con2.readString();
     
     System.out.println("Run completed");
     

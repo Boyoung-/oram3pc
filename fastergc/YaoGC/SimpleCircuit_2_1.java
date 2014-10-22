@@ -62,7 +62,7 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 	    outWire.invd = false;
 
 	    if (collapse()) {
-		System.out.println("Collapse Happened!!!!!");
+		System.out.println("Collapse Happened..");
 	    }
 	    else {
 		execYao();
@@ -91,9 +91,11 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
     	    System.exit(1);
     	}
 	    */
+    	
     	receiver.write(gtt[0][1]);
     	receiver.write(gtt[1][0]);
     	receiver.write(gtt[1][1]);
+    	
     }
     
     protected void receiveGTT() {
@@ -106,10 +108,12 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 	    gtt[1][0] = Utils.readBigInteger(10, ois);
 	    gtt[1][1] = Utils.readBigInteger(10, ois);
 	    */
+	    
 	    gtt[0][0] = BigInteger.ZERO;
 	    gtt[0][1] = sender.readBigInteger();
 	    gtt[1][0] = sender.readBigInteger();
 	    gtt[1][1] = sender.readBigInteger();
+	    
 	}
 	catch (Exception e) {
 	    e.printStackTrace();
