@@ -69,10 +69,22 @@ public class GCF extends Operation {
 	
 	// step 3
 	State in_E = State.fromLabels(K_E);
-	State out_E = gc_E.startExecuting(in_E);
-	BigInteger[] outLbs_E = out_E.toLabels();
-	D.write(outLbs_E);
-	D.write(Wire.R);
+	gc_E.startExecuting(in_E);
+	
+	// interpret output
+	// TODO: should not have this round
+	BigInteger[] outLbs_D = D.readBigIntegerArray();
+	String out = null;
+	try {
+		out = gc_E.interpretOutputELabels(outLbs_D).toString(2);
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	if (circuit.equals("F2ET"))
+		out = Util.addZero(out, n);
+	else
+		out = Util.addZero(out, w+2);
+	D.write(out);
   }
   
   public static void executeC(Communication D, Communication E, int n, String sC) {
@@ -124,41 +136,12 @@ public class GCF extends Operation {
 	  State in_D = State.fromLabels(K_C);
 	  State out_D = gc_D.startExecuting(in_D);
 	  BigInteger[] outLbs_D = out_D.toLabels();
-	  BigInteger[] outLbs_E = E.readBigIntegerArray();
-	  BigInteger R = E.readBigInteger();
-	  State state_E = State.fromLabels(outLbs_E);
 	  
-	  BigInteger output = BigInteger.ZERO;
-		for (int i = 0; i < outLbs_D.length; i++) {
-		    if (state_E.wires[i].value != Wire.UNKNOWN_SIG) {
-			if (state_E.wires[i].value == 1)
-			    output = output.setBit(i);
-			continue;
-		    }
-		    else if (outLbs_D[i].equals(state_E.wires[i].invd ? 
-						 state_E.wires[i].lbl :
-						 state_E.wires[i].lbl.xor(R.shiftLeft(1).setBit(0)))) {
-			    output = output.setBit(i);
-		    }
-		    else if (!outLbs_D[i].equals(state_E.wires[i].invd ? 
-						  state_E.wires[i].lbl.xor(R.shiftLeft(1).setBit(0)) :
-						  state_E.wires[i].lbl))
-				try {
-					throw new Exception("Bad label encountered: i = " + i + "\t" +
-							    outLbs_D[i] + " != (" + 
-							    state_E.wires[i].lbl + ", " +
-							    state_E.wires[i].lbl.xor(R.shiftLeft(1).setBit(0)) + ")");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-		}
-		
-		String out = output.toString(2);
-		if (circuit.equals("F2ET"))
-			out = Util.addZero(out, n);
-		else
-			out = Util.addZero(out, w+2);
-		return out;
+	  // interpret output
+	  // TODO: should not have this round
+	  E.write(outLbs_D);	  
+	  String out = E.readString();
+	  return out;
   }
 
   @Override
@@ -166,8 +149,8 @@ public class GCF extends Operation {
  // for testing
 	  
 	  int n = 18;
-	  //String circuit = "F2ET";
-	  String circuit = "F2FT";
+	  String circuit = "F2ET";
+	  //String circuit = "F2FT";
 	  String sC = null, sE = null;
 	  String output = null;
     
