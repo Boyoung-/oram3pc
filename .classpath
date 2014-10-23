@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="src" path="fastergc"/>
+	<classpathentry excluding="LookupTable/|Program/|YaoGC/AESComponents/|Test/|OT/|Utils/" kind="src" path="fastergc"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/snakeyaml-1.11.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>

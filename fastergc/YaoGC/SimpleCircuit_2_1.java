@@ -5,7 +5,7 @@ package YaoGC;
 import java.math.*;
 
 import Cipher.Cipher;
-import Utils.*;
+//import Utils.*;
 
 public abstract class SimpleCircuit_2_1 extends Circuit {
 
