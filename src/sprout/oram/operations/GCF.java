@@ -13,7 +13,7 @@ import sprout.oram.ForestException;
 import sprout.oram.Party;
 import sprout.util.Util;
 
-// TODO: check collapse() and shortcut()
+// TODO: check collapse()
 public class GCF extends Operation {
   public GCF(Communication con1, Communication con2) {
     super(con1, con2);

@@ -5,11 +5,13 @@ package Cipher;
 import java.security.*;
 import java.math.*;
 
+import YaoGC.Wire;
+
 public final class Cipher {
     private static final int unitLength = 160;   // SHA-1 has 160-bit output.
 
     private static final BigInteger mask = BigInteger.ONE.
-	shiftLeft(80).subtract(BigInteger.ONE);
+	shiftLeft(Wire.labelBitLength).subtract(BigInteger.ONE);
 
     private static MessageDigest sha1 = null;
 

@@ -80,20 +80,11 @@ public abstract class T2_FF10_S_2_1 extends SimpleCircuit_2_1 {
     }
 
     protected boolean shortCut() {
-	/*
-	if (inputWires[0].value == 1) {
-	    inputWires[0].value = Wire.UNKNOWN_SIG;
-	    outputWires[0].value = 1;
+	if (inputWires[0].value == 0 || inputWires[0].value == 1) {
+	    outputWires[0].value = inputWires[0].value;
 	    return true;
 	}
 	
-	if (inputWires[1].value == 1) {
-	    inputWires[1].value = Wire.UNKNOWN_SIG;
-	    outputWires[0].value = 1;
-	    return true;
-	}
-	*/
-
 	return false;
     }
 
@@ -103,14 +94,13 @@ public abstract class T2_FF10_S_2_1 extends SimpleCircuit_2_1 {
     	Wire outWire = outputWires[0];
 
     	if (inWireL.lbl.equals(inWireR.lbl)) {
-	    // TODO: rarely happen, but customize below
     	    if (inWireL.invd == inWireR.invd) {
     		outWire.invd = inWireL.invd;
     		outWire.setLabel(inWireL.lbl);
     	    }
     	    else {
     		outWire.invd = false;
-    		outWire.value = 1;
+    		outWire.value = 0;
     	    }
 
     	    return true;

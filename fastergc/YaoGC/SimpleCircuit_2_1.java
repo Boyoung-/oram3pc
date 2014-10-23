@@ -3,6 +3,7 @@
 package YaoGC;
 
 import java.math.*;
+
 import Cipher.Cipher;
 import Utils.*;
 
@@ -62,7 +63,7 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 	    outWire.invd = false;
 
 	    if (collapse()) {
-		System.out.println("Collapse Happened..");
+	    	System.err.println("Same labels detected! Please check label generation.");
 	    }
 	    else {
 		execYao();

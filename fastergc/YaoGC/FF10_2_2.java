@@ -1,4 +1,4 @@
-// by Boyang
+// by Boyang Wei
 // FindFirst1 Garbled Gate of Table 1
 
 package YaoGC;

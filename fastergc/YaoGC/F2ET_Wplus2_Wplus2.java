@@ -1,4 +1,4 @@
-// by Boyang
+// by Boyang Wei
 
 package YaoGC;
 
