@@ -52,9 +52,9 @@ public class EvictionTest
 			}
 			String sC_input = "00" + sC_input2 + sC_input1; // enable + dir + fb
 			String sE_input = "00" + sE_input2 + sE_input1;
-			String GCFOutput = GCFTestServer.executeGCF(sC_input, sE_input, "F2FT");
-			alpha1_j[j] = GCFOutput.substring(2).indexOf('1', 2);
-			alpha2_j[j] = GCFOutput.substring(2).indexOf('1', alpha1_j[j]+1);
+			//String GCFOutput = GCFTestServer.executeGCF(sC_input, sE_input, "F2FT");
+			alpha1_j[j] = -1; //GCFOutput.substring(2).indexOf('1', 2);
+			alpha2_j[j] = -1; //GCFOutput.substring(2).indexOf('1', alpha1_j[j]+1);
 		}
 		
 		// step 2
@@ -68,9 +68,9 @@ public class EvictionTest
 				sE_fb += sE_bucket.substring(l*tupleBitLength, l*tupleBitLength+1);
 			}
 		}
-		String GCFOutput = GCFTestServer.executeGCF(sC_fb, sE_fb, "F2ET");
-		int alpha1_d = GCFOutput.substring(2).indexOf('1');
-		int alpha2_d = GCFOutput.substring(2).indexOf('1', alpha1_d+1);
+		//String GCFOutput = GCFTestServer.executeGCF(sC_fb, sE_fb, "F2ET");
+		int alpha1_d = -1; //GCFOutput.substring(2).indexOf('1');
+		int alpha2_d = -1; //GCFOutput.substring(2).indexOf('1', alpha1_d+1);
 		
 		// step 3
 		int k = w * n;

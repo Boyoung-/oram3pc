@@ -10,7 +10,6 @@ import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.Tree;
-import sprout.oram.Forest.TreeZero;
 import sprout.util.Util;
 
 public abstract class TreeOperation<T extends Object, V> extends Operation {
@@ -20,7 +19,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   int h;                                 // # trees
   int w;                                 // # tuples in each bucket
   int expen;                             // # buckets in each leaf
-  ForestMetadata metadata;
+  //ForestMetadata metadata;
   
   static boolean print_out = false;
   
@@ -37,16 +36,15 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   private void initializeMetadata(ForestMetadata metadata) {
     if (metadata != null) {
       // parameters
-      tau       = metadata.getTauExponent();    
-      twotaupow     = metadata.getTau();              
-      h       = metadata.getLevels();           
+      tau       = metadata.getTau();    
+      twotaupow     = metadata.getTwoTauPow();              
+      h       = metadata.getLevels()-1;           
       w         = metadata.getBucketDepth();    
       expen     = metadata.getLeafExpansion();    
       this.metadata = metadata;
     }
   }
 
-  int treeLevel;                      
   int i;                            // tree index in the writeup
   int d_i;                          // # levels in this tree (excluding the root level)
   int d_ip1;                        // # levels in the next tree (excluding the root level)
@@ -59,41 +57,32 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   
   public void loadTreeSpecificParameters(Tree OT) {
     // TODO: Do these need to be accessed by all parties? If not we should separate them out.
-    if (OT != null)                     // we are dealing with the initial tree
-      treeLevel   = OT.getTreeLevel();        
-    else
-      treeLevel   = h;                // tree index in ORAM forest
-    i         = h - treeLevel;          // tree index in the writeup
-    d_i       = 0;                // # levels in this tree (excluding the root level)
-    if (i > 0)
-      d_i       = OT.getNumLevels();
+    i         = OT.getTreeIndex();          // tree index in the writeup
+    d_i       = metadata.getLBits(i);                // # levels in this tree (excluding the root level)
     if (i == h)
-      d_ip1     = OT.getDBytes() * 8 / twotaupow;
+      d_ip1     = metadata.getABits(i) / twotaupow;
     else
-      d_ip1     = metadata.getTupleBitsL(treeLevel-1); // TODO: Compute this some how before hand
-    ln        = i * tau;              // # N bits
+      d_ip1     = metadata.getLBits(i+1); // TODO: Compute this some how before hand
+    ln        = metadata.getNBits(i);              // # N bits
     ll        = d_i;                // # L bits
-    ld        = twotaupow * d_ip1;        // # data bits
-    tupleBitLength  = 1 + ln + ll + ld;         // # tuple size (bits)
-    l       = tupleBitLength * w;           // # bucket size (bits)
+    ld        = metadata.getABits(i);        // # data bits
+    tupleBitLength  = metadata.getTupleBits(i);         // # tuple size (bits)
+    l       = metadata.getBucketTupleBits(i);           // # bucket tuples' size (bits)
     n       = w * (d_i + expen);          // # tuples in one path
-    if (i == 0) {
-      tupleBitLength  = ld;
-      l         = ld;
+    if (i == 0) 
       n         = 1;
-    }
   }
   
-  public T execute(Party party, String Li, BigInteger k, TreeZero OT_0, Tree OT, V extraArgs) {
+  public T execute(Party party, String Li, BigInteger k, Tree OT, V extraArgs) {
     loadTreeSpecificParameters(OT);
     
     switch (party) {
     case Charlie:
-      return executeCharlieSubTree(con1, con2, Li, OT_0, OT, extraArgs);
+      return executeCharlieSubTree(con1, con2, Li, OT, extraArgs);
     case Debbie:
-      return executeDebbieSubTree(con1, con2, k, OT_0, OT, extraArgs);
+      return executeDebbieSubTree(con1, con2, k, OT, extraArgs);
     case Eddie:
-      return executeEddieSubTree(con1, con2, OT_0, OT, extraArgs);
+      return executeEddieSubTree(con1, con2, OT, extraArgs);
     }
     return null;
   }

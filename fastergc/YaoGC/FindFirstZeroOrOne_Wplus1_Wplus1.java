@@ -5,7 +5,7 @@ package YaoGC;
 public class FindFirstZeroOrOne_Wplus1_Wplus1 extends CompositeCircuit {
     private final int w;
     private final boolean b; // find 1 or find 0
-    private final int s; // sigma
+    private int s; // sigma
 
     public FindFirstZeroOrOne_Wplus1_Wplus1(int w, boolean b, int s) {
 	super(w+1, w+1, w*3, "FindFirstZeroOrOne_" + (w+1) + "_" + w+1);
@@ -29,7 +29,9 @@ public class FindFirstZeroOrOne_Wplus1_Wplus1 extends CompositeCircuit {
 	}
 	
 	for (int i = 2*w; i < w*3; i++)
-	    subCircuits[i] = new XOR_2_1();
+	    subCircuits[i] = XOR_2_1.newInstance();
+	
+	s = 1;
 
 	super.createSubCircuits();
     }

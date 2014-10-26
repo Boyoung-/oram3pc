@@ -12,6 +12,8 @@ public final class Cipher {
 
     private static final BigInteger mask = BigInteger.ONE.
 	shiftLeft(Wire.labelBitLength).subtract(BigInteger.ONE);
+    
+    private static final BigInteger mask2 = BigInteger.ONE.shiftLeft(128).subtract(BigInteger.ONE);
 
     private static MessageDigest sha1 = null;
 
@@ -40,7 +42,19 @@ public final class Cipher {
 
 	return ret;
     }
-
+    
+    public static BigInteger encrypt(int w, BigInteger key, int outBit) {
+    	sha1.update(BigInteger.valueOf(w).toByteArray());
+    	sha1.update(key.toByteArray());
+    	return new BigInteger(sha1.digest()).and(mask2).xor(BigInteger.valueOf(outBit));
+    }
+    
+    public static int decrypt(int w, BigInteger key, BigInteger c) {
+    	sha1.update(BigInteger.valueOf(w).toByteArray());
+    	sha1.update(key.toByteArray());
+    	return new BigInteger(sha1.digest()).and(mask2).xor(c).intValue();
+    }
+ 
     // this padding generation function is dedicated for encrypting garbled tables.
     private static BigInteger getPadding(BigInteger lp0, BigInteger lp1, int k) {
 	sha1.update(lp0.toByteArray());

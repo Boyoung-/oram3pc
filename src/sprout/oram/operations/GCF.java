@@ -2,6 +2,7 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 
+import Cipher.Cipher;
 import YaoGC.Circuit;
 import YaoGC.F2ET_Wplus2_Wplus2;
 import YaoGC.F2FT_2Wplus2_Wplus2;
@@ -44,6 +45,8 @@ public class GCF extends Operation {
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
+	for (int i=0; i<gc_E.outputWires.length; i++) // TODO: not a good way; should define a function
+		gc_E.outputWires[i].outBitEncPair = new BigInteger[2];
 	
 	// generate label pairs
 	BigInteger[][] lbs = new BigInteger[n][2];
@@ -126,6 +129,8 @@ public class GCF extends Operation {
 	  } catch (Exception e) {
 		e.printStackTrace();
 	  }
+	  for (int i=0; i<gc_D.outputWires.length; i++) // TODO: not a good way; should define a function
+			gc_D.outputWires[i].outBitEncPair = new BigInteger[2];
 	  
 	  // protocol
 	  // step 2
@@ -140,6 +145,21 @@ public class GCF extends Operation {
 	  // TODO: should not have this round
 	  E.write(outLbs_D);	  
 	  String out = E.readString();
+	  
+	  BigInteger output2 = BigInteger.ZERO;
+	  for (int i=0; i<gc_D.outputWires.length; i++) {
+		  BigInteger lb = gc_D.outputWires[i].lbl;
+		  //System.out.println()
+		  int lsb = lb.testBit(0) ? 1 : 0;
+		  int k = gc_D.outputWires[i].serialNum;
+		  int outBit = Cipher.decrypt(k, lb, gc_D.outputWires[i].outBitEncPair[lsb]);
+		  if (outBit == 1)
+			  output2 = output2.setBit(i);
+		  System.out.println("--- D: outBit: " + outBit);
+	  }
+	  
+	  System.out.println("--- D: output2:\t" + output2.toString(2));
+	  
 	  return out;
   }
 

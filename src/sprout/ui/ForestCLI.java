@@ -29,6 +29,7 @@ public class ForestCLI
 
 	public static void main(String[] args)
 	{
+		/*
 		// Setup command line argument parser
 		Options options = new Options();
 		options.addOption("config", true, "ORAM tree fanout (f)");
@@ -151,5 +152,6 @@ public class ForestCLI
 			Util.error("IO error: " + e.getMessage());
 			e.printStackTrace();
 		}
+		*/
 	}
 }

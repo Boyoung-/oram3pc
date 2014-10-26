@@ -97,6 +97,8 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
     	receiver.write(gtt[1][0]);
     	receiver.write(gtt[1][1]);
     	
+    	if (outputWires[0].outBitEncPair != null) 
+    		receiver.write(outputWires[0].outBitEncPair);
     }
     
     protected void receiveGTT() {
@@ -115,6 +117,8 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 	    gtt[1][0] = sender.readBigInteger();
 	    gtt[1][1] = sender.readBigInteger();
 	    
+	    if (outputWires[0].outBitEncPair != null) 
+	    	outputWires[0].outBitEncPair = sender.readBigIntegerArray();
 	}
 	catch (Exception e) {
 	    e.printStackTrace();

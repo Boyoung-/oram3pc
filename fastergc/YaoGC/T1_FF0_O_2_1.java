@@ -77,6 +77,12 @@ public abstract class T1_FF0_O_2_1 extends SimpleCircuit_2_1 {
 	gtt[0 ^ cL][1 ^ cR] = lb[0];
 	gtt[1 ^ cL][0 ^ cR] = lb[0];
 	gtt[1 ^ cL][1 ^ cR] = lb[0];
+	
+	int lsb = lb[0].testBit(0) ? 1 : 0;
+	if (outputWires[0].outBitEncPair != null) {
+		outputWires[0].outBitEncPair[lsb] = Cipher.encrypt(k, lb[0], 0);
+		outputWires[0].outBitEncPair[1-lsb] = Cipher.encrypt(k, lb[1], 1);
+	}
     }
 
     protected boolean shortCut() {

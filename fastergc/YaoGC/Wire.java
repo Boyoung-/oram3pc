@@ -20,6 +20,8 @@ public class Wire extends TransitiveObservable {
     public int value = UNKNOWN_SIG;
     public BigInteger lbl;
     public boolean invd = false;
+    
+    public BigInteger[] outBitEncPair = null;
 
     public Wire() {
 	serialNum = K++;

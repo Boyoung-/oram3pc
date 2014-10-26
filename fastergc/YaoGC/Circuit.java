@@ -21,6 +21,8 @@ abstract public class Circuit implements TransitiveObserver {
     
     public static Communication sender = null;
     public static Communication receiver = null;
+
+	//public boolean sendOutBitsLookup = false;
     
     public static void setSender(Communication s) {
     	sender = s;
@@ -121,4 +123,6 @@ abstract public class Circuit implements TransitiveObserver {
 
     abstract protected void compute();
     abstract protected void execute();
+    
+    //abstract public void sendOutBitsLookup(boolean send);
 }

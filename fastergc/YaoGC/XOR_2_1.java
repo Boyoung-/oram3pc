@@ -4,9 +4,16 @@ package YaoGC;
 
 import java.math.*;
 
-public class XOR_2_1 extends SimpleCircuit_2_1 {
+public abstract class XOR_2_1 extends SimpleCircuit_2_1 {
     public XOR_2_1() {
 	super("XOR_2_1");
+    }
+
+    public static XOR_2_1 newInstance() {
+	if (Circuit.isForGarbling)
+	    return new G_XOR_2_1();
+	else
+	    return new E_XOR_2_1();
     }
 
     protected void compute() {
@@ -44,7 +51,7 @@ public class XOR_2_1 extends SimpleCircuit_2_1 {
 	}
 	else {
 	    if (collapse()) {
-
+	    	System.err.println("Same labels detected! Please check label generation.");
 	    }
 	    else {
 		BigInteger l = inWireL.lbl;
@@ -57,7 +64,9 @@ public class XOR_2_1 extends SimpleCircuit_2_1 {
 		outWire.setLabel(out);
 	    }
 	}
-
+	
+	sendOutBitEncPair();
+	
 	outWire.setReady();
     }
 
@@ -81,6 +90,8 @@ public class XOR_2_1 extends SimpleCircuit_2_1 {
 
     	return false;
     }
+    
+    protected void sendOutBitEncPair() {}
 
     // Never used for XOR gate.
     protected boolean shortCut() {return false;}

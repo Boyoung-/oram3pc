@@ -19,6 +19,7 @@ public class Forest
 	
 	private static ArrayList<Tree> trees;	
 	private static byte[] data; // keep all data in memory for testing now
+								// TODO: write large data to disk
 	
 	@SuppressWarnings("unchecked")
 	public Forest() throws Exception
@@ -90,7 +91,8 @@ public class Forest
 				bucket.setIndex(i);
 				
 				if (i == h)
-					A = new BigInteger(ForestMetadata.getABits(i), rnd); // generate random record content
+					//A = new BigInteger(ForestMetadata.getABits(i), rnd); // generate random record content
+					A = BigInteger.valueOf(address); // for testing: record content is the same as its N
 				else {
 					BigInteger indexN = Util.getSubBits(N[i+1], 0, tau);
 					int start = (ForestMetadata.getTwoTauPow()-indexN.intValue()-1) * ForestMetadata.getLBits(i+1);
@@ -117,10 +119,10 @@ public class Forest
 		
 		Util.disp("");
 		
-		encryptAllBuckets();
+		encryptForest();
 	}
 	
-	private static void encryptAllBuckets() throws BucketException, NoSuchAlgorithmException, TreeException
+	private static void encryptForest() throws BucketException, NoSuchAlgorithmException, TreeException
 	{
 		Util.disp("===== Encryption ===== ");
 		OPRF oprf = new OPRF();

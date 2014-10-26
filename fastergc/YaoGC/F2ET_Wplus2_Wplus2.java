@@ -4,7 +4,8 @@ package YaoGC;
 
 public class F2ET_Wplus2_Wplus2 extends CompositeCircuit {
     private final int w;
-    private final int s1, s2; // sigmas
+    private int s1; // sigmas
+	private int s2;
 
     public F2ET_Wplus2_Wplus2(int w, int s1, int s2) {
 	super(w+2, w+2, 2*w+2, "F2ET_" + (w+2) + "_" + w+2);
@@ -16,9 +17,11 @@ public class F2ET_Wplus2_Wplus2 extends CompositeCircuit {
 
     protected void createSubCircuits() throws Exception {
 	for (int i = 0; i < 2*w; i++)
-	    subCircuits[i] = new XOR_2_1();
+	    subCircuits[i] = XOR_2_1.newInstance();
 	subCircuits[2*w]   = new FindFirstZeroOrOne_Wplus1_Wplus1(w, false, s1);
 	subCircuits[2*w+1] = new FindFirstZeroOrOne_Wplus1_Wplus1(w, false, s2);
+	
+	s1 = s2 = 1;
 
 	super.createSubCircuits();
     }
@@ -45,4 +48,16 @@ public class F2ET_Wplus2_Wplus2 extends CompositeCircuit {
 	for (int i = 0; i < w; i++)
 	    outputWires[w-1-i] = subCircuits[i+w].outputWires[0];
     }
+    
+    /*
+    public void sendOutBitsLookup(boolean send) {
+    	//sendOutBitsLookup = send;
+    	if (send) 
+    		for (int i=0; i<outputWires.length; i++) 
+    			outputWires[i].outBitEncPair = new BigInteger[2];
+    	else
+    		for (int i=0; i<outputWires.length; i++) 
+    			outputWires[i].outBitEncPair = null;
+    }
+    */
 }

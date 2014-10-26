@@ -4,7 +4,8 @@ package YaoGC;
 
 public class F2FT_2Wplus2_Wplus2 extends CompositeCircuit {
     private final int w;
-    private final int s1, s2; // sigma
+    private int s1; // sigma
+	private int s2;
 
     public F2FT_2Wplus2_Wplus2(int w, int s1, int s2) {
 	super(2*w+2, w+2, 6*w+4, "F2FT_" + (2*w+2) + "_" + w+2);
@@ -18,12 +19,14 @@ public class F2FT_2Wplus2_Wplus2 extends CompositeCircuit {
 	for (int i = 0; i < w; i++)
 	    subCircuits[i] = AND_2_1.newInstance();
 	for (int i = w; i < 6*w; i++)
-	    subCircuits[i] = new XOR_2_1();
+	    subCircuits[i] = XOR_2_1.newInstance();
 
 	subCircuits[6*w]   = new FindFirstZeroOrOne_Wplus1_Wplus1(w, true, s1);
 	subCircuits[6*w+1] = new FindFirstZeroOrOne_Wplus1_Wplus1(w, false, s1);
 	subCircuits[6*w+2] = new FindFirstZeroOrOne_Wplus1_Wplus1(w, true, s2);
 	subCircuits[6*w+3] = new FindFirstZeroOrOne_Wplus1_Wplus1(w, false, s2);
+	
+	s1 = s2 = 1;
 
 	super.createSubCircuits();
     }
@@ -61,4 +64,16 @@ public class F2FT_2Wplus2_Wplus2 extends CompositeCircuit {
 	for (int i = 0; i < w; i++)
 	    outputWires[w-1-i] = subCircuits[i+5*w].outputWires[0];
     }
+    
+    /*
+    public void sendOutBitsLookup(boolean send) {
+    	//sendOutBitsLookup = send;
+    	if (send) 
+    		for (int i=0; i<outputWires.length; i++) 
+    			outputWires[i].outBitEncPair = new BigInteger[2];
+    	else
+    		for (int i=0; i<outputWires.length; i++) 
+    			outputWires[i].outBitEncPair = null;
+    }
+    */
 }
