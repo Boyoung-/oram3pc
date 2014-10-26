@@ -21,10 +21,10 @@ public class F2FT_2Wplus2_Wplus2 extends CompositeCircuit {
 	for (int i = w; i < 6*w; i++)
 	    subCircuits[i] = XOR_2_1.newInstance();
 
-	subCircuits[6*w]   = new FindFirstZeroOrOne_Wplus1_Wplus1(w, true, s1);
-	subCircuits[6*w+1] = new FindFirstZeroOrOne_Wplus1_Wplus1(w, false, s1);
-	subCircuits[6*w+2] = new FindFirstZeroOrOne_Wplus1_Wplus1(w, true, s2);
-	subCircuits[6*w+3] = new FindFirstZeroOrOne_Wplus1_Wplus1(w, false, s2);
+	subCircuits[6*w]   = new FF10_Wplus1_Wplus1(w, true, s1);
+	subCircuits[6*w+1] = new FF10_Wplus1_Wplus1(w, false, s1);
+	subCircuits[6*w+2] = new FF10_Wplus1_Wplus1(w, true, s2);
+	subCircuits[6*w+3] = new FF10_Wplus1_Wplus1(w, false, s2);
 	
 	s1 = s2 = 1;
 
@@ -58,11 +58,11 @@ public class F2FT_2Wplus2_Wplus2 extends CompositeCircuit {
     }
 
     protected void defineOutputWires() {
-	outputWires[w+1] = subCircuits[6*w+1].outputWires[w];
-	outputWires[w] = subCircuits[6*w+3].outputWires[w];
+	outputWires[0] = subCircuits[6*w+1].outputWires[w];
+	outputWires[1] = subCircuits[6*w+3].outputWires[w];
 
 	for (int i = 0; i < w; i++)
-	    outputWires[w-1-i] = subCircuits[i+5*w].outputWires[0];
+	    outputWires[i+2] = subCircuits[i+5*w].outputWires[0];
     }
     
     /*

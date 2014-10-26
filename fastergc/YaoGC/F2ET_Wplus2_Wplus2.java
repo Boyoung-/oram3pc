@@ -18,8 +18,8 @@ public class F2ET_Wplus2_Wplus2 extends CompositeCircuit {
     protected void createSubCircuits() throws Exception {
 	for (int i = 0; i < 2*w; i++)
 	    subCircuits[i] = XOR_2_1.newInstance();
-	subCircuits[2*w]   = new FindFirstZeroOrOne_Wplus1_Wplus1(w, false, s1);
-	subCircuits[2*w+1] = new FindFirstZeroOrOne_Wplus1_Wplus1(w, false, s2);
+	subCircuits[2*w]   = new FF10_Wplus1_Wplus1(w, false, s1);
+	subCircuits[2*w+1] = new FF10_Wplus1_Wplus1(w, false, s2);
 	
 	s1 = s2 = 1;
 
@@ -42,11 +42,11 @@ public class F2ET_Wplus2_Wplus2 extends CompositeCircuit {
     }
 
     protected void defineOutputWires() {
-	outputWires[w+1] = subCircuits[2*w].outputWires[w];
-	outputWires[w] = subCircuits[2*w+1].outputWires[w];
+	outputWires[0] = subCircuits[2*w].outputWires[w];
+	outputWires[1] = subCircuits[2*w+1].outputWires[w];
 
 	for (int i = 0; i < w; i++)
-	    outputWires[w-1-i] = subCircuits[i+w].outputWires[0];
+	    outputWires[i+2] = subCircuits[i+w].outputWires[0];
     }
     
     /*

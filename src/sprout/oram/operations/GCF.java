@@ -72,21 +72,6 @@ public class GCF extends Operation {
 	// step 3
 	State in_E = State.fromLabels(K_E);
 	gc_E.startExecuting(in_E);
-	
-	// interpret output
-	// TODO: should not have this round
-	BigInteger[] outLbs_D = D.readBigIntegerArray();
-	String out = null;
-	try {
-		out = gc_E.interpretOutputELabels(outLbs_D).toString(2);
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-	if (circuit.equals("F2ET"))
-		out = Util.addZero(out, n);
-	else
-		out = Util.addZero(out, w+2);
-	D.write(out);
   }
   
   public static void executeC(Communication D, Communication E, int n, String sC) {
@@ -116,9 +101,9 @@ public class GCF extends Operation {
 	  int w = n - 2;
 	  if (circuit.equals("F2FT"))
 		  w /= 2;
-	  
-	  Circuit.isForGarbling = false;
+
 	  Circuit gc_D = null;
+	  Circuit.isForGarbling = false;
 	  if (circuit == "F2ET")
 		  gc_D = new F2ET_Wplus2_Wplus2(w, 1, 1);
 	  else
@@ -138,28 +123,24 @@ public class GCF extends Operation {
 	  
 	  // step 3
 	  State in_D = State.fromLabels(K_C);
-	  State out_D = gc_D.startExecuting(in_D);
-	  BigInteger[] outLbs_D = out_D.toLabels();
+	  gc_D.startExecuting(in_D);
 	  
-	  // interpret output
-	  // TODO: should not have this round
-	  E.write(outLbs_D);	  
-	  String out = E.readString();
-	  
-	  BigInteger output2 = BigInteger.ZERO;
-	  for (int i=0; i<gc_D.outputWires.length; i++) {
+	  BigInteger output = BigInteger.ZERO;
+	  int length = gc_D.outputWires.length;
+	  for (int i=0; i<length; i++) {
 		  BigInteger lb = gc_D.outputWires[i].lbl;
-		  //System.out.println()
 		  int lsb = lb.testBit(0) ? 1 : 0;
 		  int k = gc_D.outputWires[i].serialNum;
 		  int outBit = Cipher.decrypt(k, lb, gc_D.outputWires[i].outBitEncPair[lsb]);
 		  if (outBit == 1)
-			  output2 = output2.setBit(i);
-		  System.out.println("--- D: outBit: " + outBit);
+			  output = output.setBit(length-1-i);
 	  }
 	  
-	  System.out.println("--- D: output2:\t" + output2.toString(2));
-	  
+	  String out = output.toString(2);
+		if (circuit.equals("F2ET"))
+			out = Util.addZero(out, n);
+		else
+			out = Util.addZero(out, w+2);
 	  return out;
   }
 
