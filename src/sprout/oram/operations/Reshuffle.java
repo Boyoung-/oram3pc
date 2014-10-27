@@ -3,15 +3,11 @@ package sprout.oram.operations;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
-import sprout.oram.Forest.TreeZero;
-import sprout.oram.ForestMetadata;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
@@ -19,10 +15,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>> {
 
+	/*
   Reshuffle(Communication con1, Communication con2, ForestMetadata metadata) {
     super(con1, con2, metadata);
   }
-  
+  */
   public Reshuffle(Communication con1, Communication con2) {
     super(con1, con2);
   }
@@ -30,7 +27,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
 
   @Override
   public String executeCharlieSubTree(Communication debbie,
-      Communication eddie, String Li, TreeZero OT_0, Tree OT, Pair<String, List<Integer>> extraArgs) {
+      Communication eddie, String Li, Tree OT, Pair<String, List<Integer>> extraArgs) {
     String secretC_P = extraArgs.getLeft();
     
     // i = 0 case: no shuffle needed
@@ -46,7 +43,6 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     try {
       G = new PRG(n*l);
     } catch (NoSuchAlgorithmException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
       return null;
     }
@@ -65,7 +61,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
 
   @Override
   public String executeDebbieSubTree(Communication charlie,
-      Communication eddie, BigInteger k, TreeZero OT_0, Tree OT,
+      Communication eddie, BigInteger k, Tree OT,
       Pair<String, List<Integer>> extraArgs) {
     List<Integer> pi = extraArgs.getRight();
     
@@ -106,7 +102,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
 
   @Override
   public String executeEddieSubTree(Communication charlie,
-      Communication debbie, TreeZero OT_0, Tree OT, Pair<String, List<Integer>> extraArgs) {
+      Communication debbie, Tree OT, Pair<String, List<Integer>> extraArgs) {
     String secretE_P = extraArgs.getLeft();
     List<Integer> pi = extraArgs.getRight();
     
@@ -127,7 +123,6 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     try {
       G = new PRG(n*l);
     } catch (NoSuchAlgorithmException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
       return null;
     }
@@ -150,8 +145,8 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
   // Temporarily redefine n
   // We probably want to eventually unify the meaning of n
   @Override
-  public void loadTreeSpecificParameters(Tree OT) {
-    super.loadTreeSpecificParameters(OT);
+  public void loadTreeSpecificParameters(int index) {
+    super.loadTreeSpecificParameters(index);
     n = n/w;
   }
 
@@ -159,9 +154,9 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
   public Pair<String, List<Integer>> prepareArgs() {
     String secret_P = Util.addZero(new BigInteger(l*n, rnd).toString(2), l*n);
     List<Integer> pi  = new ArrayList<Integer>(); 
-    for (int j=0; j<d_i+4; j++)
+    for (int j=0; j<d_i+expen; j++)
       pi.add(j);
-    Collections.shuffle(pi, new Random(32547689L));
+    Collections.shuffle(pi, rnd);
     
     
     if (print_out) {

@@ -2,7 +2,6 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,8 +19,6 @@ import sprout.oram.TreeException;
 import sprout.util.Util;
 
 public class DecryptPath extends TreeOperation<DPOutput, EPath>{
-	
-	SecureRandom rnd = new SecureRandom();
   
   // Should only be used for reusing operations
   DecryptPath() {

@@ -7,24 +7,24 @@ import org.bouncycastle.math.ec.ECPoint;
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
 import sprout.crypto.oprf.OPRF;
-import sprout.oram.Forest.TreeZero;
-import sprout.oram.ForestMetadata;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
 public class EncryptPath extends TreeOperation<EPath, String> {
 
+	/*
   EncryptPath(Communication con1, Communication con2, ForestMetadata metadata) {
     super(con1, con2, metadata);
   }
-  
+  */
+	
   public EncryptPath(Communication con1, Communication con2) {
     super(con1, con2);
   }
 
   @Override
   public EPath executeCharlieSubTree(Communication debbie,
-      Communication eddie, String Li, TreeZero OT_0, Tree OT, String secretC_P) {
+      Communication eddie, String Li, Tree OT, String secretC_P) {
     // Step 1
     // D sends s and x to E
     // D sends c to C
@@ -46,14 +46,14 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 
   @Override
   public EPath executeDebbieSubTree(Communication charlie,
-      Communication eddie, BigInteger k, TreeZero OT_0, Tree OT,
+      Communication eddie, BigInteger k, Tree OT,
       String unused) {
     try {
       OPRF oprf = OPRFHelper.getOPRF(false);
       // protocol
       // step 1
       // party D
-      ECPoint y = oprf.getY();
+      //ECPoint y = oprf.getY();
       byte[] s = rnd.generateSeed(16);  // 128 bits
       //BigInteger[] r = new BigInteger[n];
       ECPoint[] x = new ECPoint[n];
@@ -95,7 +95,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 
   @Override
   public EPath executeEddieSubTree(Communication charlie,
-      Communication debbie, TreeZero OT_0, Tree OT, String secretE_P) {
+      Communication debbie, Tree OT, String secretE_P) {
     try {
       // Step 1
       // D sends s and x to E
@@ -109,16 +109,15 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 
       // step 3
       // party E
-      // generation of a[], TODO: boyang can you double check this?
-
+      // regeneration of a[]
       PRG G1 = new PRG(l*(n));
       String a_all = G1.generateBitString(l*(n), s);
       String[] a = new String[n];
       for (int j=0; j<n; j++) {
         a[j] = a_all.substring(j*l, (j+1)*l);
       }
-
       // end generation of a[]
+      
       String[] secretE_B = new String[n];
       String[] Bbar = new String[n];
       for (int j=0; j<n; j++) {
@@ -138,8 +137,8 @@ public class EncryptPath extends TreeOperation<EPath, String> {
   //Temporarily redefine n
   // We probably want to eventually unify the meaning of n
  @Override
- public void loadTreeSpecificParameters(Tree OT) {
-   super.loadTreeSpecificParameters(OT);
+ public void loadTreeSpecificParameters(int index) {
+   super.loadTreeSpecificParameters(index);
    n = n/w;
  }
 
@@ -147,7 +146,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
   public String prepareArgs() {
     int length;
     if (i == 0) {
-      length = twotaupow * metadata.getTupleBitsL(h-1);
+      length = l;
     } else {
       length = l * n;
     }
