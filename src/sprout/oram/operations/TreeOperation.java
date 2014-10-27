@@ -16,33 +16,36 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   
   int tau;                               // tau in the writeup
   int twotaupow;                         // 2^tau
-  int h;                                 // # trees
+  int h;                                 // # trees - 1
   int w;                                 // # tuples in each bucket
   int expen;                             // # buckets in each leaf
   //ForestMetadata metadata;
   
-  static boolean print_out = false;
+  static boolean print_out = true;
   
   
   public TreeOperation(Communication con1, Communication con2) {
     super(con1, con2);
+    initializeMetadata();
   }
   
+  /*
   TreeOperation(Communication con1, Communication con2, ForestMetadata metadata) {
     super(con1, con2);
     initializeMetadata(metadata);
   }
+  */
   
-  private void initializeMetadata(ForestMetadata metadata) {
-    if (metadata != null) {
+  private void initializeMetadata() {
+    //if (metadata != null) {
       // parameters
-      tau       = metadata.getTau();    
-      twotaupow     = metadata.getTwoTauPow();              
-      h       = metadata.getLevels()-1;           
-      w         = metadata.getBucketDepth();    
-      expen     = metadata.getLeafExpansion();    
-      this.metadata = metadata;
-    }
+      tau       	= ForestMetadata.getTau();    
+      twotaupow     = ForestMetadata.getTwoTauPow();              
+      h       		= ForestMetadata.getLevels()-1;           
+      w        		= ForestMetadata.getBucketDepth();    
+      expen     	= ForestMetadata.getLeafExpansion();    
+      //this.metadata = metadata;
+    //}
   }
 
   int i;                            // tree index in the writeup
@@ -57,18 +60,18 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   
   public void loadTreeSpecificParameters(Tree OT) {
     // TODO: Do these need to be accessed by all parties? If not we should separate them out.
-    i         = OT.getTreeIndex();          // tree index in the writeup
-    d_i       = metadata.getLBits(i);                // # levels in this tree (excluding the root level)
+    i         		= OT.getTreeIndex();          // tree index in the writeup
+    d_i       		= ForestMetadata.getLBits(i);                // # levels in this tree (excluding the root level)
     if (i == h)
-      d_ip1     = metadata.getABits(i) / twotaupow;
+      d_ip1     	= ForestMetadata.getABits(i) / twotaupow;
     else
-      d_ip1     = metadata.getLBits(i+1); // TODO: Compute this some how before hand
-    ln        = metadata.getNBits(i);              // # N bits
-    ll        = d_i;                // # L bits
-    ld        = metadata.getABits(i);        // # data bits
-    tupleBitLength  = metadata.getTupleBits(i);         // # tuple size (bits)
-    l       = metadata.getBucketTupleBits(i);           // # bucket tuples' size (bits)
-    n       = w * (d_i + expen);          // # tuples in one path
+      d_ip1     	= ForestMetadata.getLBits(i+1); 
+    ln        		= ForestMetadata.getNBits(i);              // # N bits
+    ll        		= d_i;                // # L bits
+    ld        		= ForestMetadata.getABits(i);        // # data bits
+    tupleBitLength  = ForestMetadata.getTupleBits(i);         // # tuple size (bits)
+    l       		= ForestMetadata.getBucketTupleBits(i);           // # bucket tuples' size (bits)
+    n       		= w * (d_i + expen);          // # tuples in one path
     if (i == 0) 
       n         = 1;
   }
@@ -76,6 +79,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   public T execute(Party party, String Li, BigInteger k, Tree OT, V extraArgs) {
     loadTreeSpecificParameters(OT);
     
+    // TODO: remove unnecessary args 
     switch (party) {
     case Charlie:
       return executeCharlieSubTree(con1, con2, Li, OT, extraArgs);
@@ -93,36 +97,23 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
    */
   @Override
   public void run(Party party, Forest forest) throws ForestException {
-    initializeMetadata(forest.getMetadata());
+    initializeMetadata();
     
-    // i = 0 case
     BigInteger k = OPRFHelper.getOPRF(party).getK();
-    T out = execute(party, "", k, forest.getInitialORAM(), null, prepareArgs(party));
-    if (print_out && out!=null) System.out.println("Output i=0 : " + out.toString());
-    else System.out.println("Finished round 0");
-    for (int treeLevel = forest.getNumberOfTrees()-1; treeLevel >= 0; treeLevel--) {
-      Tree OT = forest.getTree(treeLevel);
-      this.loadTreeSpecificParameters(OT);
-    
+    for (int i=0; i<=h; i++) {
+      Tree OT = forest.getTree(i);
+      this.loadTreeSpecificParameters(OT);    
       String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll);    
       
-      // TODO: Print out here too
-      out = execute(party, Li, k, forest.getInitialORAM(), OT, prepareArgs(party));
-      if (print_out && out!=null) System.out.println("Output i=" + i + " : " + out.toString());
+      T out = execute(party, Li, k, OT, prepareArgs(party));
+      if (print_out && out!=null) System.out.println("Output i=" + i + " : \n" + out.toString());
       else System.out.println("Finished round " + i);
     }
-    
-    // Synchronization. This ensures we don't exit early
-    // This should not be timed
-    con1.write("end");
-    con2.write("end");
-    con1.readString();
-    con2.readString();
   }
   
-  public abstract T executeCharlieSubTree(Communication debbie, Communication eddie, String Li, TreeZero OT_0, Tree OT, V extraArgs);
-  public abstract T executeDebbieSubTree(Communication charlie, Communication eddie, BigInteger k, TreeZero OT_0, Tree OT, V extraArgs);
-  public abstract T executeEddieSubTree(Communication charlie, Communication debbie, TreeZero OT_0, Tree OT, V extraArgs);
+  public abstract T executeCharlieSubTree(Communication debbie, Communication eddie, String Li, Tree OT, V extraArgs);
+  public abstract T executeDebbieSubTree(Communication charlie, Communication eddie, BigInteger k, Tree OT, V extraArgs);
+  public abstract T executeEddieSubTree(Communication charlie, Communication debbie, Tree OT, V extraArgs);
   
   public V prepareArgs() {
     return prepareArgs(null);

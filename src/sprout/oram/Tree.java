@@ -1,5 +1,6 @@
 package sprout.oram;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,23 +83,33 @@ public class Tree
 		return indices;
 	}
 	
-	public List<Bucket> getBucketsOnPath(long L) throws TreeException, BucketException
-	{
-		List<Bucket> path = new ArrayList<Bucket>();
-		for (long bucketIndex : getBucketIndicesOnPath(L))
-			path.add(getBucket(bucketIndex));
-		
-		return path;
-	}
-	
-	public void setBucketsOnPath(List<Bucket> buckets, long L) throws TreeException
+	public Bucket[] getBucketsOnPath(long L) throws TreeException, BucketException
 	{
 		List<Long> indices = getBucketIndicesOnPath(L);
-		if (indices.size() != buckets.size())
+		Bucket[] buckets = new Bucket[indices.size()];
+		for (int i=0; i<indices.size(); i++)
+			buckets[i] = getBucket(indices.get(i));		
+		return buckets;
+	}
+	
+	public Bucket[] getBucketsOnPath(String L) throws TreeException, BucketException
+	{
+		return getBucketsOnPath(new BigInteger(L, 2).longValue());
+	}
+	
+	public void setBucketsOnPath(Bucket[] buckets, long L) throws TreeException
+	{
+		List<Long> indices = getBucketIndicesOnPath(L);
+		if (indices.size() != buckets.length)
 			throw new TreeException("Number of buckets is not correct");
 		
 		for (int i=0; i<indices.size(); i++)
-			setBucket(buckets.get(i), indices.get(i));
+			setBucket(buckets[i], indices.get(i));
+	}
+	
+	public void setBucketsOnPath(Bucket[] buckets, String L) throws TreeException
+	{
+		setBucketsOnPath(buckets, new BigInteger(L, 2).longValue());
 	}
 	
 }

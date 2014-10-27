@@ -1,8 +1,6 @@
 package sprout.ui;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 
 import org.apache.commons.cli.CommandLine;
@@ -12,7 +10,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import sprout.oram.ForestException;
 import sprout.oram.Party;
 import sprout.oram.operations.Access;
 import sprout.util.Util;
@@ -152,7 +149,6 @@ public class TestCLI
 			    try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			    
@@ -190,7 +186,6 @@ public class TestCLI
 			    try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
@@ -235,7 +230,6 @@ public class TestCLI
 			    try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
@@ -255,10 +249,8 @@ public class TestCLI
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("see the options below", options);
 		} catch (NoSuchMethodException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     } catch (SecurityException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
 

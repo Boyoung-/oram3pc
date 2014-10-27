@@ -14,6 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.bouncycastle.asn1.nist.NISTNamedCurves;
+import org.bouncycastle.math.ec.ECPoint;
+
 public class Util
 {
 	static SecureRandom rnd = new SecureRandom();
@@ -281,4 +284,8 @@ public class Util
 	{
 		return nextLong(end-start) + start;
 	}
+	  
+	  public static ECPoint byteArrayToECPoint(byte[] bytes) {
+		  return NISTNamedCurves.getByName("P-224").getCurve().decodePoint(bytes);
+	  }
 }

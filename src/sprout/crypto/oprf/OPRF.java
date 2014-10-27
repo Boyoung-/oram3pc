@@ -235,7 +235,6 @@ public class OPRF {
     return randomRange(n);
   }
   
-
   ECPoint hash(String input) throws CryptoException{
     return g.multiply(hash(input.getBytes(), (byte)0).mod(n));
   }
