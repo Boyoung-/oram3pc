@@ -37,7 +37,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 
   @Override
   public DPOutput executeCharlieSubTree(Communication debbie, Communication eddie,
-                                        String Li, Tree none1, EPath none2) {
+                                        String Li, Tree unused1, EPath unused2) {
     // protocol
     // step 1
     // party C
@@ -81,7 +81,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
   
   @Override
   public DPOutput executeDebbieSubTree(Communication charlie, Communication eddie,
-                                       BigInteger k, Tree none1, EPath none2) {
+                                       BigInteger k, Tree unused1, EPath unused2) {
     OPRF oprf = OPRFHelper.getOPRF(false);
     
     int length = 1;
@@ -100,7 +100,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
   
   @Override
   public DPOutput executeEddieSubTree(Communication charlie, Communication debbie,
-                                      Tree OT, EPath none1) {	  
+                                      Tree OT, EPath unused1) {	  
     // protocol
     // step 1
     // party C

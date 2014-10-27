@@ -3,24 +3,25 @@ package sprout.oram.operations;
 import java.math.BigInteger;
 
 import sprout.communication.Communication;
-import sprout.oram.ForestMetadata;
 import sprout.oram.Tree;
-import sprout.oram.Forest.TreeZero;
 import sprout.util.Util;
 
+// TODO: remove testing code
 public class Access extends TreeOperation<AOutput, String> {
   
   public Access(Communication con1, Communication con2) {
     super(con1, con2);
   }
   
+  /*
   public Access(Communication con1, Communication con2, ForestMetadata metadata) {
     super(con1, con2, metadata);
   }
+  */
   
   @Override
   public AOutput executeCharlieSubTree(Communication debbie, Communication eddie,
-                                       String Li, TreeZero OT_0, Tree OT, String Nip1) {
+                                       String Li, Tree OT, String Nip1) {
     // prepare                                 
     String Ni = Nip1.substring(0, ln);                         
     String Nip1_pr = Nip1.substring(ln);
@@ -28,19 +29,16 @@ public class Access extends TreeOperation<AOutput, String> {
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
-    EPath Pbar = null;
-    if (i!=0)
-      Pbar = new EPath(d_i+expen, l);
-    DPOutput DecOut = (new DecryptPath(metadata)).executeCharlieSubTree(debbie, eddie, Li, OT_0, OT, Pbar);
-   
-    String secretC_P = DecOut.secretC_P;
+    DPOutput DecOut = (new DecryptPath()).executeCharlieSubTree(debbie, eddie, Li, OT, null);   
+    String secretC_P = "";
+    for (int j=0; j<DecOut.secretC_P.length; j++)
+    	secretC_P += DecOut.secretC_P[j];
     
     ////////////////////////below are for checking correctness /////////////////////
     //System.out.println("-----checking correctness-----");
     eddie.write(Ni);
     eddie.write(Li);
     secretC_P = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
-    
     eddie.write(secretC_P);
     //System.out.println("-----done with correctness----");
     //////////////////////// above are for checking correctness /////////////////////
@@ -157,12 +155,11 @@ public class Access extends TreeOperation<AOutput, String> {
   
   @Override
   public AOutput executeDebbieSubTree(Communication charlie, Communication eddie,
-                                      BigInteger k, TreeZero OT_0, Tree OT, String unused) {
+                                      BigInteger k, Tree OT, String unused) {
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
-    EPath Pbar = new EPath(d_i+expen, l);
-    (new DecryptPath(metadata)).executeDebbieSubTree(charlie, eddie, k, OT_0, OT, Pbar);
+    (new DecryptPath()).executeDebbieSubTree(charlie, eddie, k, OT, null);
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
     if (i > 0) {
@@ -189,14 +186,14 @@ public class Access extends TreeOperation<AOutput, String> {
   
   @Override
   public AOutput executeEddieSubTree(Communication charlie, Communication debbie,
-                                     TreeZero OT_0, Tree OT, String unused) {
+                                     Tree OT, String unused) {
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
-    EPath Pbar = new EPath(d_i+expen, l);
-    DPOutput DecOut = (new DecryptPath(metadata)).executeEddieSubTree(charlie, debbie, OT_0, OT, Pbar);
-    
-    String secretE_P = DecOut.secretE_P;
+    DPOutput DecOut = (new DecryptPath()).executeEddieSubTree(charlie, debbie, OT, null);
+    String secretE_P = "";
+    for (int j=0; j<DecOut.secretE_P.length; j++)
+    	secretE_P += DecOut.secretE_P[j];
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
     ////////////////////////below are for checking correctness /////////////////////

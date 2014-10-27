@@ -5,7 +5,6 @@ import java.math.BigInteger;
 import org.apache.commons.lang3.tuple.Pair;
 
 import sprout.communication.Communication;
-import sprout.oram.Forest.TreeZero;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.Tree;
@@ -20,14 +19,15 @@ public class Eviction extends TreeOperation<String, Pair<String, String>> {
     super(con1, con2);
   }
   
+  /*
   public Eviction(Communication con1, Communication con2, ForestMetadata meta) {
     super(con1, con2, meta);
   }
+  */
 
   @Override
   public String executeCharlieSubTree(Communication debbie,
-      Communication eddie, String Li, TreeZero OT_0, Tree OT, Pair<String, String> extraArgs) {
-    // TODO Auto-generated method stub
+      Communication eddie, String Li, Tree OT, Pair<String, String> extraArgs) {
     String sC_P_p = extraArgs.getLeft();
     String sC_T_p = extraArgs.getRight();
     return null;
@@ -35,7 +35,7 @@ public class Eviction extends TreeOperation<String, Pair<String, String>> {
 
   @Override
   public String executeDebbieSubTree(Communication charlie,
-      Communication eddie, BigInteger k, TreeZero OT_0, Tree OT,
+      Communication eddie, BigInteger k, Tree OT,
       Pair<String, String> extraArgs) {
     String Li = extraArgs.getLeft();
     
@@ -44,7 +44,7 @@ public class Eviction extends TreeOperation<String, Pair<String, String>> {
 
   @Override
   public String executeEddieSubTree(Communication charlie,
-      Communication debbie, TreeZero OT_0, Tree OT, Pair<String, String> extraArgs) {
+      Communication debbie, Tree OT, Pair<String, String> extraArgs) {
     String sE_P_p = extraArgs.getLeft();
     String sE_T_p = extraArgs.getRight();
     return null;
@@ -67,8 +67,8 @@ public class Eviction extends TreeOperation<String, Pair<String, String>> {
  //Temporarily redefine parameters for testing
  int bucketSize; // TODO: This is l everywhere else we should redefine here
  @Override
- public void loadTreeSpecificParameters(Tree OT) {
-   super.loadTreeSpecificParameters(OT);
+ public void loadTreeSpecificParameters(int index) {
+   super.loadTreeSpecificParameters(index);
    
    i         = 2;
    d_i       = 4;

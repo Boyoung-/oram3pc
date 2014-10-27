@@ -5,7 +5,7 @@ import java.security.NoSuchAlgorithmException;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
-import sprout.oram.Forest.TreeZero;
+import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.util.Util;
@@ -21,7 +21,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
 
   @Override
   public String executeCharlieSubTree(Communication debbie,
-      Communication eddie, String Li, TreeZero u1, Tree u2, String[] extraArgs) {
+      Communication eddie, String Li, Tree u2, String[] extraArgs) {
     if (extraArgs.length != 5) {
       throw new IllegalArgumentException("Must supply sC_Ti, sC_Li_p, sC_Lip1_p, Lip1, Nip1_pr to charlie");
     }
@@ -57,7 +57,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     // protocol doesn't run for i=h case
     if (i == h) {
-      int d_size = 9;
+      int d_size = ForestMetadata.getABits(i);
       // party C
       String triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(new BigInteger(secretC_Li_p, 2)).toString(2), ll) + Util.addZero("", d_size);  
       String secretC_Ti_p = Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(triangle_C, 2)).toString(2), tupleBitLength);
@@ -117,7 +117,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
 
   @Override
   public String executeDebbieSubTree(Communication charlie,
-      Communication eddie, BigInteger u1, TreeZero u2, Tree u3,
+      Communication eddie, BigInteger u1, Tree u3,
       String[] u4) {
     if (i == h) {
       return null;    
@@ -161,7 +161,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
 
   @Override
   public String executeEddieSubTree(Communication charlie,
-      Communication debbie, TreeZero u1, Tree u2, String[] extraArgs) {
+      Communication debbie, Tree u2, String[] extraArgs) {
     if (extraArgs.length != 3) {
       throw new IllegalArgumentException("Must supply sE_Ti, sE_Li_p, and sE_Lip1_p to eddie");
     }
@@ -182,7 +182,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     // protocol doesn't run for i=h case
     if (i == h) {
-      int d_size = 9; // TODO: Why 9?
+      int d_size = ForestMetadata.getABits(i);
       // party E
       String triangle_E = "0" + Util.addZero("", i*tau) + secretE_Li_p + Util.addZero("", d_size);
       String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBitLength);
