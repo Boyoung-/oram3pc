@@ -20,6 +20,30 @@ public class IOT extends Operation {
     super(con1, con2);
   }
   
+  public static void executeS(Communication R, Communication I, String[] m) {
+    // parameters
+    int N = m.length;
+    int l = m[0].length();
+    
+    I.write(N);
+    I.write(l);
+    R.write(l);
+    
+    // Pre-computed inputs
+    Integer[] pi = I.readIntegerArray();
+    
+    String[] r = I.readStringArray();
+    
+    // protocol
+    // step 1
+    // party S
+    String[] a = new String[N];
+    for (int o=0; o<N; o++)
+      a[o] = Util.addZero(new BigInteger(m[pi[o]], 2).xor(new BigInteger(r[o], 2)).toString(2), l);
+    // S sends a to R
+    R.write(a);
+  }
+  
   public static String[] executeR(Communication I, Communication S) {
     // parameters // TODO: should not be transmitted
     int k = I.readInt();
@@ -56,7 +80,7 @@ public class IOT extends Operation {
     List<Integer> pi = new ArrayList<Integer>();            
     for (int o=0; o<N; o++)
       pi.add(o);
-    Collections.shuffle(pi);  // random permutation TODO: This may be predictable
+    Collections.shuffle(pi, rnd);  
     List<Integer> pi_ivs = Util.getInversePermutation(pi); // inverse permutation   
     byte[] s = rnd.generateSeed(16);
     PRG G = new PRG(N*l);
@@ -80,43 +104,20 @@ public class IOT extends Operation {
     R.write(j);
     R.write(p);
   }
-  
-  public static void executeS(Communication I, Communication R, String[] m) {
-    // parameters
-    int N = m.length;
-    int l = m[0].length();
-    
-    I.write(N);
-    I.write(l);
-    R.write(l);
-    
-    // Pre-computed inputs
-    Integer[] pi = I.readIntegerArray();
-    String[] r = I.readStringArray();
-    
-    // protocol
-    // step 1
-    // party S
-    String[] a = new String[N];
-    for (int o=0; o<N; o++)
-      a[o] = Util.addZero(new BigInteger(m[pi[o]], 2).xor(new BigInteger(r[o], 2)).toString(2), l);
-    // S sends a to R
-    R.write(a);
-  }
 
   @Override
   public void run(Party party, Forest forest) throws ForestException {
     switch (party) {
-    case Charlie: // I
+    case Debbie: // I
       Integer[] i = new Integer[]{0, 1, 3, 7};
-      String[] delta = new String[]{"000", "111", "000", "111",};
+      String[] delta = new String[]{"000", "111", "000", "111"};
       try {
         IOT.executeI(con1, con2, i, delta);
       } catch (NoSuchAlgorithmException e) {
         e.printStackTrace();
       }
       break;
-    case Debbie: // R
+    case Charlie: // R
       // In current configuration expected output is [000, 110, 011, 000]
       System.out.println(Arrays.toString(IOT.executeR(con1, con2)));
       break;
