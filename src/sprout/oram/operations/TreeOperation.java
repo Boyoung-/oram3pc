@@ -58,9 +58,9 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   int l;                            // # bucket size (bits)
   int n;                            // # tuples in one path
   
-  public void loadTreeSpecificParameters(Tree OT) {
+  public void loadTreeSpecificParameters(int index) {
     // TODO: Do these need to be accessed by all parties? If not we should separate them out.
-    i         		= OT.getTreeIndex();          // tree index in the writeup
+    i         		= index;          // tree index in the writeup
     d_i       		= ForestMetadata.getLBits(i);                // # levels in this tree (excluding the root level)
     if (i == h)
       d_ip1     	= ForestMetadata.getABits(i) / twotaupow;
@@ -77,7 +77,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   }
   
   public T execute(Party party, String Li, BigInteger k, Tree OT, V extraArgs) {
-    loadTreeSpecificParameters(OT);
+    loadTreeSpecificParameters(i);
     
     // TODO: remove unnecessary args 
     switch (party) {
@@ -101,8 +101,10 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
     
     BigInteger k = OPRFHelper.getOPRF(party).getK();
     for (int i=0; i<=h; i++) {
-      Tree OT = forest.getTree(i);
-      this.loadTreeSpecificParameters(OT);    
+      Tree OT = null;
+      if (forest != null)
+    	  OT = forest.getTree(i);
+      this.loadTreeSpecificParameters(i);    
       String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll);    
       
       T out = execute(party, Li, k, OT, prepareArgs(party));

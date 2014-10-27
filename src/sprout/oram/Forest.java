@@ -140,8 +140,6 @@ public class Forest
 				PRG G = new PRG(bucketTupleBits); // TODO: why only fresh PRG works??
 				BigInteger mask = new BigInteger(G.generateBitString(bucketTupleBits, v), 2);
 				BigInteger ctext = new BigInteger(1, bucket.toByteArray()).xor(mask);
-				// TODO: is nonce bits correct?
-				//System.out.println("nonce bytes:" + x.getEncoded().length);
 				bucket.setBucket(x.getEncoded(), Util.rmSignBit(ctext.toByteArray()));
 				Util.disp("Tree-" + i + " writing encrypted " + bucket);		
 				t.setBucket(bucket, j);

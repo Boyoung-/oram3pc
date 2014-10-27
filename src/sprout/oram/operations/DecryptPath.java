@@ -148,8 +148,8 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
   // Temporarily redefine n for decrpyt
   // We probably want to eventually unify the meaning of n
   @Override
-  public void loadTreeSpecificParameters(Tree OT) {
-    super.loadTreeSpecificParameters(OT);
+  public void loadTreeSpecificParameters(int index) {
+    super.loadTreeSpecificParameters(index);
     n = n/w;
   }
   @Override
