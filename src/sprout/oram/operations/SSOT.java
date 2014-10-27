@@ -2,13 +2,9 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import sprout.communication.Communication;
-import sprout.crypto.PRG;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.Party;
@@ -59,7 +55,7 @@ public class SSOT extends Operation {
   }
   
   public static String[] executeE(Communication C, Communication I, String[] sE) {
-    int l = sE[0].length();
+    //int l = sE[0].length();
     
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I

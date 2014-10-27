@@ -147,7 +147,8 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
   @Override
   public void loadTreeSpecificParameters(int index) {
     super.loadTreeSpecificParameters(index);
-    n = n/w;
+    if (i > 0)
+    	n = n/w;
   }
   @Override
   public EPath prepareArgs() {

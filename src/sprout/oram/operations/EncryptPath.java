@@ -139,7 +139,8 @@ public class EncryptPath extends TreeOperation<EPath, String> {
  @Override
  public void loadTreeSpecificParameters(int index) {
    super.loadTreeSpecificParameters(index);
-   n = n/w;
+   if (i > 0)
+	   n = n/w;
  }
 
   @Override

@@ -147,7 +147,8 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
   @Override
   public void loadTreeSpecificParameters(int index) {
     super.loadTreeSpecificParameters(index);
-    n = n/w;
+    if (i > 0)
+    	n = n/w;
   }
 
   @Override

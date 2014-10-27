@@ -18,10 +18,10 @@ public class GCF extends Operation {
   public GCF(Communication con1, Communication con2) {
     super(con1, con2);
   }
-  
-  public static void executeE(Communication C, Communication D, String circuit, int n, String sE) {
+
+public static void executeE(Communication C, Communication D, String circuit, int n, String sE) {
 	  // TODO: this line is only for checking correctness; should be removed for ORAM
-	  D.write(sE);
+	  //D.write(sE);
     
     // setup circuit
 	int w = n - 2;
@@ -31,7 +31,7 @@ public class GCF extends Operation {
 	int tmp2 = rnd.nextInt(w) + 1;
 	int s1 = Math.min(tmp1, tmp2);
 	int s2 = Math.max(tmp1, tmp2);
-	System.out.println("--- E: sigma:\t" + s1 + " " + s2);
+	//System.out.println("--- E: sigma:\t" + s1 + " " + s2);
 	
 	Circuit gc_E = null;
 	Circuit.isForGarbling = true;
@@ -76,7 +76,7 @@ public class GCF extends Operation {
   
   public static void executeC(Communication D, Communication E, int n, String sC) {
 	  // TODO: this line is only for checking correctness; should be removed for ORAM
-	  D.write(sC);
+	  //D.write(sC);
 	  
 	  // protocol
 	  // step 1, 2
@@ -92,10 +92,10 @@ public class GCF extends Operation {
   
   public static String executeD(Communication C, Communication E, String circuit, int n) {
 	  // TODO: these lines are only for checking correctness; should be removed for ORAM
-	  String sE = E.readString();
-	  String sC = C.readString();
-	  String input = Util.addZero(new BigInteger(sE, 2).xor(new BigInteger(sC, 2)).toString(2), n);
-	  System.out.println("--- D: input:\t" + input);
+	  //String sE = E.readString();
+	  //String sC = C.readString();
+	  //String input = Util.addZero(new BigInteger(sE, 2).xor(new BigInteger(sC, 2)).toString(2), n);
+	  //System.out.println("--- D: input:\t" + input);
 	  
 	  // setup circuit
 	  int w = n - 2;
@@ -141,6 +141,7 @@ public class GCF extends Operation {
 			out = Util.addZero(out, n);
 		else
 			out = Util.addZero(out, w+2);
+		//System.out.println("--- D: output:\t" + out);
 	  return out;
   }
 
