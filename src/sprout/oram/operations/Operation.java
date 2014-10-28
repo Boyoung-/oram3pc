@@ -27,8 +27,8 @@ public abstract class Operation {
    * con2 = eddie
    * 
    * For Eddie
-   * con1 = debbie
-   * con2 = charlie
+   * con1 = charlie
+   * con2 = debbie
    */
   public Operation(Communication con1, Communication con2) {
     this.con1 = con1;
