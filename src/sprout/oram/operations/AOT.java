@@ -2,7 +2,6 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
 import sprout.communication.Communication;
 import sprout.crypto.WeakPRF;
@@ -106,15 +105,15 @@ public class AOT extends Operation {
  // for testing
     
     switch (party) {
-    case Charlie:
+    case Charlie: // R
       int j = rnd.nextInt(10);
       System.out.println(j);
       System.out.println(AOT.executeC(con1, con2, j));
       break;
-    case Debbie:
+    case Debbie: // H
       AOT.executeD(con1, con2);
       break;
-    case Eddie:
+    case Eddie: // S
       String t = Util.addZero(new BigInteger(50, rnd).toString(2), 50);
       String[] m = new String[10];
       

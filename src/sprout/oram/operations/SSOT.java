@@ -27,7 +27,7 @@ public class SSOT extends Operation {
     
     // step 3
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-    IOT.executeS(I, E, sC);
+    IOT.executeS(E, I, sC);
     
     // C outputs a
     return a;
@@ -59,7 +59,7 @@ public class SSOT extends Operation {
     
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-    IOT.executeS(I, C, sE);
+    IOT.executeS(C, I, sE);
     
     // step 3
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
