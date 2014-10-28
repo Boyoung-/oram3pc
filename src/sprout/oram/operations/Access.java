@@ -25,11 +25,14 @@ public class Access extends TreeOperation<AOutput, String> {
     // prepare                                 
     String Ni = Nip1.substring(0, nBits);                         
     String Nip1_pr = Nip1.substring(nBits);
-    /*
+    
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
-    DPOutput DecOut = new DecryptPath().executeCharlieSubTree(debbie, eddie, Li, null, null);   
+    DecryptPath dp = new DecryptPath();
+    dp.loadTreeSpecificParameters(i);
+    DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, Li, null, null);  
+    
     String secretC_P = "";
     for (int j=0; j<DecOut.secretC_P.length; j++)
     	secretC_P += DecOut.secretC_P[j];
@@ -42,7 +45,7 @@ public class Access extends TreeOperation<AOutput, String> {
     eddie.write(secretC_P);
     //System.out.println("-----done with correctness----");
     //////////////////////// above are for checking correctness /////////////////////
-
+    
     // step 3
     // party C and E
     int j_1 = 0; // i = 0 case; as the j_1 = 1 in the write up
@@ -151,21 +154,25 @@ public class Access extends TreeOperation<AOutput, String> {
     sanityCheck();
     // C outputs Lip1, secretC_Ti, secretC_P_p
     return new AOutput(Lip1, null, secretC_Ti, null, secretC_P_p, null, d);
-    */
-    return null;
+    
+    //return null;
   }
   
   @Override
   public AOutput executeDebbieSubTree(Communication charlie, Communication eddie,
-                                      BigInteger k, Tree OT, String unused) {
-	  /*
+                                      BigInteger k, Tree unused1, String unused2) {
+	  
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
-    new DecryptPath().executeDebbieSubTree(charlie, eddie, k, OT, null);
+	    DecryptPath dp = new DecryptPath();
+	    dp.loadTreeSpecificParameters(i);
+    dp.executeDebbieSubTree(charlie, eddie, k, null, null);
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
+    
     if (i > 0) {
+    	// step 3
       sanityCheck();
       PET.executeDebbie(charlie, eddie, pathTuples);
       // PET outputs j_1 for C
@@ -184,18 +191,21 @@ public class Access extends TreeOperation<AOutput, String> {
     }
     
     sanityCheck();
-    return new AOutput();*/
+    //return new AOutput();
     return null;
   }
   
   @Override
   public AOutput executeEddieSubTree(Communication charlie, Communication debbie,
                                      Tree OT, String unused) {
-	  /*
+	  
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
-    DPOutput DecOut = new DecryptPath().executeEddieSubTree(charlie, debbie, OT, null);
+	    DecryptPath dp = new DecryptPath();
+	    dp.loadTreeSpecificParameters(i);
+    DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, OT, null);
+    
     String secretE_P = "";
     for (int j=0; j<DecOut.secretE_P.length; j++)
     	secretE_P += DecOut.secretE_P[j];
@@ -289,10 +299,16 @@ public class Access extends TreeOperation<AOutput, String> {
     
     sanityCheck();
     // E outputs secretE_Ti and secretE_P_p
-      
     return new AOutput(null, DecOut.p, null, secretE_Ti, null, secretE_P_p, null);
-    */
-    return null;
+    
+    //return null;
+  }
+  
+  @Override
+  public void loadTreeSpecificParameters(int index) {
+    super.loadTreeSpecificParameters(index);
+    //if (i > 0)
+    	//n = n/w;
   }
 
   @Override

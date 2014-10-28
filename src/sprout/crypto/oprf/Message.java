@@ -8,7 +8,7 @@ import org.bouncycastle.math.ec.ECPoint;
 public class Message {
 
 	// If we need to transmit two points then we use v and w, otherwise we only use v.
-	ECPoint v,w;
+	ECPoint v, w;
 	
 	public Message(ECPoint point) {
 		v = point;

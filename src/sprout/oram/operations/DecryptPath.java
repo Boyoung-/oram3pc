@@ -49,6 +49,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // party C
     // E sends sigma_x to C
     ECPoint[] sigma_x = eddie.readECPointArray();
+    //System.out.println("--- D: sigma_x: " + sigma_x.length);
     
     // step 4
     // party C and D run OPRF on C's input sigma_x and D's input k
@@ -60,9 +61,12 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       // TODO: May want a different encoding here we leave this until OPRF changes
       Message msg1 = oprf.prepare(sigma_x[j]);
       debbie.write(new Message(msg1.getV()));
+      //debbie.write(msg1.getV());
       
       Message msg2 = debbie.readMessage();
       msg2.setW(msg1.getW());
+      //ECPoint v = debbie.readECPoint();
+      //Message msg2 = new Message(v, msg1.getW());
       Message res = oprf.deblind(msg2);
 
       PRG G;
@@ -87,10 +91,15 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     //int length = 1;
     //if (i > 0)
     	//length = d_i+expen;
+    //System.out.println("--- D: pathbuckets: " + pathBuckets);
     for (int j=0; j < pathBuckets; j++) {
       Message msg = charlie.readMessage();
+    	//ECPoint v = charlie.readECPoint();
+    	//Message msg = new Message(v);
       msg = oprf.evaluate(msg); // TODO: make use of the k?
+      //System.out.println("--- D: msg.v: " + msg.getV());
       charlie.write(msg);
+      //charlie.write(msg.getV());
     }
     
     // D outputs nothing
@@ -113,6 +122,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // E retrieves encrypted path Pbar using Li
     Bucket[] Pbar = null;
 	try {
+		//System.out.println("--- E: Li: " + Li);
 		Pbar = OT.getBucketsOnPath(Li);
 	} catch (TreeException e) {
 		e.printStackTrace();
@@ -151,6 +161,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     //if (i > 0)
     	//n = n/w;
   }
+  
   @Override
   public EPath prepareArgs() {
 	  return null;
