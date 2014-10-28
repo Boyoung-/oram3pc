@@ -72,8 +72,6 @@ public class Eviction extends TreeOperation<String[], String[]> {
     return sC_P_pp;
   }
 
-  // TODO: handle index -1 case
-  // TODO: figure out step 3
   @Override
   public String[] executeDebbieSubTree(Communication charlie,
       Communication eddie, BigInteger unused1, Tree unused2,
@@ -88,7 +86,11 @@ public class Eviction extends TreeOperation<String[], String[]> {
  		for (int j=0; j<d_i; j++) {
  			String GCFOutput = GCF.executeD(charlie, eddie, "F2FT", w*2+2);
  			alpha1_j[j] = GCFOutput.substring(2).indexOf('1');
+ 			if (alpha1_j[j] == -1)
+ 				alpha1_j[j] = rnd.nextInt(w);
  			alpha2_j[j] = GCFOutput.substring(2).indexOf('1', alpha1_j[j]+1);
+ 			while (alpha2_j[j] == -1 || alpha2_j[j] == alpha1_j[j])
+ 				alpha2_j[j] = rnd.nextInt(w);
  			System.out.println("--- D: alpha_j: " + alpha1_j[j] + " " + alpha2_j[j]);
  		}
  		
@@ -96,6 +98,13 @@ public class Eviction extends TreeOperation<String[], String[]> {
  	String GCFOutput = GCF.executeD(charlie, eddie, "F2ET", w*expen+2);
  	int alpha1_d = GCFOutput.substring(2).indexOf('1');
  	int alpha2_d = GCFOutput.substring(2).indexOf('1', alpha1_d+1);
+ 	if (alpha2_d == -1) {
+ 		try {
+			throw new Exception("Overflow!");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+ 	}
  	System.out.println("--- D: alpha_d: " + alpha1_d + " " + alpha2_d);
  	
  // step 3
