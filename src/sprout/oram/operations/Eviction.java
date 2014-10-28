@@ -72,6 +72,8 @@ public class Eviction extends TreeOperation<String[], String[]> {
     return sC_P_pp;
   }
 
+  // TODO: handle index -1 case
+  // TODO: figure out step 3
   @Override
   public String[] executeDebbieSubTree(Communication charlie,
       Communication eddie, BigInteger unused1, Tree unused2,
@@ -103,9 +105,9 @@ public class Eviction extends TreeOperation<String[], String[]> {
  		for (int j=0; j<n; j++)
  			for (int o=0; o<w; o++) {
  				if (j == 0 && o == alpha1_j[0])
- 					beta[w*j+o] = k + 1;
+ 					beta[w*j+o] = k;
  				else if (j == 0 && o == alpha2_j[0])
- 					beta[w*j+o] = k + 2;
+ 					beta[w*j+o] = k + 1;
  				else if (1 <= j && j <= (d_i-1) && o == alpha1_j[j])
  					beta[w*j+o] = w * (j-1) + alpha1_j[j-1];
  				else if (1 <= j && j <= (d_i-1) && o == alpha2_j[j])
@@ -118,6 +120,8 @@ public class Eviction extends TreeOperation<String[], String[]> {
  					beta[w*j+o] = w * j + o;
  			}
  		Integer[] I = beta;
+ 		//System.out.println("k: " + k);
+ 		//Util.printArrH(I);
  		
  		// step 5
  		try {
