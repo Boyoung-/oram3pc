@@ -11,6 +11,7 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import sprout.crypto.PRG;
 import sprout.crypto.oprf.OPRF;
+import sprout.oram.operations.OPRFHelper;
 import sprout.util.Util;
 
 public class Forest
@@ -125,7 +126,7 @@ public class Forest
 	private static void encryptForest() throws BucketException, NoSuchAlgorithmException, TreeException
 	{
 		Util.disp("===== Encryption ===== ");
-		OPRF oprf = new OPRF();
+		OPRF oprf = OPRFHelper.getOPRF(false);
 		ECPoint g = oprf.getG();
 		ECPoint y = oprf.getY();
 		

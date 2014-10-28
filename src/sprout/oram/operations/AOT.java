@@ -15,25 +15,24 @@ public class AOT extends Operation {
     super(con1, con2);
   }
   
-  // TODO: Rename (C,D) -> (R,H) or S->E for consistency
-  public static void executeS(Communication C, Communication D, String[] m) {
+  public static void executeE(Communication C, Communication D, String[] m) {
     int N = m.length;
     int l = m[0].length();
     
     // We may be able to do this without communication
     C.write(N);
     C.write(l);
-    D.write(N);
+    //D.write(N);
     D.write(l);
     
     // pre-computed input
-    // party S
+    // party E
     BigInteger k = new BigInteger(128, rnd); // is this right???
-    // S sends k to D
+    // E sends k to D
     D.write(k);
     
     // step 1
-    // party S
+    // party E
     BigInteger alpha = BigInteger.valueOf(rnd.nextInt(N));
     BigInteger[] m_p = new BigInteger[N];
     try {
@@ -46,18 +45,18 @@ public class AOT extends Operation {
     }
     C.write(m_p);
     C.write(alpha);
-    // S sends m_p and alpha to C
+    // E sends m_p and alpha to C
     
   }
   
-  public static String executeC(Communication D, Communication S, int j) {
-    int N = S.readInt();
-    int l = S.readInt();
+  public static String executeC(Communication D, Communication E, int j) {
+    int N = E.readInt();
+    int l = E.readInt();
     
     // step 1
-    // S sends m_p and alpha to C
-    BigInteger [] m_p = S.readBigIntegerArray();
-    BigInteger alpha = S.readBigInteger();
+    // E sends m_p and alpha to C
+    BigInteger [] m_p = E.readBigIntegerArray();
+    BigInteger alpha = E.readBigInteger();
     
     // step 2
     //party C
@@ -75,12 +74,12 @@ public class AOT extends Operation {
     return output;
   }
   
-  public static void executeD(Communication C, Communication S) {
-    int N = S.readInt();
-    int l = S.readInt();
+  public static void executeD(Communication C, Communication E) {
+    //int N = E.readInt();
+    int l = E.readInt();
     
     // pre-computed input
-    BigInteger k = S.readBigInteger();
+    BigInteger k = E.readBigInteger();
     
     // step 2
     // C sends j_p to D
@@ -121,7 +120,7 @@ public class AOT extends Operation {
         m[i] = t.substring(i*5, (i+1)*5);
       
       Util.printArrH(m);
-      AOT.executeS(con1, con2, m);
+      AOT.executeE(con1, con2, m);
       break;
     }
     

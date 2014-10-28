@@ -94,8 +94,9 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     }
     
     // D outputs nothing
-    DPOutput out = new DPOutput();
-    return out;
+    //DPOutput out = new DPOutput();
+    //return out;
+    return null;
   }
   
   @Override
