@@ -35,16 +35,16 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     ////////////////////////below are for checking correctness /////////////////////
     String T_i_fb     = "1";
-    String T_i_N      = Util.addZero(new BigInteger(ln, rnd).toString(2), ln);
+    String T_i_N      = Util.addZero(new BigInteger(nBits, rnd).toString(2), nBits);
     String T_i_L      = Li;
-    String T_i_A      = Util.addZero(new BigInteger(ld, rnd).toString(2), ld);
+    String T_i_A      = Util.addZero(new BigInteger(aBits, rnd).toString(2), aBits);
     T_i_A         = T_i_A.substring(0, Nip1_pr_int*d_ip1) + Lip1 + T_i_A.substring((Nip1_pr_int+1)*d_ip1);
     String T_i;
     if (i == 0)
       T_i         = T_i_A;
     else
       T_i         = T_i_fb + T_i_N + T_i_L + T_i_A;
-    String secretE_Ti    = Util.addZero(new BigInteger(T_i, 2).xor(new BigInteger(secretC_Ti, 2)).toString(2), tupleBitLength);  
+    String secretE_Ti    = Util.addZero(new BigInteger(T_i, 2).xor(new BigInteger(secretC_Ti, 2)).toString(2), tupleBits);  
     eddie.write(secretE_Ti);
     //////////////////////// above are for checking correctness /////////////////////
     
@@ -59,8 +59,8 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     if (i == h) {
       int d_size = ForestMetadata.getABits(i);
       // party C
-      String triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(new BigInteger(secretC_Li_p, 2)).toString(2), ll) + Util.addZero("", d_size);  
-      String secretC_Ti_p = Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(triangle_C, 2)).toString(2), tupleBitLength);
+      String triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(new BigInteger(secretC_Li_p, 2)).toString(2), lBits) + Util.addZero("", d_size);  
+      String secretC_Ti_p = Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(triangle_C, 2)).toString(2), tupleBits);
       return secretC_Ti_p;      
     }
     
@@ -86,12 +86,12 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     String[] a = new String[twotaupow];
     PRG G;
     try {
-      G = new PRG(l);
+      G = new PRG(aBits);
     } catch (NoSuchAlgorithmException e1) {
       e1.printStackTrace();
       return null;
     }
-    String a_all = G.generateBitString(l, s);
+    String a_all = G.generateBitString(aBits, s);
     for (int k=0; k<twotaupow; k++) {
       a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
     }
@@ -108,8 +108,8 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     if (i == 0)
       triangle_C = A_C;
     else
-      triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(new BigInteger(secretC_Li_p, 2)).toString(2), ll) + A_C;
-    String secretC_Ti_p = Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(triangle_C, 2)).toString(2), tupleBitLength);
+      triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(new BigInteger(secretC_Li_p, 2)).toString(2), lBits) + A_C;
+    String secretC_Ti_p = Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(triangle_C, 2)).toString(2), tupleBits);
     // C outputs secretC_Ti_p
     
     return secretC_Ti_p;
@@ -136,14 +136,14 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     byte[] s = rnd.generateSeed(16);  // 128 bits
     PRG G;
     try {
-      G = new PRG(l);
+      G = new PRG(aBits);
     } catch (NoSuchAlgorithmException e) {
       e.printStackTrace();
       return null;
     }
     String[] a = new String[twotaupow];
     String[] a_p = new String[twotaupow];
-    String a_all = G.generateBitString(l, s);
+    String a_all = G.generateBitString(aBits, s);
     for (int k=0; k<twotaupow; k++) {
       a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
       if (k != j_p)
@@ -185,7 +185,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
       int d_size = ForestMetadata.getABits(i);
       // party E
       String triangle_E = "0" + Util.addZero("", i*tau) + secretE_Li_p + Util.addZero("", d_size);
-      String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBitLength);
+      String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBits);
       return secretE_Ti_p;      
     }
     
@@ -208,7 +208,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     // step 5
     // party E
     String A_E = "";
-    for (int k=0; k<twotaupow+0; k++) {
+    for (int k=0; k<twotaupow; k++) {
       A_E += a_p[BigInteger.valueOf(k+alpha).mod(BigInteger.valueOf(twotaupow)).intValue()];
     }
     String triangle_E;
@@ -216,7 +216,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
       triangle_E = A_E;
     else
       triangle_E = "0" + Util.addZero("", i*tau) + secretE_Li_p + A_E;
-    String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBitLength);
+    String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBits);
     // E outputs secretE_Ti_p
     
     return secretE_Ti_p;
@@ -226,7 +226,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
   public String [] prepareArgs(Party party) {
     String Lip1       = Util.addZero(new BigInteger(d_ip1, rnd).toString(2), d_ip1);
     String Nip1_pr      = Util.addZero(new BigInteger(tau, rnd).toString(2), tau);
-    String secret_Ti     = Util.addZero(new BigInteger(tupleBitLength, rnd).toString(2), tupleBitLength);
+    String secret_Ti     = Util.addZero(new BigInteger(tupleBits, rnd).toString(2), tupleBits);
     String secret_Li_p   = Util.addZero(new BigInteger(d_i, rnd).toString(2), d_i);
     String secret_Lip1_p = Util.addZero(new BigInteger(d_ip1, rnd).toString(2), d_ip1);
     

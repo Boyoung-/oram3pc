@@ -34,11 +34,11 @@ public class Eviction extends TreeOperation<String[], String[]> {
     for (int j=0; j<d_i; j++) {
 		String sC_fb = "";
 		String sC_dir = "";
-		String sC_bucket = sC_P_p.substring(j*l, (j+1)*l);
-		for (int o=0; o<w; o++) {
-			String sC_tuple = sC_bucket.substring(o*tupleBitLength, (o+1)*tupleBitLength);
+		String sC_bucket = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits);
+		for (int l=0; l<w; l++) {
+			String sC_tuple = sC_bucket.substring(l*tupleBits, (l+1)*tupleBits);
 			sC_fb += sC_tuple.substring(0, 1);
-			sC_dir += sC_tuple.substring(1+ln, 1+ln+ll).substring(j, j+1);
+			sC_dir += sC_tuple.substring(1+nBits, 1+nBits+lBits).substring(j, j+1);
 		}
 		String sC_input = "00" + sC_dir + sC_fb; // enable + dir + fb
 		GCF.executeC(debbie, eddie, w*2+2, sC_input);
@@ -46,25 +46,25 @@ public class Eviction extends TreeOperation<String[], String[]> {
     
  // step 2
  		String sC_fb = "00";
- 		for (int j=d_i; j<n; j++) {
- 			String sC_bucket = sC_P_p.substring(j*l, (j+1)*l);
- 			for (int o=0; o<w; o++) {
- 				sC_fb += sC_bucket.substring(o*tupleBitLength, o*tupleBitLength+1);
+ 		for (int j=d_i; j<pathBuckets; j++) {
+ 			String sC_bucket = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits);
+ 			for (int l=0; l<w; l++) {
+ 				sC_fb += sC_bucket.substring(l*tupleBits, l*tupleBits+1);
  			}
  		}
  		GCF.executeC(debbie, eddie, w*expen+2, sC_fb);
  		
  	// step 3
- 		int k = w * n;
+ 		int k = w * pathBuckets;
  		
  	// step 4
  			String[] sC_a = new String[k+2];
- 			for (int j=0; j<n; j++)
- 				for (int o=0; o<w; o++) {
- 					sC_a[w*j+o] = sC_P_p.substring(j*l, (j+1)*l).substring(o*tupleBitLength, (o+1)*tupleBitLength);
+ 			for (int j=0; j<pathBuckets; j++)
+ 				for (int l=0; l<w; l++) {
+ 					sC_a[w*j+l] = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits).substring(l*tupleBits, (l+1)*tupleBits);
  				}
  			sC_a[k] = sC_T_p;
- 			sC_a[k+1] = Util.addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength);
+ 			sC_a[k+1] = Util.addZero(new BigInteger(tupleBits-1, rnd).toString(2), tupleBits);
  			
  	// step 5
  	String[] sC_P_pp = SSOT.executeC(debbie, eddie, sC_a);
@@ -108,25 +108,24 @@ public class Eviction extends TreeOperation<String[], String[]> {
  	System.out.println("--- D: alpha_d: " + alpha1_d + " " + alpha2_d);
  	
  // step 3
- 	// the o here is the l in writeup
- 		int k = w * n;
+ 		int k = w * pathBuckets;
  		Integer[] beta = new Integer[k];
- 		for (int j=0; j<n; j++)
- 			for (int o=0; o<w; o++) {
- 				if (j == 0 && o == alpha1_j[0])
- 					beta[w*j+o] = k;
- 				else if (j == 0 && o == alpha2_j[0])
- 					beta[w*j+o] = k + 1;
- 				else if (1 <= j && j <= (d_i-1) && o == alpha1_j[j])
- 					beta[w*j+o] = w * (j-1) + alpha1_j[j-1];
- 				else if (1 <= j && j <= (d_i-1) && o == alpha2_j[j])
- 					beta[w*j+o] = w * (j-1) + alpha2_j[j-1];
- 				else if (j >= d_i && (w*(j-d_i)+o) == alpha1_d)
- 					beta[w*j+o] = w * (d_i-1) + alpha1_j[d_i-1];
- 				else if (j >= d_i && (w*(j-d_i)+o) == alpha2_d)
- 					beta[w*j+o] = w * (d_i-1) + alpha2_j[d_i-1];
+ 		for (int j=0; j<pathBuckets; j++)
+ 			for (int l=0; l<w; l++) {
+ 				if (j == 0 && l == alpha1_j[0])
+ 					beta[w*j+l] = k;
+ 				else if (j == 0 && l == alpha2_j[0])
+ 					beta[w*j+l] = k + 1;
+ 				else if (1 <= j && j <= (d_i-1) && l == alpha1_j[j])
+ 					beta[w*j+l] = w * (j-1) + alpha1_j[j-1];
+ 				else if (1 <= j && j <= (d_i-1) && l == alpha2_j[j])
+ 					beta[w*j+l] = w * (j-1) + alpha2_j[j-1];
+ 				else if (j >= d_i && (w*(j-d_i)+l) == alpha1_d)
+ 					beta[w*j+l] = w * (d_i-1) + alpha1_j[d_i-1];
+ 				else if (j >= d_i && (w*(j-d_i)+l) == alpha2_d)
+ 					beta[w*j+l] = w * (d_i-1) + alpha2_j[d_i-1];
  				else
- 					beta[w*j+o] = w * j + o;
+ 					beta[w*j+l] = w * j + l;
  			}
  		Integer[] I = beta;
  		//System.out.println("k: " + k);
@@ -157,11 +156,11 @@ public class Eviction extends TreeOperation<String[], String[]> {
     for (int j=0; j<d_i; j++) {
 		String sE_fb = "";
 		String sE_dir = "";
-		String sE_bucket = sE_P_p.substring(j*l, (j+1)*l);
-		for (int o=0; o<w; o++) {
-			String sE_tuple = sE_bucket.substring(o*tupleBitLength, (o+1)*tupleBitLength);
+		String sE_bucket = sE_P_p.substring(j*bucketBits, (j+1)*bucketBits);
+		for (int l=0; l<w; l++) {
+			String sE_tuple = sE_bucket.substring(l*tupleBits, (l+1)*tupleBits);
 			sE_fb += sE_tuple.substring(0, 1);
-			sE_dir += (Character.getNumericValue(sE_tuple.substring(1+ln, 1+ln+ll).charAt(j))^1^Character.getNumericValue(Li.charAt(j)));
+			sE_dir += (Character.getNumericValue(sE_tuple.substring(1+nBits, 1+nBits+lBits).charAt(j))^1^Character.getNumericValue(Li.charAt(j)));
 		}
 		String sE_input = "00" + sE_dir + sE_fb; // enable + dir + fb
 		GCF.executeE(charlie, debbie, "F2FT", w*2+2, sE_input);
@@ -169,25 +168,25 @@ public class Eviction extends TreeOperation<String[], String[]> {
     
  // step 2
  		String sE_fb = "00";
- 		for (int j=d_i; j<n; j++) {
- 			String sE_bucket = sE_P_p.substring(j*l, (j+1)*l);
- 			for (int o=0; o<w; o++) {
- 				sE_fb += sE_bucket.substring(o*tupleBitLength, o*tupleBitLength+1);
+ 		for (int j=d_i; j<pathBuckets; j++) {
+ 			String sE_bucket = sE_P_p.substring(j*bucketBits, (j+1)*bucketBits);
+ 			for (int l=0; l<w; l++) {
+ 				sE_fb += sE_bucket.substring(l*tupleBits, l*tupleBits+1);
  			}
  		}
  		GCF.executeE(charlie, debbie, "F2ET", w*expen+2, sE_fb);
  		
  	// step 3
- 			int k = w * n;
+ 			int k = w * pathBuckets;
  			
  			// step 4
  			String[] sE_a = new String[k+2];
- 			for (int j=0; j<n; j++)
- 				for (int o=0; o<w; o++) {
- 					sE_a[w*j+o] = sE_P_p.substring(j*l, (j+1)*l).substring(o*tupleBitLength, (o+1)*tupleBitLength);
+ 			for (int j=0; j<pathBuckets; j++)
+ 				for (int l=0; l<w; l++) {
+ 					sE_a[w*j+l] = sE_P_p.substring(j*bucketBits, (j+1)*bucketBits).substring(l*tupleBits, (l+1)*tupleBits);
  				}
  			sE_a[k] = sE_T_p;
- 			sE_a[k+1] = Util.addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength);
+ 			sE_a[k+1] = Util.addZero(new BigInteger(tupleBits-1, rnd).toString(2), tupleBits);
  			
  	// step 5
  	String[] sE_P_pp = SSOT.executeE(charlie, debbie, sE_a);
@@ -198,9 +197,9 @@ public class Eviction extends TreeOperation<String[], String[]> {
   @Override
   public String[] prepareArgs(Party party) {
     // Randomly generate a secret
-      String s_P_p   = Util.addZero(new BigInteger(n*l, rnd).toString(2), n*l);
-      String s_T_p   = Util.addZero(new BigInteger(tupleBitLength, rnd).toString(2), tupleBitLength);
-      String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll);
+      String s_P_p   = Util.addZero(new BigInteger(pathBuckets*bucketBits, rnd).toString(2), pathBuckets*bucketBits);
+      String s_T_p   = Util.addZero(new BigInteger(tupleBits, rnd).toString(2), tupleBits);
+      String Li = Util.addZero(new BigInteger(lBits, rnd).toString(2), lBits);
       
       return new String[]{s_P_p, s_T_p, Li};
   }
@@ -208,8 +207,8 @@ public class Eviction extends TreeOperation<String[], String[]> {
  @Override
  public void loadTreeSpecificParameters(int index) {
    super.loadTreeSpecificParameters(index);
-   if (i > 0)
-	   n = n/w;
+   //if (i > 0)
+	   //n = n/w;
  }
 
 }

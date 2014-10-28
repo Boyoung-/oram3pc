@@ -32,11 +32,11 @@ public class EncryptPath extends TreeOperation<EPath, String> {
     
     // step 2
     // party C
-    String[] secretC_B = new String[n];
-    String[] d = new String[n];
-    for (int j=0; j<n; j++) {
-      secretC_B[j] = secretC_P.substring(j*l, (j+1)*l);
-      d[j] = Util.addZero(new BigInteger(c[j], 2).xor(new BigInteger(secretC_B[j], 2)).toString(2), l);
+    String[] secretC_B = new String[pathBuckets];
+    String[] d = new String[pathBuckets];
+    for (int j=0; j<pathBuckets; j++) {
+      secretC_B[j] = secretC_P.substring(j*bucketBits, (j+1)*bucketBits);
+      d[j] = Util.addZero(new BigInteger(c[j], 2).xor(new BigInteger(secretC_B[j], 2)).toString(2), bucketBits);
     }
     // C sends d to E
     eddie.write(d);
@@ -55,11 +55,11 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       // party D
       //ECPoint y = oprf.getY();
       byte[] s = rnd.generateSeed(16);  // 128 bits
-      //BigInteger[] r = new BigInteger[n];
-      ECPoint[] x = new ECPoint[n];
-      ECPoint[] v = new ECPoint[n];
+      //BigInteger[] r = new BigInteger[pathBuckets];
+      ECPoint[] x = new ECPoint[pathBuckets];
+      ECPoint[] v = new ECPoint[pathBuckets];
       BigInteger r;
-      for (int j=0; j<n; j++) {
+      for (int j=0; j<pathBuckets; j++) {
         // This computation is repeated in oprf in some form
         r = oprf.randomExponent();
         x[j] = oprf.getG().multiply(r);
@@ -69,16 +69,16 @@ public class EncryptPath extends TreeOperation<EPath, String> {
         // x[j] = oprf.randomPoint();
         // v[j] = oprf.evaluate(x[j]).getResult();
       }
-      PRG G1 = new PRG(l*(n));
-      String a_all = G1.generateBitString(l*(n), s);
-      String[] a = new String[n];
-      String[] b = new String[n];
-      String[] c = new String[n];
-      for (int j=0; j<n; j++) {
-        a[j] = a_all.substring(j*l, (j+1)*l);
-        PRG G2 = new PRG(l); // non-fresh generated SecureRandom cannot guarantee determinism... (why???)
-        b[j] = G2.generateBitString(l, v[j]);
-        c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger(b[j], 2)).toString(2), l);
+      PRG G1 = new PRG(bucketBits*pathBuckets);
+      String a_all = G1.generateBitString(bucketBits*pathBuckets, s);
+      String[] a = new String[pathBuckets];
+      String[] b = new String[pathBuckets];
+      String[] c = new String[pathBuckets];
+      for (int j=0; j<pathBuckets; j++) {
+        a[j] = a_all.substring(j*bucketBits, (j+1)*bucketBits);
+        PRG G2 = new PRG(bucketBits); // non-fresh generated SecureRandom cannot guarantee determinism... (why???)
+        b[j] = G2.generateBitString(bucketBits, v[j]);
+        c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger(b[j], 2)).toString(2), bucketBits);
       }
       // D sends s and x to E
       // D sends c to C
@@ -110,19 +110,19 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       // step 3
       // party E
       // regeneration of a[]
-      PRG G1 = new PRG(l*(n));
-      String a_all = G1.generateBitString(l*(n), s);
-      String[] a = new String[n];
-      for (int j=0; j<n; j++) {
-        a[j] = a_all.substring(j*l, (j+1)*l);
+      PRG G1 = new PRG(bucketBits*(pathBuckets));
+      String a_all = G1.generateBitString(bucketBits*(pathBuckets), s);
+      String[] a = new String[pathBuckets];
+      for (int j=0; j<pathBuckets; j++) {
+        a[j] = a_all.substring(j*bucketBits, (j+1)*bucketBits);
       }
       // end generation of a[]
       
-      String[] secretE_B = new String[n];
-      String[] Bbar = new String[n];
-      for (int j=0; j<n; j++) {
-        secretE_B[j] = secretE_P.substring(j*l, (j+1)*l);
-        Bbar[j] = Util.addZero(new BigInteger(secretE_B[j], 2).xor(new BigInteger(a[j], 2)).xor(new BigInteger(d[j], 2)).toString(2), l);
+      String[] secretE_B = new String[pathBuckets];
+      String[] Bbar = new String[pathBuckets];
+      for (int j=0; j<pathBuckets; j++) {
+        secretE_B[j] = secretE_P.substring(j*bucketBits, (j+1)*bucketBits);
+        Bbar[j] = Util.addZero(new BigInteger(secretE_B[j], 2).xor(new BigInteger(a[j], 2)).xor(new BigInteger(d[j], 2)).toString(2), bucketBits);
       }
       
       // E outputs encrypted path
@@ -139,18 +139,21 @@ public class EncryptPath extends TreeOperation<EPath, String> {
  @Override
  public void loadTreeSpecificParameters(int index) {
    super.loadTreeSpecificParameters(index);
-   if (i > 0)
-	   n = n/w;
+   //if (i > 0)
+	   //n = n/w;
  }
 
   @Override
   public String prepareArgs() {
+	  /*
     int length;
     if (i == 0) {
-      length = l;
+      length = bucketBits;
     } else {
-      length = l * n;
+      length = bucketBits * pathBuckets;
     }
+    */
+	  int length = bucketBits * pathBuckets;
     return Util.addZero(new BigInteger(length, rnd).toString(2), length);
   }
 }

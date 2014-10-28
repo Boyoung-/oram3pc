@@ -67,12 +67,12 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 
       PRG G;
       try {
-        G = new PRG(l); // TODO: solve this non-deterministic problem
+        G = new PRG(bucketBits); // TODO: solve this non-deterministic problem
       } catch (NoSuchAlgorithmException e) {
         e.printStackTrace();
         return null;
       }
-      secretC_P[j] = G.generateBitString(l, res.getResult());
+      secretC_P[j] = G.generateBitString(bucketBits, res.getResult());
     }
     // C outputs secretC_P
     
@@ -84,12 +84,12 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
                                        BigInteger k, Tree unused1, EPath unused2) {
     OPRF oprf = OPRFHelper.getOPRF(false);
     
-    int length = 1;
-    if (i > 0)
-    	length = d_i+expen;
-    for (int j=0; j < length; j++) {
+    //int length = 1;
+    //if (i > 0)
+    	//length = d_i+expen;
+    for (int j=0; j < pathBuckets; j++) {
       Message msg = charlie.readMessage();
-      msg = oprf.evaluate(msg); // TODO: make use of the k
+      msg = oprf.evaluate(msg); // TODO: make use of the k?
       charlie.write(msg);
     }
     
@@ -131,7 +131,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     String[] Bbar = new String[Pbar.length];
     for (int j=0; j<Pbar.length; j++) {
     	x[j] = Util.byteArrayToECPoint(Pbar[j].getNonce());
-    	Bbar[j] = Util.addZero(new BigInteger(1, Pbar[j].getByteTuples()).toString(2), l);
+    	Bbar[j] = Util.addZero(new BigInteger(1, Pbar[j].getByteTuples()).toString(2), bucketBits);
     }
     ECPoint[] sigma_x = Util.permute(x, sigma);
     String[] secretE_P = Util.permute(Bbar, sigma);
@@ -147,8 +147,8 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
   @Override
   public void loadTreeSpecificParameters(int index) {
     super.loadTreeSpecificParameters(index);
-    if (i > 0)
-    	n = n/w;
+    //if (i > 0)
+    	//n = n/w;
   }
   @Override
   public EPath prepareArgs() {

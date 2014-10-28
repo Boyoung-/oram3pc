@@ -23,8 +23,8 @@ public class Access extends TreeOperation<AOutput, String> {
   public AOutput executeCharlieSubTree(Communication debbie, Communication eddie,
                                        String Li, Tree OT, String Nip1) {
     // prepare                                 
-    String Ni = Nip1.substring(0, ln);                         
-    String Nip1_pr = Nip1.substring(ln);
+    String Ni = Nip1.substring(0, nBits);                         
+    String Nip1_pr = Nip1.substring(nBits);
     
     // protocol
     // step 1
@@ -38,7 +38,7 @@ public class Access extends TreeOperation<AOutput, String> {
     //System.out.println("-----checking correctness-----");
     eddie.write(Ni);
     eddie.write(Li);
-    secretC_P = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
+    secretC_P = Util.addZero(new BigInteger(tupleBits*pathTuples, rnd).toString(2), tupleBits*pathTuples);
     eddie.write(secretC_P);
     //System.out.println("-----done with correctness----");
     //////////////////////// above are for checking correctness /////////////////////
@@ -46,12 +46,12 @@ public class Access extends TreeOperation<AOutput, String> {
     // step 3
     // party C and E
     int j_1 = 0; // i = 0 case; as the j_1 = 1 in the write up
-    String[] a = new String[n];
-    String[] c = new String[n];
+    String[] a = new String[pathTuples];
+    String[] c = new String[pathTuples];
     if (i > 0) {
-      for (int j=0; j<n; j++) {
-        a[j] = secretC_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln); // party C
-        c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2), 1+ln); // party C
+      for (int j=0; j<pathTuples; j++) {
+        a[j] = secretC_P.substring(j*tupleBits, j*tupleBits+1+nBits); // party C
+        c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2), 1+nBits); // party C
       }
       sanityCheck();
       j_1 = PET.executeCharlie(debbie, eddie, c);
@@ -63,7 +63,7 @@ public class Access extends TreeOperation<AOutput, String> {
     }
     
     // step 4
-    String fbar = Util.addZero("", ld); // i = 0 case
+    String fbar = Util.addZero("", aBits); // i = 0 case
     if (i > 0) {
       sanityCheck();
       fbar = AOT.executeC(debbie, eddie, j_1);
@@ -94,8 +94,8 @@ public class Access extends TreeOperation<AOutput, String> {
     if (i == 0)
       secretC_Aj1 = secretC_P;
     else
-      secretC_Aj1 = secretC_P.substring(j_1*tupleBitLength+1+ln+ll, (j_1+1)*tupleBitLength);
-    String Abar = Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).xor(new BigInteger(ybar, 2)).toString(2), ld);
+      secretC_Aj1 = secretC_P.substring(j_1*tupleBits+1+nBits+lBits, (j_1+1)*tupleBits);
+    String Abar = Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).xor(new BigInteger(ybar, 2)).toString(2), aBits);
     String d = "";
     String Lip1 = ""; // i = h case
     if (i < h) {
@@ -104,14 +104,14 @@ public class Access extends TreeOperation<AOutput, String> {
     else {
       d = Abar;
     }
-    String secretC_Ti = "1" + Ni + Li + Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).toString(2), ld);
+    String secretC_Ti = "1" + Ni + Li + Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).toString(2), aBits);
     if (i == 0)
-      secretC_Ti = Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).toString(2), ld);
+      secretC_Ti = Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).toString(2), aBits);
     String secretC_P_p = ""; // i = 0 case
     if (i > 0) {
-      int flipBit = 1 - Integer.parseInt(secretC_P.substring(j_1*tupleBitLength, j_1*tupleBitLength+1));
-      String newTuple = flipBit + Util.addZero(new BigInteger(tupleBitLength-1, rnd).toString(2), tupleBitLength-1);
-      secretC_P_p = secretC_P.substring(0, j_1*tupleBitLength) + newTuple + secretC_P.substring((j_1+1)*tupleBitLength);
+      int flipBit = 1 - Integer.parseInt(secretC_P.substring(j_1*tupleBits, j_1*tupleBits+1));
+      String newTuple = flipBit + Util.addZero(new BigInteger(tupleBits-1, rnd).toString(2), tupleBits-1);
+      secretC_P_p = secretC_P.substring(0, j_1*tupleBits) + newTuple + secretC_P.substring((j_1+1)*tupleBits);
     }
     
     //////////////////////// below are for checking correctness /////////////////////
@@ -124,11 +124,11 @@ public class Access extends TreeOperation<AOutput, String> {
     if (i > 0) {
       String [] b = eddie.readStringArray();
     
-      for (int o=0; o<n; o++)
+      for (int o=0; o<pathTuples; o++)
         if (b[o].equals(c[o]))
           System.out.println("  " + o + ":\tmatch");
     }
-    if (Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(secretE_Ti, 2)).toString(2), tupleBitLength)
+    if (Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(secretE_Ti, 2)).toString(2), tupleBits)
                                                                                                         .equals(T_i)){
       System.out.println("Ti: true");
     } else {
@@ -138,13 +138,13 @@ public class Access extends TreeOperation<AOutput, String> {
         System.out.println("Ti: " + T_i);
         System.out.println("secretC_Ti: " + secretC_Ti);
         System.out.println("secretE_Ti: " + secretE_Ti);
-        System.out.println("computed: " + Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(secretE_Ti, 2)).toString(2), tupleBitLength));
+        System.out.println("computed: " + Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(secretE_Ti, 2)).toString(2), tupleBits));
       }
     }
     if (i == 0)
       System.out.println("Lip1: " + T_i.substring(j_2*d_ip1, (j_2+1)*d_ip1).equals(Lip1));
     else if (i < h)
-      System.out.println("Lip1: " + T_i.substring(1+ln+ll).substring(j_2*d_ip1, (j_2+1)*d_ip1).equals(Lip1));
+      System.out.println("Lip1: " + T_i.substring(1+nBits+lBits).substring(j_2*d_ip1, (j_2+1)*d_ip1).equals(Lip1));
     System.out.println("----------- DONE -------------");
     //////////////////////// above are for checking correctness /////////////////////
     
@@ -164,7 +164,7 @@ public class Access extends TreeOperation<AOutput, String> {
     
     if (i > 0) {
       sanityCheck();
-      PET.executeDebbie(charlie, eddie, n);
+      PET.executeDebbie(charlie, eddie, pathTuples);
       // PET outputs j_1 for C
       
       sanityCheck();
@@ -201,15 +201,15 @@ public class Access extends TreeOperation<AOutput, String> {
     String Ni = charlie.readString();
     String Li = charlie.readString();
     String secretC_P = charlie.readString();    
-    String sigmaPath = Util.addZero(new BigInteger(tupleBitLength*n, rnd).toString(2), tupleBitLength*n);
-    String T_i = "1" + Ni + Li + Util.addZero(new BigInteger(ld, rnd).toString(2), ld);
+    String sigmaPath = Util.addZero(new BigInteger(tupleBits*pathTuples, rnd).toString(2), tupleBits*pathTuples);
+    String T_i = "1" + Ni + Li + Util.addZero(new BigInteger(aBits, rnd).toString(2), aBits);
     if (i == 0)
-    T_i = Util.addZero(new BigInteger(ld, rnd).toString(2), ld);
-    int test_j1 = rnd.nextInt(n);
-    sigmaPath = sigmaPath.substring(0, test_j1*tupleBitLength) + T_i + sigmaPath.substring((test_j1+1)*tupleBitLength);
+    T_i = Util.addZero(new BigInteger(aBits, rnd).toString(2), aBits);
+    int test_j1 = rnd.nextInt(pathTuples);
+    sigmaPath = sigmaPath.substring(0, test_j1*tupleBits) + T_i + sigmaPath.substring((test_j1+1)*tupleBits);
     if (i == 0)
     sigmaPath = T_i;            
-    secretE_P = Util.addZero(new BigInteger(sigmaPath, 2).xor(new BigInteger(secretC_P, 2)).toString(2), tupleBitLength*n);
+    secretE_P = Util.addZero(new BigInteger(sigmaPath, 2).xor(new BigInteger(secretC_P, 2)).toString(2), tupleBits*pathTuples);
     //System.out.println("-----done with correctness----");
     //////////////////////// above are for checking correctness /////////////////////
 
@@ -220,9 +220,9 @@ public class Access extends TreeOperation<AOutput, String> {
     if (i == 0) 
       y_all = secretE_P;
     else if (i < h)
-      y_all = Util.addZero(new BigInteger(ld, rnd).toString(2), ld);
+      y_all = Util.addZero(new BigInteger(aBits, rnd).toString(2), aBits);
     else // i = h
-      y_all = Util.addZero("", ld);
+      y_all = Util.addZero("", aBits);
     for (int o=0; o<twotaupow; o++) {
       y[o] = y_all.substring(o*d_ip1, (o+1)*d_ip1);
     }
@@ -237,10 +237,10 @@ public class Access extends TreeOperation<AOutput, String> {
     
     // step 3
     // party C and E
-    String[] b = new String[n];
+    String[] b = new String[pathTuples];
     if (i > 0) {
-      for (int j=0; j<n; j++) {
-        b[j] = secretE_P.substring(j*tupleBitLength, j*tupleBitLength+1+ln); // party E
+      for (int j=0; j<pathTuples; j++) {
+        b[j] = secretE_P.substring(j*tupleBits, j*tupleBits+1+nBits); // party E
       }
       sanityCheck();
       PET.executeEddie(charlie, debbie, b);
@@ -251,11 +251,11 @@ public class Access extends TreeOperation<AOutput, String> {
     // step 4
     // party E
     if (i > 0) {
-      String[] e = new String[n];
-      String[] f = new String[n];
-      for (int o=0; o<n; o++) {
-        e[o] = secretE_P.substring(o*tupleBitLength+1+ln+ll, (o+1)*tupleBitLength);
-        f[o] = Util.addZero(new BigInteger(e[o], 2).xor(new BigInteger(y_all, 2)).toString(2), ld);
+      String[] e = new String[pathTuples];
+      String[] f = new String[pathTuples];
+      for (int o=0; o<pathTuples; o++) {
+        e[o] = secretE_P.substring(o*tupleBits+1+nBits+lBits, (o+1)*tupleBits);
+        f[o] = Util.addZero(new BigInteger(e[o], 2).xor(new BigInteger(y_all, 2)).toString(2), aBits);
       }
       
       sanityCheck();
@@ -292,7 +292,7 @@ public class Access extends TreeOperation<AOutput, String> {
   public String prepareArgs() {
     // Nip1 
     // Note: Originally i=0 case has just tau. This should be fine since
-    // ln = i*tau, thus when i=0 ln = 0 and ln+tau = tau
-    return  Util.addZero(new BigInteger(ln+tau, rnd).toString(2), ln+tau); 
+    // nBits = i*tau, thus when i=0 nBits = 0 and nBits+tau = tau
+    return  Util.addZero(new BigInteger(nBits+tau, rnd).toString(2), nBits+tau); 
   }
 }

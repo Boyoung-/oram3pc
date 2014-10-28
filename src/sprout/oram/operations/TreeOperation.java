@@ -51,29 +51,42 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   int i;                            // tree index in the writeup
   int d_i;                          // # levels in this tree (excluding the root level)
   int d_ip1;                        // # levels in the next tree (excluding the root level)
-  int ln;                           // # N bits
-  int ll;                           // # L bits
-  int ld;                           // # data bits
-  int tupleBitLength;               // # tuple size (bits)
-  int l;                            // # bucket size (bits)
-  int n;                            // # tuples in one path
+  int nBits;
+  int lBits;
+  int aBits;
+  int tupleBits;
+  int bucketBits;
+  int pathBuckets;
+  int pathTuples;
+  //int ln;                           // # N bits
+  //int ll;                           // # L bits
+  //int ld;                           // # data bits
+  //int tupleBitLength;               // # tuple size (bits)
+  //int l;                            // # bucket size (bits)
+  //int n;                            // # tuples in one path
   
   public void loadTreeSpecificParameters(int index) {
     // TODO: Do these need to be accessed by all parties? If not we should separate them out.
-    i         		= index;          // tree index in the writeup
-    d_i       		= ForestMetadata.getLBits(i);                // # levels in this tree (excluding the root level)
+    i         		= index;									// tree index in the writeup
+    d_i       		= ForestMetadata.getLBits(i);				// # levels in this tree (excluding the root level)
     if (i == h)
       d_ip1     	= ForestMetadata.getABits(i) / twotaupow;
     else
       d_ip1     	= ForestMetadata.getLBits(i+1); 
-    ln        		= ForestMetadata.getNBits(i);              // # N bits
-    ll        		= d_i;                // # L bits
-    ld        		= ForestMetadata.getABits(i);        // # data bits
-    tupleBitLength  = ForestMetadata.getTupleBits(i);         // # tuple size (bits)
-    l       		= ForestMetadata.getBucketTupleBits(i);           // # bucket tuples' size (bits)
-    n       		= w * (d_i + expen);          // # tuples in one path
-    if (i == 0) 
-      n         = 1;
+    nBits      		= ForestMetadata.getNBits(i);				// # N bits
+    lBits      		= d_i;										// # L bits
+    aBits      		= ForestMetadata.getABits(i);				// # data bits
+    tupleBits		= ForestMetadata.getTupleBits(i);			// # tuple size (bits)
+    bucketBits 		= ForestMetadata.getBucketTupleBits(i);		// # bucket tuples' size (bits)
+    //n       		= w * (d_i + expen);						// # tuples in one path
+    if (i == 0) {
+    	pathBuckets	= 1;
+    	pathTuples	= 1;
+    }
+    else {
+    	pathBuckets	= d_i + expen;
+    	pathTuples	= pathBuckets * w;
+    }
   }
   
   public T execute(Party party, String Li, BigInteger k, Tree OT, V extraArgs) {
@@ -105,7 +118,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
       if (forest != null)
     	  OT = forest.getTree(i);
       this.loadTreeSpecificParameters(i);    
-      String Li = Util.addZero(new BigInteger(ll, rnd).toString(2), ll);    
+      String Li = Util.addZero(new BigInteger(lBits, rnd).toString(2), lBits);    
       
       T out = execute(party, Li, k, OT, prepareArgs(party));
       if (print_out && out!=null) System.out.println("Output i=" + i + " : \n" + out.toString());
