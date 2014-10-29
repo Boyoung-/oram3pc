@@ -1,7 +1,6 @@
 package sprout.crypto;
 
 import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.Cipher;
 
 import sprout.util.Util;
@@ -12,32 +11,23 @@ import java.security.SecureRandom;
 public class AES_PRF {
 
 	private Cipher cipher = null;
-	private IvParameterSpec IV = null; // initialization vector
-	private int l; // output bit length
+	private int l; 					// output bit length
 	
 	public AES_PRF(int l) throws Exception {
-		this.cipher = Cipher.getInstance("AES/CBC/NoPadding", "SunJCE");
-		this.IV = new IvParameterSpec("AAAAAAAAAAAAAAAA".getBytes("UTF-8"));
+		this.cipher = Cipher.getInstance("AES/ECB/NoPadding");
 		this.l = l;
 	}
 	
-	public AES_PRF(int l, byte[] IV) throws Exception {
-		if (IV.length != 16)
-			throw new Exception("Initialization vector length error");
-		
-		this.cipher = Cipher.getInstance("AES/CBC/NoPadding", "SunJCE");
-		this.IV = new IvParameterSpec(IV);
-		this.l = l;
-	}
-
-	public byte[] compute(byte[] input, byte[] key) throws Exception {
-		if (input.length > 8)
-			throw new Exception("input length error");
+	public void init(byte[] key) throws Exception {
 		if (key.length != 16)
 			throw new Exception("key length error");
-		
 		SecretKeySpec skey = new SecretKeySpec(key, "AES");
-		cipher.init(Cipher.ENCRYPT_MODE, skey, IV);
+		cipher.init(Cipher.ENCRYPT_MODE, skey);
+	}
+	
+	public byte[] compute(byte[] input) throws Exception {
+		if (input.length > 8)
+			throw new Exception("input length error");
 		
 		byte[] output = null;
 		if (l <= 128) {
@@ -114,7 +104,7 @@ public class AES_PRF {
 	public static void main(String [] args) {
 		try {
 			SecureRandom rnd = new SecureRandom();
-			for (int l=1; l<10000; l++) {
+			for (int l=1; l<5000; l++) {
 				System.out.println("Round: l=" + l);
 				AES_PRF f1 = new AES_PRF(l);
 				AES_PRF f2 = new AES_PRF(l);
@@ -122,15 +112,19 @@ public class AES_PRF {
 				rnd.nextBytes(k);
 				byte[] input = new byte[rnd.nextInt(8) + 1];
 				rnd.nextBytes(input);
-				byte[] output1 = f1.compute(input, k);
-				byte[] output2 = f2.compute(input, k);
+				f1.init(k);
+				f2.init(k);
+				byte[] output1 = f1.compute(input);
+				byte[] output2 = f2.compute(input);
 				for (int i=0; i<output2.length; i++) 
 					System.out.print(String.format("%02X", output2[i]));
 				System.out.println("");
 				boolean test1 = new BigInteger(1, output1).compareTo(new BigInteger(1, output2)) == 0;
 				boolean test2 = output1.length == (l + 7) / 8;
-				if (!test1 || !test2) 
+				if (!test1 || !test2) {
 					System.out.println("Fail: l=" + l + "  " + test1 + "  " + test2);
+					break;
+				}
 			}
 			System.out.println("done");
 			

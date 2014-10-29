@@ -36,9 +36,10 @@ public class AOT extends Operation {
     BigInteger alpha = BigInteger.valueOf(rnd.nextInt(N));
     BigInteger[] m_p = new BigInteger[N];
     try {
+  	  AES_PRF f = new AES_PRF(l);
+  	  f.init(k);
       for (int t=0; t<N; t++) {
-    	  AES_PRF f = new AES_PRF(l);
-    	  m_p[t] = new BigInteger(1, f.compute(BigInteger.valueOf(t).add(alpha).mod(BigInteger.valueOf(N)).toByteArray(), k)).xor(new BigInteger(m[t], 2));
+    	  m_p[t] = new BigInteger(1, f.compute(BigInteger.valueOf(t).add(alpha).mod(BigInteger.valueOf(N)).toByteArray())).xor(new BigInteger(m[t], 2));
       }
     } catch (Exception e){
       e.printStackTrace();
@@ -89,7 +90,8 @@ public class AOT extends Operation {
     // party D
     try {
     	AES_PRF f = new AES_PRF(l);
-    	BigInteger c = new BigInteger(1, f.compute(j_p.toByteArray(), k));
+    	f.init(k);
+    	BigInteger c = new BigInteger(1, f.compute(j_p.toByteArray()));
       // D sends c to C
       C.write(c);
     } catch (Exception e){
