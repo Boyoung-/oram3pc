@@ -1,10 +1,9 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 
 import sprout.communication.Communication;
-import sprout.crypto.WeakPRF;
+import sprout.crypto.AES_PRF;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.Party;
@@ -27,7 +26,8 @@ public class AOT extends Operation {
     
     // pre-computed input
     // party E
-    BigInteger k = new BigInteger(128, rnd); // is this right???
+    byte[] k = new byte[16];
+    rnd.nextBytes(k);
     // E sends k to D
     D.write(k);
     
@@ -37,10 +37,10 @@ public class AOT extends Operation {
     BigInteger[] m_p = new BigInteger[N];
     try {
       for (int t=0; t<N; t++) {
-          WeakPRF f = new WeakPRF(k, l);
-          m_p[t] = new BigInteger(f.compute(l, BigInteger.valueOf(t).add(alpha).mod(BigInteger.valueOf(N))), 2).xor(new BigInteger(m[t], 2));
+    	  AES_PRF f = new AES_PRF(l);
+    	  m_p[t] = new BigInteger(1, f.compute(BigInteger.valueOf(t).add(alpha).mod(BigInteger.valueOf(N)).toByteArray(), k)).xor(new BigInteger(m[t], 2));
       }
-    } catch (NoSuchAlgorithmException e){
+    } catch (Exception e){
       e.printStackTrace();
     }
     C.write(m_p);
@@ -79,7 +79,7 @@ public class AOT extends Operation {
     int l = E.readInt();
     
     // pre-computed input
-    BigInteger k = E.readBigInteger();
+    byte[] k = E.read();
     
     // step 2
     // C sends j_p to D
@@ -88,11 +88,11 @@ public class AOT extends Operation {
     // step 3
     // party D
     try {
-      WeakPRF f = new WeakPRF(k, l);
-      BigInteger c = new BigInteger(f.compute(l, j_p), 2);
+    	AES_PRF f = new AES_PRF(l);
+    	BigInteger c = new BigInteger(1, f.compute(j_p.toByteArray(), k));
       // D sends c to C
       C.write(c);
-    } catch (NoSuchAlgorithmException e){
+    } catch (Exception e){
       e.printStackTrace();
       System.out.println("Error occured, not completing AOT, C will block");
     }

@@ -1,6 +1,5 @@
 package sprout.crypto;
 
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.Cipher;
@@ -9,6 +8,11 @@ public class BlockCipher {
 
 	private Cipher cipher = null;
 	private IvParameterSpec IV = null;
+	
+	public BlockCipher(String mode, byte[] IV) throws Exception {
+		cipher = Cipher.getInstance(mode, "SunJCE");
+		this.IV = new IvParameterSpec(IV);
+	}
 
 	public BlockCipher(String mode, String IV) throws Exception {
 		cipher = Cipher.getInstance(mode, "SunJCE");
