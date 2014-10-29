@@ -96,7 +96,7 @@ public class AES_PRF {
 		byte[] index = BigInteger.valueOf(n+1).toByteArray();
 		System.arraycopy(index, 0, in, 8-index.length, index.length);
 		byte[] back = leq128(in, np);
-		byte[] output = new BigInteger(1, front).shiftLeft(np).and(new BigInteger(1, back)).toByteArray();
+		byte[] output = new BigInteger(1, front).shiftLeft(np).or(new BigInteger(1, back)).toByteArray();
 		
 		int outBytes = (l + 7) / 8;
 		if (output.length > outBytes)
@@ -110,10 +110,11 @@ public class AES_PRF {
 		return output;
 	}
 
+	// testing
 	public static void main(String [] args) {
 		try {
 			SecureRandom rnd = new SecureRandom();
-			for (int l=1; l<1000; l++) {
+			for (int l=1; l<10000; l++) {
 				System.out.println("Round: l=" + l);
 				AES_PRF f1 = new AES_PRF(l);
 				AES_PRF f2 = new AES_PRF(l);
