@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -419,6 +420,22 @@ public class Communication
     ECPoint w = readECPoint();
     
     return new sprout.crypto.oprf.Message(v,w);
+  }
+  
+  public void write(List<Integer> p) {
+	  write(p.size());
+	  for (int i : p) {
+		  write(i);
+	  }
+  }
+  
+  public List<Integer> readListInt() {
+	  int length = readInt();
+	  List<Integer> p = new ArrayList<Integer>();
+	  for (int i=0; i<length; i++) {
+		  p.add(readInt());
+	  }
+	  return p;
   }
   
   public void write(BigInteger[] bigs) {

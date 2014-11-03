@@ -9,16 +9,14 @@ import sprout.oram.Tree;
 import sprout.util.Util;
 
 public class Eviction extends TreeOperation<String[], String[]> {
+	
+	public Eviction() {
+		super(null, null);
+	}
 
   public Eviction(Communication con1, Communication con2) {
     super(con1, con2);
   }
-  
-  /*
-  public Eviction(Communication con1, Communication con2, ForestMetadata meta) {
-    super(con1, con2, meta);
-  }
-  */
 
   @Override
   public String[] executeCharlieSubTree(Communication debbie,

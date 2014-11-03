@@ -15,11 +15,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>> {
 
-	/*
-  Reshuffle(Communication con1, Communication con2, ForestMetadata metadata) {
-    super(con1, con2, metadata);
-  }
-  */
+	public Reshuffle() {
+		super(null, null);
+	}
+	
   public Reshuffle(Communication con1, Communication con2) {
     super(con1, con2);
   }
@@ -140,15 +139,6 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       secretE_pi_P += secretE_pi_P_arr[j];
     // E outputs secretE_pi_P
     return secretE_pi_P;
-  }
-
-  // Temporarily redefine n
-  // We probably want to eventually unify the meaning of n
-  @Override
-  public void loadTreeSpecificParameters(int index) {
-    super.loadTreeSpecificParameters(index);
-    //if (i > 0)
-    	//n = n/w;
   }
 
   @Override
