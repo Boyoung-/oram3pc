@@ -121,8 +121,10 @@ public class Tree
 		if (L.equals("") && index != 0)
 			throw new TreeException("Invalid L");
 		
-		if (L.equals(""))
+		if (L.equals("")) {
 			setBucketsOnPath(buckets, 0);
+			return;
+		}
 		setBucketsOnPath(buckets, new BigInteger(L, 2).longValue());
 	}
 	

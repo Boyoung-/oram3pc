@@ -36,7 +36,9 @@ public class Retrieve extends Operation {
 	  // TODO: add precomputation
 	  String secretC_Ti = AOut.secretC_Ti;
 	  String secretC_Li_p = Util.addZero(new BigInteger(ForestMetadata.getLBits(currTree), rnd).toString(2), ForestMetadata.getLBits(currTree));
-	  String secretC_Lip1_p = Util.addZero(new BigInteger(ForestMetadata.getLBits(currTree+1), rnd).toString(2), ForestMetadata.getLBits(currTree+1));
+	  String secretC_Lip1_p = null;
+	  if (currTree < ForestMetadata.getLevels()-1)
+		  secretC_Lip1_p = Util.addZero(new BigInteger(ForestMetadata.getLBits(currTree+1), rnd).toString(2), ForestMetadata.getLBits(currTree+1));
 	  String Lip1 = AOut.Lip1;
 	  String Nip1_pr = Nip1.substring(ForestMetadata.getNBits(currTree));
 	  PostProcessT ppt = new PostProcessT();
@@ -53,7 +55,9 @@ public class Retrieve extends Operation {
 	  // Eviction
 	  Eviction evict = new Eviction();
 	  evict.loadTreeSpecificParameters(currTree);
-	  String secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, null, new String[]{secretC_pi_P, secretC_P_p});
+	  String secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, null, new String[]{secretC_pi_P, secretC_Ti_p});
+	  if (currTree == 0)
+		  secretC_P_pp = secretC_Ti_p;
 	  
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath();
@@ -105,7 +109,9 @@ public class Retrieve extends Operation {
 	  // TODO: add precomputation
 	  String secretE_Ti = AOut.secretE_Ti;
 	  String secretE_Li_p = Util.addZero(new BigInteger(ForestMetadata.getLBits(currTree), rnd).toString(2), ForestMetadata.getLBits(currTree));
-	  String secretE_Lip1_p = Util.addZero(new BigInteger(ForestMetadata.getLBits(currTree+1), rnd).toString(2), ForestMetadata.getLBits(currTree+1));
+	  String secretE_Lip1_p = null;
+	  if (currTree < ForestMetadata.getLevels()-1)
+		  secretE_Lip1_p = Util.addZero(new BigInteger(ForestMetadata.getLBits(currTree+1), rnd).toString(2), ForestMetadata.getLBits(currTree+1));
 	  PostProcessT ppt = new PostProcessT();
 	  ppt.loadTreeSpecificParameters(currTree);
 	  String secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_Ti, secretE_Li_p, secretE_Lip1_p});
@@ -122,6 +128,8 @@ public class Retrieve extends Operation {
 	  Eviction evict = new Eviction();
 	  evict.loadTreeSpecificParameters(currTree);
 	  String secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_pi_P, secretE_Ti_p, Li});
+	  if (currTree == 0)
+		  secretE_P_pp = secretE_Ti_p;
 	  
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath();
@@ -148,7 +156,7 @@ public class Retrieve extends Operation {
   
   @Override
   public void run(Party party, Forest forest) throws ForestException {
-	  currTree = 1;
+	  currTree = 2;
 	  
     switch (party) {
     case Charlie: 

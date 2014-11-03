@@ -35,7 +35,9 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     String secretC_Lip1_p = extraArgs[2];
     String Lip1 = extraArgs[3];
     String Nip1_pr = extraArgs[4];
-    int Nip1_pr_int     = new BigInteger(Nip1_pr, 2).intValue();
+    int Nip1_pr_int = 0;
+    if (i < h)
+    	Nip1_pr_int = new BigInteger(Nip1_pr, 2).intValue();
     
     /*
     ////////////////////////below are for checking correctness /////////////////////
