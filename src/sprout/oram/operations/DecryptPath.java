@@ -29,12 +29,6 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     super(con1, con2);
   }
 
-  /*
-  public DecryptPath(Communication con1, Communication con2, ForestMetadata metadata) {
-    super(con1, con2, metadata);
-  }
-  */
-
   @Override
   public DPOutput executeCharlieSubTree(Communication debbie, Communication eddie,
                                         String Li, Tree unused1, EPath unused2) {
@@ -66,13 +60,11 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       
       Message msg2 = debbie.readMessage();
       msg2.setW(msg1.getW());
-      //ECPoint v = debbie.readECPoint();
-      //Message msg2 = new Message(v, msg1.getW());
       Message res = oprf.deblind(msg2);
 
       PRG G;
       try {
-        G = new PRG(bucketBits); // TODO: solve this non-deterministic problem
+        G = new PRG(bucketBits); // TODO: fresh PRG non-deterministic problem?
       } catch (NoSuchAlgorithmException e) {
         e.printStackTrace();
         return null;
@@ -82,8 +74,6 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // C outputs secretC_P
     
     return new DPOutput(secretC_P, null, null);
-    
-    //return null;
   }
   
   @Override
@@ -93,19 +83,10 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 	  // protocol
 	  // step 4
     OPRF oprf = OPRFHelper.getOPRF(false);
-    
-    //int length = 1;
-    //if (i > 0)
-    	//length = d_i+expen;
-    //System.out.println("--- D: pathbuckets: " + pathBuckets);
     for (int j=0; j < pathBuckets; j++) {
       Message msg = charlie.readMessage();
-    	//ECPoint v = charlie.readECPoint();
-    	//Message msg = new Message(v);
       msg = oprf.evaluate(msg); // TODO: make use of the k?
-      //System.out.println("--- D: msg.v: " + msg.getV());
       charlie.write(msg);
-      //charlie.write(msg.getV());
     }
     
     // D outputs nothing
@@ -127,7 +108,6 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // E retrieves encrypted path Pbar using Li
     Bucket[] Pbar = null;
 	try {
-		//System.out.println("--- E: Li: " + Li);
 		Pbar = OT.getBucketsOnPath(Li);
 	} catch (TreeException e) {
 		e.printStackTrace();
@@ -157,8 +137,6 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // E outputs sigma and secretE_P
     
     return new DPOutput(null, secretE_P, sigma);
-    
-    //return null;
   }
   
   @Override

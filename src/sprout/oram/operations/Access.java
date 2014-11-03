@@ -30,11 +30,12 @@ public class Access extends TreeOperation<AOutput, String> {
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
     DecryptPath dp = new DecryptPath();
     dp.loadTreeSpecificParameters(i);
-    DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, Li, null, null);  
-    /*
+    DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, Li, null, null); 
     String secretC_P = "";
     for (int j=0; j<DecOut.secretC_P.length; j++)
-    	secretC_P += DecOut.secretC_P[j];
+    	secretC_P += DecOut.secretC_P[j]; 
+    //System.out.println("secretC: " + secretC_P);
+    
     
     // step 3
     // party C and E
@@ -64,11 +65,12 @@ public class Access extends TreeOperation<AOutput, String> {
     }
     
     // step 5
-    int j_2 = new BigInteger(Nip1_pr, 2).intValue();
+    int j_2 = 0;
     String ybar_j2 = "";  // i = h case
     if (i < h) {
       // AOT(E, C, D)
       sanityCheck();
+      j_2 = new BigInteger(Nip1_pr, 2).intValue();
       ybar_j2 = AOT.executeC(debbie, eddie, j_2);
       // outputs ybar_j2 for C
     }
@@ -78,7 +80,7 @@ public class Access extends TreeOperation<AOutput, String> {
     String ybar = "";
     String zeros = Util.addZero("", d_ip1);
     for (int o=0; o<twotaupow; o++) {
-      if (o == j_2 && i < h)
+      if (i < h && o == j_2)
         ybar += ybar_j2;
       else // i = h case
         ybar += zeros;
@@ -110,8 +112,8 @@ public class Access extends TreeOperation<AOutput, String> {
     sanityCheck();
     // C outputs Lip1, secretC_Ti, secretC_P_p
     return new AOutput(Lip1, null, secretC_Ti, null, secretC_P_p, null, d);
-    */
-    return null;
+    
+    //return null;
   }
   
   @Override
@@ -126,7 +128,7 @@ public class Access extends TreeOperation<AOutput, String> {
     dp.executeDebbieSubTree(charlie, eddie, k, null, null);
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
-    /*
+    
     if (i > 0) {
     	// step 3
       sanityCheck();
@@ -148,7 +150,7 @@ public class Access extends TreeOperation<AOutput, String> {
     
     sanityCheck();
     //return new AOutput();
-     */
+     
     return null;
   }
   
@@ -161,13 +163,14 @@ public class Access extends TreeOperation<AOutput, String> {
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
 	DecryptPath dp = new DecryptPath();
 	dp.loadTreeSpecificParameters(i);
-    DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, OT, null);
-    /*
+    DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, OT, null); 
     String secretE_P = "";
     for (int j=0; j<DecOut.secretE_P.length; j++)
     	secretE_P += DecOut.secretE_P[j];
+    //System.out.println("secretE: " + secretE_P);
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
+   
     // step 2
     // party E
     String[] y = new String[twotaupow];
@@ -230,8 +233,8 @@ public class Access extends TreeOperation<AOutput, String> {
     sanityCheck();
     // E outputs secretE_Ti and secretE_P_p
     return new AOutput(null, DecOut.p, null, secretE_Ti, null, secretE_P_p, null);
-    */
-    return null;
+    
+    //return null;
   }
 
   @Override

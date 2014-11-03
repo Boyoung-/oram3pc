@@ -19,7 +19,9 @@ public class Retrieve extends Operation {
   public Integer executeCharlie(Communication debbie, Communication eddie, String Li, String Nip1) {
 	  Access access = new Access();
 	  access.loadTreeSpecificParameters(currTree);
-	  access.executeCharlieSubTree(debbie, eddie, Li, null, Nip1);
+	  AOutput AOut = access.executeCharlieSubTree(debbie, eddie, Li, null, Nip1);
+	  //System.out.println("Lip1: " + AOut.Lip1);
+	  //System.out.println("secretC_Ti: " + AOut.secretC_Ti);
 	  return 0;
   }
 
@@ -33,17 +35,18 @@ public class Retrieve extends Operation {
   public Integer executeEddie(Communication charlie, Communication debbie, Tree OT) {
 	  Access access = new Access();
 	  access.loadTreeSpecificParameters(currTree);
-	  access.executeEddieSubTree(charlie, debbie, OT, null);
+	  AOutput AOut = access.executeEddieSubTree(charlie, debbie, OT, null);
+	  //System.out.println("secretE_Ti: " + AOut.secretE_Ti);
 	  return 0;
   }
   
   @Override
   public void run(Party party, Forest forest) throws ForestException {
-	  currTree = 0;
+	  currTree = 2;
 	  
     switch (party) {
     case Charlie: 
-    	executeCharlie(con1, con2, "", "000");
+    	executeCharlie(con1, con2, "0011", "001001");
       break;
     case Debbie: 
     	executeDebbie(con1, con2, null);
