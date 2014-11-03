@@ -6,11 +6,14 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 
 import sprout.communication.Communication;
+import sprout.oram.Bucket;
+import sprout.oram.BucketException;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.Tree;
+import sprout.oram.TreeException;
 import sprout.util.Util;
 
 public class Retrieve extends Operation {
@@ -50,7 +53,12 @@ public class Retrieve extends Operation {
 	  // Eviction
 	  Eviction evict = new Eviction();
 	  evict.loadTreeSpecificParameters(currTree);
-	  evict.executeCharlieSubTree(debbie, eddie, null, null, new String[]{secretC_pi_P, secretC_P_p});
+	  String secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, null, new String[]{secretC_pi_P, secretC_P_p});
+	  
+	  // EncryptPath
+	  EncryptPath ep = new EncryptPath();
+	  ep.loadTreeSpecificParameters(currTree);
+	  ep.executeCharlieSubTree(debbie, eddie, null, null, secretC_P_pp);
 	  
 	  return 0;
   }
@@ -77,6 +85,11 @@ public class Retrieve extends Operation {
 	  Eviction evict = new Eviction();
 	  evict.loadTreeSpecificParameters(currTree);
 	  evict.executeDebbieSubTree(charlie, eddie, null, null, null);
+	  
+	  // EncryptPath
+	  EncryptPath ep = new EncryptPath();
+	  ep.loadTreeSpecificParameters(currTree);
+	  ep.executeDebbieSubTree(charlie, eddie, k, null, null);
 	  
 	  return 0;
   }
@@ -108,7 +121,27 @@ public class Retrieve extends Operation {
 	  // Eviction
 	  Eviction evict = new Eviction();
 	  evict.loadTreeSpecificParameters(currTree);
-	  String[] secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_pi_P, secretE_Ti_p, Li});
+	  String secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_pi_P, secretE_Ti_p, Li});
+	  
+	  // EncryptPath
+	  EncryptPath ep = new EncryptPath();
+	  ep.loadTreeSpecificParameters(currTree);
+	  EPath EPOut = ep.executeEddieSubTree(charlie, debbie, null, secretE_P_pp);
+	  
+	  // put EPOut back to tree
+	  Bucket[] buckets = new Bucket[EPOut.x.length];
+	  for (int j=0; j<EPOut.x.length; j++) {
+		  try {
+			buckets[j] = new Bucket(currTree, EPOut.x[j].getEncoded(), Util.rmSignBit(EPOut.Bbar[j].toByteArray()));
+		} catch (BucketException e) {
+			e.printStackTrace();
+		}
+	  }
+	  try {
+		OT.setBucketsOnPath(buckets, Li);
+	} catch (TreeException e) {
+		e.printStackTrace();
+	}
 	  
 	  return 0;
   }

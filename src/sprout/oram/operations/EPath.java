@@ -5,13 +5,17 @@ import java.util.Arrays;
 
 import org.bouncycastle.math.ec.ECPoint;
 
-import sprout.util.Util;
-
 public class EPath {
   ECPoint[] x;
-  String[] Bbar;
+  BigInteger[] Bbar;
   
-  EPath(ECPoint[] xx, String[] bb) {
+  EPath(ECPoint[] xx, BigInteger[] bb) {
+	  if (xx.length != bb.length)
+		try {
+			throw new Exception("Lengths not equal");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     x = xx.clone();
     Bbar = bb.clone();
   }
@@ -19,10 +23,10 @@ public class EPath {
   // random generation for testing purpose
   EPath(int n, int l) {
     x = new ECPoint[n];
-    Bbar = new String[n];
+    Bbar = new BigInteger[n];
     for (int i=0; i<n; i++) {
       x[i] = OPRFHelper.getOPRF().randomPoint();
-      Bbar[i] = Util.addZero(new BigInteger(l, TreeOperation.rnd).toString(2), l);
+      Bbar[i] = new BigInteger(l, TreeOperation.rnd);
     }
   }
   

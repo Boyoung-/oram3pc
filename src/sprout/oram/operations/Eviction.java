@@ -8,7 +8,7 @@ import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
-public class Eviction extends TreeOperation<String[], String[]> {
+public class Eviction extends TreeOperation<String, String[]> {
 	
 	public Eviction() {
 		super(null, null);
@@ -19,7 +19,7 @@ public class Eviction extends TreeOperation<String[], String[]> {
   }
 
   @Override
-  public String[] executeCharlieSubTree(Communication debbie,
+  public String executeCharlieSubTree(Communication debbie,
       Communication eddie, String unused1, Tree unused2, String[] extraArgs) {
 	  if (i == 0)
 		  return null;
@@ -66,12 +66,16 @@ public class Eviction extends TreeOperation<String[], String[]> {
  			
  	// step 5
  	String[] sC_P_pp = SSOT.executeC(debbie, eddie, sC_a);
-    
-    return sC_P_pp;
+ 	
+ 	String secretC_P_pp = "";
+ 	for (int j=0; j<sC_P_pp.length; j++)
+ 		secretC_P_pp += sC_P_pp[j];
+ 	
+    return secretC_P_pp;
   }
 
   @Override
-  public String[] executeDebbieSubTree(Communication charlie,
+  public String executeDebbieSubTree(Communication charlie,
       Communication eddie, BigInteger unused1, Tree unused2,
       String[] unused3) {
 	  if (i == 0)
@@ -140,7 +144,7 @@ public class Eviction extends TreeOperation<String[], String[]> {
   }
 
   @Override
-  public String[] executeEddieSubTree(Communication charlie,
+  public String executeEddieSubTree(Communication charlie,
       Communication debbie, Tree unused, String[] extraArgs) {
 	  if (i == 0)
 		  return null;
@@ -188,8 +192,12 @@ public class Eviction extends TreeOperation<String[], String[]> {
  			
  	// step 5
  	String[] sE_P_pp = SSOT.executeE(charlie, debbie, sE_a);
+ 	
+ 	String secretE_P_pp = "";
+ 	for (int j=0; j<sE_P_pp.length; j++)
+ 		secretE_P_pp += sE_P_pp[j];
     
-    return sE_P_pp;
+    return secretE_P_pp;
   }
 
   @Override
@@ -201,12 +209,5 @@ public class Eviction extends TreeOperation<String[], String[]> {
       
       return new String[]{s_P_p, s_T_p, Li};
   }
-  
- @Override
- public void loadTreeSpecificParameters(int index) {
-   super.loadTreeSpecificParameters(index);
-   //if (i > 0)
-	   //n = n/w;
- }
 
 }
