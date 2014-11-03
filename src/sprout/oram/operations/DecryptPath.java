@@ -87,6 +87,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
   public DPOutput executeDebbieSubTree(Communication charlie, Communication eddie,
                                        BigInteger k, Tree unused1, EPath unused2) {
     OPRF oprf = OPRFHelper.getOPRF(false);
+    //System.out.println("AAAAAAA: " + oprf.hasKey());
     
     //int length = 1;
     //if (i > 0)

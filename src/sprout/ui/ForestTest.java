@@ -68,10 +68,14 @@ public class ForestTest
 		// test forest generation
 		long start = System.currentTimeMillis();;
 		
-		Forest forest = new Forest();
+		//Forest forest = new Forest();
+		Forest forest = new Forest("files/forest.bin");
 		
 	    long end = System.currentTimeMillis();;
 	    System.out.println("Execution time: " + (end-start)/1000 + "s");
+	    
+	    //forest.printToFile("files/test2.txt");
+	    forest.printDecryptionToFile("files/test3.txt");
 		
 		// test get/set path
 		/*

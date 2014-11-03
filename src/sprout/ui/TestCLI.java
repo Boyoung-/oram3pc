@@ -21,8 +21,8 @@ public class TestCLI
 	public static final int DEFAULT_PORT = 8000;
 	public static final String DEFAULT_IP = "localhost";
 	public static final String DEFAULT_CONFIG_FILE = "config/newConfig.yaml";
-	public static final String DEFAULT_DB_FILE = "db.bin";
-	public static final String DEFAULT_DATA_FILE = "config/smallData.txt";
+	public static final String DEFAULT_DB_FILE = "files/forest.bin";
+	//public static final String DEFAULT_DATA_FILE = "config/smallData.txt";
 
 	public static void main(String[] args)
 	{
@@ -75,7 +75,7 @@ public class TestCLI
 			
 			String configFile = cmd.getOptionValue("config", DEFAULT_CONFIG_FILE);
 			String dbFile = cmd.getOptionValue("dbfile", DEFAULT_DB_FILE);
-			String dataFile = cmd.getOptionValue("datafile", DEFAULT_DATA_FILE);
+			//String dataFile = cmd.getOptionValue("datafile", DEFAULT_DATA_FILE);
 			boolean buildForest = false;
 			if (cmd.hasOption("build")) {
 			  buildForest = true;
@@ -136,7 +136,7 @@ public class TestCLI
 				charlieCon.write("Hello charlie, from eddie");
 				
 				try {
-          operationCtor.newInstance(charlieCon, debbieCon).run(Party.Eddie, configFile, dbFile, dataFile, buildForest);
+          operationCtor.newInstance(charlieCon, debbieCon).run(Party.Eddie, configFile, dbFile, buildForest);
         } catch (Exception e) {
           e.printStackTrace();
           System.out.println("Error in access exiting");
@@ -174,7 +174,7 @@ public class TestCLI
 				System.out.println("Charlie: " + charlieCon.readString());
 				
 				try {
-				  operationCtor.newInstance(charlieCon, eddieCon).run(Party.Debbie, configFile, dbFile, dataFile, buildForest);
+				  operationCtor.newInstance(charlieCon, eddieCon).run(Party.Debbie, configFile, dbFile, buildForest);
         } catch (Exception e) {
           e.printStackTrace();
           System.out.println("Error in access exiting");
@@ -218,7 +218,7 @@ public class TestCLI
 				System.out.println("Eddie: " + eddieCon.readString());
 				
 				try {
-				  operationCtor.newInstance(debbieCon, eddieCon).run(Party.Charlie, configFile, dbFile, dataFile, buildForest);
+				  operationCtor.newInstance(debbieCon, eddieCon).run(Party.Charlie, configFile, dbFile, buildForest);
         } catch (Exception e) {
           e.printStackTrace();
           System.out.println("Error exiting");
