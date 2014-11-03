@@ -50,7 +50,8 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // E sends sigma_x to C
     ECPoint[] sigma_x = eddie.readECPointArray();
     //System.out.println("--- D: sigma_x: " + sigma_x.length);
-    
+   
+   
     // step 4
     // party C and D run OPRF on C's input sigma_x and D's input k
     OPRF oprf = OPRFHelper.getOPRF();
@@ -81,13 +82,17 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // C outputs secretC_P
     
     return new DPOutput(secretC_P, null, null);
+    
+    //return null;
   }
   
   @Override
   public DPOutput executeDebbieSubTree(Communication charlie, Communication eddie,
                                        BigInteger k, Tree unused1, EPath unused2) {
+	  
+	  // protocol
+	  // step 4
     OPRF oprf = OPRFHelper.getOPRF(false);
-    //System.out.println("AAAAAAA: " + oprf.hasKey());
     
     //int length = 1;
     //if (i > 0)
@@ -104,8 +109,6 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     }
     
     // D outputs nothing
-    //DPOutput out = new DPOutput();
-    //return out;
     return null;
   }
   
@@ -117,6 +120,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // party C
     // C sends Li to E
     String Li = charlie.readString();    
+    
     
     // step 2
     // party E
@@ -131,6 +135,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 		e.printStackTrace();
 	}
     
+	
     // step 3   
     // party E
     // E sends sigma_x to C
@@ -152,15 +157,8 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // E outputs sigma and secretE_P
     
     return new DPOutput(null, secretE_P, sigma);
-  }
-  
-  // Temporarily redefine n for decrpyt
-  // We probably want to eventually unify the meaning of n
-  @Override
-  public void loadTreeSpecificParameters(int index) {
-    super.loadTreeSpecificParameters(index);
-    //if (i > 0)
-    	//n = n/w;
+    
+    //return null;
   }
   
   @Override

@@ -15,8 +15,8 @@ public class generateOPRFKeys {
     OPRF clientOprf = new OPRF(serverOprf.getPK());
     
     try {
-      serverOprf.save(publicFilename);
-      clientOprf.save(privateFilename);
+      serverOprf.save(privateFilename);
+      clientOprf.save(publicFilename);
       
     } catch (IOException e) {
       e.printStackTrace();

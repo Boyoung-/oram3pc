@@ -106,6 +106,8 @@ public class TestCLI
 			  operation = Eviction.class;
 			} else if (alg.equals("gcf")) {
 			  operation = GCF.class;
+			} else if (alg.equals("retrieve")) {
+			  operation = Retrieve.class;
 			} else {
 			  System.out.println("Method " + alg + " not supported");
 			  System.exit(-1);

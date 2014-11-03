@@ -8,20 +8,19 @@ import sprout.util.Util;
 
 // TODO: remove testing code
 public class Access extends TreeOperation<AOutput, String> {
+	
+	public Access() {
+		super(null, null);
+	}
   
   public Access(Communication con1, Communication con2) {
     super(con1, con2);
   }
   
-  /*
-  public Access(Communication con1, Communication con2, ForestMetadata metadata) {
-    super(con1, con2, metadata);
-  }
-  */
-  
   @Override
   public AOutput executeCharlieSubTree(Communication debbie, Communication eddie,
                                        String Li, Tree unused, String Nip1) {
+	  
     // prepare                                 
     String Ni = Nip1.substring(0, nBits);                         
     String Nip1_pr = Nip1.substring(nBits);
@@ -32,19 +31,10 @@ public class Access extends TreeOperation<AOutput, String> {
     DecryptPath dp = new DecryptPath();
     dp.loadTreeSpecificParameters(i);
     DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, Li, null, null);  
-    
+    /*
     String secretC_P = "";
     for (int j=0; j<DecOut.secretC_P.length; j++)
     	secretC_P += DecOut.secretC_P[j];
-    
-    ////////////////////////below are for checking correctness /////////////////////
-    //System.out.println("-----checking correctness-----");
-    eddie.write(Ni);
-    eddie.write(Li);
-    secretC_P = Util.addZero(new BigInteger(tupleBits*pathTuples, rnd).toString(2), tupleBits*pathTuples);
-    eddie.write(secretC_P);
-    //System.out.println("-----done with correctness----");
-    //////////////////////// above are for checking correctness /////////////////////
     
     // step 3
     // party C and E
@@ -117,45 +107,11 @@ public class Access extends TreeOperation<AOutput, String> {
       secretC_P_p = secretC_P.substring(0, j_1*tupleBits) + newTuple + secretC_P.substring((j_1+1)*tupleBits);
     }
     
-    //////////////////////// below are for checking correctness /////////////////////
-    System.out.println("---Correctness Test Results---");
-    
-    String secretE_Ti = eddie.readString();
-    String T_i = eddie.readString();
-    int test_j1 = eddie.readInt();
-    System.out.println("j1: " + test_j1 + " =? " + j_1);
-    if (i > 0) {
-      String [] b = eddie.readStringArray();
-    
-      for (int o=0; o<pathTuples; o++)
-        if (b[o].equals(c[o]))
-          System.out.println("  " + o + ":\tmatch");
-    }
-    if (Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(secretE_Ti, 2)).toString(2), tupleBits)
-                                                                                                        .equals(T_i)){
-      System.out.println("Ti: true");
-    } else {
-      System.out.println("Ti: false");
-      
-      if (test_j1 == j_1) {
-        System.out.println("Ti: " + T_i);
-        System.out.println("secretC_Ti: " + secretC_Ti);
-        System.out.println("secretE_Ti: " + secretE_Ti);
-        System.out.println("computed: " + Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(secretE_Ti, 2)).toString(2), tupleBits));
-      }
-    }
-    if (i == 0)
-      System.out.println("Lip1: " + T_i.substring(j_2*d_ip1, (j_2+1)*d_ip1).equals(Lip1));
-    else if (i < h)
-      System.out.println("Lip1: " + T_i.substring(1+nBits+lBits).substring(j_2*d_ip1, (j_2+1)*d_ip1).equals(Lip1));
-    System.out.println("----------- DONE -------------");
-    //////////////////////// above are for checking correctness /////////////////////
-    
     sanityCheck();
     // C outputs Lip1, secretC_Ti, secretC_P_p
     return new AOutput(Lip1, null, secretC_Ti, null, secretC_P_p, null, d);
-    
-    //return null;
+    */
+    return null;
   }
   
   @Override
@@ -165,12 +121,12 @@ public class Access extends TreeOperation<AOutput, String> {
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
-	    DecryptPath dp = new DecryptPath();
-	    dp.loadTreeSpecificParameters(i);
+	DecryptPath dp = new DecryptPath();
+	dp.loadTreeSpecificParameters(i);
     dp.executeDebbieSubTree(charlie, eddie, k, null, null);
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
-    
+    /*
     if (i > 0) {
     	// step 3
       sanityCheck();
@@ -192,6 +148,7 @@ public class Access extends TreeOperation<AOutput, String> {
     
     sanityCheck();
     //return new AOutput();
+     */
     return null;
   }
   
@@ -202,32 +159,15 @@ public class Access extends TreeOperation<AOutput, String> {
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
-	    DecryptPath dp = new DecryptPath();
-	    dp.loadTreeSpecificParameters(i);
+	DecryptPath dp = new DecryptPath();
+	dp.loadTreeSpecificParameters(i);
     DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, OT, null);
-    
+    /*
     String secretE_P = "";
     for (int j=0; j<DecOut.secretE_P.length; j++)
     	secretE_P += DecOut.secretE_P[j];
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
-    ////////////////////////below are for checking correctness /////////////////////
-    System.out.println("-----checking correctness-----");
-    String Ni = charlie.readString();
-    String Li = charlie.readString();
-    String secretC_P = charlie.readString();    
-    String sigmaPath = Util.addZero(new BigInteger(tupleBits*pathTuples, rnd).toString(2), tupleBits*pathTuples);
-    String T_i = "1" + Ni + Li + Util.addZero(new BigInteger(aBits, rnd).toString(2), aBits);
-    if (i == 0)
-    T_i = Util.addZero(new BigInteger(aBits, rnd).toString(2), aBits);
-    int test_j1 = rnd.nextInt(pathTuples);
-    sigmaPath = sigmaPath.substring(0, test_j1*tupleBits) + T_i + sigmaPath.substring((test_j1+1)*tupleBits);
-    if (i == 0)
-    sigmaPath = T_i;            
-    secretE_P = Util.addZero(new BigInteger(sigmaPath, 2).xor(new BigInteger(secretC_P, 2)).toString(2), tupleBits*pathTuples);
-    //System.out.println("-----done with correctness----");
-    //////////////////////// above are for checking correctness /////////////////////
-
     // step 2
     // party E
     String[] y = new String[twotaupow];
@@ -287,28 +227,11 @@ public class Access extends TreeOperation<AOutput, String> {
       // outputs ybar_j2 for C
     }
     
-    ////////////////////////below are for checking correctness /////////////////////
-    //System.out.println("Correctness Test Results");
-    charlie.write(secretE_Ti);
-    charlie.write(T_i);
-    charlie.write(test_j1);
-    if (i > 0) {
-      charlie.write(b);
-    }
-    ////////////////////////////////////////////////////////////////////////////////
-    
     sanityCheck();
     // E outputs secretE_Ti and secretE_P_p
     return new AOutput(null, DecOut.p, null, secretE_Ti, null, secretE_P_p, null);
-    
-    //return null;
-  }
-  
-  @Override
-  public void loadTreeSpecificParameters(int index) {
-    super.loadTreeSpecificParameters(index);
-    //if (i > 0)
-    	//n = n/w;
+    */
+    return null;
   }
 
   @Override

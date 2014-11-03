@@ -113,12 +113,13 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
     initializeMetadata();
     
     BigInteger k = OPRFHelper.getOPRF(party).getK();
-    for (int i=0; i<=h; i++) {
+    for (int i=0; i<=0; i++) {
       Tree OT = null;
       if (forest != null)
     	  OT = forest.getTree(i);
       this.loadTreeSpecificParameters(i);    
-      String Li = Util.addZero(new BigInteger(lBits, rnd).toString(2), lBits);    
+      String Li = Util.addZero(new BigInteger(lBits, rnd).toString(2), lBits);  
+      Li = "";
       
       T out = execute(party, Li, k, OT, prepareArgs(party));
       if (print_out && out!=null) System.out.println("Output i=" + i + " : \n" + out.toString());

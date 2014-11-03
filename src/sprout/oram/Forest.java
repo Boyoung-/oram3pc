@@ -166,25 +166,13 @@ public class Forest
 		}
 	}
 	
+	
 	// for testing
 	public void printDecryptionToFile(String filename) throws BucketException, TreeException, NoSuchAlgorithmException, IOException, TupleException 
 	{
 		OPRF oprf = OPRFHelper.getOPRF(false);
-		BigInteger k = null;
-		FileInputStream fin = new FileInputStream("keys/privateKey");
-	    ObjectInputStream ois = null;
-	    try {
-	      ois = new ObjectInputStream(fin);
-	      k = (BigInteger) ois.readObject();
-	      System.out.println("HHHHHHHHHHHHHHHH");
-	    } catch (ClassNotFoundException e) {
-	      throw new IOException("File contains invalid structure.", e);
-	    } finally {
-	      if (ois != null)
-	        ois.close();
-	    }
-		System.out.println("?????? k: " + k + " " + oprf.hasKey());
-		/*
+		BigInteger k = oprf.getK();
+		
 		for (int i=0; i<trees.size(); i++) {
 			Tree t = trees.get(i);
 			int bucketTupleBits = ForestMetadata.getBucketTupleBits(i);
@@ -201,8 +189,9 @@ public class Forest
 		}
 		
 		printToFile(filename);
-		*/
+		
 	}
+
 	
 	private void writeToFile() throws IOException
 	{
