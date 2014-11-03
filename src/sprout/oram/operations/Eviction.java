@@ -93,7 +93,7 @@ public class Eviction extends TreeOperation<String, String[]> {
  			alpha2_j[j] = GCFOutput.substring(2).indexOf('1', alpha1_j[j]+1);
  			while (alpha2_j[j] == -1 || alpha2_j[j] == alpha1_j[j])
  				alpha2_j[j] = rnd.nextInt(w);
- 			System.out.println("--- D: alpha_j: " + alpha1_j[j] + " " + alpha2_j[j]);
+ 			//System.out.println("--- D: alpha_j: " + alpha1_j[j] + " " + alpha2_j[j]);
  		}
  		
  	// step 2
@@ -107,7 +107,7 @@ public class Eviction extends TreeOperation<String, String[]> {
 			e.printStackTrace();
 		}
  	}
- 	System.out.println("--- D: alpha_d: " + alpha1_d + " " + alpha2_d);
+ 	//System.out.println("--- D: alpha_d: " + alpha1_d + " " + alpha2_d);
  	
  // step 3
  		int k = w * pathBuckets;

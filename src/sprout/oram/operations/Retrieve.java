@@ -19,26 +19,39 @@ import sprout.util.Util;
 public class Retrieve extends Operation {
 	
 	private int currTree;
+	private String[] sC_Li_p;
+	private String[] sE_Li_p;
 	
   public Retrieve(Communication con1, Communication con2) {
     super(con1, con2);
   }
+  
+  private void precomputation() {
+	  int levels = ForestMetadata.getLevels();
+	  sC_Li_p = new String[levels];
+	  sE_Li_p = new String[levels];
+	  for (int i=0; i<levels; i++) {
+		  int lBits = ForestMetadata.getLBits(i);
+		  sC_Li_p[i] = Util.addZero(new BigInteger(lBits, rnd).toString(2), lBits);
+		  sE_Li_p[i] = Util.addZero(new BigInteger(lBits, rnd).toString(2), lBits);
+	  }
+  }
 
-  public Integer executeCharlie(Communication debbie, Communication eddie, String Li, String Nip1) {
+  public String[] executeCharlie(Communication debbie, Communication eddie, String Li, String Nip1) {
 	  // Access
 	  Access access = new Access();
 	  access.loadTreeSpecificParameters(currTree);
 	  AOutput AOut = access.executeCharlieSubTree(debbie, eddie, Li, null, Nip1);
 	  //System.out.println("Lip1: " + AOut.Lip1);
 	  //System.out.println("secretC_Ti: " + AOut.secretC_Ti);
+	  String[] output = new String[]{AOut.Lip1, AOut.secretC_Ti};
 	  
 	  // PostProcessT
-	  // TODO: add precomputation
 	  String secretC_Ti = AOut.secretC_Ti;
-	  String secretC_Li_p = Util.addZero(new BigInteger(ForestMetadata.getLBits(currTree), rnd).toString(2), ForestMetadata.getLBits(currTree));
+	  String secretC_Li_p = sC_Li_p[currTree];
 	  String secretC_Lip1_p = null;
 	  if (currTree < ForestMetadata.getLevels()-1)
-		  secretC_Lip1_p = Util.addZero(new BigInteger(ForestMetadata.getLBits(currTree+1), rnd).toString(2), ForestMetadata.getLBits(currTree+1));
+		  secretC_Lip1_p = sC_Li_p[currTree+1];
 	  String Lip1 = AOut.Lip1;
 	  String Nip1_pr = Nip1.substring(ForestMetadata.getNBits(currTree));
 	  PostProcessT ppt = new PostProcessT();
@@ -64,10 +77,10 @@ public class Retrieve extends Operation {
 	  ep.loadTreeSpecificParameters(currTree);
 	  ep.executeCharlieSubTree(debbie, eddie, null, null, secretC_P_pp);
 	  
-	  return 0;
+	  return output;
   }
 
-  public Integer executeDebbie(Communication charlie, Communication eddie, BigInteger k) {
+  public void executeDebbie(Communication charlie, Communication eddie, BigInteger k) {
 	  // Access
 	  Access access = new Access();
 	  access.loadTreeSpecificParameters(currTree);
@@ -94,11 +107,9 @@ public class Retrieve extends Operation {
 	  EncryptPath ep = new EncryptPath();
 	  ep.loadTreeSpecificParameters(currTree);
 	  ep.executeDebbieSubTree(charlie, eddie, k, null, null);
-	  
-	  return 0;
   }
 
-  public Integer executeEddie(Communication charlie, Communication debbie, Tree OT, String Li) {
+  public void executeEddie(Communication charlie, Communication debbie, Tree OT, String Li) {
 	  // Access
 	  Access access = new Access();
 	  access.loadTreeSpecificParameters(currTree);
@@ -106,12 +117,11 @@ public class Retrieve extends Operation {
 	  //System.out.println("secretE_Ti: " + AOut.secretE_Ti);
 	  
 	  // PostProcessT
-	  // TODO: add precomputation
 	  String secretE_Ti = AOut.secretE_Ti;
-	  String secretE_Li_p = Util.addZero(new BigInteger(ForestMetadata.getLBits(currTree), rnd).toString(2), ForestMetadata.getLBits(currTree));
+	  String secretE_Li_p = sE_Li_p[currTree];
 	  String secretE_Lip1_p = null;
 	  if (currTree < ForestMetadata.getLevels()-1)
-		  secretE_Lip1_p = Util.addZero(new BigInteger(ForestMetadata.getLBits(currTree+1), rnd).toString(2), ForestMetadata.getLBits(currTree+1));
+		  secretE_Lip1_p = sE_Li_p[currTree+1];
 	  PostProcessT ppt = new PostProcessT();
 	  ppt.loadTreeSpecificParameters(currTree);
 	  String secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_Ti, secretE_Li_p, secretE_Lip1_p});
@@ -150,35 +160,44 @@ public class Retrieve extends Operation {
 	} catch (TreeException e) {
 		e.printStackTrace();
 	}
-	  
-	  return 0;
   }
   
   @Override
   public void run(Party party, Forest forest) throws ForestException {
-	  currTree = 2;
+	  precomputation();	  
+	  int h = ForestMetadata.getLevels() - 1;
+	  int tau = ForestMetadata.getTau();
+	  String N = Util.addZero(new BigInteger(h*tau, rnd).toString(2), h*tau);
+	  String Li = "";
 	  
-    switch (party) {
-    case Charlie: 
-    	if (currTree == 0)
-    		executeCharlie(con1, con2, "", "001");
-    	else if (currTree == 1)
-    		executeCharlie(con1, con2, "0", "001001");
-    	else
-    		executeCharlie(con1, con2, "0011", "001001");
-      break;
-    case Debbie: 
-    	executeDebbie(con1, con2, null);
-      break;
-    case Eddie: 
-    	if (currTree == 0)
-    		executeEddie(con1, con2, forest.getTree(currTree), "");
-    	else if (currTree == 1)
-    		executeEddie(con1, con2, forest.getTree(currTree), "0");
-    	else
-    		executeEddie(con1, con2, forest.getTree(currTree), "0011");
-      break;
-    }
+	  for (int i=0; i<= h; i++) {
+		  currTree = i;
+		  
+	    switch (party) {
+	    case Charlie: 
+	    	String Ni = N;
+	    	if (i < h-1) 
+	    		Ni = N.substring(0, (i+1)*tau);
+	    	con2.write(Li);
+	    	String[] outC = executeCharlie(con1, con2, Li, Ni);
+	    	Li = outC[0];
+	    	if (i == h) {
+	    		String D = outC[1].substring(outC[1].length()-ForestMetadata.getDataSize()*8);
+	    		int record = new BigInteger(D, 2).intValue();
+	    		int expected = new BigInteger(N, 2).intValue();
+	    		System.out.println("--- C: Record is: " + new BigInteger(D, 2));
+	    		System.out.println("--- C: Is record correct: " + (record == expected));
+	    	}
+	      break;
+	    case Debbie: 
+	    	executeDebbie(con1, con2, null);
+	      break;
+	    case Eddie: 
+	    	Li = con1.readString();
+	    	executeEddie(con1, con2, forest.getTree(currTree), Li);
+	      break;
+	    }
+	  }
   }
   
 }
