@@ -1,6 +1,8 @@
 package sprout.oram.operations;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -14,6 +16,7 @@ import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
+import sprout.oram.TupleException;
 import sprout.util.Util;
 
 public class Retrieve extends Operation {
@@ -57,13 +60,22 @@ public class Retrieve extends Operation {
 	  PostProcessT ppt = new PostProcessT();
 	  ppt.loadTreeSpecificParameters(currTree);
 	  String secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, Li, null, new String[]{secretC_Ti, secretC_Li_p, secretC_Lip1_p, Lip1, Nip1_pr});
+	  String secretE_Ti_p = eddie.readString();
+	  System.out.println("--- Ti' :" + new BigInteger(secretE_Ti_p, 2).xor(new BigInteger(secretC_Ti_p, 2)).toString(2));
+
 	  
 	  // Reshuffle
 	  String secretC_P_p = AOut.secretC_P_p;
+	  String secretE_P_p = eddie.readString();
+	  if (currTree > 0)
+		  System.out.println("--- P' :" + Util.addZero(new BigInteger(secretE_P_p, 2).xor(new BigInteger(secretC_P_p, 2)).toString(2), secretC_P_p.length()));
 	  Reshuffle rs = new Reshuffle();
 	  rs.loadTreeSpecificParameters(currTree);
 	  List<Integer> tmp = null;
 	  String secretC_pi_P = rs.executeCharlieSubTree(debbie, eddie, null, null, Pair.of(secretC_P_p, tmp));
+	  String secretE_pi_P = eddie.readString();
+	  if (currTree > 0)
+		  System.out.println("--- P' :" + Util.addZero(new BigInteger(secretE_pi_P, 2).xor(new BigInteger(secretC_pi_P, 2)).toString(2), secretC_pi_P.length()));
 	  
 	  // Eviction
 	  Eviction evict = new Eviction();
@@ -71,6 +83,8 @@ public class Retrieve extends Operation {
 	  String secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, null, new String[]{secretC_pi_P, secretC_Ti_p});
 	  if (currTree == 0)
 		  secretC_P_pp = secretC_Ti_p;
+	  String secretE_P_pp = eddie.readString();
+	  System.out.println("--- P'' :" + Util.addZero(new BigInteger(secretE_P_pp, 2).xor(new BigInteger(secretC_P_pp, 2)).toString(2), secretC_P_pp.length()));
 	  
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath();
@@ -125,14 +139,17 @@ public class Retrieve extends Operation {
 	  PostProcessT ppt = new PostProcessT();
 	  ppt.loadTreeSpecificParameters(currTree);
 	  String secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_Ti, secretE_Li_p, secretE_Lip1_p});
+	  charlie.write(secretE_Ti_p);
 	  
 	  // Reshuffle
 	  String secretE_P_p = AOut.secretE_P_p;
+	  charlie.write(secretE_P_p);
 	  List<Integer> pi = Util.getInversePermutation(AOut.p);
 	  debbie.write(pi); // make sure D gets this pi
 	  Reshuffle rs = new Reshuffle();
 	  rs.loadTreeSpecificParameters(currTree);
 	  String secretE_pi_P = rs.executeEddieSubTree(charlie, debbie, null, Pair.of(secretE_P_p, pi));
+	  charlie.write(secretE_pi_P);
 	  
 	  // Eviction
 	  Eviction evict = new Eviction();
@@ -140,7 +157,8 @@ public class Retrieve extends Operation {
 	  String secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_pi_P, secretE_Ti_p, Li});
 	  if (currTree == 0)
 		  secretE_P_pp = secretE_Ti_p;
-	  
+	  charlie.write(secretE_P_pp);
+
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath();
 	  ep.loadTreeSpecificParameters(currTree);
@@ -164,39 +182,49 @@ public class Retrieve extends Operation {
   
   @Override
   public void run(Party party, Forest forest) throws ForestException {
-	  precomputation();	  
 	  int h = ForestMetadata.getLevels() - 1;
 	  int tau = ForestMetadata.getTau();
 	  String N = Util.addZero(new BigInteger(h*tau, rnd).toString(2), h*tau);
 	  String Li = "";
 	  
-	  for (int i=0; i<= h; i++) {
-		  currTree = i;
-		  
-	    switch (party) {
-	    case Charlie: 
-	    	String Ni = N;
-	    	if (i < h-1) 
-	    		Ni = N.substring(0, (i+1)*tau);
-	    	con2.write(Li);
-	    	String[] outC = executeCharlie(con1, con2, Li, Ni);
-	    	Li = outC[0];
-	    	if (i == h) {
-	    		String D = outC[1].substring(outC[1].length()-ForestMetadata.getDataSize()*8);
-	    		int record = new BigInteger(D, 2).intValue();
-	    		int expected = new BigInteger(N, 2).intValue();
-	    		System.out.println("--- C: Record is: " + new BigInteger(D, 2));
-	    		System.out.println("--- C: Is record correct: " + (record == expected));
-	    	}
-	      break;
-	    case Debbie: 
-	    	executeDebbie(con1, con2, null);
-	      break;
-	    case Eddie: 
-	    	Li = con1.readString();
-	    	executeEddie(con1, con2, forest.getTree(currTree), Li);
-	      break;
-	    }
+	  for (int exec=0; exec<100; exec++) {
+		  precomputation();
+		  for (int i=0; i<= h; i++) {
+			  currTree = i;
+			  
+		    switch (party) {
+		    case Charlie: 
+		    	String Ni = N;
+		    	if (i < h-1) 
+		    		Ni = N.substring(0, (i+1)*tau);
+		    	System.out.println("exec=" + exec + ", i=" + i + ", Li=" + Li);
+		    	con2.write(Li);
+		    	String[] outC = executeCharlie(con1, con2, Li, Ni);
+		    	Li = outC[0];
+		    	if (i == h) {
+		    		String D = outC[1].substring(outC[1].length()-ForestMetadata.getDataSize()*8);
+		    		int record = new BigInteger(D, 2).intValue();
+		    		int expected = new BigInteger(N, 2).intValue();
+		    		System.out.println("C: Record is: " + new BigInteger(D, 2));
+		    		System.out.println("C: Is record correct: " + (record == expected) + "\n");
+		    	}
+		      break;
+		    case Debbie: 
+		    	executeDebbie(con1, con2, null);
+		      break;
+		    case Eddie: 
+		    	Li = con1.readString();
+		    	executeEddie(con1, con2, forest.getTree(currTree), Li);
+		    	if (false && i == h)
+					try {
+						forest.printDecryptionToFile("files/exec" + Util.addZero(exec+"", 3) + ".txt");
+					} catch (NoSuchAlgorithmException | BucketException
+							| TreeException | IOException | TupleException e) {
+						e.printStackTrace();
+					}
+		      break;
+		    }
+		  }
 	  }
   }
   

@@ -170,8 +170,10 @@ public class Forest
 	// for testing
 	public void printDecryptionToFile(String filename) throws BucketException, TreeException, NoSuchAlgorithmException, IOException, TupleException 
 	{
+		File file = new File(filename);
 		OPRF oprf = OPRFHelper.getOPRF(false);
 		BigInteger k = oprf.getK();
+		int w = ForestMetadata.getBucketDepth();
 		
 		for (int i=0; i<trees.size(); i++) {
 			Tree t = trees.get(i);
@@ -184,11 +186,14 @@ public class Forest
 				BigInteger mask = new BigInteger(G.generateBitString(bucketTupleBits, v), 2);
 				BigInteger ptext = new BigInteger(1, bucket.getByteTuples()).xor(mask);
 				bucket.setBucket(new byte[0], Util.rmSignBit(ptext.toByteArray()));
-				t.setBucket(bucket, j);
+				if (i == 0)
+					FileUtils.writeStringToFile(file, bucket.getTuple(0) + "\n");
+				else
+					for (int o=0; o<w; o++) {
+						FileUtils.writeStringToFile(file, bucket.getTuple(o).toString() + "\n", true);
+					}
 			}
 		}
-		
-		printToFile(filename);
 		
 	}
 

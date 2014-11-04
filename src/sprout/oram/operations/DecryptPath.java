@@ -122,7 +122,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     List<Integer> sigma = new ArrayList<Integer>();   
     for (int j=0; j<Pbar.length; j++)
       sigma.add(j);
-    Collections.shuffle(sigma, rnd); 
+    Collections.shuffle(sigma, rnd);
     
     ECPoint[] x = new ECPoint[Pbar.length];
     String[] Bbar = new String[Pbar.length];
