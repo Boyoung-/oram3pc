@@ -1,8 +1,6 @@
 package sprout.oram.operations;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -16,7 +14,6 @@ import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
-import sprout.oram.TupleException;
 import sprout.util.Util;
 
 public class Retrieve extends Operation {
