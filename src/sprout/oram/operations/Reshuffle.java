@@ -63,7 +63,6 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       Communication eddie, BigInteger k, Tree OT,
       Pair<String, List<Integer>> extraArgs) {
     List<Integer> pi = extraArgs.getRight();
-    Util.printListH(pi);
     
     // i = 0 case: no shuffle needed
     if (i == 0) {
@@ -95,7 +94,6 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       // D sends s2 to E
       charlie.write(secretC_pi_P);
       eddie.write(s2);
-      eddie.write(secretC_pi_P);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -107,7 +105,6 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       Communication debbie, Tree OT, Pair<String, List<Integer>> extraArgs) {
     String secretE_P = extraArgs.getLeft();
     List<Integer> pi = extraArgs.getRight();
-    Util.printListH(pi);
     
     // i = 0 case: no shuffle needed
     if (i == 0) {
@@ -142,9 +139,6 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     for (int j=0; j<pathBuckets; j++)
       secretE_pi_P += secretE_pi_P_arr[j];
     // E outputs secretE_pi_P
-    
-    String secretC_pi_P = debbie.readString();
-    System.out.println("PPPPP' :" + Util.addZero(new BigInteger(secretE_pi_P, 2).xor(new BigInteger(secretC_pi_P, 2)).toString(2), secretC_pi_P.length()));
     return secretE_pi_P;
   }
 

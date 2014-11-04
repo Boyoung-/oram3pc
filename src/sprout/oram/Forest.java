@@ -1,9 +1,7 @@
 package sprout.oram;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -29,15 +27,19 @@ public class Forest
 	
 	private String defaultFile = "files/forest.bin";
 	
+	private void initTrees() {
+		int levels = ForestMetadata.getLevels();
+		trees = new ArrayList<Tree>();
+		for (int i=0; i<levels; i++)
+			trees.add(new Tree(i));
+	}
+	
 	public Forest(String filename) throws Exception
 	{
 		if (!ForestMetadata.getStatus())
 			throw new ForestException("ForestMetadata is not setup");
 		
-		int levels = ForestMetadata.getLevels();
-		trees = new ArrayList<Tree>();
-		for (int i=0; i<levels; i++)
-			trees.add(new Tree(i));
+		initTrees();
 		
 		readFromFile(filename);
 	}
@@ -140,11 +142,11 @@ public class Forest
 		
 		Util.disp("");
 		
-		printToFile("files/test1.txt");
+		//printToFile("files/test1.txt");
 		
 		encryptForest();
 		
-		printToFile("files/test2.txt");
+		//printToFile("files/test2.txt");
 		
 		writeToFile();
 	}

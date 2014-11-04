@@ -83,8 +83,8 @@ public class Eviction extends TreeOperation<String, String[]> {
     
     // protocol
  		// step 1
- 		int[] alpha1_j = new int[w];
- 		int[] alpha2_j = new int[w];
+ 		int[] alpha1_j = new int[d_i];
+ 		int[] alpha2_j = new int[d_i];
  		for (int j=0; j<d_i; j++) {
  			String GCFOutput = GCF.executeD(charlie, eddie, "F2FT", w*2+2);
  			alpha1_j[j] = GCFOutput.substring(2).indexOf('1');
