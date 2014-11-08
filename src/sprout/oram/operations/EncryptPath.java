@@ -12,19 +12,17 @@ import sprout.util.Util;
 
 public class EncryptPath extends TreeOperation<EPath, String> {
 
-	/*
-  EncryptPath(Communication con1, Communication con2, ForestMetadata metadata) {
-    super(con1, con2, metadata);
-  }
-  */
+	public EncryptPath() {
+		super(null, null);
+	}
 	
   public EncryptPath(Communication con1, Communication con2) {
     super(con1, con2);
   }
 
   @Override
-  public EPath executeCharlieSubTree(Communication debbie,
-      Communication eddie, String Li, Tree OT, String secretC_P) {
+  public EPath executeCharlieSubTree(Communication debbie, Communication eddie, 
+		  String unused1, Tree unused2, String secretC_P) {
     // Step 1
     // D sends s and x to E
     // D sends c to C
@@ -45,9 +43,8 @@ public class EncryptPath extends TreeOperation<EPath, String> {
   }
 
   @Override
-  public EPath executeDebbieSubTree(Communication charlie,
-      Communication eddie, BigInteger k, Tree OT,
-      String unused) {
+  public EPath executeDebbieSubTree(Communication charlie, Communication eddie, 
+		  BigInteger k, Tree unused1, String unused2) {
     try {
       OPRF oprf = OPRFHelper.getOPRF(false);
       // protocol
@@ -94,8 +91,8 @@ public class EncryptPath extends TreeOperation<EPath, String> {
   }
 
   @Override
-  public EPath executeEddieSubTree(Communication charlie,
-      Communication debbie, Tree OT, String secretE_P) {
+  public EPath executeEddieSubTree(Communication charlie, Communication debbie, 
+		  Tree unused, String secretE_P) {
     try {
       // Step 1
       // D sends s and x to E
@@ -119,10 +116,10 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       // end generation of a[]
       
       String[] secretE_B = new String[pathBuckets];
-      String[] Bbar = new String[pathBuckets];
+      BigInteger[] Bbar = new BigInteger[pathBuckets];
       for (int j=0; j<pathBuckets; j++) {
         secretE_B[j] = secretE_P.substring(j*bucketBits, (j+1)*bucketBits);
-        Bbar[j] = Util.addZero(new BigInteger(secretE_B[j], 2).xor(new BigInteger(a[j], 2)).xor(new BigInteger(d[j], 2)).toString(2), bucketBits);
+        Bbar[j] = new BigInteger(secretE_B[j], 2).xor(new BigInteger(a[j], 2)).xor(new BigInteger(d[j], 2));
       }
       
       // E outputs encrypted path
@@ -133,26 +130,9 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       return null;
     }
   }
-  
-  //Temporarily redefine n
-  // We probably want to eventually unify the meaning of n
- @Override
- public void loadTreeSpecificParameters(int index) {
-   super.loadTreeSpecificParameters(index);
-   //if (i > 0)
-	   //n = n/w;
- }
 
   @Override
   public String prepareArgs() {
-	  /*
-    int length;
-    if (i == 0) {
-      length = bucketBits;
-    } else {
-      length = bucketBits * pathBuckets;
-    }
-    */
 	  int length = bucketBits * pathBuckets;
     return Util.addZero(new BigInteger(length, rnd).toString(2), length);
   }

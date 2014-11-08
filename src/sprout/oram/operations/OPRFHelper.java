@@ -18,11 +18,11 @@ public class OPRFHelper {
   public static OPRF getOPRF(Party party) {
     switch (party) {
     case Charlie:
-      return getOPRF(generateOPRFKeys.privateFilename);
-    case Debbie:
       return getOPRF(generateOPRFKeys.publicFilename);
-    case Eddie:
+    case Debbie:
       return getOPRF(generateOPRFKeys.privateFilename);
+    case Eddie:
+      return getOPRF(generateOPRFKeys.publicFilename);
     }
     
     return null;

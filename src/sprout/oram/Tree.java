@@ -94,6 +94,13 @@ public class Tree
 	
 	public Bucket[] getBucketsOnPath(String L) throws TreeException, BucketException
 	{
+		if (L == null)
+			throw new TreeException("L is null");
+		if (L.equals("") && index != 0)
+			throw new TreeException("Invalid L");
+		
+		if (L.equals(""))
+			return getBucketsOnPath(0);
 		return getBucketsOnPath(new BigInteger(L, 2).longValue());
 	}
 	
@@ -109,6 +116,15 @@ public class Tree
 	
 	public void setBucketsOnPath(Bucket[] buckets, String L) throws TreeException
 	{
+		if (L == null)
+			throw new TreeException("L is null");
+		if (L.equals("") && index != 0)
+			throw new TreeException("Invalid L");
+		
+		if (L.equals("")) {
+			setBucketsOnPath(buckets, 0);
+			return;
+		}
 		setBucketsOnPath(buckets, new BigInteger(L, 2).longValue());
 	}
 	

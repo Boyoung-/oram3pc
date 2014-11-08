@@ -15,11 +15,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>> {
 
-	/*
-  Reshuffle(Communication con1, Communication con2, ForestMetadata metadata) {
-    super(con1, con2, metadata);
-  }
-  */
+	public Reshuffle() {
+		super(null, null);
+	}
+	
   public Reshuffle(Communication con1, Communication con2) {
     super(con1, con2);
   }
@@ -78,10 +77,11 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       
       // step 2
       // party D
-      PRG G = new PRG(pathBuckets*bucketBits);
-      String p1 = G.generateBitString(pathBuckets*bucketBits, s1);
+      PRG G1 = new PRG(pathBuckets*bucketBits);
+      String p1 = G1.generateBitString(pathBuckets*bucketBits, s1);
       byte[] s2 = rnd.generateSeed(16);
-      String p2 = G.generateBitString(pathBuckets*bucketBits, s2);
+      PRG G2 = new PRG(pathBuckets*bucketBits); // TODO: same issue: non-fresh -> non-deterministic
+      String p2 = G2.generateBitString(pathBuckets*bucketBits, s2);
       String a_all = Util.addZero(new BigInteger(p1, 2).xor(new BigInteger(p2, 2)).toString(2), pathBuckets*bucketBits);
       String[] a = new String[pathBuckets];
       for (int j=0; j<pathBuckets; j++)
@@ -140,15 +140,6 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       secretE_pi_P += secretE_pi_P_arr[j];
     // E outputs secretE_pi_P
     return secretE_pi_P;
-  }
-
-  // Temporarily redefine n
-  // We probably want to eventually unify the meaning of n
-  @Override
-  public void loadTreeSpecificParameters(int index) {
-    super.loadTreeSpecificParameters(index);
-    //if (i > 0)
-    	//n = n/w;
   }
 
   @Override

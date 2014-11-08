@@ -56,19 +56,19 @@ public abstract class Operation {
   // Even though many operations don't rely on the existance of a forest, we include it here to have a 
   //  unifying api
   public void run(Party party) throws ForestException {
-    run(party, "config/newConfig.yaml", "config/smallData.txt", "db.bin", false);
+    run(party, "config/newConfig.yaml", "files/forest.bin", false);
   }
   public void run(Party party, String configFile, String dbFile) throws ForestException {
-    run(party, configFile, dbFile, null, false);
+    run(party, configFile, dbFile, false);
   }
-  public void run(Party party, String configFile, String dbFile, String dataFile, boolean build) throws ForestException {
+  public void run(Party party, String configFile, String dbFile, boolean build) throws ForestException {
+	  /*
     if (build && (dataFile == null || !(new File(dataFile)).exists())) {
       throw new IllegalArgumentException("Must supply a data file to build the database");
     } else if (!build && !(new File(dbFile)).exists()) {
       throw new IllegalArgumentException("DB file does not exist " + dbFile);
     }
     
-    /*
     Forest forest = new Forest();
     try {
       if (build) {
@@ -85,6 +85,10 @@ public abstract class Operation {
       return;
     }
     */
+	  
+	if (!build && !(new File(dbFile)).exists()) {
+	      throw new IllegalArgumentException("DB file does not exist " + dbFile);
+	    }
     
 	try {
 		ForestMetadata.setup(configFile);
@@ -98,6 +102,13 @@ public abstract class Operation {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	else { // TODO: not every party/protocol need to load forest
+		try {
+			forest = new Forest(dbFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
     
     run(party, forest);
   }

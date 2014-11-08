@@ -1,5 +1,6 @@
 package sprout.oram;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -7,6 +8,8 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.commons.io.FileUtils;
+import org.bouncycastle.asn1.nist.NISTNamedCurves;
 import org.bouncycastle.math.ec.ECPoint;
 
 import sprout.crypto.PRG;
@@ -21,6 +24,25 @@ public class Forest
 	private static ArrayList<Tree> trees;	
 	private static byte[] data; // keep all data in memory for testing now
 								// TODO: write large data to disk
+	
+	private String defaultFile = "files/forest.bin";
+	
+	private void initTrees() {
+		int levels = ForestMetadata.getLevels();
+		trees = new ArrayList<Tree>();
+		for (int i=0; i<levels; i++)
+			trees.add(new Tree(i));
+	}
+	
+	public Forest(String filename) throws Exception
+	{
+		if (!ForestMetadata.getStatus())
+			throw new ForestException("ForestMetadata is not setup");
+		
+		initTrees();
+		
+		readFromFile(filename);
+	}
 	
 	@SuppressWarnings("unchecked")
 	public Forest() throws Exception
@@ -120,13 +142,86 @@ public class Forest
 		
 		Util.disp("");
 		
+		//printToFile("files/test1.txt");
+		
 		encryptForest();
+		
+		//printToFile("files/test2.txt");
+		
+		writeToFile();
 	}
 	
-	private static void encryptForest() throws BucketException, NoSuchAlgorithmException, TreeException
+	// for testing
+	public void printToFile(String filename) throws BucketException, TreeException, IOException, TupleException
+	{
+		File file = new File(filename);
+		FileUtils.writeStringToFile(file, trees.get(0).getBucket(0).getTuple(0) + "\n");
+		int w = ForestMetadata.getBucketDepth();
+		for (int i=1; i<trees.size(); i++) {
+			Tree t = trees.get(i);
+			for (long j=0; j<ForestMetadata.getNumBuckets(i); j++) {
+				Bucket bucket = t.getBucket(j);
+				for (int k=0; k<w; k++) {
+					FileUtils.writeStringToFile(file, bucket.getTuple(k).toString() + "\n", true);
+				}
+			}
+		}
+	}
+	
+	
+	// for testing
+	public void printDecryptionToFile(String filename) throws BucketException, TreeException, NoSuchAlgorithmException, IOException, TupleException 
+	{
+		File file = new File(filename);
+		OPRF oprf = OPRFHelper.getOPRF(false);
+		BigInteger k = oprf.getK();
+		int w = ForestMetadata.getBucketDepth();
+		
+		for (int i=0; i<trees.size(); i++) {
+			Tree t = trees.get(i);
+			int bucketTupleBits = ForestMetadata.getBucketTupleBits(i);
+			for (long j=0; j<ForestMetadata.getNumBuckets(i); j++) {
+				Bucket bucket = t.getBucket(j);
+				ECPoint x = NISTNamedCurves.getByName("P-224").getCurve().decodePoint(bucket.getNonce());
+				ECPoint v = x.multiply(k);
+				PRG G = new PRG(bucketTupleBits); // TODO: why only fresh PRG works??
+				BigInteger mask = new BigInteger(G.generateBitString(bucketTupleBits, v), 2);
+				BigInteger ptext = new BigInteger(1, bucket.getByteTuples()).xor(mask);
+				bucket.setBucket(new byte[0], Util.rmSignBit(ptext.toByteArray()));
+				if (i == 0)
+					FileUtils.writeStringToFile(file, bucket.getTuple(0) + "\n");
+				else
+					for (int o=0; o<w; o++) {
+						FileUtils.writeStringToFile(file, bucket.getTuple(o).toString() + "\n", true);
+					}
+			}
+		}
+		
+	}
+
+	
+	private void writeToFile() throws IOException
+	{
+		writeToFile(defaultFile);
+	}
+	
+	private void writeToFile(String filename) throws IOException
+	{
+		File file = new File(filename);
+		FileUtils.writeByteArrayToFile(file, data);
+	}
+	
+	private void readFromFile(String filename) throws IOException
+	{
+		File file = new File(filename);
+		data = FileUtils.readFileToByteArray(file);
+	}
+	
+	private void encryptForest() throws BucketException, NoSuchAlgorithmException, TreeException
 	{
 		Util.disp("===== Encryption ===== ");
 		OPRF oprf = OPRFHelper.getOPRF(false);
+		System.out.println("RRRRRRRRRRRRRR: " + oprf.hasKey());
 		ECPoint g = oprf.getG();
 		ECPoint y = oprf.getY();
 		
@@ -140,28 +235,13 @@ public class Forest
 				ECPoint v = y.multiply(r);
 				PRG G = new PRG(bucketTupleBits); // TODO: why only fresh PRG works??
 				BigInteger mask = new BigInteger(G.generateBitString(bucketTupleBits, v), 2);
-				BigInteger ctext = new BigInteger(1, bucket.toByteArray()).xor(mask);
+				BigInteger ctext = new BigInteger(1, bucket.getByteTuples()).xor(mask);
 				bucket.setBucket(x.getEncoded(), Util.rmSignBit(ctext.toByteArray()));
 				Util.disp("Tree-" + i + " writing encrypted " + bucket);		
 				t.setBucket(bucket, j);
 			}
 		}
 		Util.disp("");
-	}
-	
-	/**
-	 * Write the ORAM hierarchy tree to the specified file.
-	 * 
-	 * @param file - file to write tree contents to
-	 * @return RC.SUCCESS on success, something else otherwise
-	 * @throws IOException 
-	 */
-	public void writeFile(String file) throws IOException
-	{
-		if (ForestMetadata.getStatus())
-		{
-			ForestMetadata.write();
-		}
 	}
 	
 	public Tree getTree(int index) throws ForestException

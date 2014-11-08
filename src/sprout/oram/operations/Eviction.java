@@ -8,20 +8,18 @@ import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
-public class Eviction extends TreeOperation<String[], String[]> {
+public class Eviction extends TreeOperation<String, String[]> {
+	
+	public Eviction() {
+		super(null, null);
+	}
 
   public Eviction(Communication con1, Communication con2) {
     super(con1, con2);
   }
-  
-  /*
-  public Eviction(Communication con1, Communication con2, ForestMetadata meta) {
-    super(con1, con2, meta);
-  }
-  */
 
   @Override
-  public String[] executeCharlieSubTree(Communication debbie,
+  public String executeCharlieSubTree(Communication debbie,
       Communication eddie, String unused1, Tree unused2, String[] extraArgs) {
 	  if (i == 0)
 		  return null;
@@ -68,12 +66,16 @@ public class Eviction extends TreeOperation<String[], String[]> {
  			
  	// step 5
  	String[] sC_P_pp = SSOT.executeC(debbie, eddie, sC_a);
-    
-    return sC_P_pp;
+ 	
+ 	String secretC_P_pp = "";
+ 	for (int j=0; j<sC_P_pp.length; j++)
+ 		secretC_P_pp += sC_P_pp[j];
+ 	
+    return secretC_P_pp;
   }
 
   @Override
-  public String[] executeDebbieSubTree(Communication charlie,
+  public String executeDebbieSubTree(Communication charlie,
       Communication eddie, BigInteger unused1, Tree unused2,
       String[] unused3) {
 	  if (i == 0)
@@ -81,8 +83,8 @@ public class Eviction extends TreeOperation<String[], String[]> {
     
     // protocol
  		// step 1
- 		int[] alpha1_j = new int[w];
- 		int[] alpha2_j = new int[w];
+ 		int[] alpha1_j = new int[d_i];
+ 		int[] alpha2_j = new int[d_i];
  		for (int j=0; j<d_i; j++) {
  			String GCFOutput = GCF.executeD(charlie, eddie, "F2FT", w*2+2);
  			alpha1_j[j] = GCFOutput.substring(2).indexOf('1');
@@ -91,7 +93,7 @@ public class Eviction extends TreeOperation<String[], String[]> {
  			alpha2_j[j] = GCFOutput.substring(2).indexOf('1', alpha1_j[j]+1);
  			while (alpha2_j[j] == -1 || alpha2_j[j] == alpha1_j[j])
  				alpha2_j[j] = rnd.nextInt(w);
- 			System.out.println("--- D: alpha_j: " + alpha1_j[j] + " " + alpha2_j[j]);
+ 			//System.out.println("--- D: alpha_j: " + alpha1_j[j] + " " + alpha2_j[j]);
  		}
  		
  	// step 2
@@ -105,7 +107,7 @@ public class Eviction extends TreeOperation<String[], String[]> {
 			e.printStackTrace();
 		}
  	}
- 	System.out.println("--- D: alpha_d: " + alpha1_d + " " + alpha2_d);
+ 	//System.out.println("--- D: alpha_d: " + alpha1_d + " " + alpha2_d);
  	
  // step 3
  		int k = w * pathBuckets;
@@ -142,7 +144,7 @@ public class Eviction extends TreeOperation<String[], String[]> {
   }
 
   @Override
-  public String[] executeEddieSubTree(Communication charlie,
+  public String executeEddieSubTree(Communication charlie,
       Communication debbie, Tree unused, String[] extraArgs) {
 	  if (i == 0)
 		  return null;
@@ -190,8 +192,12 @@ public class Eviction extends TreeOperation<String[], String[]> {
  			
  	// step 5
  	String[] sE_P_pp = SSOT.executeE(charlie, debbie, sE_a);
+ 	
+ 	String secretE_P_pp = "";
+ 	for (int j=0; j<sE_P_pp.length; j++)
+ 		secretE_P_pp += sE_P_pp[j];
     
-    return sE_P_pp;
+    return secretE_P_pp;
   }
 
   @Override
@@ -203,12 +209,5 @@ public class Eviction extends TreeOperation<String[], String[]> {
       
       return new String[]{s_P_p, s_T_p, Li};
   }
-  
- @Override
- public void loadTreeSpecificParameters(int index) {
-   super.loadTreeSpecificParameters(index);
-   //if (i > 0)
-	   //n = n/w;
- }
 
 }
