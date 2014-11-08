@@ -6,11 +6,11 @@
   </target>
 
   <target name="compile" depends="init" >
-    <javac srcdir="src" destdir="bin" debug="on" debuglevel="lines,vars,source" source="1.6">
+    <javac srcdir="src:fastergc" destdir="bin" debug="on" debuglevel="lines,vars,source" source="1.6">
       <classpath>
         <pathelement location="lib/bcprov-jdk15on-151.jar"/>
         <pathelement location="lib/commons-cli-1.2.jar"/>
-        <pathelement location="lib/commons-io-1.4.jar"/>
+        <pathelement location="lib/commons-io-2.4.jar"/>
         <pathelement location="lib/commons-lang3-3.3.2.jar"/>
         <pathelement location="lib/jargs.jar"/>
         <pathelement location="lib/junit-4.10.jar"/>
