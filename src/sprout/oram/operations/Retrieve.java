@@ -73,7 +73,9 @@ public class Retrieve extends Operation {
 	  // Eviction
 	  Eviction evict = new Eviction();
 	  evict.loadTreeSpecificParameters(currTree);
+	  Timing.eviction.start();
 	  String secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, null, new String[]{secretC_pi_P, secretC_Ti_p});
+	  Timing.eviction.stop();
 	  if (currTree == 0)
 		  secretC_P_pp = secretC_Ti_p;
 	  
@@ -112,7 +114,9 @@ public class Retrieve extends Operation {
 	  // Eviction
 	  Eviction evict = new Eviction();
 	  evict.loadTreeSpecificParameters(currTree);
+	  Timing.eviction.start();
 	  evict.executeDebbieSubTree(charlie, eddie, null, null, null);
+	  Timing.eviction.stop();
 	  
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath();
@@ -153,7 +157,9 @@ public class Retrieve extends Operation {
 	  // Eviction
 	  Eviction evict = new Eviction();
 	  evict.loadTreeSpecificParameters(currTree);
+	  Timing.eviction.start();
 	  String secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_pi_P, secretE_Ti_p, Li});
+	  Timing.eviction.stop();
 	  if (currTree == 0)
 		  secretE_P_pp = secretE_Ti_p;
 

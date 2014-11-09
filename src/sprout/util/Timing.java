@@ -37,6 +37,11 @@ public class Timing
 	public static StopWatch reshuffle_write;
 	public static StopWatch reshuffle_read;
 	
+	public static StopWatch eviction;
+	public static StopWatch eviction_online;
+	public static StopWatch eviction_write;
+	public static StopWatch eviction_read;
+	
 	public static void init() {
 		access = new StopWatch("access");
 		access_online = new StopWatch("access_online");
@@ -72,5 +77,10 @@ public class Timing
 		reshuffle_online = new StopWatch("reshuffle_online");
 		reshuffle_write = new StopWatch("reshuffle_write");
 		reshuffle_read = new StopWatch("reshuffle_write");
+		
+		eviction = new StopWatch("eviction");
+		eviction_online = new StopWatch("eviction_online");
+		eviction_write = new StopWatch("eviction_write");
+		eviction_read = new StopWatch("eviction_write");
 	}
 }
