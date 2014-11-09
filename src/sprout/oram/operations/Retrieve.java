@@ -203,8 +203,8 @@ public class Retrieve extends Operation {
 	  
 	  for (int test=0; test<records; test++) { 
 		  String N = Util.addZero(new BigInteger(h*tau, rnd).toString(2), h*tau);
-		  int expected = new BigInteger(N, 2).intValue();
-		  for (int exec=0; exec<retrievals; exec++) {
+		  long expected = new BigInteger(N, 2).intValue();
+		  for (long exec=0; exec<retrievals; exec++) {
 			  String Li = "";
 			  System.out.println("Stored record is: " + expected);
 			  System.out.println("Execution cycle: " + exec);
