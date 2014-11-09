@@ -46,12 +46,16 @@ public class Access extends TreeOperation<AOutput, String> {
     String[] a = new String[pathTuples];
     String[] c = new String[pathTuples];
     if (i > 0) {
+    	Timing.access_online.start();
       for (int j=0; j<pathTuples; j++) {
         a[j] = secretC_P.substring(j*tupleBits, j*tupleBits+1+nBits); // party C
         c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2), 1+nBits); // party C
       }
+      Timing.access_online.stop();
       sanityCheck();
+      Timing.pet.start();
       j_1 = PET.executeCharlie(debbie, eddie, c);
+      Timing.pet.stop();
       // PET outputs j_1 for C
     }
     if (j_1 < 0) {
@@ -63,7 +67,9 @@ public class Access extends TreeOperation<AOutput, String> {
     String fbar = Util.addZero("", aBits); // i = 0 case
     if (i > 0) {
       sanityCheck();
+      Timing.aot.start();
       fbar = AOT.executeC(debbie, eddie, j_1);
+      Timing.aot.stop();
       // outputs fbar for C
     }
     
@@ -74,7 +80,9 @@ public class Access extends TreeOperation<AOutput, String> {
       // AOT(E, C, D)
       sanityCheck();
       j_2 = new BigInteger(Nip1_pr, 2).intValue();
+      Timing.aot.start();
       ybar_j2 = AOT.executeC(debbie, eddie, j_2);
+      Timing.aot.stop();
       // outputs ybar_j2 for C
     }
     
@@ -82,18 +90,21 @@ public class Access extends TreeOperation<AOutput, String> {
     // party C
     String ybar = "";
     String zeros = Util.addZero("", d_ip1);
+    Timing.access_online.start();
     for (int o=0; o<twotaupow; o++) {
       if (i < h && o == j_2)
         ybar += ybar_j2;
       else // i = h case
         ybar += zeros;
     }
+    
     String secretC_Aj1;
     if (i == 0)
       secretC_Aj1 = secretC_P;
     else
       secretC_Aj1 = secretC_P.substring(j_1*tupleBits+1+nBits+lBits, (j_1+1)*tupleBits);
     String Abar = Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).xor(new BigInteger(ybar, 2)).toString(2), aBits);
+    
     String d = "";
     String Lip1 = ""; // i = h case
     if (i < h) {
@@ -102,6 +113,7 @@ public class Access extends TreeOperation<AOutput, String> {
     else {
       d = Abar;
     }
+    
     String secretC_Ti = "1" + Ni + Li + Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).toString(2), aBits);
     if (i == 0)
       secretC_Ti = Util.addZero(new BigInteger(secretC_Aj1, 2).xor(new BigInteger(fbar, 2)).toString(2), aBits);
@@ -111,6 +123,7 @@ public class Access extends TreeOperation<AOutput, String> {
       String newTuple = flipBit + Util.addZero(new BigInteger(tupleBits-1, rnd).toString(2), tupleBits-1);
       secretC_P_p = secretC_P.substring(0, j_1*tupleBits) + newTuple + secretC_P.substring((j_1+1)*tupleBits);
     }
+    Timing.access_online.stop();
     
     sanityCheck();
     // C outputs Lip1, secretC_Ti, secretC_P_p
@@ -137,19 +150,25 @@ public class Access extends TreeOperation<AOutput, String> {
     if (i > 0) {
     	// step 3
       sanityCheck();
+      Timing.pet.start();
       PET.executeDebbie(charlie, eddie, pathTuples);
+      Timing.pet.stop();
       // PET outputs j_1 for C
       
       sanityCheck();
       // step 4
+      Timing.aot.start();
       AOT.executeD(charlie, eddie);
+      Timing.aot.stop();
     }
     
     // step 5
     if (i < h) {
       // AOT(E, C, D)
       sanityCheck();
+      Timing.aot.start();
       AOT.executeD(charlie, eddie); 
+      Timing.aot.stop();
       // outputs ybar_j2 for C
     }
     
@@ -182,6 +201,7 @@ public class Access extends TreeOperation<AOutput, String> {
     // party E
     String[] y = new String[twotaupow];
     String y_all;
+    Timing.access_online.start();
     if (i == 0) 
       y_all = secretE_P;
     else if (i < h)
@@ -199,16 +219,21 @@ public class Access extends TreeOperation<AOutput, String> {
     if (i > 0) { 
       secretE_P_p = secretE_P;
     }
+    Timing.access_online.stop();
     
     // step 3
     // party C and E
     String[] b = new String[pathTuples];
     if (i > 0) {
+    	Timing.access_online.start();
       for (int j=0; j<pathTuples; j++) {
         b[j] = secretE_P.substring(j*tupleBits, j*tupleBits+1+nBits); // party E
       }
+      Timing.access_online.stop();
       sanityCheck();
+      Timing.pet.start();
       PET.executeEddie(charlie, debbie, b);
+      Timing.pet.stop();
       // PET outputs j_1 for C
     }
     
@@ -218,14 +243,18 @@ public class Access extends TreeOperation<AOutput, String> {
     if (i > 0) {
       String[] e = new String[pathTuples];
       String[] f = new String[pathTuples];
+      Timing.access_online.start();
       for (int o=0; o<pathTuples; o++) {
         e[o] = secretE_P.substring(o*tupleBits+1+nBits+lBits, (o+1)*tupleBits);
         f[o] = Util.addZero(new BigInteger(e[o], 2).xor(new BigInteger(y_all, 2)).toString(2), aBits);
       }
+      Timing.access_online.stop();
       
       sanityCheck();
       // AOT(E, C, D)
+      Timing.aot.start();
       AOT.executeE(charlie, debbie, f);
+      Timing.aot.stop();
       // outputs fbar for C
     }
     
@@ -233,7 +262,9 @@ public class Access extends TreeOperation<AOutput, String> {
     if (i < h) {
       // AOT(E, C, D)
       sanityCheck();
+      Timing.aot.start();
       AOT.executeE(charlie, debbie, y);
+      Timing.aot.stop();
       // outputs ybar_j2 for C
     }
     

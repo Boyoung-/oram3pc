@@ -57,7 +57,9 @@ public class Retrieve extends Operation {
 	  String Nip1_pr = Nip1.substring(ForestMetadata.getNBits(currTree));
 	  PostProcessT ppt = new PostProcessT();
 	  ppt.loadTreeSpecificParameters(currTree);
+	  Timing.post.start();
 	  String secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, Li, null, new String[]{secretC_Ti, secretC_Li_p, secretC_Lip1_p, Lip1, Nip1_pr});
+	  Timing.post.stop();
 	  
 	  // Reshuffle
 	  String secretC_P_p = AOut.secretC_P_p;
@@ -92,7 +94,9 @@ public class Retrieve extends Operation {
 	  // PostProcessT
 	  PostProcessT ppt = new PostProcessT();
 	  ppt.loadTreeSpecificParameters(currTree);
+	  Timing.post.start();
 	  ppt.executeDebbieSubTree(charlie, eddie, null, null, null);
+	  Timing.post.stop();
 	  
 	  // Reshuffle
 	  List<Integer> pi = eddie.readListInt();
@@ -128,7 +132,9 @@ public class Retrieve extends Operation {
 		  secretE_Lip1_p = sE_Li_p[currTree+1];
 	  PostProcessT ppt = new PostProcessT();
 	  ppt.loadTreeSpecificParameters(currTree);
+	  Timing.post.start();
 	  String secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_Ti, secretE_Li_p, secretE_Lip1_p});
+	  Timing.post.stop();
 	  
 	  // Reshuffle
 	  String secretE_P_p = AOut.secretE_P_p;

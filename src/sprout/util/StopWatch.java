@@ -28,7 +28,7 @@ public class StopWatch
 	
 	public void start() {
 		if (running) {
-			System.err.println("StopWatch is alrealdy running.");
+			System.err.println(task + ": StopWatch is alrealdy running.");
 			return;
 		}
 		
@@ -39,7 +39,7 @@ public class StopWatch
 	
 	public void stop() {
 		if (!running) {
-			System.err.println("StopWatch is not running.");
+			System.err.println(task + ":StopWatch is not running.");
 			return;
 		}
 		
@@ -50,7 +50,7 @@ public class StopWatch
 	
 	public void reset() {
 		if (running) {
-			System.err.println("StopWatch is still running. Please stop first.");
+			System.err.println(task + ": StopWatch is still running. Please stop first.");
 			return;
 		}
 		
