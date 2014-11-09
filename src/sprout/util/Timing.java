@@ -2,6 +2,8 @@ package sprout.util;
 
 public class Timing
 {
+	private static boolean init = false;
+	
 	public static StopWatch access;
 	public static StopWatch access_online;
 	public static StopWatch access_write;
@@ -42,7 +44,29 @@ public class Timing
 	public static StopWatch eviction_write;
 	public static StopWatch eviction_read;
 	
+	public static StopWatch gcf;
+	public static StopWatch gcf_online;
+	public static StopWatch gcf_write;
+	public static StopWatch gcf_read;
+	
+	public static StopWatch ssot;
+	public static StopWatch ssot_online;
+	public static StopWatch ssot_write;
+	public static StopWatch ssot_read;
+	
+	public static StopWatch iot;
+	public static StopWatch iot_online;
+	public static StopWatch iot_write;
+	public static StopWatch iot_read;
+	
+	public static StopWatch encrypt;
+	public static StopWatch encrypt_online;
+	public static StopWatch encrypt_write;
+	public static StopWatch encrypt_read;
+	
 	public static void init() {
+		init = true;
+		
 		access = new StopWatch("access");
 		access_online = new StopWatch("access_online");
 		access_write = new StopWatch("access_write");
@@ -82,5 +106,35 @@ public class Timing
 		eviction_online = new StopWatch("eviction_online");
 		eviction_write = new StopWatch("eviction_write");
 		eviction_read = new StopWatch("eviction_write");
+		
+		gcf = new StopWatch("gcf");
+		gcf_online = new StopWatch("gcf_online");
+		gcf_write = new StopWatch("gcf_write");
+		gcf_read = new StopWatch("gcf_write");
+		
+		ssot = new StopWatch("ssot");
+		ssot_online = new StopWatch("ssot_online");
+		ssot_write = new StopWatch("ssot_write");
+		ssot_read = new StopWatch("ssot_write");
+		
+		iot = new StopWatch("iot");
+		iot_online = new StopWatch("iot_online");
+		iot_write = new StopWatch("iot_write");
+		iot_read = new StopWatch("iot_write");
+		
+		encrypt = new StopWatch("encrypt");
+		encrypt_online = new StopWatch("encrypt_online");
+		encrypt_write = new StopWatch("encrypt_write");
+		encrypt_read = new StopWatch("encrypt_write");
 	}
+	
+	public void writeToFile(String filename) {
+		if (!init) {
+			System.out.println("Timing has not been initialized");
+			return;
+		}
+		
+		
+	}
+	
 }

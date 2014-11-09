@@ -12,6 +12,7 @@ import sprout.crypto.PRG;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.Party;
+import sprout.util.Timing;
 import sprout.util.Util;
 
 public class IOT extends Operation {
@@ -38,10 +39,15 @@ public class IOT extends Operation {
     // step 1
     // party S
     String[] a = new String[N];
+    Timing.iot_online.start();
     for (int o=0; o<N; o++)
       a[o] = Util.addZero(new BigInteger(m[pi[o]], 2).xor(new BigInteger(r[o], 2)).toString(2), l);
+    Timing.iot_online.stop();
+    
     // S sends a to R
+    Timing.iot_write.start();
     R.write(a);
+    Timing.iot_write.stop();
   }
   
   public static String[] executeR(Communication I, Communication S) {
@@ -51,18 +57,22 @@ public class IOT extends Operation {
     // protocol
     // step 1
     // S sends a to R
+    Timing.iot_read.start();
     String[] a = S.readStringArray();
     
     // step 2
     // I sends j and p to R
     Integer[] j = I.readIntegerArray();
     String[] p = I.readStringArray();
+    Timing.iot_read.stop();
     
     // step 3
     // party R
     String[] z = new String[k];
+    Timing.iot_online.start();
     for (int o=0; o<k; o++)
       z[o] = Util.addZero(new BigInteger(a[j[o]], 2).xor(new BigInteger(p[o], 2)).toString(2), l);
+    Timing.iot_online.stop();
     // R output z
 
     return z;
@@ -96,13 +106,18 @@ public class IOT extends Operation {
     // party I
     Integer[] j = new Integer[k];
     String[] p = new String[k];
+    Timing.iot_online.start();
     for (int o=0; o<k; o++) {
       j[o] = pi_ivs.get(i[o]);
       p[o] = Util.addZero(new BigInteger(r[j[o]], 2).xor(new BigInteger(delta[o], 2)).toString(2), l);
     }
+    Timing.iot_online.stop();
+    
     // I sends j and p to R
+    Timing.iot_write.start();
     R.write(j);
     R.write(p);
+    Timing.iot_write.stop();
   }
 
   @Override

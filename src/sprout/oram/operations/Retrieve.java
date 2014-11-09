@@ -82,7 +82,9 @@ public class Retrieve extends Operation {
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath();
 	  ep.loadTreeSpecificParameters(currTree);
+	  Timing.encrypt.start();
 	  ep.executeCharlieSubTree(debbie, eddie, null, null, secretC_P_pp);
+	  Timing.encrypt.stop();
 	  
 	  return output;
   }
@@ -121,7 +123,9 @@ public class Retrieve extends Operation {
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath();
 	  ep.loadTreeSpecificParameters(currTree);
+	  Timing.encrypt.start();
 	  ep.executeDebbieSubTree(charlie, eddie, k, null, null);
+	  Timing.encrypt.stop();
   }
 
   public void executeEddie(Communication charlie, Communication debbie, Tree OT, String Li) {
@@ -166,7 +170,9 @@ public class Retrieve extends Operation {
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath();
 	  ep.loadTreeSpecificParameters(currTree);
+	  Timing.encrypt.start();
 	  EPath EPOut = ep.executeEddieSubTree(charlie, debbie, null, secretE_P_pp);
+	  Timing.encrypt.stop();
 	  
 	  // put encrypted path back to tree
 	  Bucket[] buckets = new Bucket[EPOut.x.length];
