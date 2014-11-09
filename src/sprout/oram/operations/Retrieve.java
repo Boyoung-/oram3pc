@@ -1,5 +1,6 @@
 package sprout.oram.operations;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -197,8 +198,8 @@ public class Retrieve extends Operation {
 	  int h = ForestMetadata.getLevels() - 1;
 	  int tau = ForestMetadata.getTau();
 	  
-	  int records = 2;     // how many random records we want to test retrieval
-	  int retrievals = 2;  // for each record, how many repeated retrievals we want to do
+	  int records = 1;     // how many random records we want to test retrieval
+	  int retrievals = 1;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
 		  String N = Util.addZero(new BigInteger(h*tau, rnd).toString(2), h*tau);
@@ -238,6 +239,24 @@ public class Retrieve extends Operation {
 			  }
 		  }
 	  }
+	  
+	
+	try {
+		switch (party) {
+		case Charlie:
+			Timing.writeToFile("files/timing-charlie");
+			break;
+		case Debbie:
+			Timing.writeToFile("files/timing-debbie");
+			break;
+		case Eddie:
+			Timing.writeToFile("files/timing-eddie");
+			break;
+		}
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	  
   }
   
 }

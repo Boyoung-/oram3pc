@@ -1,13 +1,19 @@
 package sprout.util;
 
+import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
-public class StopWatch
+public class StopWatch implements Serializable
 {
-	private String task = null;
-	private long elapsedWallClockTime;
-	private long elapsedCPUTime;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public String task = null;
+	public long elapsedWallClockTime;
+	public long elapsedCPUTime;
 	private boolean running;
 	
 	private long startWallClockTime;
@@ -58,11 +64,23 @@ public class StopWatch
 		elapsedCPUTime = 0;
 	}
 	
+	public StopWatch add(StopWatch sw) {
+		if (task != sw.task) {
+			System.out.println("StopWatch: different task!");
+			return null;
+		}
+		
+		StopWatch out = new StopWatch(task);
+		out.elapsedWallClockTime = elapsedWallClockTime + sw.elapsedWallClockTime;
+		out.elapsedCPUTime = elapsedCPUTime + sw.elapsedCPUTime;
+		return out;
+	}
+	
 	@Override
 	public String toString() {
 		int convert = 1000000; 
-		String out = "Wall clock time(ms): " + elapsedWallClockTime/convert +
-				"\nCPU time(ms): " + elapsedCPUTime/convert;
+		String out = " - Wall clock time(ms): " + elapsedWallClockTime/convert +
+				"\n - CPU time(ms): " + elapsedCPUTime/convert;
 		if (task == null)
 			return out;
 		return "Task: " + task + "\n" + out;
