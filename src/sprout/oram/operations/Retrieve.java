@@ -66,7 +66,9 @@ public class Retrieve extends Operation {
 	  Reshuffle rs = new Reshuffle();
 	  rs.loadTreeSpecificParameters(currTree);
 	  List<Integer> tmp = null;
+	  Timing.reshuffle.start();
 	  String secretC_pi_P = rs.executeCharlieSubTree(debbie, eddie, null, null, Pair.of(secretC_P_p, tmp));
+	  Timing.reshuffle.stop();
 	  
 	  // Eviction
 	  Eviction evict = new Eviction();
@@ -103,7 +105,9 @@ public class Retrieve extends Operation {
 	  Reshuffle rs = new Reshuffle();
 	  rs.loadTreeSpecificParameters(currTree);
 	  String tmp = null;
+	  Timing.reshuffle.start();
 	  rs.executeDebbieSubTree(charlie, eddie, null, null, Pair.of(tmp, pi));
+	  Timing.reshuffle.stop();
 	  
 	  // Eviction
 	  Eviction evict = new Eviction();
@@ -139,10 +143,12 @@ public class Retrieve extends Operation {
 	  // Reshuffle
 	  String secretE_P_p = AOut.secretE_P_p;
 	  List<Integer> pi = Util.getInversePermutation(AOut.p);
-	  debbie.write(pi); // make sure D gets this pi
+	  debbie.write(pi); // make sure D gets this pi  // TODO: move this send into Reshuffle pre-computation?
 	  Reshuffle rs = new Reshuffle();
 	  rs.loadTreeSpecificParameters(currTree);
+	  Timing.reshuffle.start();
 	  String secretE_pi_P = rs.executeEddieSubTree(charlie, debbie, null, Pair.of(secretE_P_p, pi));
+	  Timing.reshuffle.stop();
 	  
 	  // Eviction
 	  Eviction evict = new Eviction();

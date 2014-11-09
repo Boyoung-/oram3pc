@@ -32,6 +32,11 @@ public class Timing
 	public static StopWatch post_write;
 	public static StopWatch post_read;
 	
+	public static StopWatch reshuffle;
+	public static StopWatch reshuffle_online;
+	public static StopWatch reshuffle_write;
+	public static StopWatch reshuffle_read;
+	
 	public static void init() {
 		access = new StopWatch("access");
 		access_online = new StopWatch("access_online");
@@ -62,5 +67,10 @@ public class Timing
 		post_online = new StopWatch("post_online");
 		post_write = new StopWatch("post_write");
 		post_read = new StopWatch("post_write");
+		
+		reshuffle = new StopWatch("reshuffle");
+		reshuffle_online = new StopWatch("reshuffle_online");
+		reshuffle_write = new StopWatch("reshuffle_write");
+		reshuffle_read = new StopWatch("reshuffle_write");
 	}
 }

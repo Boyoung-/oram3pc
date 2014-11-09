@@ -25,7 +25,7 @@ public class Tree
 	
 	private byte[] getByteBucket(long bucketNum) throws TreeException
 	{
-		if (bucketNum < 0 || bucketNum >= ForestMetadata.getNumBuckets(index))
+		if (bucketNum < 0 || bucketNum >= ForestMetadata.getNumBuckets(index)) 
 			throw new TreeException("Bucket number error");
 		
 		int bucketBytes = ForestMetadata.getBucketBytes(index);
@@ -67,7 +67,6 @@ public class Tree
 		if (L < 0 || L >= ForestMetadata.getNumLeaves(index))
 			throw new TreeException("Invalid path");
 		
-		int w = ForestMetadata.getBucketDepth();
 		int e = ForestMetadata.getLeafExpansion();
 		int lBits = ForestMetadata.getLBits(index);
 		
@@ -77,7 +76,7 @@ public class Tree
 		}
 		
 		long bucketIndex = ForestMetadata.getNumLeaves(index)-1 + L*e;
-		for (int i=0; i<w; i++)
+		for (int i=0; i<e; i++)
 			indices.add(bucketIndex+i);
 		
 		return indices;

@@ -129,7 +129,7 @@ public class ForestMetadata implements Serializable
 			}
 			else {
 				nBits[i] = i * tau;
-				lBits[i] = nBits[i] - logW;
+				lBits[i] = Math.max(nBits[i] - logW, 1);
 				numLeaves[i] = (long) Math.pow(2, lBits[i]);
 				numBuckets[i] = numLeaves[i] * e + numLeaves[i] - 1;
 			}
