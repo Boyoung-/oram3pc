@@ -14,6 +14,7 @@ import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
+import sprout.util.Timing;
 import sprout.util.Util;
 
 public class Retrieve extends Operation {
@@ -41,7 +42,9 @@ public class Retrieve extends Operation {
 	  // Access
 	  Access access = new Access();
 	  access.loadTreeSpecificParameters(currTree);
+	  Timing.access.start();
 	  AOutput AOut = access.executeCharlieSubTree(debbie, eddie, Li, null, Nip1);
+	  Timing.access.stop();
 	  String[] output = new String[]{AOut.Lip1, AOut.secretC_Ti};
 	  
 	  // PostProcessT
@@ -82,7 +85,9 @@ public class Retrieve extends Operation {
 	  // Access
 	  Access access = new Access();
 	  access.loadTreeSpecificParameters(currTree);
+	  Timing.access.start();
 	  access.executeDebbieSubTree(charlie, eddie, k, null, null);
+	  Timing.access.stop();
 	  
 	  // PostProcessT
 	  PostProcessT ppt = new PostProcessT();
@@ -111,7 +116,9 @@ public class Retrieve extends Operation {
 	  // Access
 	  Access access = new Access();
 	  access.loadTreeSpecificParameters(currTree);
+	  Timing.access.start();
 	  AOutput AOut = access.executeEddieSubTree(charlie, debbie, OT, null);
+	  Timing.access.stop();
 	  
 	  // PostProcessT
 	  String secretE_Ti = AOut.secretE_Ti;
@@ -161,13 +168,18 @@ public class Retrieve extends Operation {
   
   @Override
   public void run(Party party, Forest forest) throws ForestException {
+	  Timing.init();
+	  
 	  int h = ForestMetadata.getLevels() - 1;
 	  int tau = ForestMetadata.getTau();
 	  
-	  for (int test=0; test<10; test++) { // test 10 random records
+	  int records = 2;     // how many random records we want to test retrieval
+	  int retrievals = 2;  // for each record, how many repeated retrievals we want to do
+	  
+	  for (int test=0; test<records; test++) { 
 		  String N = Util.addZero(new BigInteger(h*tau, rnd).toString(2), h*tau);
 		  int expected = new BigInteger(N, 2).intValue();
-		  for (int exec=0; exec<20; exec++) { // for each record, test retrieval 20 times
+		  for (int exec=0; exec<retrievals; exec++) {
 			  String Li = "";
 			  System.out.println("Stored record is: " + expected);
 			  System.out.println("Execution cycle: " + exec);

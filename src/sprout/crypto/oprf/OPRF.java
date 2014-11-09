@@ -17,6 +17,7 @@ import org.bouncycastle.asn1.x9.X9ECParameters;
 import sprout.crypto.CryptoException;
 import sprout.crypto.WrongPartyException;
 import sprout.crypto.oprf.Message;
+import sprout.util.Timing;
 
 // For now we simply use an EC based OPRF. 
 // Although, we may want to investigate Elgamal variants in the future. 
@@ -163,7 +164,9 @@ public class OPRF {
     BigInteger t = randomRange(n);
     
     ECPoint gt = g.multiply(t);
+    Timing.oprf_online.start();
     ECPoint v = msg.add(gt);
+    Timing.oprf_online.stop();
     
     ECPoint w = y.multiply(t).negate();
     return new Message(v,w);

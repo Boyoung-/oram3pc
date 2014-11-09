@@ -28,7 +28,7 @@ public class StopWatch
 	
 	public void start() {
 		if (running) {
-			System.out.println("StopWatch is alrealdy running.");
+			System.err.println("StopWatch is alrealdy running.");
 			return;
 		}
 		
@@ -39,7 +39,7 @@ public class StopWatch
 	
 	public void stop() {
 		if (!running) {
-			System.out.println("StopWatch is not running.");
+			System.err.println("StopWatch is not running.");
 			return;
 		}
 		
@@ -50,7 +50,7 @@ public class StopWatch
 	
 	public void reset() {
 		if (running) {
-			System.out.println("StopWatch is still running. Please stop first.");
+			System.err.println("StopWatch is still running. Please stop first.");
 			return;
 		}
 		
@@ -62,7 +62,7 @@ public class StopWatch
 	public String toString() {
 		int convert = 1000000; 
 		String out = "Wall clock time(ms): " + elapsedWallClockTime/convert +
-				"\nCPU time: " + elapsedCPUTime/convert;
+				"\nCPU time(ms): " + elapsedCPUTime/convert;
 		if (task == null)
 			return out;
 		return "Task: " + task + "\n" + out;

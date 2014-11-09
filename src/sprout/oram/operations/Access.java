@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import sprout.communication.Communication;
 import sprout.oram.Tree;
+import sprout.util.Timing;
 import sprout.util.Util;
 
 // TODO: remove testing code
@@ -30,7 +31,9 @@ public class Access extends TreeOperation<AOutput, String> {
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
     DecryptPath dp = new DecryptPath();
     dp.loadTreeSpecificParameters(i);
+    Timing.decrypt.start();
     DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, Li, null, null); 
+    Timing.decrypt.stop();
     String secretC_P = "";
     for (int j=0; j<DecOut.secretC_P.length; j++)
     	secretC_P += DecOut.secretC_P[j]; 
@@ -125,7 +128,9 @@ public class Access extends TreeOperation<AOutput, String> {
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
 	DecryptPath dp = new DecryptPath();
 	dp.loadTreeSpecificParameters(i);
+    Timing.decrypt.start();
     dp.executeDebbieSubTree(charlie, eddie, k, null, null);
+    Timing.decrypt.stop();
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
     
@@ -163,7 +168,9 @@ public class Access extends TreeOperation<AOutput, String> {
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
 	DecryptPath dp = new DecryptPath();
 	dp.loadTreeSpecificParameters(i);
+    Timing.decrypt.start();
     DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, OT, null); 
+    Timing.decrypt.stop();
     String secretE_P = "";
     for (int j=0; j<DecOut.secretE_P.length; j++)
     	secretE_P += DecOut.secretE_P[j];
