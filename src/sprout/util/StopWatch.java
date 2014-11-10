@@ -65,7 +65,7 @@ public class StopWatch implements Serializable
 	}
 	
 	public StopWatch add(StopWatch sw) {
-		if (task != sw.task) {
+		if (!task.equals(sw.task)) {
 			System.out.println("StopWatch: different task!");
 			return null;
 		}

@@ -115,7 +115,7 @@ public class TestCLI
 			
 			Constructor<? extends Operation> operationCtor = 
 			    operation.getDeclaredConstructor(Communication.class, Communication.class);
-			
+						
 			// For now all logic happens here. Eventually this will get wrapped
 			// up in party specific classes.
 			System.out.println("Starting " + party + "...");

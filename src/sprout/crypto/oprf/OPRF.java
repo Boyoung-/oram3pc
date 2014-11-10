@@ -22,6 +22,8 @@ import sprout.util.Timing;
 // For now we simply use an EC based OPRF. 
 // Although, we may want to investigate Elgamal variants in the future. 
 public class OPRF {
+	public Timing timing;
+	
   // Public keys
   protected ECPoint g, y;
   protected BigInteger n;
@@ -164,9 +166,9 @@ public class OPRF {
     BigInteger t = randomRange(n);
     
     ECPoint gt = g.multiply(t);
-    Timing.oprf_online.start();
+    timing.oprf_online.start();
     ECPoint v = msg.add(gt);
-    Timing.oprf_online.stop();
+    timing.oprf_online.stop();
     
     ECPoint w = y.multiply(t).negate();
     return new Message(v,w);

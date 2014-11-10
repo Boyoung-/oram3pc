@@ -8,7 +8,6 @@ import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.Party;
-import sprout.util.Timing;
 import sprout.util.Util;
 
 // TODO: Possible parallelization opportunity in running each IOT
@@ -24,13 +23,13 @@ public class SSOT extends Operation {
     
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-    Timing.iot.start();
+    timing.iot.start();
     String[] a = IOT.executeR(I, E);
     
     // step 3
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
     IOT.executeS(E, I, sC);
-    Timing.iot.stop();
+    timing.iot.stop();
     
     // C outputs a
     return a;
@@ -45,20 +44,20 @@ public class SSOT extends Operation {
     // step 1
     // party I
     String[] delta = new String[k];
-    Timing.ssot_online.start();
+    timing.ssot_online.start();
     for (int o=0; o<k; o++)
       delta[o] = Util.addZero(new BigInteger(l, rnd).toString(2), l);
-    Timing.ssot_online.stop();
+    timing.ssot_online.stop();
     
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-    Timing.iot.start();
+    timing.iot.start();
     IOT.executeI(C, E, i, delta);
     
     // step 3
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
     IOT.executeI(E, C, i, delta);
-    Timing.iot.stop();
+    timing.iot.stop();
   }
   
   public static String[] executeE(Communication C, Communication I, String[] sE) {
@@ -66,13 +65,13 @@ public class SSOT extends Operation {
     
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-	  Timing.iot.start();
+	  timing.iot.start();
     IOT.executeS(C, I, sE);
     
     // step 3
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
     String[] b = IOT.executeR(I, C);
-    Timing.iot.stop();
+    timing.iot.stop();
     
     // E outputs b
     return b;

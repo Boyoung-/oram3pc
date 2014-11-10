@@ -7,7 +7,6 @@ import sprout.crypto.AES_PRF;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.Party;
-import sprout.util.Timing;
 import sprout.util.Util;
 
 public class AOT extends Operation {
@@ -34,26 +33,26 @@ public class AOT extends Operation {
     
     // step 1
     // party E
-    Timing.aot_online.start();
+    timing.aot_online.start();
     BigInteger alpha = BigInteger.valueOf(rnd.nextInt(N));
-    Timing.aot_online.stop();
+    timing.aot_online.stop();
     BigInteger[] m_p = new BigInteger[N];
     try {
   	  AES_PRF f = new AES_PRF(l);
   	  f.init(k);
-      Timing.aot_online.start();
+      timing.aot_online.start();
       for (int t=0; t<N; t++) {
     	  m_p[t] = new BigInteger(1, f.compute(BigInteger.valueOf(t).add(alpha).mod(BigInteger.valueOf(N)).toByteArray())).xor(new BigInteger(m[t], 2));
       }
-      Timing.aot_online.stop();
+      timing.aot_online.stop();
     } catch (Exception e){
       e.printStackTrace();
     }
     
-    Timing.aot_write.start();
+    timing.aot_write.start();
     C.write(m_p);
     C.write(alpha);
-    Timing.aot_write.stop();
+    timing.aot_write.stop();
     // E sends m_p and alpha to C
     
   }
@@ -64,30 +63,30 @@ public class AOT extends Operation {
     
     // step 1
     // E sends m_p and alpha to C
-    Timing.aot_read.start();
+    timing.aot_read.start();
     BigInteger [] m_p = E.readBigIntegerArray();
     BigInteger alpha = E.readBigInteger();
-    Timing.aot_read.stop();
+    timing.aot_read.stop();
     
     // step 2
     //party C
-    Timing.aot_online.start();
+    timing.aot_online.start();
     BigInteger j_p = BigInteger.valueOf(j).add(alpha).mod(BigInteger.valueOf(N));
-    Timing.aot_online.stop();
+    timing.aot_online.stop();
     // C sends j_p to D
-    Timing.aot_write.start();
+    timing.aot_write.start();
     D.write(j_p);
-    Timing.aot_write.stop();
+    timing.aot_write.stop();
     
     // step 3
     // D sends c to C
-    Timing.aot_read.start();
+    timing.aot_read.start();
     BigInteger c = D.readBigInteger();
-    Timing.aot_read.stop();
+    timing.aot_read.stop();
     
-    Timing.aot_online.start();
+    timing.aot_online.start();
     String output = Util.addZero(c.xor(m_p[j]).toString(2), l);
-    Timing.aot_online.stop();
+    timing.aot_online.stop();
     // C outputs output
     
     return output;
@@ -102,22 +101,22 @@ public class AOT extends Operation {
     
     // step 2
     // C sends j_p to D
-    Timing.aot_read.start();
+    timing.aot_read.start();
     BigInteger j_p = C.readBigInteger();
-    Timing.aot_read.stop();
+    timing.aot_read.stop();
     
     // step 3
     // party D
     try {
     	AES_PRF f = new AES_PRF(l);
     	f.init(k);
-    	Timing.aot_online.start();
+    	timing.aot_online.start();
     	BigInteger c = new BigInteger(1, f.compute(j_p.toByteArray()));
-    	Timing.aot_online.stop();
+    	timing.aot_online.stop();
       // D sends c to C
-    	Timing.aot_write.start();
+    	timing.aot_write.start();
       C.write(c);
-      Timing.aot_write.stop();
+      timing.aot_write.stop();
     } catch (Exception e){
       e.printStackTrace();
       System.out.println("Error occured, not completing AOT, C will block");

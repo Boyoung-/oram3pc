@@ -8,7 +8,6 @@ import sprout.crypto.PRG;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.Tree;
-import sprout.util.Timing;
 import sprout.util.Util;
 
 
@@ -75,29 +74,29 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     // step 1
     // E sends delta_C to C
-    Timing.post_read.start();
+    timing.post_read.start();
     String delta_C = eddie.readString();
-    Timing.post_read.stop();
+    timing.post_read.stop();
     
     // step 2
     // party C
-    Timing.post_online.start();
+    timing.post_online.start();
     int alpha = rnd.nextInt(twotaupow) + 1;   // [1, 2^tau]
     int j_p = BigInteger.valueOf(Nip1_pr_int+alpha).mod(BigInteger.valueOf(twotaupow)).intValue();
-    Timing.post_online.stop();
+    timing.post_online.stop();
     
-    Timing.post_write.start();
+    timing.post_write.start();
     // C sends j_p to D
     debbie.write(j_p);
     // C sends alpha to E
     eddie.write(alpha);
-    Timing.post_write.stop();
+    timing.post_write.stop();
     
     // step 3
     // D sends s to C
-    Timing.post_read.start();
+    timing.post_read.start();
     byte[] s = debbie.read();
-    Timing.post_read.stop();
+    timing.post_read.stop();
     
     // step 4
     // party C
@@ -109,7 +108,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
       e1.printStackTrace();
       return null;
     }
-    Timing.post_online.start();
+    timing.post_online.start();
     String a_all = G.generateBitString(aBits, s);
     for (int k=0; k<twotaupow; k++) {
       a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
@@ -129,7 +128,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     else
       triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(new BigInteger(secretC_Li_p, 2)).toString(2), lBits) + A_C;
     String secretC_Ti_p = Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(triangle_C, 2)).toString(2), tupleBits);
-    Timing.post_online.stop();
+    timing.post_online.stop();
     // C outputs secretC_Ti_p
     
     return secretC_Ti_p;
@@ -144,21 +143,21 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     // step 1
     // E sends delta_D to D
-    Timing.post_read.start();
+    timing.post_read.start();
     String delta_D = eddie.readString();
-    Timing.post_read.stop(); 
+    timing.post_read.stop(); 
     
     // step 2
     // C sends j_p to D
-    Timing.post_read.start();
+    timing.post_read.start();
     int j_p = charlie.readInt();
-    Timing.post_read.stop();
+    timing.post_read.stop();
     
     // step 3
     // party D
-    Timing.post_online.start();
+    timing.post_online.start();
     byte[] s = rnd.generateSeed(16);  // 128 bits
-    Timing.post_online.stop();
+    timing.post_online.stop();
     PRG G;
     try {
       G = new PRG(aBits);
@@ -168,7 +167,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     }
     String[] a = new String[twotaupow];
     String[] a_p = new String[twotaupow];
-    Timing.post_online.start();
+    timing.post_online.start();
     String a_all = G.generateBitString(aBits, s);
     for (int k=0; k<twotaupow; k++) {
       a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
@@ -177,14 +176,14 @@ public class PostProcessT extends TreeOperation<String, String[]>{
       else
         a_p[k] = Util.addZero(new BigInteger(a[k], 2).xor(new BigInteger(delta_D, 2)).toString(2), d_ip1);
     }
-    Timing.post_online.stop();
+    timing.post_online.stop();
     
-    Timing.post_write.start();
+    timing.post_write.start();
     // D sends s to C
     charlie.write(s);
     // D sends a_p to E
     eddie.write(a_p);
-    Timing.post_write.stop();
+    timing.post_write.stop();
     
     return null;
   }
@@ -223,32 +222,32 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     // step 1
     // party E
-    Timing.post_online.start();
+    timing.post_online.start();
     String delta_D = Util.addZero(new BigInteger(d_ip1, rnd).toString(2), d_ip1);
     String delta_C = Util.addZero(new BigInteger(delta_D, 2).xor(new BigInteger(secretE_Lip1_p, 2)).toString(2), d_ip1);
-    Timing.post_online.stop();
+    timing.post_online.stop();
     // E sends delta_C to C and delta_D to D
-    Timing.post_write.start();
+    timing.post_write.start();
     debbie.write(delta_D);
     charlie.write(delta_C);
-    Timing.post_write.stop();
+    timing.post_write.stop();
 
     // step 2
     // C sends alpha to E
-    Timing.post_read.start();
+    timing.post_read.start();
     int alpha = charlie.readInt();
-    Timing.post_read.stop();
+    timing.post_read.stop();
     
     // step 3
     // D sends a_p to E
-    Timing.post_read.start();
+    timing.post_read.start();
     String[] a_p = debbie.readStringArray();
-    Timing.post_read.stop();
+    timing.post_read.stop();
     
     // step 5
     // party E
     String A_E = "";
-    Timing.post_online.start();
+    timing.post_online.start();
     for (int k=0; k<twotaupow; k++) {
       A_E += a_p[BigInteger.valueOf(k+alpha).mod(BigInteger.valueOf(twotaupow)).intValue()];
     }
@@ -258,7 +257,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     else
       triangle_E = "0" + Util.addZero("", i*tau) + secretE_Li_p + A_E;
     String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBits);
-    Timing.post_online.stop();
+    timing.post_online.stop();
     // E outputs secretE_Ti_p
     
     return secretE_Ti_p;

@@ -9,11 +9,14 @@ import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
+import sprout.util.Timing;
 
 public abstract class Operation {
   static SecureRandom rnd = new SecureRandom();
   
   Communication con1, con2;
+  
+  public static Timing timing;
   
   /*
    * Connections are alphabetized so:

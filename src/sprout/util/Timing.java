@@ -8,69 +8,69 @@ import java.io.ObjectOutputStream;
 
 public class Timing
 {	
-	public static StopWatch access;
-	public static StopWatch access_online;
-	public static StopWatch access_write;
-	public static StopWatch access_read;
+	public StopWatch access;
+	public StopWatch access_online;
+	public StopWatch access_write;
+	public StopWatch access_read;
 	
-	public static StopWatch decrypt;
-	public static StopWatch decrypt_online;
-	public static StopWatch decrypt_write;
-	public static StopWatch decrypt_read;
+	public StopWatch decrypt;
+	public StopWatch decrypt_online;
+	public StopWatch decrypt_write;
+	public StopWatch decrypt_read;
 	
-	public static StopWatch oprf;
-	public static StopWatch oprf_online;
-	public static StopWatch oprf_write;
-	public static StopWatch oprf_read;
+	public StopWatch oprf;
+	public StopWatch oprf_online;
+	public StopWatch oprf_write;
+	public StopWatch oprf_read;
 	
-	public static StopWatch pet;
-	public static StopWatch pet_online;
-	public static StopWatch pet_write;
-	public static StopWatch pet_read;
+	public StopWatch pet;
+	public StopWatch pet_online;
+	public StopWatch pet_write;
+	public StopWatch pet_read;
 	
-	public static StopWatch aot;
-	public static StopWatch aot_online;
-	public static StopWatch aot_write;
-	public static StopWatch aot_read;
+	public StopWatch aot;
+	public StopWatch aot_online;
+	public StopWatch aot_write;
+	public StopWatch aot_read;
 	
-	public static StopWatch post;
-	public static StopWatch post_online;
-	public static StopWatch post_write;
-	public static StopWatch post_read;
+	public StopWatch post;
+	public StopWatch post_online;
+	public StopWatch post_write;
+	public StopWatch post_read;
 	
-	public static StopWatch reshuffle;
-	public static StopWatch reshuffle_online;
-	public static StopWatch reshuffle_write;
-	public static StopWatch reshuffle_read;
+	public StopWatch reshuffle;
+	public StopWatch reshuffle_online;
+	public StopWatch reshuffle_write;
+	public StopWatch reshuffle_read;
 	
-	public static StopWatch eviction;
-	public static StopWatch eviction_online;
-	public static StopWatch eviction_write;
-	public static StopWatch eviction_read;
+	public StopWatch eviction;
+	public StopWatch eviction_online;
+	public StopWatch eviction_write;
+	public StopWatch eviction_read;
 	
-	public static StopWatch gcf;
-	public static StopWatch gcf_online;
-	public static StopWatch gcf_write;
-	public static StopWatch gcf_read;
+	public StopWatch gcf;
+	public StopWatch gcf_online;
+	public StopWatch gcf_write;
+	public StopWatch gcf_read;
 	
-	public static StopWatch ssot;
-	public static StopWatch ssot_online;
-	public static StopWatch ssot_write;
-	public static StopWatch ssot_read;
+	public StopWatch ssot;
+	public StopWatch ssot_online;
+	public StopWatch ssot_write;
+	public StopWatch ssot_read;
 	
-	public static StopWatch iot;
-	public static StopWatch iot_online;
-	public static StopWatch iot_write;
-	public static StopWatch iot_read;
+	public StopWatch iot;
+	public StopWatch iot_online;
+	public StopWatch iot_write;
+	public StopWatch iot_read;
 	
-	public static StopWatch encrypt;
-	public static StopWatch encrypt_online;
-	public static StopWatch encrypt_write;
-	public static StopWatch encrypt_read;
+	public StopWatch encrypt;
+	public StopWatch encrypt_online;
+	public StopWatch encrypt_write;
+	public StopWatch encrypt_read;
 	
 	public Timing() {}
 	
-	public static void init() {
+	public void init() {
 		access = new StopWatch("access");
 		access_online = new StopWatch("access_online");
 		access_write = new StopWatch("access_write");
@@ -132,7 +132,7 @@ public class Timing
 		encrypt_read = new StopWatch("encrypt_read");
 	}
 	
-	public static void writeToFile(String filename) throws IOException {
+	public void writeToFile(String filename) throws IOException {
 		FileOutputStream fout = new FileOutputStream(filename);
 	    ObjectOutputStream oos = null;
 	    try {
@@ -204,7 +204,7 @@ public class Timing
 	    }
 	}
 	
-	public static void readFromFile(String filename) throws IOException {
+	public void readFromFile(String filename) throws IOException {
 		FileInputStream fin = new FileInputStream(filename);
 	    ObjectInputStream ois = null;
 	    try {
@@ -278,7 +278,6 @@ public class Timing
 	    }
 	}
 	
-	@SuppressWarnings("static-access")
 	public Timing add(Timing t) {
 		Timing out = new Timing();
 		

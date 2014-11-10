@@ -7,7 +7,6 @@ import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.Party;
-import sprout.util.Timing;
 
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -107,31 +106,31 @@ public class PET extends Operation {
     // step 1 
     // party C
     BigInteger[] u = new BigInteger[n];
-    Timing.pet_online.start();
+    timing.pet_online.start();
     for (int j=0; j<n; j++) {
       // u_j <- (alpha_j - c_j) mod p
       u[j] = alpha[j].subtract(c[j]).mod(p);
     }
-    Timing.pet_online.stop();
+    timing.pet_online.stop();
     // C sends u to E
-    Timing.pet_write.start();
+    timing.pet_write.start();
     eddie.write(u);
-    Timing.pet_write.stop();
+    timing.pet_write.stop();
     
     // step 2
     // E sends w to C
-    Timing.pet_read.start();
+    timing.pet_read.start();
     BigInteger[] w = eddie.readBigIntegerArray();
-    Timing.pet_read.stop();
+    timing.pet_read.stop();
     
     // step 3
     // party Cforest
     BigInteger[] v = new BigInteger[n];
     for (int j=0; j<n; j++) {
       // v_j <- (c_j * delta_j + w_j - gama_j) mod p
-        Timing.pet_online.start();
+        timing.pet_online.start();
       v[j] = c[j].multiply(delta[j]).add(w[j]).subtract(gamma[j]).mod(p);
-      Timing.pet_online.stop();
+      timing.pet_online.stop();
       
       if (v[j].longValue() == 0L) {
         // C outputs j s.t. v[j] = 0
@@ -167,23 +166,23 @@ public class PET extends Operation {
     
     // step 1 
     // C sends u to E
-    Timing.pet_read.start();
+    timing.pet_read.start();
     BigInteger[] u = charlie.readBigIntegerArray();
-    Timing.pet_read.stop();
+    timing.pet_read.stop();
     
     // step 2
     // party E
     BigInteger[] w = new BigInteger[n];
-    Timing.pet_online.start();
+    timing.pet_online.start();
     for (int j=0; j<n; j++) {
       // w_j <- (beta_j * u_j - r_j * b_j - tau_j) mod p
       w[j] = beta[j].multiply(u[j]).subtract(r[j].multiply(b[j])).subtract(tau[j]).mod(p);
     }
-    Timing.pet_online.stop();
+    timing.pet_online.stop();
     // E sends w to C
-    Timing.pet_write.start();
+    timing.pet_write.start();
     charlie.write(w);
-    Timing.pet_write.stop();
+    timing.pet_write.stop();
     
     return -1;
   }

@@ -12,7 +12,6 @@ import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.Party;
-import sprout.util.Timing;
 import sprout.util.Util;
 
 public class GCF extends Operation {
@@ -66,17 +65,17 @@ public static void executeE(Communication C, Communication D, String circuit, in
 		int alpha = Character.getNumericValue(sE.charAt(i));
 		A[i][0] = lbs[i][alpha];
 		A[i][1] = lbs[i][1-alpha];
-		Timing.gcf_write.start();
+		timing.gcf_write.start();
 		C.write(A[i]);
-		Timing.gcf_write.stop();
+		timing.gcf_write.stop();
 		K_E[i] = lbs[i][0];
 	}
 	
 	// step 3
 	State in_E = State.fromLabels(K_E);
-	Timing.gcf_online.start(); // TODO: separate gcf write/read time out of this!
+	timing.gcf_online.start(); // TODO: separate gcf write/read time out of this!
 	gc_E.startExecuting(in_E);
-	Timing.gcf_online.stop();
+	timing.gcf_online.stop();
   }
   
   public static void executeC(Communication D, Communication E, int n, String sC) {
@@ -88,15 +87,15 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  BigInteger[][] A = new BigInteger[n][2];
 	  BigInteger[] K_C = new BigInteger[n];
 	  for (int i=0; i<n; i++) {
-		  Timing.gcf_read.start();
+		  timing.gcf_read.start();
 		  A[i] = E.readBigIntegerArray();
-		  Timing.gcf_read.stop();
+		  timing.gcf_read.stop();
 		  int beta = Character.getNumericValue(sC.charAt(i));
 		  K_C[i] = A[i][beta];
 	  }
-	  Timing.gcf_write.start();
+	  timing.gcf_write.start();
 	  D.write(K_C);
-	  Timing.gcf_write.stop();
+	  timing.gcf_write.stop();
   }
   
   public static String executeD(Communication C, Communication E, String circuit, int n) {
@@ -128,19 +127,19 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  
 	  // protocol
 	  // step 2
-	  Timing.gcf_read.start();
+	  timing.gcf_read.start();
 	  BigInteger[] K_C = C.readBigIntegerArray();
-	  Timing.gcf_read.stop();
+	  timing.gcf_read.stop();
 	  
 	  // step 3
 	  State in_D = State.fromLabels(K_C);
-	  Timing.gcf_online.start(); // TODO: separate gcf write/read time out of this!
+	  timing.gcf_online.start(); // TODO: separate gcf write/read time out of this!
 	  gc_D.startExecuting(in_D);
-	  Timing.gcf_online.stop();
+	  timing.gcf_online.stop();
 	  
 	  BigInteger output = BigInteger.ZERO;
 	  int length = gc_D.outputWires.length;
-	  Timing.gcf_online.start();
+	  timing.gcf_online.start();
 	  for (int i=0; i<length; i++) {
 		  BigInteger lb = gc_D.outputWires[i].lbl;
 		  int lsb = lb.testBit(0) ? 1 : 0;
@@ -149,7 +148,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 		  if (outBit == 1)
 			  output = output.setBit(length-1-i);
 	  }
-	  Timing.gcf_online.stop();
+	  timing.gcf_online.stop();
 	  
 	  String out = output.toString(2);
 		if (circuit.equals("F2ET"))

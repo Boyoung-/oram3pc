@@ -43,9 +43,10 @@ public class Retrieve extends Operation {
 	  // Access
 	  Access access = new Access();
 	  access.loadTreeSpecificParameters(currTree);
-	  Timing.access.start();
+	  timing.access.start();
 	  AOutput AOut = access.executeCharlieSubTree(debbie, eddie, Li, null, Nip1);
-	  Timing.access.stop();
+	  timing.access.stop();
+	  //System.out.println(timing.access);
 	  String[] output = new String[]{AOut.Lip1, AOut.secretC_Ti};
 	  
 	  // PostProcessT
@@ -58,34 +59,34 @@ public class Retrieve extends Operation {
 	  String Nip1_pr = Nip1.substring(ForestMetadata.getNBits(currTree));
 	  PostProcessT ppt = new PostProcessT();
 	  ppt.loadTreeSpecificParameters(currTree);
-	  Timing.post.start();
+	  timing.post.start();
 	  String secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, Li, null, new String[]{secretC_Ti, secretC_Li_p, secretC_Lip1_p, Lip1, Nip1_pr});
-	  Timing.post.stop();
+	  timing.post.stop();
 	  
 	  // Reshuffle
 	  String secretC_P_p = AOut.secretC_P_p;
 	  Reshuffle rs = new Reshuffle();
 	  rs.loadTreeSpecificParameters(currTree);
 	  List<Integer> tmp = null;
-	  Timing.reshuffle.start();
+	  timing.reshuffle.start();
 	  String secretC_pi_P = rs.executeCharlieSubTree(debbie, eddie, null, null, Pair.of(secretC_P_p, tmp));
-	  Timing.reshuffle.stop();
+	  timing.reshuffle.stop();
 	  
 	  // Eviction
 	  Eviction evict = new Eviction();
 	  evict.loadTreeSpecificParameters(currTree);
-	  Timing.eviction.start();
+	  timing.eviction.start();
 	  String secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, null, new String[]{secretC_pi_P, secretC_Ti_p});
-	  Timing.eviction.stop();
+	  timing.eviction.stop();
 	  if (currTree == 0)
 		  secretC_P_pp = secretC_Ti_p;
 	  
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath();
 	  ep.loadTreeSpecificParameters(currTree);
-	  Timing.encrypt.start();
+	  timing.encrypt.start();
 	  ep.executeCharlieSubTree(debbie, eddie, null, null, secretC_P_pp);
-	  Timing.encrypt.stop();
+	  timing.encrypt.stop();
 	  
 	  return output;
   }
@@ -94,48 +95,50 @@ public class Retrieve extends Operation {
 	  // Access
 	  Access access = new Access();
 	  access.loadTreeSpecificParameters(currTree);
-	  Timing.access.start();
+	  timing.access.start();
 	  access.executeDebbieSubTree(charlie, eddie, k, null, null);
-	  Timing.access.stop();
+	  timing.access.stop();
+	  //System.out.println(timing.access);
 	  
 	  // PostProcessT
 	  PostProcessT ppt = new PostProcessT();
 	  ppt.loadTreeSpecificParameters(currTree);
-	  Timing.post.start();
+	  timing.post.start();
 	  ppt.executeDebbieSubTree(charlie, eddie, null, null, null);
-	  Timing.post.stop();
+	  timing.post.stop();
 	  
 	  // Reshuffle
 	  List<Integer> pi = eddie.readListInt();
 	  Reshuffle rs = new Reshuffle();
 	  rs.loadTreeSpecificParameters(currTree);
 	  String tmp = null;
-	  Timing.reshuffle.start();
+	  timing.reshuffle.start();
 	  rs.executeDebbieSubTree(charlie, eddie, null, null, Pair.of(tmp, pi));
-	  Timing.reshuffle.stop();
+	  timing.reshuffle.stop();
 	  
 	  // Eviction
 	  Eviction evict = new Eviction();
 	  evict.loadTreeSpecificParameters(currTree);
-	  Timing.eviction.start();
+	  timing.eviction.start();
 	  evict.executeDebbieSubTree(charlie, eddie, null, null, null);
-	  Timing.eviction.stop();
+	  timing.eviction.stop();
 	  
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath();
 	  ep.loadTreeSpecificParameters(currTree);
-	  Timing.encrypt.start();
+	  timing.encrypt.start();
 	  ep.executeDebbieSubTree(charlie, eddie, k, null, null);
-	  Timing.encrypt.stop();
+	  timing.encrypt.stop();
   }
 
   public void executeEddie(Communication charlie, Communication debbie, Tree OT, String Li) {
 	  // Access
 	  Access access = new Access();
 	  access.loadTreeSpecificParameters(currTree);
-	  Timing.access.start();
+	  timing.access.start();
 	  AOutput AOut = access.executeEddieSubTree(charlie, debbie, OT, null);
-	  Timing.access.stop();
+	  timing.access.stop();
+	  //System.out.println(timing.access);
 	  
 	  // PostProcessT
 	  String secretE_Ti = AOut.secretE_Ti;
@@ -145,9 +148,9 @@ public class Retrieve extends Operation {
 		  secretE_Lip1_p = sE_Li_p[currTree+1];
 	  PostProcessT ppt = new PostProcessT();
 	  ppt.loadTreeSpecificParameters(currTree);
-	  Timing.post.start();
+	  timing.post.start();
 	  String secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_Ti, secretE_Li_p, secretE_Lip1_p});
-	  Timing.post.stop();
+	  timing.post.stop();
 	  
 	  // Reshuffle
 	  String secretE_P_p = AOut.secretE_P_p;
@@ -155,25 +158,25 @@ public class Retrieve extends Operation {
 	  debbie.write(pi); // make sure D gets this pi  // TODO: move this send into Reshuffle pre-computation?
 	  Reshuffle rs = new Reshuffle();
 	  rs.loadTreeSpecificParameters(currTree);
-	  Timing.reshuffle.start();
+	  timing.reshuffle.start();
 	  String secretE_pi_P = rs.executeEddieSubTree(charlie, debbie, null, Pair.of(secretE_P_p, pi));
-	  Timing.reshuffle.stop();
+	  timing.reshuffle.stop();
 	  
 	  // Eviction
 	  Eviction evict = new Eviction();
 	  evict.loadTreeSpecificParameters(currTree);
-	  Timing.eviction.start();
+	  timing.eviction.start();
 	  String secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_pi_P, secretE_Ti_p, Li});
-	  Timing.eviction.stop();
+	  timing.eviction.stop();
 	  if (currTree == 0)
 		  secretE_P_pp = secretE_Ti_p;
 
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath();
 	  ep.loadTreeSpecificParameters(currTree);
-	  Timing.encrypt.start();
+	  timing.encrypt.start();
 	  EPath EPOut = ep.executeEddieSubTree(charlie, debbie, null, secretE_P_pp);
-	  Timing.encrypt.stop();
+	  timing.encrypt.stop();
 	  
 	  // put encrypted path back to tree
 	  Bucket[] buckets = new Bucket[EPOut.x.length];
@@ -193,7 +196,8 @@ public class Retrieve extends Operation {
   
   @Override
   public void run(Party party, Forest forest) throws ForestException {
-	  Timing.init();
+	  timing = new Timing();
+	  timing.init();
 	  
 	  int h = ForestMetadata.getLevels() - 1;
 	  int tau = ForestMetadata.getTau();
@@ -244,13 +248,23 @@ public class Retrieve extends Operation {
 	try {
 		switch (party) {
 		case Charlie:
-			Timing.writeToFile("files/timing-charlie");
+			//System.out.println(timing.access);
+			//System.out.println("name: " + timing.name);
+			//System.out.println("thread: " + java.lang.Thread.currentThread( ).getId( ));
+			timing.writeToFile("files/timing-charlie");
 			break;
 		case Debbie:
-			Timing.writeToFile("files/timing-debbie");
+			//System.out.println(timing.access);
+			//System.out.println("name: " + timing.name);
+			//System.out.println("thread: " + java.lang.Thread.currentThread( ).getId( ));
+			timing.writeToFile("files/timing-debbie");
 			break;
 		case Eddie:
-			Timing.writeToFile("files/timing-eddie");
+			//System.out.println(timing.access);
+			//System.out.println("name: " + timing.name);
+			//System.out.println("thread: " + java.lang.Thread.currentThread( ).getId( ));
+			//System.our.println
+			timing.writeToFile("files/timing-eddie");
 			break;
 		}
 	} catch (IOException e) {
