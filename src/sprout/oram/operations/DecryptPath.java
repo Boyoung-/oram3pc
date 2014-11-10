@@ -36,9 +36,15 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // step 1
     // party C
     // C sends Li to E
-	  timing.decrypt_write.start();
-    eddie.write(Li);
-    timing.decrypt_write.stop();
+	  if (lBits > 0) {
+		  timing.decrypt_online.start();
+		  byte[] Li_byte = new BigInteger(Li, 2).toByteArray();
+		  timing.decrypt_online.stop();
+		  
+		  timing.decrypt_write.start();
+	    eddie.write(Li_byte); 
+	    timing.decrypt_write.stop();
+	  }
     
     // step 3   
     // party C
@@ -105,7 +111,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       timing.oprf_read.stop();
       
       timing.oprf_online.start();
-      msg = oprf.evaluate(msg); // TODO: make use of the k?
+      msg = oprf.evaluate(msg); // TODO: pass k as arg or just read from file?
       timing.oprf_online.stop();
       
       timing.oprf_write.start();
@@ -125,9 +131,15 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // step 1
     // party C
     // C sends Li to E
-	  timing.decrypt_read.start();
-    String Li = charlie.readString();   
-    timing.decrypt_read.stop();
+	  String Li = "";
+	  
+	  if (lBits > 0) {
+		  timing.decrypt_read.start();
+	    byte[] Li_byte = charlie.read();   
+	    timing.decrypt_read.stop();
+	    
+	    Li = Util.addZero(new BigInteger(1, Li_byte).toString(2), lBits);
+	  }
     
     
     // step 2

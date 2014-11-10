@@ -438,6 +438,20 @@ public class Communication
 	  return p;
   }
   
+  public void write(byte[][] darr) {
+	  write(darr.length);
+	  for (int i=0; i<darr.length; i++)
+		  write(darr[i]);
+  }
+  
+  public byte[][] readDoubleByteArray() {
+	  int length = readInt();
+	  byte[][] darr = new byte[length][];
+	  for (int i=0; i<length; i++)
+		  darr[i] = read();
+	  return darr;
+  }
+  
   public void write(BigInteger[] bigs) {
     write(bigs.length);
     for(int i=0; i<bigs.length; i++) {

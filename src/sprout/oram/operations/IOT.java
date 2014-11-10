@@ -37,10 +37,10 @@ public class IOT extends Operation {
     // protocol
     // step 1
     // party S
-    String[] a = new String[N];
+    byte[][] a = new byte[N][];
     timing.iot_online.start();
     for (int o=0; o<N; o++)
-      a[o] = Util.addZero(new BigInteger(m[pi[o]], 2).xor(new BigInteger(r[o], 2)).toString(2), l);
+      a[o] = new BigInteger(m[pi[o]], 2).xor(new BigInteger(r[o], 2)).toByteArray();
     timing.iot_online.stop();
     
     // S sends a to R
@@ -57,12 +57,12 @@ public class IOT extends Operation {
     // step 1
     // S sends a to R
     timing.iot_read.start();
-    String[] a = S.readStringArray();
+    byte[][] a = S.readDoubleByteArray();
     
     // step 2
     // I sends j and p to R
     Integer[] j = I.readIntegerArray();
-    String[] p = I.readStringArray();
+    byte[][] p = I.readDoubleByteArray();
     timing.iot_read.stop();
     
     // step 3
@@ -70,7 +70,7 @@ public class IOT extends Operation {
     String[] z = new String[k];
     timing.iot_online.start();
     for (int o=0; o<k; o++)
-      z[o] = Util.addZero(new BigInteger(a[j[o]], 2).xor(new BigInteger(p[o], 2)).toString(2), l);
+      z[o] = Util.addZero(new BigInteger(1, a[j[o]]).xor(new BigInteger(1, p[o])).toString(2), l);
     timing.iot_online.stop();
     // R output z
 
@@ -104,11 +104,11 @@ public class IOT extends Operation {
     // step 2
     // party I
     Integer[] j = new Integer[k];
-    String[] p = new String[k];
+    byte[][] p = new byte[k][];
     timing.iot_online.start();
     for (int o=0; o<k; o++) {
       j[o] = pi_ivs.get(i[o]);
-      p[o] = Util.addZero(new BigInteger(r[j[o]], 2).xor(new BigInteger(delta[o], 2)).toString(2), l);
+      p[o] = new BigInteger(r[j[o]], 2).xor(new BigInteger(delta[o], 2)).toByteArray();
     }
     timing.iot_online.stop();
     

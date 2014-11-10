@@ -27,17 +27,17 @@ public class EncryptPath extends TreeOperation<EPath, String> {
     // D sends s and x to E
     // D sends c to C
 	  timing.encrypt_read.start();
-    String[] c = debbie.readStringArray();
+    byte[][] c = debbie.readDoubleByteArray();
     timing.encrypt_read.stop();
     
     // step 2
     // party C
     String[] secretC_B = new String[pathBuckets];
-    String[] d = new String[pathBuckets];
+    byte[][] d = new byte[pathBuckets][];
     timing.encrypt_online.start();
     for (int j=0; j<pathBuckets; j++) {
       secretC_B[j] = secretC_P.substring(j*bucketBits, (j+1)*bucketBits);
-      d[j] = Util.addZero(new BigInteger(c[j], 2).xor(new BigInteger(secretC_B[j], 2)).toString(2), bucketBits);
+      d[j] = new BigInteger(1, c[j]).xor(new BigInteger(secretC_B[j], 2)).toByteArray();
     }
     timing.encrypt_online.stop();
     // C sends d to E
@@ -63,8 +63,8 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       BigInteger r;
       PRG G1 = new PRG(bucketBits*pathBuckets);
       String[] a = new String[pathBuckets];
-      String[] b = new String[pathBuckets];
-      String[] c = new String[pathBuckets];
+      byte[][] b = new byte[pathBuckets][];
+      byte[][] c = new byte[pathBuckets][];
       
       timing.encrypt_online.start();
       byte[] s = rnd.generateSeed(16);  // 128 bits
@@ -82,8 +82,8 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       for (int j=0; j<pathBuckets; j++) {
         a[j] = a_all.substring(j*bucketBits, (j+1)*bucketBits);
         PRG G2 = new PRG(bucketBits); // non-fresh generated SecureRandom cannot guarantee determinism... (why???)
-        b[j] = G2.generateBitString(bucketBits, v[j]);
-        c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger(b[j], 2)).toString(2), bucketBits);
+        b[j] = G2.generateBytes(bucketBits, v[j]);
+        c[j] = new BigInteger(a[j], 2).xor(new BigInteger(1, b[j])).toByteArray();
       }
       timing.encrypt_online.stop();
       // D sends s and x to E
@@ -114,16 +114,16 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 
       // Step 2
       // C sends d to E
-      String[] d = charlie.readStringArray();
+      byte[][] d = charlie.readDoubleByteArray();
       timing.encrypt_read.stop();
 
       // step 3
       // party E
       // regeneration of a[]
-      PRG G1 = new PRG(bucketBits*(pathBuckets));
+      PRG G1 = new PRG(bucketBits*pathBuckets);
       String[] a = new String[pathBuckets];
       timing.encrypt_online.start();
-      String a_all = G1.generateBitString(bucketBits*(pathBuckets), s);
+      String a_all = G1.generateBitString(bucketBits*pathBuckets, s);
       for (int j=0; j<pathBuckets; j++) {
         a[j] = a_all.substring(j*bucketBits, (j+1)*bucketBits);
       }
@@ -135,7 +135,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       timing.encrypt_online.start();
       for (int j=0; j<pathBuckets; j++) {
         secretE_B[j] = secretE_P.substring(j*bucketBits, (j+1)*bucketBits);
-        Bbar[j] = new BigInteger(secretE_B[j], 2).xor(new BigInteger(a[j], 2)).xor(new BigInteger(d[j], 2));
+        Bbar[j] = new BigInteger(secretE_B[j], 2).xor(new BigInteger(a[j], 2)).xor(new BigInteger(1, d[j]));
       }
       timing.encrypt_online.stop();
       

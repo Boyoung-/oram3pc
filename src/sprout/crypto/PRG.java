@@ -3,7 +3,6 @@ package sprout.crypto;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-import sprout.crypto.CryptoException;
 import sprout.util.Util;
 
 import java.math.BigInteger;
@@ -13,7 +12,7 @@ import org.bouncycastle.math.ec.ECPoint;
 public class PRG {
 
 	private SecureRandom rand;
-	private int l;
+	private int l; // TODO: delete this or remove bits from args?
 	
 	public PRG(int l) throws NoSuchAlgorithmException {
 		this.rand = SecureRandom.getInstance("SHA1PRNG");
@@ -26,46 +25,39 @@ public class PRG {
 		this.l = l;
 	}
 
-	public byte[] generateBytes(int m) {
-		byte[] bytes = new byte[(m + 7) / 8];
+	public byte[] generateBytes(int bits) {
+		byte[] bytes = new byte[(bits + 7) / 8];
 		this.rand.nextBytes(bytes);
 		return bytes;
 	}
 
-	public byte[] generateBytes(int m, byte[] seed) {
+	public byte[] generateBytes(int bits, byte[] seed) {
 		this.rand.setSeed(seed);
-		return generateBytes(m);
+		return generateBytes(bits);
 	}
 
-	public byte[] generateBytes(int m, BigInteger seed) {
-		return generateBytes(m, seed.toByteArray());
-	}
-
-	public String generateBitString(int m) {
-		byte[] bytes = generateBytes(m);
-		String s = new BigInteger(1, bytes).toString(2);
-		if (s.length() < m)
-			return Util.addZero(s, m);
-		return s.substring(0, m); // bit string of length m
-	}
-
-	public String generateBitString(int m, ECPoint seed) {
-	  return generateBitString(m, seed.getEncoded());
+	public byte[] generateBytes(int bits, BigInteger seed) {
+		return generateBytes(bits, seed.toByteArray());
 	}
 	
-	public String generateBitString(int m, byte[] seed) {
-		byte[] bytes = generateBytes(m, seed);
-		String s = new BigInteger(1, bytes).toString(2);
-		if (s.length() < m)
-			return Util.addZero(s, m);
-		return s.substring(0, m); // bit string of length m
+	public byte[] generateBytes(int bits, ECPoint seed) {
+		return generateBytes(bits, seed.getEncoded());
+	}
+	
+	public String generateBitString(int bits) {
+		return Util.addZero(new BigInteger(bits, rand).toString(2), bits);
+	}
+	
+	public String generateBitString(int bits, byte[] seed) {
+		rand.setSeed(seed);
+		return generateBitString(bits);
 	}
 
-	public String generateBitString(int m, BigInteger seed) {
-		byte[] bytes = generateBytes(m, seed);
-		String s = new BigInteger(1, bytes).toString(2);
-		if (s.length() < m)
-			return Util.addZero(s, m);
-		return s.substring(0, m); // bit string of length m
+	public String generateBitString(int bits, ECPoint seed) {
+	  return generateBitString(bits, seed.getEncoded());
+	}
+	
+	public String generateBitString(int bits, BigInteger seed) {
+		return generateBitString(bits, seed.toByteArray());
 	}
 }

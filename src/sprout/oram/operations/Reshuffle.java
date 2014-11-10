@@ -46,8 +46,9 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     }
     timing.reshuffle_online.start();
     byte[] s1 = rnd.generateSeed(16);
-    String p1 = G.generateBitString(pathBuckets*bucketBits, s1);
-    String z = Util.addZero(new BigInteger(secretC_P, 2).xor(new BigInteger(p1, 2)).toString(2), bucketBits);
+    byte[] p1 = G.generateBytes(pathBuckets*bucketBits, s1);
+    byte[] z = new BigInteger(secretC_P, 2).xor(new BigInteger(1, p1)).toByteArray();
+    //String z = Util.addZero(new BigInteger(secretC_P, 2).xor(new BigInteger(p1, 2)).toString(2), bucketBits);
     timing.reshuffle_online.stop();
     // C sends z to E
     // C sends s1 to D
@@ -60,8 +61,15 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     // D sends secretC_pi_P to C
     // C outputs secretC_pi_P
     timing.reshuffle_read.start();
-    String secretC_pi_P = debbie.readString();
+    byte[][] secretC_pi_P_byte = debbie.readDoubleByteArray();
     timing.reshuffle_read.stop();
+    
+    String secretC_pi_P = "";
+    timing.reshuffle_online.start();
+    for (int j=0; j<pathBuckets; j++)
+    	secretC_pi_P += Util.addZero(new BigInteger(1, secretC_pi_P_byte[j]).toString(2), bucketBits);
+    timing.reshuffle_online.stop();
+    
     return secretC_pi_P;
   }
 
@@ -89,17 +97,18 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       PRG G1 = new PRG(pathBuckets*bucketBits);
       PRG G2 = new PRG(pathBuckets*bucketBits); // TODO: same issue: non-fresh -> non-deterministic
       timing.reshuffle_online.start();
-      String p1 = G1.generateBitString(pathBuckets*bucketBits, s1);
+      byte[] p1 = G1.generateBytes(pathBuckets*bucketBits, s1);
       byte[] s2 = rnd.generateSeed(16);
-      String p2 = G2.generateBitString(pathBuckets*bucketBits, s2);
-      String a_all = Util.addZero(new BigInteger(p1, 2).xor(new BigInteger(p2, 2)).toString(2), pathBuckets*bucketBits);
-      String[] a = new String[pathBuckets];
+      byte[] p2 = G2.generateBytes(pathBuckets*bucketBits, s2);
+      
+      String a_all = Util.addZero(new BigInteger(1, p1).xor(new BigInteger(1, p2)).toString(2), pathBuckets*bucketBits);
+      byte[][] a = new byte[pathBuckets][];
       for (int j=0; j<pathBuckets; j++)
-        a[j] = a_all.substring(j*bucketBits, (j+1)*bucketBits);
-      String[] secretC_pi_P_arr = Util.permute(a, pi);
-      String secretC_pi_P = "";
-      for (int j=0; j<pathBuckets; j++)
-        secretC_pi_P += secretC_pi_P_arr[j];
+        a[j] = new BigInteger(a_all.substring(j*bucketBits, (j+1)*bucketBits), 2).toByteArray();
+      byte[][] secretC_pi_P = Util.permute(a, pi);
+      //String secretC_pi_P = "";
+      //for (int j=0; j<pathBuckets; j++)
+      //  secretC_pi_P += secretC_pi_P_arr[j];
       timing.reshuffle_online.stop();
       
       // D sends secretC_pi_P to C
@@ -129,12 +138,17 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     // step 1
     // C sends E z
     timing.reshuffle_read.start();
-    String z = charlie.readString();
-    //timing.reshuffle_read.stop();
+    //String z = charlie.readString();
+    byte[] z = charlie.read();
+    timing.reshuffle_read.stop();
+    
+    //timing.reshuffle_online.start();
+    //String z = Util.addZero(new BigInteger(1, z_byte).toString(2), bucketBits);
+    //timing.reshuffle_online.stop();
     
     // step 2
     // D sends s2 to E
-    //timing.reshuffle_read.start();
+    timing.reshuffle_read.start();
     byte[] s2 = debbie.read();
     timing.reshuffle_read.stop();
     
@@ -148,8 +162,8 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       return null;
     }
     timing.reshuffle_online.start();
-    String p2 = G.generateBitString(pathBuckets*bucketBits, s2);
-    String b_all = Util.addZero(new BigInteger(secretE_P, 2).xor(new BigInteger(z, 2)).xor(new BigInteger(p2, 2)).toString(2), pathBuckets*bucketBits);
+    byte[] p2 = G.generateBytes(pathBuckets*bucketBits, s2);
+    String b_all = Util.addZero(new BigInteger(secretE_P, 2).xor(new BigInteger(1, z)).xor(new BigInteger(1, p2)).toString(2), pathBuckets*bucketBits);
     String[] b = new String[pathBuckets];
     for (int j=0; j<pathBuckets; j++)
       b[j] = b_all.substring(j*bucketBits, (j+1)*bucketBits);
