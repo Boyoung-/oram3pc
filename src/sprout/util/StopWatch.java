@@ -66,13 +66,23 @@ public class StopWatch implements Serializable
 	
 	public StopWatch add(StopWatch sw) {
 		if (!task.equals(sw.task)) {
-			System.out.println("StopWatch: different task!");
-			return null;
+			System.out.println("Warning: addition between different task!");
 		}
 		
 		StopWatch out = new StopWatch(task);
 		out.elapsedWallClockTime = elapsedWallClockTime + sw.elapsedWallClockTime;
 		out.elapsedCPUTime = elapsedCPUTime + sw.elapsedCPUTime;
+		return out;
+	}
+	
+	public StopWatch subtract(StopWatch sw) {
+		if (!task.equals(sw.task)) {
+			System.out.println("Warning: subtraction between different task!");
+		}
+		
+		StopWatch out = new StopWatch(task);
+		out.elapsedWallClockTime = elapsedWallClockTime - sw.elapsedWallClockTime;
+		out.elapsedCPUTime = elapsedCPUTime - sw.elapsedCPUTime;
 		return out;
 	}
 	

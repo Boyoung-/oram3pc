@@ -7,6 +7,7 @@ import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.Party;
+import sprout.util.Util;
 
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -29,6 +30,8 @@ public class PET extends Operation {
     
   }
   */
+
+    private static BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p = 2^34 - 41
   
   private static boolean D = false;
   
@@ -46,7 +49,6 @@ public class PET extends Operation {
     // TODO: Debbie should precompute these, but for now we just do it here
     // pre-computed inputs
     // party D
-    BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p = 2^34 - 41
     BigInteger[] alpha = new BigInteger[n];
     BigInteger[] beta  = new BigInteger[n];
     BigInteger[] tau   = new BigInteger[n];
@@ -54,12 +56,16 @@ public class PET extends Operation {
     BigInteger[] gama  = new BigInteger[n];
     BigInteger[] delta = new BigInteger[n];               
     for (int j=0; j<n; j++) {
-        alpha[j] = BigInteger.valueOf(Math.abs(rnd.nextLong()) % p.longValue()); // [0, p-1], Z_p
+        //alpha[j] = BigInteger.valueOf(Math.abs(rnd.nextLong()) % p.longValue()); // [0, p-1], Z_p
+    	alpha[j] = Util.nextBigInteger(p);
     }     
     for (int j=0; j<n; j++) {
-      beta[j]  = BigInteger.valueOf(Math.abs(rnd.nextLong()) % p.longValue()); // [0, p-1], Z_p
-      tau[j]   = BigInteger.valueOf(Math.abs(rnd.nextLong()) % p.longValue()); // [0, p-1], Z_p
-      r[j]     = BigInteger.valueOf(Math.abs(rnd.nextLong()) % (p.longValue()-1L) + 1L); // [1, p-1], Z_p*
+      //beta[j]  = BigInteger.valueOf(Math.abs(rnd.nextLong()) % p.longValue()); // [0, p-1], Z_p
+      //tau[j]   = BigInteger.valueOf(Math.abs(rnd.nextLong()) % p.longValue()); // [0, p-1], Z_p
+      //r[j]     = BigInteger.valueOf(Math.abs(rnd.nextLong()) % (p.longValue()-1L) + 1L); // [1, p-1], Z_p*
+    	beta[j] = Util.nextBigInteger(p);
+    	tau[j] = Util.nextBigInteger(p);
+    	r[j] = Util.nextBigInteger(p.subtract(BigInteger.ONE)).add(BigInteger.ONE);
     }
     for (int j=0; j<n; j++) {
       // gama_j <- (alpha_j * beta_j - tau_j) mod p
@@ -84,7 +90,7 @@ public class PET extends Operation {
     // parameters
     int n  = cc.length;
     // m = 32
-    BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p = 2^34 - 41
+    //BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p = 2^34 - 41
     
     if (D) {
       System.out.println("PET: n="+n);
@@ -112,6 +118,7 @@ public class PET extends Operation {
       u[j] = alpha[j].subtract(c[j]).mod(p);
     }
     timing.pet_online.stop();
+    //System.out.println("pet online: " + timing.pet_online);
     // C sends u to E
     timing.pet_write.start();
     eddie.write(u);
@@ -147,7 +154,7 @@ public class PET extends Operation {
     int n  = bb.length;
     // m = 32
     
-    BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p = 2^34 - 41
+    //BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p = 2^34 - 41
     
     if (D) {
       System.out.println("PET: n="+n);

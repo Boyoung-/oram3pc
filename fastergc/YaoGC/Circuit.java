@@ -6,6 +6,7 @@ import java.math.*;
 import java.io.*;
 
 import sprout.communication.Communication;
+import sprout.util.Timing;
 
 abstract public class Circuit implements TransitiveObserver {
     public static boolean isForGarbling;
@@ -21,6 +22,8 @@ abstract public class Circuit implements TransitiveObserver {
     
     public static Communication sender = null;
     public static Communication receiver = null;
+    
+    public static Timing timing = null;
 
 	//public boolean sendOutBitsLookup = false;
     

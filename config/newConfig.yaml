@@ -1,7 +1,7 @@
-tau: 3				# tau in the write-up
+tau: 4				# tau in the write-up
 w: 16				# number of tuples in each bucket
 e: 4 				# number of buckets contained in each leaf
-levels: 4			# number of trees (including tree 0)
+levels: 5			# number of trees (including tree 0)
 dBytes: 16 			# record D bytes in the last tree
 nonceBits: 456		# nonce bits
 

@@ -35,6 +35,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	
 	Circuit gc_E = null;
 	Circuit.isForGarbling = true;
+	Circuit.timing = timing;
 	if (circuit.equals("F2ET"))
 		gc_E = new F2ET_Wplus2_Wplus2(w, s1, s2);
 	else
@@ -116,6 +117,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 
 	  Circuit gc_D = null;
 	  Circuit.isForGarbling = false;
+	  Circuit.timing = timing;
 	  if (circuit == "F2ET")
 		  gc_D = new F2ET_Wplus2_Wplus2(w, 1, 1);
 	  else
@@ -157,7 +159,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 		else
 			out = Util.addZero(out, w+2);
 		  timing.gcf_online.stop();
-		//System.out.println("--- D: output:\t" + out);
+		  
 	  return out;
   }
 

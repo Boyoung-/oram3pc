@@ -52,6 +52,8 @@ public class Timing
 	public StopWatch gcf_online;
 	public StopWatch gcf_write;
 	public StopWatch gcf_read;
+	public StopWatch gtt_write;
+	public StopWatch gtt_read;
 	
 	public StopWatch ssot;
 	public StopWatch ssot_online;
@@ -115,6 +117,8 @@ public class Timing
 		gcf_online = new StopWatch("gcf_online");
 		gcf_write = new StopWatch("gcf_write");
 		gcf_read = new StopWatch("gcf_read");
+		gtt_write = new StopWatch("gtt_write");
+		gtt_read = new StopWatch("gtt_read");
 		
 		ssot = new StopWatch("ssot");
 		ssot_online = new StopWatch("ssot_online");

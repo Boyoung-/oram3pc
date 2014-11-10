@@ -248,22 +248,16 @@ public class Retrieve extends Operation {
 	try {
 		switch (party) {
 		case Charlie:
-			//System.out.println(timing.access);
-			//System.out.println("name: " + timing.name);
-			//System.out.println("thread: " + java.lang.Thread.currentThread( ).getId( ));
 			timing.writeToFile("files/timing-charlie");
 			break;
 		case Debbie:
-			//System.out.println(timing.access);
-			//System.out.println("name: " + timing.name);
-			//System.out.println("thread: " + java.lang.Thread.currentThread( ).getId( ));
+			timing.gcf_online = timing.gcf_online.subtract(timing.gtt_read);
+			timing.gcf_read = timing.gcf_read.add(timing.gtt_read);
 			timing.writeToFile("files/timing-debbie");
 			break;
 		case Eddie:
-			//System.out.println(timing.access);
-			//System.out.println("name: " + timing.name);
-			//System.out.println("thread: " + java.lang.Thread.currentThread( ).getId( ));
-			//System.our.println
+			timing.gcf_online = timing.gcf_online.subtract(timing.gtt_write);
+			timing.gcf_write = timing.gcf_write.add(timing.gtt_write);
 			timing.writeToFile("files/timing-eddie");
 			break;
 		}

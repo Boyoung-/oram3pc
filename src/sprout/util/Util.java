@@ -239,7 +239,7 @@ public class Util
 		System.out.println();
 	}
 	
-	public static BigInteger randomBigInteger(BigInteger range) {
+	public static BigInteger nextBigInteger(BigInteger range) {
 		BigInteger r;
 		do {
 		    r = new BigInteger(range.bitLength(), rnd);
