@@ -121,11 +121,13 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       // party E
       // regeneration of a[]
       PRG G1 = new PRG(bucketBits*(pathBuckets));
-      String a_all = G1.generateBitString(bucketBits*(pathBuckets), s);
       String[] a = new String[pathBuckets];
+      timing.encrypt_online.start();
+      String a_all = G1.generateBitString(bucketBits*(pathBuckets), s);
       for (int j=0; j<pathBuckets; j++) {
         a[j] = a_all.substring(j*bucketBits, (j+1)*bucketBits);
       }
+      timing.encrypt_online.stop();
       // end generation of a[]
       
       String[] secretE_B = new String[pathBuckets];

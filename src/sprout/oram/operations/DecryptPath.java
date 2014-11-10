@@ -68,9 +68,8 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       Message msg2 = debbie.readMessage();
       timing.oprf_read.stop();
       
+      timing.oprf_online.start();      
       msg2.setW(msg1.getW());
-      
-      timing.oprf_online.start();
       Message res = oprf.deblind(msg2);
       timing.oprf_online.stop();
 
@@ -148,17 +147,15 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 	
     // step 3   
     // party E
-    // E sends sigma_x to C
-    List<Integer> sigma = new ArrayList<Integer>();   
+    // E sends sigma_x to C  
 	timing.decrypt_online.start();
+    List<Integer> sigma = new ArrayList<Integer>(); 
     for (int j=0; j<Pbar.length; j++)
       sigma.add(j);
     Collections.shuffle(sigma, rnd);
-	timing.decrypt_online.stop();
     
     ECPoint[] x = new ECPoint[Pbar.length];
     String[] Bbar = new String[Pbar.length];  
-	timing.decrypt_online.start();
     for (int j=0; j<Pbar.length; j++) { 
     	x[j] = Util.byteArrayToECPoint(Pbar[j].getNonce());
     	Bbar[j] = Util.addZero(new BigInteger(1, Pbar[j].getByteTuples()).toString(2), bucketBits);

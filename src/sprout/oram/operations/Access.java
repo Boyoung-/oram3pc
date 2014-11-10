@@ -198,9 +198,9 @@ public class Access extends TreeOperation<AOutput, String> {
    
     // step 2
     // party E
+    timing.access_online.start();
     String[] y = new String[twotaupow];
     String y_all;
-    timing.access_online.start();
     if (i == 0) 
       y_all = secretE_P;
     else if (i < h)
@@ -240,9 +240,9 @@ public class Access extends TreeOperation<AOutput, String> {
     // step 4
     // party E
     if (i > 0) {
+        timing.access_online.start();
       String[] e = new String[pathTuples];
       String[] f = new String[pathTuples];
-      timing.access_online.start();
       for (int o=0; o<pathTuples; o++) {
         e[o] = secretE_P.substring(o*tupleBits+1+nBits+lBits, (o+1)*tupleBits);
         f[o] = Util.addZero(new BigInteger(e[o], 2).xor(new BigInteger(y_all, 2)).toString(2), aBits);

@@ -30,9 +30,9 @@ public class Eviction extends TreeOperation<String, String[]> {
     String sC_T_p = extraArgs[1];
     
     for (int j=0; j<d_i; j++) {
+		timing.eviction_online.start();
 		String sC_fb = "";
 		String sC_dir = "";
-		timing.eviction_online.start();
 		String sC_bucket = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits);
 		for (int l=0; l<w; l++) {
 			String sC_tuple = sC_bucket.substring(l*tupleBits, (l+1)*tupleBits);
@@ -47,7 +47,8 @@ public class Eviction extends TreeOperation<String, String[]> {
 		timing.gcf.stop();
 	}
     
- // step 2
+    	// step 2
+    	timing.eviction_online.start();
  		String sC_fb = "00";
  		for (int j=d_i; j<pathBuckets; j++) {
  			String sC_bucket = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits);
@@ -55,6 +56,8 @@ public class Eviction extends TreeOperation<String, String[]> {
  				sC_fb += sC_bucket.substring(l*tupleBits, l*tupleBits+1);
  			}
  		}
+ 		timing.eviction_online.stop();
+ 		
  		timing.gcf.start();
  		GCF.executeC(debbie, eddie, w*expen+2, sC_fb);
  		timing.gcf.stop();
@@ -63,8 +66,8 @@ public class Eviction extends TreeOperation<String, String[]> {
  		int k = w * pathBuckets;
  		
  	// step 4
+			timing.eviction_online.start();
  			String[] sC_a = new String[k+2];
- 			timing.eviction_online.start();
  			for (int j=0; j<pathBuckets; j++)
  				for (int l=0; l<w; l++) {
  					sC_a[w*j+l] = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits).substring(l*tupleBits, (l+1)*tupleBits);
@@ -78,9 +81,11 @@ public class Eviction extends TreeOperation<String, String[]> {
  	String[] sC_P_pp = SSOT.executeC(debbie, eddie, sC_a);
  	timing.ssot.stop();
  	
+ 	timing.eviction_online.start();
  	String secretC_P_pp = "";
  	for (int j=0; j<sC_P_pp.length; j++)
  		secretC_P_pp += sC_P_pp[j];
+ 	timing.eviction_online.stop();
  	
     return secretC_P_pp;
   }
@@ -101,12 +106,14 @@ public class Eviction extends TreeOperation<String, String[]> {
  			String GCFOutput = GCF.executeD(charlie, eddie, "F2FT", w*2+2);
  			timing.gcf.stop();
  			
+ 			timing.eviction_online.start();
  			alpha1_j[j] = GCFOutput.substring(2).indexOf('1');
  			if (alpha1_j[j] == -1)
  				alpha1_j[j] = rnd.nextInt(w);
  			alpha2_j[j] = GCFOutput.substring(2).indexOf('1', alpha1_j[j]+1);
  			while (alpha2_j[j] == -1 || alpha2_j[j] == alpha1_j[j])
  				alpha2_j[j] = rnd.nextInt(w);
+ 			timing.eviction_online.stop();
  			//System.out.println("--- D: alpha_j: " + alpha1_j[j] + " " + alpha2_j[j]);
  		}
  		
@@ -115,8 +122,10 @@ public class Eviction extends TreeOperation<String, String[]> {
  	String GCFOutput = GCF.executeD(charlie, eddie, "F2ET", w*expen+2);
  	timing.gcf.stop();
  	
+ 	timing.eviction_online.start();
  	int alpha1_d = GCFOutput.substring(2).indexOf('1');
  	int alpha2_d = GCFOutput.substring(2).indexOf('1', alpha1_d+1);
+ 	timing.eviction_online.stop();
  	if (alpha2_d == -1) {
  		try {
 			throw new Exception("Overflow!");
@@ -177,9 +186,9 @@ public class Eviction extends TreeOperation<String, String[]> {
     String Li = extraArgs[2];
     
     for (int j=0; j<d_i; j++) {
+		timing.eviction_online.start();
 		String sE_fb = "";
 		String sE_dir = "";
-		timing.eviction_online.start();
 		String sE_bucket = sE_P_p.substring(j*bucketBits, (j+1)*bucketBits);
 		for (int l=0; l<w; l++) {
 			String sE_tuple = sE_bucket.substring(l*tupleBits, (l+1)*tupleBits);
@@ -194,7 +203,8 @@ public class Eviction extends TreeOperation<String, String[]> {
 		timing.gcf.stop();
 	}
     
-    // step 2
+    	// step 2
+    	timing.eviction_online.start();
  		String sE_fb = "00";
  		for (int j=d_i; j<pathBuckets; j++) {
  			String sE_bucket = sE_P_p.substring(j*bucketBits, (j+1)*bucketBits);
@@ -202,6 +212,8 @@ public class Eviction extends TreeOperation<String, String[]> {
  				sE_fb += sE_bucket.substring(l*tupleBits, l*tupleBits+1);
  			}
  		}
+ 		timing.eviction_online.stop();
+ 		
  		timing.gcf.start();
  		GCF.executeE(charlie, debbie, "F2ET", w*expen+2, sE_fb);
  		timing.gcf.stop();
@@ -225,9 +237,11 @@ public class Eviction extends TreeOperation<String, String[]> {
  	String[] sE_P_pp = SSOT.executeE(charlie, debbie, sE_a);
  	timing.ssot.stop();
  	
+ 	timing.eviction_online.start();
  	String secretE_P_pp = "";
  	for (int j=0; j<sE_P_pp.length; j++)
  		secretE_P_pp += sE_P_pp[j];
+ 	timing.eviction_online.stop();
     
     return secretE_P_pp;
   }

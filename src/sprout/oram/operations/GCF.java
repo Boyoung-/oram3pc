@@ -62,9 +62,11 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	BigInteger[][] A = new BigInteger[n][2];
 	BigInteger[] K_E = new BigInteger[n];
 	for (int i=0; i<n; i++) {
+		timing.gcf_online.start();
 		int alpha = Character.getNumericValue(sE.charAt(i));
 		A[i][0] = lbs[i][alpha];
 		A[i][1] = lbs[i][1-alpha];
+		timing.gcf_online.stop();
 		timing.gcf_write.start();
 		C.write(A[i]);
 		timing.gcf_write.stop();
@@ -72,9 +74,9 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	}
 	
 	// step 3
+	timing.gcf_online.start();
 	State in_E = State.fromLabels(K_E);
-	timing.gcf_online.start(); // TODO: separate gcf write/read time out of this!
-	gc_E.startExecuting(in_E);
+	gc_E.startExecuting(in_E); // TODO: separate gcf write/read time out of this!
 	timing.gcf_online.stop();
   }
   
@@ -90,8 +92,10 @@ public static void executeE(Communication C, Communication D, String circuit, in
 		  timing.gcf_read.start();
 		  A[i] = E.readBigIntegerArray();
 		  timing.gcf_read.stop();
+		  timing.gcf_online.start();
 		  int beta = Character.getNumericValue(sC.charAt(i));
 		  K_C[i] = A[i][beta];
+		  timing.gcf_online.stop();
 	  }
 	  timing.gcf_write.start();
 	  D.write(K_C);
@@ -132,14 +136,12 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  timing.gcf_read.stop();
 	  
 	  // step 3
+	  timing.gcf_online.start(); 
 	  State in_D = State.fromLabels(K_C);
-	  timing.gcf_online.start(); // TODO: separate gcf write/read time out of this!
-	  gc_D.startExecuting(in_D);
-	  timing.gcf_online.stop();
+	  gc_D.startExecuting(in_D); // TODO: separate gcf write/read time out of this!
 	  
 	  BigInteger output = BigInteger.ZERO;
 	  int length = gc_D.outputWires.length;
-	  timing.gcf_online.start();
 	  for (int i=0; i<length; i++) {
 		  BigInteger lb = gc_D.outputWires[i].lbl;
 		  int lsb = lb.testBit(0) ? 1 : 0;
@@ -148,13 +150,13 @@ public static void executeE(Communication C, Communication D, String circuit, in
 		  if (outBit == 1)
 			  output = output.setBit(length-1-i);
 	  }
-	  timing.gcf_online.stop();
 	  
 	  String out = output.toString(2);
 		if (circuit.equals("F2ET"))
 			out = Util.addZero(out, n);
 		else
 			out = Util.addZero(out, w+2);
+		  timing.gcf_online.stop();
 		//System.out.println("--- D: output:\t" + out);
 	  return out;
   }

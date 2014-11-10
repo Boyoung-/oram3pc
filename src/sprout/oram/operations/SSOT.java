@@ -43,8 +43,8 @@ public class SSOT extends Operation {
     // protocol
     // step 1
     // party I
-    String[] delta = new String[k];
     timing.ssot_online.start();
+    String[] delta = new String[k];
     for (int o=0; o<k; o++)
       delta[o] = Util.addZero(new BigInteger(l, rnd).toString(2), l);
     timing.ssot_online.stop();

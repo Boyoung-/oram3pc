@@ -67,8 +67,10 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     if (i == h) {
       int d_size = ForestMetadata.getABits(i);
       // party C
+      timing.post_online.start();
       String triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(new BigInteger(secretC_Li_p, 2)).toString(2), lBits) + Util.addZero("", d_size);  
       String secretC_Ti_p = Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(triangle_C, 2)).toString(2), tupleBits);
+      timing.post_online.stop();
       return secretC_Ti_p;      
     }
     
@@ -100,7 +102,6 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     // step 4
     // party C
-    String[] a = new String[twotaupow];
     PRG G;
     try {
       G = new PRG(aBits);
@@ -109,6 +110,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
       return null;
     }
     timing.post_online.start();
+    String[] a = new String[twotaupow];
     String a_all = G.generateBitString(aBits, s);
     for (int k=0; k<twotaupow; k++) {
       a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
@@ -165,9 +167,9 @@ public class PostProcessT extends TreeOperation<String, String[]>{
       e.printStackTrace();
       return null;
     }
+    timing.post_online.start();
     String[] a = new String[twotaupow];
     String[] a_p = new String[twotaupow];
-    timing.post_online.start();
     String a_all = G.generateBitString(aBits, s);
     for (int k=0; k<twotaupow; k++) {
       a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
@@ -215,8 +217,10 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     if (i == h) {
       int d_size = ForestMetadata.getABits(i);
       // party E
+      timing.post_online.start();
       String triangle_E = "0" + Util.addZero("", i*tau) + secretE_Li_p + Util.addZero("", d_size);
       String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBits);
+      timing.post_online.stop();
       return secretE_Ti_p;      
     }
     
@@ -246,8 +250,8 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     // step 5
     // party E
-    String A_E = "";
     timing.post_online.start();
+    String A_E = "";
     for (int k=0; k<twotaupow; k++) {
       A_E += a_p[BigInteger.valueOf(k+alpha).mod(BigInteger.valueOf(twotaupow)).intValue()];
     }

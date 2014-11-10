@@ -37,9 +37,6 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     // protocol
     // step 1
     // party C
-    timing.reshuffle_online.start();
-    byte[] s1 = rnd.generateSeed(16);
-    timing.reshuffle_online.stop();
     PRG G;
     try {
       G = new PRG(pathBuckets*bucketBits);
@@ -48,6 +45,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       return null;
     }
     timing.reshuffle_online.start();
+    byte[] s1 = rnd.generateSeed(16);
     String p1 = G.generateBitString(pathBuckets*bucketBits, s1);
     String z = Util.addZero(new BigInteger(secretC_P, 2).xor(new BigInteger(p1, 2)).toString(2), bucketBits);
     timing.reshuffle_online.stop();
@@ -99,10 +97,11 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       for (int j=0; j<pathBuckets; j++)
         a[j] = a_all.substring(j*bucketBits, (j+1)*bucketBits);
       String[] secretC_pi_P_arr = Util.permute(a, pi);
-      timing.reshuffle_online.stop();
       String secretC_pi_P = "";
       for (int j=0; j<pathBuckets; j++)
         secretC_pi_P += secretC_pi_P_arr[j];
+      timing.reshuffle_online.stop();
+      
       // D sends secretC_pi_P to C
       // D sends s2 to E
       timing.reshuffle_write.start();
@@ -131,11 +130,11 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     // C sends E z
     timing.reshuffle_read.start();
     String z = charlie.readString();
-    timing.reshuffle_read.stop();
+    //timing.reshuffle_read.stop();
     
     // step 2
     // D sends s2 to E
-    timing.reshuffle_read.start();
+    //timing.reshuffle_read.start();
     byte[] s2 = debbie.read();
     timing.reshuffle_read.stop();
     
@@ -155,10 +154,10 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     for (int j=0; j<pathBuckets; j++)
       b[j] = b_all.substring(j*bucketBits, (j+1)*bucketBits);
     String[] secretE_pi_P_arr = Util.permute(b, pi);
-    timing.reshuffle_online.stop();
     String secretE_pi_P = "";
     for (int j=0; j<pathBuckets; j++)
       secretE_pi_P += secretE_pi_P_arr[j];
+    timing.reshuffle_online.stop();
     // E outputs secretE_pi_P
     return secretE_pi_P;
   }
