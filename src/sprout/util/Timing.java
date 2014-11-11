@@ -117,8 +117,6 @@ public class Timing
 		gcf_online = new StopWatch("gcf_online");
 		gcf_write = new StopWatch("gcf_write");
 		gcf_read = new StopWatch("gcf_read");
-		gtt_write = new StopWatch("gtt_write");
-		gtt_read = new StopWatch("gtt_read");
 		
 		ssot = new StopWatch("ssot");
 		ssot_online = new StopWatch("ssot_online");
@@ -134,6 +132,10 @@ public class Timing
 		encrypt_online = new StopWatch("encrypt_online");
 		encrypt_write = new StopWatch("encrypt_write");
 		encrypt_read = new StopWatch("encrypt_read");
+		
+		// special use
+		gtt_write = new StopWatch("gtt_write");
+		gtt_read = new StopWatch("gtt_read");
 	}
 	
 	public void writeToFile(String filename) throws IOException {
@@ -348,6 +350,68 @@ public class Timing
 		return out;
 	}
 	
+	public void divide(int n) {
+		access.divide(n);
+		access_online.divide(n);
+		access_write.divide(n);
+		access_read.divide(n);
+		
+		decrypt.divide(n);
+		decrypt_online.divide(n);
+		decrypt_write.divide(n);
+		decrypt_read.divide(n);
+
+		oprf.divide(n);
+		oprf_online.divide(n);
+		oprf_write.divide(n);
+		oprf_read.divide(n);
+		
+		pet.divide(n);
+		pet_online.divide(n);
+		pet_write.divide(n);
+		pet_read.divide(n);
+		
+		aot.divide(n);
+		aot_online.divide(n);
+		aot_write.divide(n);
+		aot_read.divide(n);
+		
+		post.divide(n);
+		post_online.divide(n);
+		post_write.divide(n);
+		post_read.divide(n);
+		
+		reshuffle.divide(n);
+		reshuffle_online.divide(n);
+		reshuffle_write.divide(n);
+		reshuffle_read.divide(n);
+		
+		eviction.divide(n);
+		eviction_online.divide(n);
+		eviction_write.divide(n);
+		eviction_read.divide(n);
+		
+		gcf.divide(n);
+		gcf_online.divide(n);
+		gcf_write.divide(n);
+		gcf_read.divide(n);
+		
+		ssot.divide(n);
+		ssot_online.divide(n);
+		ssot_write.divide(n);
+		ssot_read.divide(n);
+		
+		iot.divide(n);
+		iot_online.divide(n);
+		iot_write.divide(n);
+		iot_read.divide(n);
+		
+		encrypt.divide(n);
+		encrypt_online.divide(n);
+		encrypt_write.divide(n);
+		encrypt_read.divide(n);
+	}
+	
 	@Override
 	public String toString() {
 		String out = access + "\n" + access_online + "\n" + access_write + "\n" + access_read + "\n\n"
@@ -363,5 +427,21 @@ public class Timing
 				+ iot + "\n" + iot_online + "\n" + iot_write + "\n" + iot_read + "\n\n"
 				+ encrypt + "\n" + encrypt_online + "\n" + encrypt_write + "\n" + encrypt_read;
 		return out;
+	}
+	
+	public String toCSV() {
+		String csv = access.toCSV() + "\n" + access_online.toCSV() + "\n" + access_write.toCSV() + "\n" + access_read.toCSV() + "\n"
+				+ decrypt.toCSV() + "\n" + decrypt_online.toCSV() + "\n" + decrypt_write.toCSV() + "\n" + decrypt_read.toCSV() + "\n"
+				+ oprf.toCSV() + "\n" + oprf_online.toCSV() + "\n" + oprf_write.toCSV() + "\n" + oprf_read.toCSV() + "\n"
+				+ pet.toCSV() + "\n" + pet_online.toCSV() + "\n" + pet_write.toCSV() + "\n" + pet_read.toCSV() + "\n"
+				+ aot.toCSV() + "\n" + aot_online.toCSV() + "\n" + aot_write.toCSV() + "\n" + aot_read.toCSV() + "\n"
+				+ post.toCSV() + "\n" + post_online.toCSV() + "\n" + post_write.toCSV() + "\n" + post_read.toCSV() + "\n"
+				+ reshuffle.toCSV() + "\n" + reshuffle_online.toCSV() + "\n" + reshuffle_write.toCSV() + "\n" + reshuffle_read.toCSV() + "\n"
+				+ eviction.toCSV() + "\n" + eviction_online.toCSV() + "\n" + eviction_write.toCSV() + "\n" + eviction_read.toCSV() + "\n"
+				+ gcf.toCSV() + "\n" + gcf_online.toCSV() + "\n" + gcf_write.toCSV() + "\n" + gcf_read.toCSV() + "\n"
+				+ ssot.toCSV() + "\n" + ssot_online.toCSV() + "\n" + ssot_write.toCSV() + "\n" + ssot_read.toCSV() + "\n"
+				+ iot.toCSV() + "\n" + iot_online.toCSV() + "\n" + iot_write.toCSV() + "\n" + iot_read.toCSV() + "\n"
+				+ encrypt.toCSV() + "\n" + encrypt_online.toCSV() + "\n" + encrypt_write.toCSV() + "\n" + encrypt_read.toCSV();
+		return csv;
 	}
 }

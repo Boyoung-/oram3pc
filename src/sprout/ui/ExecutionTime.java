@@ -14,7 +14,7 @@ public class ExecutionTime
 		d.readFromFile("files/timing-debbie");
 		e.readFromFile("files/timing-eddie");
 		
-		System.out.println(c.add(d).add(e));
+		System.out.println(c.add(d).add(e).toCSV());
 
 		//System.out.println(c);
 		//System.out.println(d);

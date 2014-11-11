@@ -19,6 +19,8 @@ public class StopWatch implements Serializable
 	private long startWallClockTime;
 	private long startCPUTime;
 	
+	int convert = 1000000; 
+	
 	public StopWatch() {
 		elapsedWallClockTime = 0;
 		elapsedCPUTime = 0;
@@ -86,14 +88,26 @@ public class StopWatch implements Serializable
 		return out;
 	}
 	
+	public void divide(int n) {
+		elapsedWallClockTime /= n;
+		elapsedCPUTime /= n;
+	}
+	
 	@Override
 	public String toString() {
-		int convert = 1000000; 
 		String out = " - Wall clock time(ms): " + elapsedWallClockTime/convert +
 				"\n - CPU time(ms): " + elapsedCPUTime/convert;
 		if (task == null)
 			return out;
 		return "Task: " + task + "\n" + out;
+	}
+	
+	public String toCSV() {
+		String csv = "Wall clock time(ms)," + elapsedWallClockTime/convert +
+				"\nCPU time(ms)," + elapsedCPUTime/convert;
+		if (task == null)
+			return csv;
+		return "Task: " + task + "\n" + csv;
 	}
 	
 	private long getCPUTime() {

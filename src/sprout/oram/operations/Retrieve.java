@@ -202,8 +202,8 @@ public class Retrieve extends Operation {
 	  int h = ForestMetadata.getLevels() - 1;
 	  int tau = ForestMetadata.getTau();
 	  
-	  int records = 1;     // how many random records we want to test retrieval
-	  int retrievals = 1;  // for each record, how many repeated retrievals we want to do
+	  int records = 10;     // how many random records we want to test retrieval
+	  int retrievals = 10;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
 		  String N = Util.addZero(new BigInteger(h*tau, rnd).toString(2), h*tau);
@@ -244,20 +244,23 @@ public class Retrieve extends Operation {
 		  }
 	  }
 	  
-	
+	int cycles = records * retrievals;
 	try {
 		switch (party) {
 		case Charlie:
+			timing.divide(cycles);
 			timing.writeToFile("files/timing-charlie");
 			break;
 		case Debbie:
 			timing.gcf_online = timing.gcf_online.subtract(timing.gtt_read);
 			timing.gcf_read = timing.gcf_read.add(timing.gtt_read);
+			timing.divide(cycles);
 			timing.writeToFile("files/timing-debbie");
 			break;
 		case Eddie:
 			timing.gcf_online = timing.gcf_online.subtract(timing.gtt_write);
 			timing.gcf_write = timing.gcf_write.add(timing.gtt_write);
+			timing.divide(cycles);
 			timing.writeToFile("files/timing-eddie");
 			break;
 		}
