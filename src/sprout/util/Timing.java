@@ -430,18 +430,18 @@ public class Timing
 	}
 	
 	public String toCSV() {
-		String csv = access.toCSV() + "\n" + access_online.toCSV() + "\n" + access_write.toCSV() + "\n" + access_read.toCSV() + "\n"
-				+ decrypt.toCSV() + "\n" + decrypt_online.toCSV() + "\n" + decrypt_write.toCSV() + "\n" + decrypt_read.toCSV() + "\n"
-				+ oprf.toCSV() + "\n" + oprf_online.toCSV() + "\n" + oprf_write.toCSV() + "\n" + oprf_read.toCSV() + "\n"
-				+ pet.toCSV() + "\n" + pet_online.toCSV() + "\n" + pet_write.toCSV() + "\n" + pet_read.toCSV() + "\n"
-				+ aot.toCSV() + "\n" + aot_online.toCSV() + "\n" + aot_write.toCSV() + "\n" + aot_read.toCSV() + "\n"
-				+ post.toCSV() + "\n" + post_online.toCSV() + "\n" + post_write.toCSV() + "\n" + post_read.toCSV() + "\n"
-				+ reshuffle.toCSV() + "\n" + reshuffle_online.toCSV() + "\n" + reshuffle_write.toCSV() + "\n" + reshuffle_read.toCSV() + "\n"
-				+ eviction.toCSV() + "\n" + eviction_online.toCSV() + "\n" + eviction_write.toCSV() + "\n" + eviction_read.toCSV() + "\n"
-				+ gcf.toCSV() + "\n" + gcf_online.toCSV() + "\n" + gcf_write.toCSV() + "\n" + gcf_read.toCSV() + "\n"
-				+ ssot.toCSV() + "\n" + ssot_online.toCSV() + "\n" + ssot_write.toCSV() + "\n" + ssot_read.toCSV() + "\n"
-				+ iot.toCSV() + "\n" + iot_online.toCSV() + "\n" + iot_write.toCSV() + "\n" + iot_read.toCSV() + "\n"
+		String csv = access.toCSV() + "\n" + access_online.toCSV() + "\n" + access_write.toCSV() + "\n" + access_read.toCSV() + "\n\n"
+				+ decrypt.toCSV() + "\n" + decrypt_online.toCSV() + "\n" + decrypt_write.toCSV() + "\n" + decrypt_read.toCSV() + "\n\n"
+				+ oprf.toCSV() + "\n" + oprf_online.toCSV() + "\n" + oprf_write.toCSV() + "\n" + oprf_read.toCSV() + "\n\n"
+				+ pet.toCSV() + "\n" + pet_online.toCSV() + "\n" + pet_write.toCSV() + "\n" + pet_read.toCSV() + "\n\n"
+				+ aot.toCSV() + "\n" + aot_online.toCSV() + "\n" + aot_write.toCSV() + "\n" + aot_read.toCSV() + "\n\n"
+				+ post.toCSV() + "\n" + post_online.toCSV() + "\n" + post_write.toCSV() + "\n" + post_read.toCSV() + "\n\n"
+				+ reshuffle.toCSV() + "\n" + reshuffle_online.toCSV() + "\n" + reshuffle_write.toCSV() + "\n" + reshuffle_read.toCSV() + "\n\n"
+				+ eviction.toCSV() + "\n" + eviction_online.toCSV() + "\n" + eviction_write.toCSV() + "\n" + eviction_read.toCSV() + "\n\n"
+				+ gcf.toCSV() + "\n" + gcf_online.toCSV() + "\n" + gcf_write.toCSV() + "\n" + gcf_read.toCSV() + "\n\n"
+				+ ssot.toCSV() + "\n" + ssot_online.toCSV() + "\n" + ssot_write.toCSV() + "\n" + ssot_read.toCSV() + "\n\n"
+				+ iot.toCSV() + "\n" + iot_online.toCSV() + "\n" + iot_write.toCSV() + "\n" + iot_read.toCSV() + "\n\n"
 				+ encrypt.toCSV() + "\n" + encrypt_online.toCSV() + "\n" + encrypt_write.toCSV() + "\n" + encrypt_read.toCSV();
-		return csv;
+		return "\n" + csv;
 	}
 }

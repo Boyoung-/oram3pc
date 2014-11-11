@@ -103,11 +103,9 @@ public class StopWatch implements Serializable
 	}
 	
 	public String toCSV() {
-		String csv = "Wall clock time(ms)," + elapsedWallClockTime/convert +
-				"\nCPU time(ms)," + elapsedCPUTime/convert;
-		if (task == null)
-			return csv;
-		return "Task: " + task + "\n" + csv;
+		String csv = task + ",Wall clock(ms)," + elapsedWallClockTime/convert +
+				"\n,CPU(ms)," + elapsedCPUTime/convert;
+		return csv;
 	}
 	
 	private long getCPUTime() {
