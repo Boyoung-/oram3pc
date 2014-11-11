@@ -1,6 +1,7 @@
-// Original author: William Deans, william.deans@gmail.com
-// Source from: http://stackoverflow.com/questions/878309/java-array-with-more-than-4gb-elements
+// Byte array that can have long type length
 // Modified and extended by Boyang Wei
+// based on code from William Deans (william.deans@gmail.com)
+// original code: http://stackoverflow.com/questions/878309/java-array-with-more-than-4gb-elements
 
 package sprout.oram;
 
@@ -12,8 +13,8 @@ import org.apache.commons.io.FileUtils;
 
 public class ByteArray64 {
 
-    //private final int CHUNK_SIZE = 1024*1024*1024; // 1 GB
-	private final int CHUNK_SIZE = 100;
+    private final int CHUNK_SIZE = 1024*1024*1024; // 1GB
+	//private final int CHUNK_SIZE = 10;
 
     long size;
     byte [][] data;
@@ -73,7 +74,7 @@ public class ByteArray64 {
     		return null;
     	
     	long end_index = start_index + length;
-    	if( start_index<0 || start_index>=size || end_index>=size) {
+    	if( start_index<0 || start_index>=size || end_index>size) {
             throw new IndexOutOfBoundsException("Error attempting to access data elements from " + start_index + " to "
             		+ end_index + ".  Array is " + size + " elements long.");
         }
@@ -100,9 +101,46 @@ public class ByteArray64 {
         	copy_offset += CHUNK_SIZE;
         }
         
-        System.arraycopy(data[end_chunk], 0, output, copy_offset, end_offset);
+        if (end_offset > 0)
+        	System.arraycopy(data[end_chunk], 0, output, copy_offset, end_offset);
         
         return output;
+    }
+    
+    public void setBytes(long start_index, byte[] newData) {
+    	int length = newData.length;
+    	if (length == 0)
+    		return;
+    	
+    	long end_index = start_index + length;
+    	if( start_index<0 || start_index>=size || end_index>size) {
+            throw new IndexOutOfBoundsException("Error attempting to set data elements from " + start_index + " to "
+            		+ end_index + ".  Array is " + size + " elements long.");
+        }
+    	
+    	int start_chunk = (int)(start_index / CHUNK_SIZE);
+        int start_offset = (int)(start_index % CHUNK_SIZE);
+        int end_chunk = (int)(end_index / CHUNK_SIZE);
+        
+        if (start_chunk == end_chunk) {
+        	System.arraycopy(newData, 0, data[start_chunk], start_offset, length);
+        	return;
+        }
+        
+        int end_offset = (int)(end_index % CHUNK_SIZE);
+        int middle_chunks = Math.max(end_chunk - start_chunk - 1, 0);
+        int copy_offset = 0;
+        
+        System.arraycopy(newData, copy_offset, data[start_chunk], start_offset, CHUNK_SIZE-start_offset);
+        copy_offset += CHUNK_SIZE-start_offset;
+        
+        for (int i=0; i<middle_chunks; i++) {
+        	System.arraycopy(newData, copy_offset, data[start_chunk+i+1], 0, CHUNK_SIZE);
+        	copy_offset += CHUNK_SIZE;
+        }
+        
+        if (end_offset > 0)
+        	System.arraycopy(newData, copy_offset, data[end_chunk], 0, end_offset);
     }
     
     public void readFromFile(File file) throws IOException {
@@ -115,6 +153,7 @@ public class ByteArray64 {
                 throw new IOException("short read");
             }
         }
+    	fileInputStream.close();
     }
     
     public void writeToFile(String filename) throws IOException {
@@ -127,6 +166,7 @@ public class ByteArray64 {
     		FileUtils.writeByteArrayToFile(file, data[i], true);
     }
     
+    // testing
     public static void main(String args[]) throws IOException {
     	ByteArray64 t1 = new ByteArray64(1536);
     	byte one = 1;
@@ -137,6 +177,21 @@ public class ByteArray64 {
     	ByteArray64 t2 = new ByteArray64("files/bytearray64-test");
     	one = t2.getByte(1112);
     	System.out.println(one);
+    	
+    	ByteArray64 t3 = new ByteArray64(30);
+    	byte[] input = new byte[20];
+    	for (int i=0; i<20; i++) 
+    		input[i] = (byte) (i+1);
+    	t3.setBytes(5, input);
+    	byte[] output = t3.getBytes(2, 26);
+    	byte[] output2 = t3.getBytes(2, 26);
+    	for (int i=0; i<output.length; i++)
+    		System.out.println(output[i] + " " + output2[i]);
+    	t3.writeToFile("files/bytearray64-test");
+    	ByteArray64 t4 = new ByteArray64("files/bytearray64-test");
+    	output = t4.getBytes(0, 30);
+    	for (int i=0; i<output.length; i++)
+    		System.out.println(output[i]);
     }
     
 }
