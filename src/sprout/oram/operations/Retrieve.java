@@ -201,7 +201,7 @@ public class Retrieve extends Operation {
 		  return;
 	  
 	  timing = new Timing();
-	  timing.init(); // TODO: abandon timing for the first couple retrievals
+	  timing.init(); 
 	  
 	  int h = ForestMetadata.getLevels() - 1;
 	  int tau = ForestMetadata.getTau();
@@ -210,7 +210,7 @@ public class Retrieve extends Operation {
 	  if (shiftN == 0) 
 		  shiftN = tau;
 	  
-	  int records = 10;     // how many random records we want to test retrieval
+	  int records = 11;     // how many random records we want to test retrieval
 	  int retrievals = 10;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
@@ -267,10 +267,20 @@ public class Retrieve extends Operation {
 			    }
 			  }
 		  }
+		  
+		  if (test == 0 && records > 1)
+			  timing.init(); // abandon the timing of the first several retrievals
 	  }
 	  
 	  // average timing
-	int cycles = records * retrievals;
+	  int cycles = 0;
+	  if (records > 1)
+		cycles = (records-1) * retrievals; // first round is abandoned
+	  else if (records == 1)
+		  cycles = retrievals;
+	  else
+		  return;
+		  
 	try {
 		switch (party) {
 		case Charlie:
