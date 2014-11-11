@@ -48,7 +48,7 @@ public class Tree
 			throw new TreeException("Bucket length error");
 		
 		long start = ForestMetadata.getTreeOffset(index) + bucketNum * bucketBytes;
-		Forest.setForestData(bucket, start);
+		Forest.setForestData(start, bucket);
 	}
 	
 	public void setBucket(Bucket bucket, long bucketNum) throws TreeException 

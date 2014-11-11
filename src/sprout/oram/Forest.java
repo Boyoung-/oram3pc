@@ -253,6 +253,7 @@ public class Forest
 		return trees.get(index);
 	}
 	
+	// TODO: make the following non-static
 	public static byte[] getForestData()
 	{
 		return data;
@@ -267,7 +268,7 @@ public class Forest
 	}
 	
 	// TODO: overflow??
-	public static void setForestData(byte[] newData, long offset) 
+	public static void setForestData(long offset, byte[] newData) 
 	{
 		System.arraycopy(newData, 0, data, (int) offset, newData.length); 
 	}

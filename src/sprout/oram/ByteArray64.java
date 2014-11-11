@@ -1,6 +1,6 @@
 // Original author: William Deans, william.deans@gmail.com
 // Source from: http://stackoverflow.com/questions/878309/java-array-with-more-than-4gb-elements
-// Modified by Boyang Wei
+// Modified and extended by Boyang Wei
 
 package sprout.oram;
 
@@ -12,7 +12,8 @@ import org.apache.commons.io.FileUtils;
 
 public class ByteArray64 {
 
-    private final int CHUNK_SIZE = 1024*1024*1024; //1GiB
+    //private final int CHUNK_SIZE = 1024*1024*1024; // 1 GB
+	private final int CHUNK_SIZE = 100;
 
     long size;
     byte [][] data;
@@ -22,14 +23,15 @@ public class ByteArray64 {
         init();
     }
     
-    public ByteArray64(String filename) {
+    public ByteArray64(String filename) throws IOException {
     	File file = new File(filename);
     	size = FileUtils.sizeOf(file);
     	init();
+    	readFromFile(file);
     }
     
     private void init() {
-        if( size == 0 ) {
+        if( size < 0 ) {
             data = null;
         } else {
             int chunks = (int)(size / CHUNK_SIZE);
@@ -44,7 +46,11 @@ public class ByteArray64 {
         }
     }
     
-    public byte get( long index ) {
+    public long size() {
+        return size;
+    }
+    
+    public byte getByte( long index ) {
         if( index<0 || index>=size ) {
             throw new IndexOutOfBoundsException("Error attempting to access data element "+index+".  Array is "+size+" elements long.");
         }
@@ -53,7 +59,7 @@ public class ByteArray64 {
         return data[chunk][offset];
     }
     
-    public void set( long index, byte b ) {
+    public void setByte( long index, byte b ) {
         if( index<0 || index>=size ) {
             throw new IndexOutOfBoundsException("Error attempting to access data element "+index+".  Array is "+size+" elements long.");
         }
@@ -62,24 +68,75 @@ public class ByteArray64 {
         data[chunk][offset] = b;
     }
     
-    /**
-     * Simulates a single read which fills the entire array via several smaller reads.
-     * 
-     * @param fileInputStream
-     * @throws IOException
-     */
-    public void read( FileInputStream fileInputStream ) throws IOException {
-        if( size == 0 ) {
-            return;
+    public byte[] getBytes(long start_index, int length) {
+    	if (length <= 0)
+    		return null;
+    	
+    	long end_index = start_index + length;
+    	if( start_index<0 || start_index>=size || end_index>=size) {
+            throw new IndexOutOfBoundsException("Error attempting to access data elements from " + start_index + " to "
+            		+ end_index + ".  Array is " + size + " elements long.");
         }
-        for( int idx=0; idx<data.length; idx++ ) {
-            if( fileInputStream.read( data[idx] ) != data[idx].length ) {
+    	
+    	int start_chunk = (int)(start_index / CHUNK_SIZE);
+        int start_offset = (int)(start_index % CHUNK_SIZE);
+        int end_chunk = (int)(end_index / CHUNK_SIZE);
+        byte[] output = new byte[length];
+        
+        if (end_chunk == start_chunk) {
+        	System.arraycopy(data[start_chunk], start_offset, output, 0, length);
+        	return output;
+        }
+
+        int end_offset = (int)(end_index % CHUNK_SIZE);
+        int middle_chunks = Math.max(end_chunk - start_chunk - 1, 0);
+        int copy_offset = 0;
+        
+        System.arraycopy(data[start_chunk], start_offset, output, copy_offset, CHUNK_SIZE-start_offset);
+        copy_offset += CHUNK_SIZE-start_offset;
+        
+        for (int i=0; i<middle_chunks; i++) {
+        	System.arraycopy(data[start_chunk+i+1], 0, output, copy_offset, CHUNK_SIZE);
+        	copy_offset += CHUNK_SIZE;
+        }
+        
+        System.arraycopy(data[end_chunk], 0, output, copy_offset, end_offset);
+        
+        return output;
+    }
+    
+    public void readFromFile(File file) throws IOException {
+    	if (size < 0) {
+    		return;
+    	}
+    	FileInputStream fileInputStream = FileUtils.openInputStream(file);
+    	for(int i=0; i<data.length; i++) {
+            if( fileInputStream.read( data[i] ) != data[i].length ) {
                 throw new IOException("short read");
             }
         }
     }
     
-    public long size() {
-        return size;
+    public void writeToFile(String filename) throws IOException {
+    	if (size < 0)
+    		return;
+    	
+    	File file = new File(filename);
+    	FileUtils.deleteQuietly(file);
+    	for (int i=0; i<data.length; i++)
+    		FileUtils.writeByteArrayToFile(file, data[i], true);
     }
+    
+    public static void main(String args[]) throws IOException {
+    	ByteArray64 t1 = new ByteArray64(1536);
+    	byte one = 1;
+    	System.out.println(one);
+    	t1.setByte(1112, one);
+    	t1.writeToFile("files/bytearray64-test");
+    	
+    	ByteArray64 t2 = new ByteArray64("files/bytearray64-test");
+    	one = t2.getByte(1112);
+    	System.out.println(one);
+    }
+    
 }

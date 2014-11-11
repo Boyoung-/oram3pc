@@ -19,7 +19,7 @@ public class StopWatch implements Serializable
 	private long startWallClockTime;
 	private long startCPUTime;
 	
-	int convert = 1000000; 
+	int convert = 1000000; // from nanoseconds to milliseconds
 	
 	public StopWatch() {
 		elapsedWallClockTime = 0;
