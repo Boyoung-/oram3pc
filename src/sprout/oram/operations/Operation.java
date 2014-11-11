@@ -99,19 +99,21 @@ public abstract class Operation {
 		e.printStackTrace();
 	}
     Forest forest = null;
-	if (build)
-		try {
-			forest = new Forest();
-		} catch (Exception e) {
-			e.printStackTrace();
+    if (party == Party.Eddie) {
+		if (build)
+			try {
+				forest = new Forest();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		else { 
+			try {
+				forest = new Forest(dbFile);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-	else { // TODO: not every party/protocol need to load forest
-		try {
-			forest = new Forest(dbFile);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    }
     
     run(party, forest);
   }

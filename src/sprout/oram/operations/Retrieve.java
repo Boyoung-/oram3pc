@@ -196,23 +196,38 @@ public class Retrieve extends Operation {
   
   @Override
   public void run(Party party, Forest forest) throws ForestException {
+	  long numInsert = ForestMetadata.getNumInsert();
+	  if (numInsert == 0L)
+		  return;
+	  
 	  timing = new Timing();
-	  timing.init();
+	  timing.init(); // TODO: abandon timing for the first couple retrievals
 	  
 	  int h = ForestMetadata.getLevels() - 1;
 	  int tau = ForestMetadata.getTau();
 	  
-	  int records = 10;     // how many random records we want to test retrieval
-	  int retrievals = 10;  // for each record, how many repeated retrievals we want to do
+	  int records = 3;     // how many random records we want to test retrieval
+	  int retrievals = 3;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
-		  String N = Util.addZero(new BigInteger(h*tau, rnd).toString(2), h*tau);
-		  long expected = new BigInteger(N, 2).intValue();
+		  String N = null;
+		  long expected = 0;
+		  if (party == Party.Charlie) {
+			  if (numInsert == -1)
+				  N = Util.addZero(new BigInteger(h*tau, rnd).toString(2), h*tau);
+			  else
+				  N = Util.addZero(Util.nextBigInteger(BigInteger.valueOf(numInsert)).toString(2), h*tau);
+			  expected = new BigInteger(N, 2).intValue();
+		  }
+		  
 		  for (long exec=0; exec<retrievals; exec++) {
 			  String Li = "";
-			  System.out.println("Stored record is: " + expected);
+			  if (party == Party.Charlie)
+				  System.out.println("Stored record is: " + expected);
 			  System.out.println("Execution cycle: " + exec);
-			  precomputation();
+			  
+			  precomputation(); // TODO: not every party needs to do all of them
+			  
 			  for (int i=0; i<= h; i++) {
 				  currTree = i;
 				  
