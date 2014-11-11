@@ -22,8 +22,10 @@ public class Forest
 	static SecureRandom rnd = new SecureRandom();
 	
 	private static ArrayList<Tree> trees;	
-	private static byte[] data; // keep all data in memory for testing now
-								// TODO: write large data to disk
+	// TODO: write large data to disk
+	private static ByteArray64 data;
+	//private static byte[] data; 
+								
 	
 	private String defaultFile = "files/forest.bin";
 	
@@ -50,8 +52,8 @@ public class Forest
 		if (!ForestMetadata.getStatus())
 			throw new ForestException("ForestMetadata is not setup");
 		
-		// TODO: overflow??
-		data = new byte[(int) ForestMetadata.getForestBytes()];
+		//data = new byte[(int) ForestMetadata.getForestBytes()];
+		data = new ByteArray64(ForestMetadata.getForestBytes());
 		
 		int levels = ForestMetadata.getLevels();
 		int h = levels - 1;
@@ -207,14 +209,16 @@ public class Forest
 	
 	private void writeToFile(String filename) throws IOException
 	{
-		File file = new File(filename);
-		FileUtils.writeByteArrayToFile(file, data);
+		//File file = new File(filename);
+		//FileUtils.writeByteArrayToFile(file, data);
+		data.writeToFile(filename);
 	}
 	
 	private void readFromFile(String filename) throws IOException
 	{
-		File file = new File(filename);
-		data = FileUtils.readFileToByteArray(file);
+		//File file = new File(filename);
+		//data = FileUtils.readFileToByteArray(file);
+		data = new ByteArray64(filename);
 	}
 	
 	private void encryptForest() throws BucketException, NoSuchAlgorithmException, TreeException
@@ -254,22 +258,22 @@ public class Forest
 	}
 	
 	// TODO: make the following non-static
-	public static byte[] getForestData()
+	public static ByteArray64 getForestData()
 	{
 		return data;
 	}
 	
-	// TODO: overflow??
 	public static byte[] getForestData(long offset, int length)
 	{
-		byte[] tmp = new byte[length];
-		System.arraycopy(data, (int) offset, tmp, 0, length);
-		return tmp;
+		//byte[] tmp = new byte[length];
+		//System.arraycopy(data, (int) offset, tmp, 0, length);
+		//return tmp;
+		return data.getBytes(offset, length);
 	}
 	
-	// TODO: overflow??
 	public static void setForestData(long offset, byte[] newData) 
 	{
-		System.arraycopy(newData, 0, data, (int) offset, newData.length); 
+		//System.arraycopy(newData, 0, data, (int) offset, newData.length); 
+		data.setBytes(offset, newData);
 	}
 }

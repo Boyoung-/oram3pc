@@ -1,5 +1,5 @@
 // Byte array that can have long type length
-// Modified and extended by Boyang Wei
+// Revised and extended by Boyang Wei
 // based on code from William Deans (william.deans@gmail.com)
 // original code: http://stackoverflow.com/questions/878309/java-array-with-more-than-4gb-elements
 
