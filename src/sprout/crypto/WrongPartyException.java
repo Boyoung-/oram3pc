@@ -2,7 +2,12 @@ package sprout.crypto;
 
 public class WrongPartyException extends RuntimeException {
 
-  public WrongPartyException() {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+public WrongPartyException() {
     super();
   }
 

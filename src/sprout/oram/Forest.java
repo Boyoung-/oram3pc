@@ -82,6 +82,10 @@ public class Forest
 		for (int i=1; i<levels; i++)
 			nToSlot[i] = new HashMap<Long, Long>();
 		
+		int shiftN = ForestMetadata.getLastNBits() % tau;
+		if (shiftN == 0)
+			shiftN = tau;
+		
 		System.out.println("===== Forest Generation =====");
 		for (long address = 0L; address < numInsert; address++)
 		{
@@ -99,7 +103,13 @@ public class Forest
 				else
 				{
 					FB = BigInteger.ONE;
-					N[i] = BigInteger.valueOf(address >> ((h-i)*tau));
+					if (i == h)
+						N[i] = BigInteger.valueOf(address);
+					else if (i == h-1) 
+						N[i] = N[i+1].shiftRight(shiftN);
+					else
+						N[i] = N[i+1].shiftRight(tau);
+					//N[i] = BigInteger.valueOf(address >> ((h-i)*tau));
 					Long slot = nToSlot[i].get(N[i].longValue());
 					if (slot == null) {
 						do {
@@ -119,7 +129,11 @@ public class Forest
 					//A = new BigInteger(ForestMetadata.getABits(i), rnd); // generate random record content
 					A = BigInteger.valueOf(address); // for testing: record content is the same as its N
 				else {
-					BigInteger indexN = Util.getSubBits(N[i+1], 0, tau);
+					BigInteger indexN = null;
+					if (i == h-1)
+						indexN = Util.getSubBits(N[i+1], 0, shiftN);
+					else
+						indexN = Util.getSubBits(N[i+1], 0, tau);
 					int start = (ForestMetadata.getTwoTauPow()-indexN.intValue()-1) * ForestMetadata.getLBits(i+1);
 					Tuple old = bucket.getTuple(tupleIndex);
 					A = Util.setSubBits(new BigInteger(1, old.getA()), L[i+1], start, start+ForestMetadata.getLBits(i+1));

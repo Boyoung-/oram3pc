@@ -6,7 +6,7 @@ import sprout.oram.Forest;
 import sprout.oram.ForestMetadata;
 import sprout.util.StopWatch;
 
-public class ForestTest
+public class InitForest
 {
 	static SecureRandom rnd = new SecureRandom();
 	

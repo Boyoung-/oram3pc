@@ -3,7 +3,6 @@
 package YaoGC;
 
 import java.math.*;
-import java.util.*;
 import java.security.SecureRandom;
 
 public class Wire extends TransitiveObservable {

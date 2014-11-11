@@ -12,24 +12,20 @@ import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
 
-import sprout.util.RC;
 import sprout.util.Util;
 
 public class ForestMetadata implements Serializable
 {
 	public static final String CONFIG_FILE 			= "forest.cfg";
 	public static final String TAU_NAME 			= "tau";
+	public static final String NBITS_NAME			= "nBits";
 	public static final String W_NAME 				= "w";
 	public static final String E_NAME 				= "e";
-	public static final String LEVELS_NAME 			= "levels";
+	//public static final String LEVELS_NAME 			= "levels";
 	public static final String DBYTES_NAME 			= "dBytes";
-	public static final String NONCEBITS_NAME		= "nonceBits";
-	
+	public static final String NONCEBITS_NAME		= "nonceBits";	
 	public static final String INSERT_NAME			= "insert";
 	
-	/**
-	 * Class version ID.
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	// Whether ForestMetadata is configured
@@ -38,6 +34,9 @@ public class ForestMetadata implements Serializable
 	// Tau in the write-up
 	private static int tau;
 	private static int twoTauPow; // 2^tau
+	
+	// bits of N in the record
+	private static int lastNBits;
 		
 	// Bucket depth (number of tuples per bucket)
 	private static int w;
@@ -85,24 +84,21 @@ public class ForestMetadata implements Serializable
 		
 		// Retrieve all of the required parameters
 		tau = Integer.parseInt(configMap.get(TAU_NAME).toString());
+		lastNBits = Integer.parseInt(configMap.get(NBITS_NAME).toString());
 		w = Integer.parseInt(configMap.get(W_NAME).toString());
 		e = Integer.parseInt(configMap.get(E_NAME).toString());
-		levels = Integer.parseInt(configMap.get(LEVELS_NAME).toString());
+		//levels = Integer.parseInt(configMap.get(LEVELS_NAME).toString());
 		dBytes = Integer.parseInt(configMap.get(DBYTES_NAME).toString());
-		nonceBits = Integer.parseInt(configMap.get(NONCEBITS_NAME).toString());
-		
+		nonceBits = Integer.parseInt(configMap.get(NONCEBITS_NAME).toString());		
 		numInsert = Long.parseLong(configMap.get(INSERT_NAME).toString(), 10);
 		
 		init();
 	}
-	
-	/**
-	 * Perform extra initialization of parameter values after loading 
-	 * from the configuration file.
-	 */
+
 	private static void init()
 	{
 		twoTauPow = (int) Math.pow(2, tau);
+		levels = (lastNBits + tau - 1) / tau + 1;
 		
 		lBits = new int[levels];
 		nBits = new int[levels];
@@ -128,7 +124,10 @@ public class ForestMetadata implements Serializable
 				numBuckets[i] = 1;
 			}
 			else {
-				nBits[i] = i * tau;
+				if (i == h)
+					nBits[i] = lastNBits;
+				else
+					nBits[i] = i * tau;
 				lBits[i] = Math.max(nBits[i] - logW, 1);
 				numLeaves[i] = (long) Math.pow(2, lBits[i]);
 				numBuckets[i] = numLeaves[i] * e + numLeaves[i] - 1;
@@ -167,6 +166,7 @@ public class ForestMetadata implements Serializable
 	{
 		Util.disp("===== ForestMetadata =====");
 		Util.disp("tau:\t" + tau);
+		Util.disp("N bits:\t" + lastNBits);
 		Util.disp("w:\t" + w);
 		Util.disp("e:\t" + e);
 		Util.disp("trees:\t" + levels);
@@ -194,24 +194,12 @@ public class ForestMetadata implements Serializable
 		Util.disp("");
 	}
 	
-	/**
-	 * Dump the metadata to the default config name.
-	 * 
-	 * @return success, else an exception is thrown
-	 * @throws IOException
-	 */
-	public static RC write() throws IOException
+	public static void write() throws IOException
 	{
-		return write(CONFIG_FILE);
+		write(CONFIG_FILE);
 	}
 	
-	/**
-	 * Dump the metadata to the specified config name.
-	 * 
-	 * @return success, else an exception is thrown
-	 * @throws IOException
-	 */
-	public static RC write(String filename) throws IOException
+	public static void write(String filename) throws IOException
 	{	
 		Yaml yaml = new Yaml();
 	    FileWriter writer = new FileWriter(filename);
@@ -219,23 +207,25 @@ public class ForestMetadata implements Serializable
 	    // Cached configuration map
 		Map<String, String> configMap = new HashMap<String, String>();
 		configMap.put(TAU_NAME, "" + tau);
+		configMap.put(NBITS_NAME, "" + lastNBits);
 		configMap.put(W_NAME, "" + w);
 		configMap.put(E_NAME, "" + e);
-		configMap.put(LEVELS_NAME, "" + levels);
+		//configMap.put(LEVELS_NAME, "" + levels);
 		configMap.put(DBYTES_NAME, "" + dBytes);
-		configMap.put(NONCEBITS_NAME, "" + nonceBits);
-		
+		configMap.put(NONCEBITS_NAME, "" + nonceBits);		
 		configMap.put(INSERT_NAME, "" + numInsert);
 	    
 	    yaml.dump(configMap, writer);
-	    
-		return RC.SUCCESS;
 	}
 	
 	///// ACCESSORS
 	public static boolean getStatus()
 	{
 		return status;
+	}
+	
+	public static int getLastNBits() {
+		return lastNBits;
 	}
 	
 	public static int getLevels()

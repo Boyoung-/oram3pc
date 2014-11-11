@@ -25,7 +25,7 @@ public class Tuple
 	{
 		int tupleBytes = ForestMetadata.getTupleBytes(treeIndex);
 		if (tuple.length > tupleBytes)
-			throw new TupleException("Tuple length error");
+			throw new TupleException("Tuple length error: " + tuple.length + " != " + tupleBytes);
 		else {
 			this.tuple = new byte[tupleBytes];
 			System.arraycopy(tuple, 0, this.tuple, tupleBytes-tuple.length, tuple.length);

@@ -39,7 +39,7 @@ public class PET extends Operation {
     super(con1, con2);
   }
 
-  public static Integer executeDebbie(Communication charlie, Communication eddie, int n) {
+  public static void executeDebbie(Communication charlie, Communication eddie, int n) {
     // Debbie does nothing online
     //return -1;
     
@@ -82,8 +82,6 @@ public class PET extends Operation {
     eddie.write(beta);
     eddie.write(tau);
     eddie.write(r);
-    
-    return -1;
   }
 
   public static Integer executeCharlie(Communication debbie, Communication eddie, String[] cc) {
@@ -146,10 +144,12 @@ public class PET extends Operation {
     }
 
     timing.pet_online.stop();
+    
+    // this means error
     return -1;
   }
   
-  public static Integer executeEddie(Communication charlie, Communication debbie, String[] bb) {
+  public static void executeEddie(Communication charlie, Communication debbie, String[] bb) {
     // parameters
     int n  = bb.length;
     // m = 32
@@ -193,8 +193,6 @@ public class PET extends Operation {
     timing.pet_write.start();
     charlie.write(w);
     timing.pet_write.stop();
-    
-    return -1;
   }
 
   @Override

@@ -196,7 +196,7 @@ public class Retrieve extends Operation {
   
   @Override
   public void run(Party party, Forest forest) throws ForestException {
-	  long numInsert = ForestMetadata.getNumInsert();
+	  long numInsert = Math.min(ForestMetadata.getNumInsert(), ForestMetadata.getAddressSpace());
 	  if (numInsert == 0L)
 		  return;
 	  
@@ -205,25 +205,29 @@ public class Retrieve extends Operation {
 	  
 	  int h = ForestMetadata.getLevels() - 1;
 	  int tau = ForestMetadata.getTau();
+	  int lastNBits = ForestMetadata.getLastNBits();
+	  int shiftN = lastNBits % tau;
+	  if (shiftN == 0) 
+		  shiftN = tau;
 	  
-	  int records = 3;     // how many random records we want to test retrieval
-	  int retrievals = 3;  // for each record, how many repeated retrievals we want to do
+	  int records = 10;     // how many random records we want to test retrieval
+	  int retrievals = 10;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
 		  String N = null;
 		  long expected = 0;
 		  if (party == Party.Charlie) {
 			  if (numInsert == -1)
-				  N = Util.addZero(new BigInteger(h*tau, rnd).toString(2), h*tau);
+				  N = Util.addZero(new BigInteger(lastNBits, rnd).toString(2), lastNBits);
 			  else
-				  N = Util.addZero(Util.nextBigInteger(BigInteger.valueOf(numInsert)).toString(2), h*tau);
+				  N = Util.addZero(Util.nextBigInteger(BigInteger.valueOf(numInsert)).toString(2), lastNBits);
 			  expected = new BigInteger(N, 2).intValue();
 		  }
 		  
 		  for (long exec=0; exec<retrievals; exec++) {
 			  String Li = "";
 			  if (party == Party.Charlie)
-				  System.out.println("Stored record is: " + expected);
+				  System.out.println("Stored record is: " + expected + " (N=" + N + ")");
 			  System.out.println("Execution cycle: " + exec);
 			  
 			  precomputation(); // TODO: not every party needs to do all of them
@@ -244,7 +248,13 @@ public class Retrieve extends Operation {
 			    		String D = outC[1].substring(outC[1].length()-ForestMetadata.getDataSize()*8);
 			    		int record = new BigInteger(D, 2).intValue();
 			    		System.out.println("Retrieved record is: " + new BigInteger(D, 2));
-			    		System.out.println("Is record correct: " + (record == expected) + "\n");
+			    		System.out.println("Is record correct: " + (record==expected?"YES":"NO!!") + "\n");
+			    		if (record != expected)
+							try {
+								throw new Exception("Retrieval error");
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 			    	}
 			      break;
 			    case Debbie: 
@@ -259,6 +269,7 @@ public class Retrieve extends Operation {
 		  }
 	  }
 	  
+	  // average timing
 	int cycles = records * retrievals;
 	try {
 		switch (party) {

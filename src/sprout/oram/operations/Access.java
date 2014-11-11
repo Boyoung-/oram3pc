@@ -22,8 +22,9 @@ public class Access extends TreeOperation<AOutput, String> {
                                        String Li, Tree unused, String Nip1) {
 	  
     // prepare                                 
-    String Ni = Nip1.substring(0, nBits);                         
-    String Nip1_pr = Nip1.substring(nBits);
+    String Ni = Nip1.substring(0, nBits);     
+    String Nip1_pr = Nip1.substring(nBits);  
+    
     
     // protocol
     // step 1
@@ -58,8 +59,11 @@ public class Access extends TreeOperation<AOutput, String> {
       // PET outputs j_1 for C
     }
     if (j_1 < 0) {
-      System.out.println("PET error!");
-      return new AOutput();
+    	try {
+			throw new Exception("PET error!");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
     
     // step 4
