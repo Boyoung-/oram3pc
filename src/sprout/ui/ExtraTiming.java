@@ -21,20 +21,23 @@ public class ExtraTiming
 		StopWatch prg_bytes_sw = new StopWatch("PRG_bytes");
 		StopWatch pet_sw = new StopWatch("PET");
 		
+		int iteration = 100;
 		int convert = 1000000;
 		byte[] k = new byte[16];
 		byte[] input = new byte[8];
 		byte[] seed = new byte[16];
+		BigInteger a, b, c;
 		
+		System.out.println("Iterations," + iteration + ",(below time is sum for each n)");
 		System.out.println("n,,AES,PRG(string),PRG(bytes),PET");
 		
-		int n = 100000;
+		for (int n=100; n<=1000; n+=100) {
 			rnd.nextBytes(k);
-			AES_PRF prf = new AES_PRF(128);
+			AES_PRF prf = new AES_PRF(128*n);
 			prf.init(k);
-			PRG prg = new PRG(128);
+			PRG prg = new PRG(128*n);
 			
-			for (int i=0; i<n; i++) {
+			for (int i=0; i<iteration; i++) {
 				rnd.nextBytes(input);
 				rnd.nextBytes(seed);
 				
@@ -43,31 +46,28 @@ public class ExtraTiming
 				aes_sw.stop();
 				
 				prg_string_sw.start();
-				prg.generateBitString(128, seed);
+				prg.generateBitString(128*n, seed);
 				prg_string_sw.stop();
 				
 				prg_bytes_sw.start();
-				prg.generateBytes(128, seed);
+				prg.generateBytes(128*n, seed);
 				prg_bytes_sw.stop();
 				
-				for (int j=0; j<4; j++) {
-					BigInteger alpha = Util.nextBigInteger(p);
-				    BigInteger beta = Util.nextBigInteger(p);
-				    BigInteger tau = Util.nextBigInteger(p);
-				    BigInteger r = Util.nextBigInteger(p.subtract(BigInteger.ONE)).add(BigInteger.ONE);
-				    BigInteger gama  = alpha.multiply(beta).subtract(tau).mod(p);
-				    BigInteger delta = beta.add(r).mod(p);
-					
-					BigInteger c = Util.nextBigInteger(p);
-					BigInteger b = Util.nextBigInteger(p);				           
+				for (int j=0; j<4*n; j++) {
+					a = Util.nextBigInteger(p);
+					b = Util.nextBigInteger(p);		
+					c = a.multiply(b);
 				    
 					pet_sw.start();
-					BigInteger u = alpha.subtract(c).mod(p);
-					BigInteger w = beta.multiply(u).subtract(r.multiply(b)).subtract(tau).mod(p);
-					BigInteger v = c.multiply(delta).add(w).subtract(gama).mod(p);				
+					c.mod(p);				
 					pet_sw.stop();
 				}
 			}
+			
+			//aes_sw.divide(iteration);
+			//prg_string_sw.divide(iteration);
+			//prg_bytes_sw.divide(iteration);
+			//pet_sw.divide(iteration);
 			
 			System.out.print(n + ",WC(ms)");
 			System.out.print("," + aes_sw.elapsedWallClockTime/convert);
@@ -80,9 +80,11 @@ public class ExtraTiming
 			System.out.print("," + prg_bytes_sw.elapsedCPUTime/convert);
 			System.out.print("," + pet_sw.elapsedCPUTime/convert + "\n");
 			
-			//aes_sw.reset();
-			//prg_string_sw.reset();
-			//prg_bytes_sw.reset();
+			aes_sw.reset();
+			prg_string_sw.reset();
+			prg_bytes_sw.reset();
+			pet_sw.reset();
+		}
 	}
 
 }
