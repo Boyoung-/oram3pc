@@ -21,53 +21,79 @@ public class ExtraTiming
 		StopWatch prg_bytes_sw = new StopWatch("PRG_bytes");
 		StopWatch pet_sw = new StopWatch("PET");
 		
-		int iteration = 100;
+		int iteration = 200;
 		int convert = 1000000;
 		byte[] k = new byte[16];
-		byte[] input = new byte[8];
-		byte[] seed = new byte[16];
-		BigInteger a, b, c;
+		BigInteger p2 = p.multiply(p);
+		byte[][] input = new byte[iteration][];
+		byte[][] seed = new byte[iteration][];
+		BigInteger[][] mult = new BigInteger[iteration][];
 		
-		System.out.println("Iterations," + iteration + ",(below time is sum for each n)");
+		// prepare input
+		for (int i=0; i<iteration; i++) {
+			input[i] = new byte[8];
+			seed[i] = new byte[16];
+			rnd.nextBytes(input[i]);
+			rnd.nextBytes(seed[i]);
+		}
+		
+		for (int n=100; n<=1000; n+=100) {
+			for (int i=0; i<iteration; i++) {
+				mult[i] = new BigInteger[4*n];
+				for (int j=0; j<4*n; j++) {	
+					mult[i][j] = Util.nextBigInteger(p2);
+				}
+			}
+		}
+		
+		System.out.println("Iterations," + iteration/2 + ",(below time is sum for each n)");
 		System.out.println("n,,AES,PRG(string),PRG(bytes),PET");
 		
+		// start timing
 		for (int n=100; n<=1000; n+=100) {
 			rnd.nextBytes(k);
 			AES_PRF prf = new AES_PRF(128*n);
 			prf.init(k);
 			PRG prg = new PRG(128*n);
-			
+
 			for (int i=0; i<iteration; i++) {
-				rnd.nextBytes(input);
-				rnd.nextBytes(seed);
-				
-				aes_sw.start();
-				prf.compute(input);
-				aes_sw.stop();
-				
-				prg_string_sw.start();
-				prg.generateBitString(128*n, seed);
-				prg_string_sw.stop();
-				
-				prg_bytes_sw.start();
-				prg.generateBytes(128*n, seed);
-				prg_bytes_sw.stop();
-				
-				for (int j=0; j<4*n; j++) {
-					a = Util.nextBigInteger(p);
-					b = Util.nextBigInteger(p);		
-					c = a.multiply(b);
-				    
-					pet_sw.start();
-					c.mod(p);				
-					pet_sw.stop();
-				}
+				if (i == iteration/2)
+					aes_sw.start();
+				prf.compute(input[i]);
 			}
+			aes_sw.stop();
+				
+			/*
+			for (int i=0; i<iteration; i++) {
+				if (i == iteration/2)
+					prg_string_sw.start();
+				prg.generateBitString(128*n, seed[i]);
+			}
+			prg_string_sw.stop();
+			*/
+				
+			for (int i=0; i<iteration; i++) {
+				if (i == iteration/2)
+					prg_bytes_sw.start();
+				prg.generateBytes(128*n, seed[i]);
+			}
+			prg_bytes_sw.stop();
+
+			for (int i=0; i<iteration; i++) {
+				if (i == iteration/2)
+					pet_sw.start();
+				for (int j=0; j<4*n; j++) {
+					mult[i][j].mod(p);	
+				}
+			}			
+			pet_sw.stop();
 			
-			//aes_sw.divide(iteration);
-			//prg_string_sw.divide(iteration);
-			//prg_bytes_sw.divide(iteration);
-			//pet_sw.divide(iteration);
+			/*
+			aes_sw.divide(iteration);
+			prg_string_sw.divide(iteration);
+			prg_bytes_sw.divide(iteration);
+			pet_sw.divide(iteration);
+			*/
 			
 			System.out.print(n + ",WC(ms)");
 			System.out.print("," + aes_sw.elapsedWallClockTime/convert);
@@ -78,7 +104,7 @@ public class ExtraTiming
 			System.out.print("," + aes_sw.elapsedCPUTime/convert);
 			System.out.print("," + prg_string_sw.elapsedCPUTime/convert);
 			System.out.print("," + prg_bytes_sw.elapsedCPUTime/convert);
-			System.out.print("," + pet_sw.elapsedCPUTime/convert + "\n");
+			System.out.print("," + pet_sw.elapsedCPUTime/convert + "\n\n");
 			
 			aes_sw.reset();
 			prg_string_sw.reset();
