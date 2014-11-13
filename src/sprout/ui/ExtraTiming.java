@@ -21,7 +21,7 @@ public class ExtraTiming
 		StopWatch prg_bytes_sw = new StopWatch("PRG_bytes");
 		StopWatch pet_sw = new StopWatch("PET");
 		
-		int iteration = 200;
+		int iteration = 20000;
 		int convert = 1000000;
 		byte[] k = new byte[16];
 		BigInteger p2 = p.multiply(p);
