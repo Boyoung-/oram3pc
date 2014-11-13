@@ -21,6 +21,9 @@ public class GCF extends Operation {
   }
 
 public static void executeE(Communication C, Communication D, String circuit, int n, String sE) {
+	C.countBandwidth = false;
+	D.countBandwidth = false;
+	
 	  // this line is only for checking correctness; should be removed for real execution
 	  //D.write(sE);
     
@@ -125,6 +128,9 @@ public static void executeE(Communication C, Communication D, String circuit, in
   }
   
   public static String executeD(Communication C, Communication E, String circuit, int n) {
+	  C.countBandwidth = false;
+	  E.countBandwidth = false;
+	  
 	  // these lines are only for checking correctness; should be removed for real execution
 	  //String sE = E.readString();
 	  //String sC = C.readString();

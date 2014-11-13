@@ -22,6 +22,9 @@ public class IOT extends Operation {
   }
   
   public static void executeS(Communication R, Communication I, String[] m) {
+	  I.countBandwidth = false;
+	    R.countBandwidth = false;
+	    
     // parameters
     int N = m.length;
     int l = m[0].length();
@@ -60,6 +63,9 @@ public class IOT extends Operation {
   }
   
   public static String[] executeR(Communication I, Communication S) {
+	  I.countBandwidth = false;
+	    S.countBandwidth = false;
+	    
     // parameters // TODO: should not be transmitted
     int k = I.readInt();
     int l = S.readInt();
@@ -99,6 +105,9 @@ public class IOT extends Operation {
   }
   
   public static void executeI(Communication R, Communication S, Integer[] i, String[] delta) throws NoSuchAlgorithmException {
+	  S.countBandwidth = false;
+	    R.countBandwidth = false;
+	    
     // parameters // TODO: these should not be transmitted at execution time
     int k = i.length;
     R.write(k);

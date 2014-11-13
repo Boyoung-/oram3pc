@@ -41,6 +41,8 @@ public class PET extends Operation {
   }
 
   public static void executeDebbie(Communication charlie, Communication eddie, int n) {
+	  charlie.countBandwidth = false;
+	    eddie.countBandwidth = false;
 	  
     // Debbie does nothing online
     //return -1;
@@ -88,6 +90,9 @@ public class PET extends Operation {
   }
 
   public static Integer executeCharlie(Communication debbie, Communication eddie, String[] cc) {
+	    debbie.countBandwidth = false;
+	    eddie.countBandwidth = false;
+	  
     // parameters
     int n  = cc.length;
     // m = 32
@@ -167,6 +172,9 @@ public class PET extends Operation {
   }
   
   public static void executeEddie(Communication charlie, Communication debbie, String[] bb) {
+	    charlie.countBandwidth = false;
+	    debbie.countBandwidth = false;
+	    
     // parameters
     int n  = bb.length;
     // m = 32

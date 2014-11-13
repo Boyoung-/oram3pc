@@ -16,6 +16,9 @@ public class AOT extends Operation {
   }
   
   public static void executeE(Communication C, Communication D, String[] m) {
+	    C.countBandwidth = false;
+	    D.countBandwidth = false;
+	  
     int N = m.length;
     int l = m[0].length();
     
@@ -68,6 +71,9 @@ public class AOT extends Operation {
   }
   
   public static String executeC(Communication D, Communication E, int j) {
+	    D.countBandwidth = false;
+	    E.countBandwidth = false;
+	    
     int N = E.readInt();
     int l = E.readInt();
     
@@ -113,6 +119,9 @@ public class AOT extends Operation {
   }
   
   public static void executeD(Communication C, Communication E) {
+	    C.countBandwidth = false;
+	    E.countBandwidth = false;
+	    
     //int N = E.readInt();
     int l = E.readInt();
     

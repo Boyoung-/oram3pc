@@ -20,8 +20,8 @@ public class Eviction extends TreeOperation<String, String[]> {
   }
 
   @Override
-  public String executeCharlieSubTree(Communication debbie,
-      Communication eddie, String unused1, Tree unused2, String[] extraArgs) {
+  public String executeCharlieSubTree(Communication debbie, Communication eddie, 
+		  String unused1, Tree unused2, String[] extraArgs) {
 	  if (i == 0)
 		  return null;
 	  
@@ -102,9 +102,8 @@ public class Eviction extends TreeOperation<String, String[]> {
   }
 
   @Override
-  public String executeDebbieSubTree(Communication charlie,
-      Communication eddie, BigInteger unused1, Tree unused2,
-      String[] unused3) {
+  public String executeDebbieSubTree(Communication charlie, Communication eddie, 
+		  BigInteger unused1, Tree unused2, String[] unused3) {
 	  if (i == 0)
 		  return null;
 	  
@@ -195,8 +194,8 @@ public class Eviction extends TreeOperation<String, String[]> {
   }
 
   @Override
-  public String executeEddieSubTree(Communication charlie,
-      Communication debbie, Tree unused, String[] extraArgs) {
+  public String executeEddieSubTree(Communication charlie, Communication debbie, 
+		  Tree unused, String[] extraArgs) {
 	  if (i == 0)
 		  return null;
 	  

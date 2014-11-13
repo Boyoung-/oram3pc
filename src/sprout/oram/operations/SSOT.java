@@ -19,6 +19,9 @@ public class SSOT extends Operation {
   }
   
   public static String[] executeC(Communication I, Communication E, String[] sC) {
+	  I.countBandwidth = false;
+	    E.countBandwidth = false;
+	    
     int l = sC[0].length();
     I.write(l);
     
@@ -48,6 +51,9 @@ public class SSOT extends Operation {
   }
   
   public static void executeI(Communication C, Communication E, Integer[] i) throws NoSuchAlgorithmException {
+	    E.countBandwidth = false;
+	    C.countBandwidth = false;
+	    
     // parameters
     int k = i.length;
     int l = C.readInt(); // TODO: Can we make this an input
@@ -83,6 +89,9 @@ public class SSOT extends Operation {
   }
   
   public static String[] executeE(Communication C, Communication I, String[] sE) {
+	    I.countBandwidth = false;
+	    C.countBandwidth = false;
+	    
     //int l = sE[0].length();
 	  
 	  I.countBandwidth = true;
