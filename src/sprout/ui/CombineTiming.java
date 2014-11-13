@@ -2,7 +2,7 @@ package sprout.ui;
 
 import sprout.util.Timing;
 
-public class ExecutionTime
+public class CombineTiming
 {	
 	public static void main(String[] args) throws Exception
 	{

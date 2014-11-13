@@ -16,6 +16,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.bouncycastle.asn1.nist.NISTNamedCurves;
 import org.bouncycastle.math.ec.ECPoint;
 
+import sprout.oram.PID;
+import sprout.util.Bandwidth;
 import sprout.util.Util;
 
 /**
@@ -61,12 +63,54 @@ public class Communication
 
 	protected int mState;
 	protected InetSocketAddress mAddress;
+	
+	public Bandwidth[] bandwidth;
+	List<Integer> bandwidthState;
 
 	public Communication()
 	{
 		mState = STATE_NONE;
+		
+		bandwidth = new Bandwidth[PID.size];
+		bandwidthState = new ArrayList<Integer>();
+		
+		bandwidth[PID.oprf] = new Bandwidth("oprf");
+		bandwidth[PID.decrypt] = new Bandwidth("decrypt");
+		bandwidth[PID.reshuffle] = new Bandwidth("reshuffle");
+		bandwidth[PID.encrypt] = new Bandwidth("encrypt");
+		bandwidth[PID.aot] = new Bandwidth("aot");
+		bandwidth[PID.iot] = new Bandwidth("iot");
+		bandwidth[PID.ssot] = new Bandwidth("ssot");
+		bandwidth[PID.pet] = new Bandwidth("pet");
+		bandwidth[PID.gcf] = new Bandwidth("gcf");
+		bandwidth[PID.access] = new Bandwidth("access");
+		bandwidth[PID.ppt] = new Bandwidth("ppt");
+		bandwidth[PID.eviction] = new Bandwidth("eviction");
 	}
-
+	
+	public void addBandwidth(int bits) {
+		for (int i=0; i<bandwidth.length; i++) {
+			if (bandwidth[i].isActive())
+				bandwidth[i].add(bits);
+		}
+	}
+	
+	public void saveBandwidthState() {
+		for (int i=0; i<bandwidth.length; i++) {
+			if (bandwidth[i].isActive()) {
+				bandwidthState.add(i);
+				bandwidth[i].stop();
+			}
+		}
+	}
+	
+	public void restoreBandwidthState() {
+		for (Integer i : bandwidthState) {
+			bandwidth[i].start();
+		}
+		bandwidthState.clear();
+	}
+	
 	/**
 	 * Set the current state of the connection
 	 * 
@@ -341,6 +385,8 @@ public class Communication
 		}
 		// Perform the write unsynchronized
 		r.write(out);
+		
+		addBandwidth(out.length);
 	}
 	
 	/**
@@ -398,14 +444,12 @@ public class Communication
     return NISTNamedCurves.getByName("P-224").getCurve().decodePoint(msg);
   }
 
-  // TODO: These int methods are not very efficient
-  //  We should serialize as bytes not as ASCII
   public void write(int a) {
-    write(String.valueOf(a)); // Probably more efficient to convert to bytes
+    write(BigInteger.valueOf(a)); 
   }
   
   public int readInt() {
-    return Integer.parseInt(readString());
+    return readBigInteger().intValue();
   }
   
   // TODO: rather than implementing specific class read/writes support an interface (e.g. serializable)

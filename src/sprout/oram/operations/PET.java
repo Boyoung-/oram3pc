@@ -40,6 +40,9 @@ public class PET extends Operation {
   }
 
   public static void executeDebbie(Communication charlie, Communication eddie, int n) {
+	  //charlie.saveBandwidthState();
+	  //eddie.saveBandwidthState();
+	  
     // Debbie does nothing online
     //return -1;
     
@@ -82,6 +85,9 @@ public class PET extends Operation {
     eddie.write(beta);
     eddie.write(tau);
     eddie.write(r);
+    
+    //charlie.restoreBandwidthState();
+    //eddie.restoreBandwidthState();
   }
 
   public static Integer executeCharlie(Communication debbie, Communication eddie, String[] cc) {
