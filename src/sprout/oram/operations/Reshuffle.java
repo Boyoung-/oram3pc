@@ -8,6 +8,7 @@ import java.util.List;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
+import sprout.oram.PID;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
@@ -33,6 +34,11 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     if (i == 0) {
       return secretC_P;
     }
+    
+    debbie.countBandwidth = true;
+    eddie.countBandwidth = true;
+    debbie.bandwidth[PID.reshuffle].start();
+    eddie.bandwidth[PID.reshuffle].start();
     
     // protocol
     // step 1
@@ -70,6 +76,11 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     	secretC_pi_P += Util.addZero(new BigInteger(1, secretC_pi_P_byte[j]).toString(2), bucketBits);
     timing.reshuffle_online.stop();
     
+    debbie.countBandwidth = false;
+    eddie.countBandwidth = false;
+    debbie.bandwidth[PID.reshuffle].stop();
+    eddie.bandwidth[PID.reshuffle].stop();
+    
     return secretC_pi_P;
   }
 
@@ -83,6 +94,11 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     if (i == 0) {
       return null;
     }
+    
+    charlie.countBandwidth = true;
+	  eddie.countBandwidth = true;	  
+	  charlie.bandwidth[PID.reshuffle].start();
+	  eddie.bandwidth[PID.reshuffle].start();
     
     try { 
       // protocol
@@ -120,6 +136,12 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     } catch (Exception e) {
       e.printStackTrace();
     }
+    
+    charlie.countBandwidth = false;
+	  eddie.countBandwidth = false;	  
+	  charlie.bandwidth[PID.reshuffle].stop();
+	  eddie.bandwidth[PID.reshuffle].stop();
+    
     return null;
   }
 
@@ -133,6 +155,11 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     if (i == 0) {
       return secretE_P;
     }
+    
+    charlie.countBandwidth = true;
+	  debbie.countBandwidth = true;
+	  charlie.bandwidth[PID.reshuffle].start();
+	  debbie.bandwidth[PID.reshuffle].start();
     
     // protocol
     // step 1
@@ -172,6 +199,12 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     for (int j=0; j<pathBuckets; j++)
       secretE_pi_P += secretE_pi_P_arr[j];
     timing.reshuffle_online.stop();
+    
+    charlie.countBandwidth = false;
+	  debbie.countBandwidth = false;
+	  charlie.bandwidth[PID.reshuffle].stop();
+	  debbie.bandwidth[PID.reshuffle].stop();
+    
     // E outputs secretE_pi_P
     return secretE_pi_P;
   }

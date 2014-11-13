@@ -11,6 +11,7 @@ import sprout.communication.Communication;
 import sprout.crypto.PRG;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.util.Util;
 
@@ -31,8 +32,12 @@ public class IOT extends Operation {
     
     // Pre-computed inputs
     Integer[] pi = I.readIntegerArray();
-    
     String[] r = I.readStringArray();
+    
+    I.countBandwidth = true;
+    R.countBandwidth = true;
+    I.bandwidth[PID.iot].start();
+    R.bandwidth[PID.iot].start();
     
     // protocol
     // step 1
@@ -47,12 +52,23 @@ public class IOT extends Operation {
     timing.iot_write.start();
     R.write(a);
     timing.iot_write.stop();
+    
+    I.countBandwidth = false;
+    R.countBandwidth = false;
+    I.bandwidth[PID.iot].stop();
+    R.bandwidth[PID.iot].stop();
   }
   
   public static String[] executeR(Communication I, Communication S) {
     // parameters // TODO: should not be transmitted
     int k = I.readInt();
     int l = S.readInt();
+    
+    I.countBandwidth = true;
+    S.countBandwidth = true;
+    I.bandwidth[PID.iot].start();
+    S.bandwidth[PID.iot].start();
+    
     // protocol
     // step 1
     // S sends a to R
@@ -72,8 +88,13 @@ public class IOT extends Operation {
     for (int o=0; o<k; o++)
       z[o] = Util.addZero(new BigInteger(1, a[j[o]]).xor(new BigInteger(1, p[o])).toString(2), l);
     timing.iot_online.stop();
+    
+    I.countBandwidth = false;
+    S.countBandwidth = false;
+    I.bandwidth[PID.iot].stop();
+    S.bandwidth[PID.iot].stop();
+    
     // R output z
-
     return z;
   }
   
@@ -101,6 +122,12 @@ public class IOT extends Operation {
     S.write(pi.toArray(new Integer[0]));
     S.write(r);
     
+    S.countBandwidth = true;
+    R.countBandwidth = true;
+    S.bandwidth[PID.iot].start();
+    R.bandwidth[PID.iot].start();
+    
+    // protocol
     // step 2
     // party I
     Integer[] j = new Integer[k];
@@ -117,6 +144,11 @@ public class IOT extends Operation {
     R.write(j);
     R.write(p);
     timing.iot_write.stop();
+    
+    S.countBandwidth = false;
+    R.countBandwidth = false;
+    S.bandwidth[PID.iot].stop();
+    R.bandwidth[PID.iot].stop();
   }
 
   @Override

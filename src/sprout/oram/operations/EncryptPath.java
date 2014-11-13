@@ -7,6 +7,7 @@ import org.bouncycastle.math.ec.ECPoint;
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
 import sprout.crypto.oprf.OPRF;
+import sprout.oram.PID;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
@@ -23,7 +24,13 @@ public class EncryptPath extends TreeOperation<EPath, String> {
   @Override
   public EPath executeCharlieSubTree(Communication debbie, Communication eddie, 
 		  String unused1, Tree unused2, String secretC_P) {
-    // Step 1
+	  debbie.countBandwidth = true;
+	    eddie.countBandwidth = true;
+	    debbie.bandwidth[PID.encrypt].start();
+	    eddie.bandwidth[PID.encrypt].start();
+	  
+	  // protocol
+    // step 1
     // D sends s and x to E
     // D sends c to C
 	  timing.encrypt_read.start();
@@ -45,12 +52,22 @@ public class EncryptPath extends TreeOperation<EPath, String> {
     eddie.write(d);
     timing.encrypt_write.stop();
     
+    debbie.countBandwidth = false;
+    eddie.countBandwidth = false;
+    debbie.bandwidth[PID.encrypt].stop();
+    eddie.bandwidth[PID.encrypt].stop();
+    
     return null;
   }
 
   @Override
   public EPath executeDebbieSubTree(Communication charlie, Communication eddie, 
 		  BigInteger k, Tree unused1, String unused2) {
+	  charlie.countBandwidth = true;
+	  eddie.countBandwidth = true;	  
+	  charlie.bandwidth[PID.encrypt].start();
+	  eddie.bandwidth[PID.encrypt].start();
+	  
     try {
       OPRF oprf = OPRFHelper.getOPRF(false);
       // protocol
@@ -98,14 +115,25 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       System.out.println("Error in EncryptPath charlie and eddie will probably hang");
     }
     
+    charlie.countBandwidth = false;
+	  eddie.countBandwidth = false;	  
+	  charlie.bandwidth[PID.encrypt].stop();
+	  eddie.bandwidth[PID.encrypt].stop();
+    
     return null;
   }
 
   @Override
   public EPath executeEddieSubTree(Communication charlie, Communication debbie, 
 		  Tree unused, String secretE_P) {
+	  charlie.countBandwidth = true;
+	  debbie.countBandwidth = true;
+	  charlie.bandwidth[PID.encrypt].start();
+	  debbie.bandwidth[PID.encrypt].start();
+	  
     try {
-      // Step 1
+    	// protocol
+      // step 1
       // D sends s and x to E
       // D sends c to C
     	timing.encrypt_read.start();
@@ -138,6 +166,11 @@ public class EncryptPath extends TreeOperation<EPath, String> {
         Bbar[j] = new BigInteger(secretE_B[j], 2).xor(new BigInteger(a[j], 2)).xor(new BigInteger(1, d[j]));
       }
       timing.encrypt_online.stop();
+      
+      charlie.countBandwidth = false;
+	  debbie.countBandwidth = false;
+	  charlie.bandwidth[PID.encrypt].stop();
+	  debbie.bandwidth[PID.encrypt].stop();
       
       // E outputs encrypted path
       return new EPath(x, Bbar);

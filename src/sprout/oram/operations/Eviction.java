@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 
 import sprout.communication.Communication;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.util.Util;
@@ -23,6 +24,11 @@ public class Eviction extends TreeOperation<String, String[]> {
       Communication eddie, String unused1, Tree unused2, String[] extraArgs) {
 	  if (i == 0)
 		  return null;
+	  
+	  debbie.countBandwidth = true;
+	    eddie.countBandwidth = true;
+	    debbie.bandwidth[PID.eviction].start();
+	    eddie.bandwidth[PID.eviction].start();
 	  
 	  // protocol
 	  // step 1
@@ -87,6 +93,11 @@ public class Eviction extends TreeOperation<String, String[]> {
  		secretC_P_pp += sC_P_pp[j];
  	timing.eviction_online.stop();
  	
+ 	debbie.countBandwidth = false;
+    eddie.countBandwidth = false;
+    debbie.bandwidth[PID.eviction].stop();
+    eddie.bandwidth[PID.eviction].stop();
+ 	
     return secretC_P_pp;
   }
 
@@ -96,6 +107,11 @@ public class Eviction extends TreeOperation<String, String[]> {
       String[] unused3) {
 	  if (i == 0)
 		  return null;
+	  
+	  charlie.countBandwidth = true;
+	  eddie.countBandwidth = true;	  
+	  charlie.bandwidth[PID.eviction].start();
+	  eddie.bandwidth[PID.eviction].start();
     
     // protocol
  		// step 1
@@ -169,6 +185,11 @@ public class Eviction extends TreeOperation<String, String[]> {
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
+ 		
+ 		charlie.countBandwidth = false;
+ 		  eddie.countBandwidth = false;	  
+ 		  charlie.bandwidth[PID.eviction].stop();
+ 		  eddie.bandwidth[PID.eviction].stop();
     
     return null;
   }
@@ -178,6 +199,11 @@ public class Eviction extends TreeOperation<String, String[]> {
       Communication debbie, Tree unused, String[] extraArgs) {
 	  if (i == 0)
 		  return null;
+	  
+	  charlie.countBandwidth = true;
+	  debbie.countBandwidth = true;
+	  charlie.bandwidth[PID.eviction].start();
+	  debbie.bandwidth[PID.eviction].start();
 	  
 	  // protocol
 	  // step 1
@@ -242,6 +268,11 @@ public class Eviction extends TreeOperation<String, String[]> {
  	for (int j=0; j<sE_P_pp.length; j++)
  		secretE_P_pp += sE_P_pp[j];
  	timing.eviction_online.stop();
+ 	
+ 	charlie.countBandwidth = false;
+	  debbie.countBandwidth = false;
+	  charlie.bandwidth[PID.eviction].stop();
+	  debbie.bandwidth[PID.eviction].stop();
     
     return secretE_P_pp;
   }

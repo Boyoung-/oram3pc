@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
 import sprout.oram.ForestMetadata;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.util.Util;
@@ -74,6 +75,11 @@ public class PostProcessT extends TreeOperation<String, String[]>{
       return secretC_Ti_p;      
     }
     
+    debbie.countBandwidth = true;
+    eddie.countBandwidth = true;
+    debbie.bandwidth[PID.ppt].start();
+    eddie.bandwidth[PID.ppt].start();
+    
     // step 1
     // E sends delta_C to C
     timing.post_read.start();
@@ -131,8 +137,13 @@ public class PostProcessT extends TreeOperation<String, String[]>{
       triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(new BigInteger(secretC_Li_p, 2)).toString(2), lBits) + A_C;
     String secretC_Ti_p = Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(triangle_C, 2)).toString(2), tupleBits);
     timing.post_online.stop();
-    // C outputs secretC_Ti_p
     
+    debbie.countBandwidth = false;
+    eddie.countBandwidth = false;
+    debbie.bandwidth[PID.ppt].stop();
+    eddie.bandwidth[PID.ppt].stop();
+    
+    // C outputs secretC_Ti_p
     return secretC_Ti_p;
   }
 
@@ -142,6 +153,11 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     if (i == h) {
       return null;    
     }
+    
+    charlie.countBandwidth = true;
+	  eddie.countBandwidth = true;	  
+	  charlie.bandwidth[PID.ppt].start();
+	  eddie.bandwidth[PID.ppt].start();
     
     // step 1
     // E sends delta_D to D
@@ -187,6 +203,11 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     eddie.write(a_p);
     timing.post_write.stop();
     
+    charlie.countBandwidth = false;
+	  eddie.countBandwidth = false;	  
+	  charlie.bandwidth[PID.ppt].stop();
+	  eddie.bandwidth[PID.ppt].stop();
+    
     return null;
   }
 
@@ -223,6 +244,11 @@ public class PostProcessT extends TreeOperation<String, String[]>{
       timing.post_online.stop();
       return secretE_Ti_p;      
     }
+    
+    charlie.countBandwidth = true;
+	  debbie.countBandwidth = true;
+	  charlie.bandwidth[PID.ppt].start();
+	  debbie.bandwidth[PID.ppt].start();
     
     // step 1
     // party E
@@ -266,8 +292,13 @@ public class PostProcessT extends TreeOperation<String, String[]>{
       triangle_E = "0" + Util.addZero("", i*tau) + secretE_Li_p + A_E;
     String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBits);
     timing.post_online.stop();
-    // E outputs secretE_Ti_p
     
+    charlie.bandwidth[PID.ppt].stop();
+	  debbie.bandwidth[PID.ppt].stop();
+  charlie.countBandwidth = false;
+  debbie.countBandwidth = false;
+    
+    // E outputs secretE_Ti_p
     return secretE_Ti_p;
   }
   

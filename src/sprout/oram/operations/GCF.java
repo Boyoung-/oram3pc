@@ -11,6 +11,7 @@ import YaoGC.Wire;
 import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.util.Util;
 
@@ -58,6 +59,11 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	    lbs[i][1] = glb1;
 	}
 	
+	C.countBandwidth = true;
+	  D.countBandwidth = true;
+	  C.bandwidth[PID.gcf].start();
+	  D.bandwidth[PID.gcf].start();
+	
 	// protocol
 	// step 1
 	BigInteger[][] A = new BigInteger[n][2];
@@ -79,11 +85,21 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	State in_E = State.fromLabels(K_E);
 	gc_E.startExecuting(in_E); // TODO: separate gcf write/read time out of this!
 	timing.gcf_online.stop();
+	
+	C.countBandwidth = false;
+	  D.countBandwidth = false;
+	  C.bandwidth[PID.gcf].stop();
+	  D.bandwidth[PID.gcf].stop();
   }
   
   public static void executeC(Communication D, Communication E, int n, String sC) {
 	  // this line is only for checking correctness; should be removed for real execution
 	  //D.write(sC);
+	  
+	  E.countBandwidth = true;
+	  D.countBandwidth = true;
+	  E.bandwidth[PID.gcf].start();
+	  D.bandwidth[PID.gcf].start();
 	  
 	  // protocol
 	  // step 1, 2
@@ -101,6 +117,11 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  timing.gcf_write.start();
 	  D.write(K_C);
 	  timing.gcf_write.stop();
+	  
+	  E.countBandwidth = false;
+	  D.countBandwidth = false;
+	  E.bandwidth[PID.gcf].stop();
+	  D.bandwidth[PID.gcf].stop();
   }
   
   public static String executeD(Communication C, Communication E, String circuit, int n) {
@@ -131,6 +152,11 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  for (int i=0; i<gc_D.outputWires.length; i++) // TODO: not a good way; should define a function
 			gc_D.outputWires[i].outBitEncPair = new BigInteger[2];
 	  
+	  C.countBandwidth = true;
+	  E.countBandwidth = true;
+	  C.bandwidth[PID.gcf].start();
+	  E.bandwidth[PID.gcf].start();
+	  
 	  // protocol
 	  // step 2
 	  timing.gcf_read.start();
@@ -159,6 +185,11 @@ public static void executeE(Communication C, Communication D, String circuit, in
 		else
 			out = Util.addZero(out, w+2);
 		  timing.gcf_online.stop();
+		  
+		  C.countBandwidth = false;
+		  E.countBandwidth = false;
+		  C.bandwidth[PID.gcf].stop();
+		  E.bandwidth[PID.gcf].stop();
 		  
 	  return out;
   }

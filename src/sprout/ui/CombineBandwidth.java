@@ -47,8 +47,7 @@ public class CombineBandwidth
 				"," + a[PID.pet].bandwidth*8 + 
 				"," + a[PID.aot].bandwidth*8 +
 				"," + a[PID.access].bandwidth*8 +
-				"," + a[PID.ppt].bandwidth*8 +
-				"," + a[PID.reshuffle].bandwidth*8 +
+				"," + (a[PID.ppt].bandwidth+a[PID.reshuffle].bandwidth)*8 +
 				"," + a[PID.gcf].bandwidth*8 +
 				"," + a[PID.ssot].bandwidth*8 +
 				"," + a[PID.encrypt].bandwidth*8 +

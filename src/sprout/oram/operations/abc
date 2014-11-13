@@ -1,6 +1,0 @@
-charlie.countBandwidth = true;
-debbie.countBandwidth = true;
-eddie.countBandwidth = true;
-charlie.countBandwidth = false;
-debbie.countBandwidth = false;
-eddie.countBandwidth = false;

@@ -7,6 +7,7 @@ import java.util.Arrays;
 import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.util.Util;
 
@@ -21,6 +22,12 @@ public class SSOT extends Operation {
     int l = sC[0].length();
     I.write(l);
     
+    I.countBandwidth = true;
+    E.countBandwidth = true;
+    I.bandwidth[PID.ssot].start();
+    E.bandwidth[PID.ssot].start();
+    
+    // protocol
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I
     timing.iot.start();
@@ -31,6 +38,11 @@ public class SSOT extends Operation {
     IOT.executeS(E, I, sC);
     timing.iot.stop();
     
+    I.countBandwidth = false;
+    E.countBandwidth = false;
+    I.bandwidth[PID.ssot].stop();
+    E.bandwidth[PID.ssot].stop();
+    
     // C outputs a
     return a;
   }
@@ -39,6 +51,11 @@ public class SSOT extends Operation {
     // parameters
     int k = i.length;
     int l = C.readInt(); // TODO: Can we make this an input
+    
+    C.countBandwidth = true;
+    E.countBandwidth = true;
+    C.bandwidth[PID.ssot].start();
+    E.bandwidth[PID.ssot].start();
     
     // protocol
     // step 1
@@ -58,11 +75,22 @@ public class SSOT extends Operation {
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
     IOT.executeI(E, C, i, delta);
     timing.iot.stop();
+    
+    E.countBandwidth = false;
+    C.countBandwidth = false;
+    E.bandwidth[PID.ssot].stop();
+    C.bandwidth[PID.ssot].stop();
   }
   
   public static String[] executeE(Communication C, Communication I, String[] sE) {
     //int l = sE[0].length();
+	  
+	  I.countBandwidth = true;
+	    C.countBandwidth = true;
+	    I.bandwidth[PID.ssot].start();
+	    C.bandwidth[PID.ssot].start();
     
+	  // protocol
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I
 	  timing.iot.start();
@@ -72,6 +100,11 @@ public class SSOT extends Operation {
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
     String[] b = IOT.executeR(I, C);
     timing.iot.stop();
+    
+    I.countBandwidth = false;
+    C.countBandwidth = false;
+    I.bandwidth[PID.ssot].stop();
+    C.bandwidth[PID.ssot].stop();
     
     // E outputs b
     return b;
