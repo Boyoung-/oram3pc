@@ -6,6 +6,7 @@ import sprout.communication.Communication;
 import sprout.crypto.AES_PRF;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.util.Util;
 
@@ -31,6 +32,11 @@ public class AOT extends Operation {
     // E sends k to D
     D.write(k);
     
+    C.countBandwidth = true;
+    D.countBandwidth = true;
+    C.bandwidth[PID.aot].start();
+	D.bandwidth[PID.aot].start();
+    
     // step 1
     // party E
     timing.aot_online.start();
@@ -55,11 +61,20 @@ public class AOT extends Operation {
     timing.aot_write.stop();
     // E sends m_p and alpha to C
     
+    C.bandwidth[PID.aot].stop();
+	D.bandwidth[PID.aot].stop();
+    C.countBandwidth = false;
+    D.countBandwidth = false;
   }
   
   public static String executeC(Communication D, Communication E, int j) {
     int N = E.readInt();
     int l = E.readInt();
+    
+    D.countBandwidth = true;
+    E.countBandwidth = true;
+    E.bandwidth[PID.aot].start();
+	D.bandwidth[PID.aot].start();
     
     // step 1
     // E sends m_p and alpha to C
@@ -89,6 +104,11 @@ public class AOT extends Operation {
     timing.aot_online.stop();
     // C outputs output
     
+    D.bandwidth[PID.aot].stop();
+	E.bandwidth[PID.aot].stop();
+    D.countBandwidth = false;
+    E.countBandwidth = false;
+    
     return output;
   }
   
@@ -99,6 +119,12 @@ public class AOT extends Operation {
     // pre-computed input
     byte[] k = E.read();
     
+    C.countBandwidth = true;
+    E.countBandwidth = true;
+    C.bandwidth[PID.aot].start();
+	E.bandwidth[PID.aot].start();
+    
+    // protocol
     // step 2
     // C sends j_p to D
     timing.aot_read.start();
@@ -122,6 +148,10 @@ public class AOT extends Operation {
       System.out.println("Error occured, not completing AOT, C will block");
     }
     
+    C.bandwidth[PID.aot].stop();
+	E.bandwidth[PID.aot].stop();
+    C.countBandwidth = false;
+    E.countBandwidth = false;
   }
 
   @Override

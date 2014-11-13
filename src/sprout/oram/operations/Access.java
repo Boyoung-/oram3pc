@@ -3,6 +3,7 @@ package sprout.oram.operations;
 import java.math.BigInteger;
 
 import sprout.communication.Communication;
+import sprout.oram.PID;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
@@ -25,6 +26,10 @@ public class Access extends TreeOperation<AOutput, String> {
     String Ni = Nip1.substring(0, nBits);     
     String Nip1_pr = Nip1.substring(nBits);  
     
+    debbie.countBandwidth = true;
+    eddie.countBandwidth = true;
+    debbie.bandwidth[PID.access].start();
+    eddie.bandwidth[PID.access].start();
     
     // protocol
     // step 1
@@ -128,6 +133,11 @@ public class Access extends TreeOperation<AOutput, String> {
     }
     timing.access_online.stop();
     
+    debbie.bandwidth[PID.access].stop();
+    eddie.bandwidth[PID.access].stop();
+    debbie.countBandwidth = false;
+    eddie.countBandwidth = false;
+    
     sanityCheck();
     // C outputs Lip1, secretC_Ti, secretC_P_p
     return new AOutput(Lip1, null, secretC_Ti, null, secretC_P_p, null, d);
@@ -138,6 +148,10 @@ public class Access extends TreeOperation<AOutput, String> {
   @Override
   public AOutput executeDebbieSubTree(Communication charlie, Communication eddie,
                                       BigInteger k, Tree unused1, String unused2) {
+	  charlie.countBandwidth = true;
+	  eddie.countBandwidth = true;	  
+	  charlie.bandwidth[PID.access].start();
+	  eddie.bandwidth[PID.access].start();
 	  
     // protocol
     // step 1
@@ -175,15 +189,24 @@ public class Access extends TreeOperation<AOutput, String> {
       // outputs ybar_j2 for C
     }
     
+    
+	  charlie.bandwidth[PID.access].stop();
+	  eddie.bandwidth[PID.access].stop();
+    charlie.countBandwidth = false;
+    eddie.countBandwidth = false;
+    
     sanityCheck();
-    //return new AOutput();
-     
+    //return new AOutput(); 
     return null;
   }
   
   @Override
   public AOutput executeEddieSubTree(Communication charlie, Communication debbie,
                                      Tree OT, String unused) {
+	  charlie.countBandwidth = true;
+	  debbie.countBandwidth = true;
+	  charlie.bandwidth[PID.access].start();
+	  debbie.bandwidth[PID.access].start();
 	  
     // protocol
     // step 1
@@ -271,11 +294,15 @@ public class Access extends TreeOperation<AOutput, String> {
       // outputs ybar_j2 for C
     }
     
+
+	  charlie.bandwidth[PID.access].stop();
+	  debbie.bandwidth[PID.access].stop();
+    charlie.countBandwidth = false;
+    debbie.countBandwidth = false;
+    
     sanityCheck();
     // E outputs secretE_Ti and secretE_P_p
     return new AOutput(null, DecOut.p, null, secretE_Ti, null, secretE_P_p, null);
-    
-    //return null;
   }
 
   @Override

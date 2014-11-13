@@ -6,6 +6,7 @@ import java.util.Arrays;
 import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.util.Util;
 
@@ -40,8 +41,6 @@ public class PET extends Operation {
   }
 
   public static void executeDebbie(Communication charlie, Communication eddie, int n) {
-	  //charlie.saveBandwidthState();
-	  //eddie.saveBandwidthState();
 	  
     // Debbie does nothing online
     //return -1;
@@ -86,8 +85,6 @@ public class PET extends Operation {
     eddie.write(tau);
     eddie.write(r);
     
-    //charlie.restoreBandwidthState();
-    //eddie.restoreBandwidthState();
   }
 
   public static Integer executeCharlie(Communication debbie, Communication eddie, String[] cc) {
@@ -112,6 +109,11 @@ public class PET extends Operation {
     for (int j=0; j<n; j++) {
       c[j] = new BigInteger(cc[j], 2);
     }
+    
+    debbie.countBandwidth = true;
+    eddie.countBandwidth = true;
+    debbie.bandwidth[PID.pet].start();
+	eddie.bandwidth[PID.pet].start();
     
     // Protocol       
     // step 1 
@@ -144,12 +146,21 @@ public class PET extends Operation {
       
       if (v[j].longValue() == 0L) {
           timing.pet_online.stop();
+
+          debbie.bandwidth[PID.pet].stop();
+      		eddie.bandwidth[PID.pet].stop();
+          debbie.countBandwidth = false;
+          eddie.countBandwidth = false;
         // C outputs j s.t. v[j] = 0
         return j;
       }
     }
-
     timing.pet_online.stop();
+    
+    debbie.bandwidth[PID.pet].stop();
+	eddie.bandwidth[PID.pet].stop();
+    debbie.countBandwidth = false;
+    eddie.countBandwidth = false;
     
     // this means error
     return -1;
@@ -180,6 +191,11 @@ public class PET extends Operation {
     }
     timing.pet_online.stop();
     
+    charlie.countBandwidth = true;
+    debbie.countBandwidth = true;
+    debbie.bandwidth[PID.pet].start();
+	charlie.bandwidth[PID.pet].start();
+    
     // step 1 
     // C sends u to E
     timing.pet_read.start();
@@ -199,6 +215,11 @@ public class PET extends Operation {
     timing.pet_write.start();
     charlie.write(w);
     timing.pet_write.stop();
+
+    debbie.bandwidth[PID.pet].stop();
+	charlie.bandwidth[PID.pet].stop();
+    charlie.countBandwidth = false;
+    debbie.countBandwidth = false;
   }
 
   @Override

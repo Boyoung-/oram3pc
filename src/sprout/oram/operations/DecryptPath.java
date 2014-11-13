@@ -14,6 +14,7 @@ import sprout.crypto.oprf.Message;
 import sprout.crypto.oprf.OPRF;
 import sprout.oram.Bucket;
 import sprout.oram.BucketException;
+import sprout.oram.PID;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
 import sprout.util.Util;
@@ -32,6 +33,11 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
   @Override
   public DPOutput executeCharlieSubTree(Communication debbie, Communication eddie,
                                         String Li, Tree unused1, EPath unused2) {
+	  debbie.countBandwidth = true;
+	  eddie.countBandwidth = true;
+	  debbie.bandwidth[PID.decrypt].start();
+	  eddie.bandwidth[PID.decrypt].start();
+	  
     // protocol
     // step 1
     // party C
@@ -54,7 +60,9 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     timing.decrypt_read.stop();
     //System.out.println("--- D: sigma_x: " + sigma_x.length);
    
-   
+
+	  debbie.bandwidth[PID.oprf].start();
+	  eddie.bandwidth[PID.oprf].start();
     // step 4
     // party C and D run OPRF on C's input sigma_x and D's input k
     timing.oprf.start();
@@ -92,15 +100,31 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       timing.oprf_online.stop();
     }
     timing.oprf.stop();
-    // C outputs secretC_P
     
+    debbie.bandwidth[PID.oprf].stop();
+	  eddie.bandwidth[PID.oprf].stop();
+    
+    
+    debbie.bandwidth[PID.decrypt].stop();
+	  eddie.bandwidth[PID.decrypt].stop();
+    debbie.countBandwidth = false;
+    eddie.countBandwidth = false;
+    
+    // C outputs secretC_P
     return new DPOutput(secretC_P, null, null);
   }
   
   @Override
   public DPOutput executeDebbieSubTree(Communication charlie, Communication eddie,
                                        BigInteger k, Tree unused1, EPath unused2) {
+	  charlie.countBandwidth = true;
+	  eddie.countBandwidth = true;
+	  charlie.bandwidth[PID.decrypt].start();
+	  eddie.bandwidth[PID.decrypt].start();
 	  
+	  
+	  charlie.bandwidth[PID.oprf].start();
+	  eddie.bandwidth[PID.oprf].start();
 	  // protocol
 	  // step 4
 	  timing.oprf.start();
@@ -120,6 +144,15 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     }
     timing.oprf.stop();
     
+    charlie.bandwidth[PID.oprf].stop();
+	  eddie.bandwidth[PID.oprf].stop();
+    
+    
+    eddie.bandwidth[PID.decrypt].stop();
+	  charlie.bandwidth[PID.decrypt].stop();
+    charlie.countBandwidth = false;
+    eddie.countBandwidth = false;
+    
     // D outputs nothing
     return null;
   }
@@ -127,6 +160,11 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
   @Override
   public DPOutput executeEddieSubTree(Communication charlie, Communication debbie,
                                       Tree OT, EPath unused1) {	  
+	  charlie.countBandwidth = true;
+	  debbie.countBandwidth = true;
+	  charlie.bandwidth[PID.decrypt].start();
+	  debbie.bandwidth[PID.decrypt].start();
+	  
     // protocol
     // step 1
     // party C
@@ -179,8 +217,14 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 	timing.decrypt_write.start();
     charlie.write(sigma_x);
     timing.decrypt_write.stop();
-    // E outputs sigma and secretE_P
     
+
+	  debbie.bandwidth[PID.decrypt].stop();
+	  charlie.bandwidth[PID.decrypt].stop();
+    charlie.countBandwidth = false;
+    debbie.countBandwidth = false;
+    
+    // E outputs sigma and secretE_P    
     return new DPOutput(null, secretE_P, sigma);
   }
   

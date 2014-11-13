@@ -8,12 +8,11 @@ public class Bandwidth implements Serializable
 	
 	public String task;
 	public int bandwidth;
-	public boolean active;
+	public boolean active = false;
 	
 	public Bandwidth(String t) {
 		task = t;
 		bandwidth = 0;
-		active = false;
 	}
 	
 	public boolean isTask(String t) {
@@ -28,7 +27,7 @@ public class Bandwidth implements Serializable
 	
 	public void start() {
 		if (active) {
-			System.err.println("Bandwidth: " + task + " already active");
+			System.err.println("Bandwidth.start: " + task + " already active");
 			return;
 		}
 		active = true;
@@ -36,7 +35,7 @@ public class Bandwidth implements Serializable
 	
 	public void stop() {
 		if (!active) {
-			System.err.println("Bandwidth: " + task + " not in use");
+			System.err.println("Bandwidth.stop: " + task + " not in use");
 			return;
 		}
 		active = false;
@@ -44,7 +43,7 @@ public class Bandwidth implements Serializable
 	
 	public void reset() {
 		if (active) {
-			System.err.println("Bandwidth: " + task + " still in use");
+			System.err.println("Bandwidth.reset: " + task + " still in use");
 			return;
 		}
 		bandwidth = 0;
@@ -52,7 +51,7 @@ public class Bandwidth implements Serializable
 	
 	public void add(int b) {
 		if (!active) {
-			System.err.println("Bandwidth: " + task + " not in use");
+			System.err.println("Bandwidth.add: " + task + " not in use");
 			return;
 		}
 		bandwidth += b;
@@ -60,7 +59,7 @@ public class Bandwidth implements Serializable
 	
 	public void divide(int n) {
 		if (active) {
-			System.err.println("Bandwidth: " + task + " still in use");
+			System.err.println("Bandwidth.divide: " + task + " still in use");
 			return;
 		}
 		bandwidth /= n;
@@ -68,11 +67,11 @@ public class Bandwidth implements Serializable
 	
 	public Bandwidth add(Bandwidth b) {
 		if (active) {
-			System.err.println("Bandwidth: " + task + " still in use");
+			System.err.println("Bandwidth.add2: " + task + " still in use");
 			return null;
 		}
 		if (b.active) {
-			System.err.println("Bandwidth: " + b.task + " still in use");
+			System.err.println("Bandwidth.add2: " + b.task + " still in use");
 			return null;
 		}
 		if (!task.equals(b.task))

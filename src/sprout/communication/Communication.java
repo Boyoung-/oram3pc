@@ -2,7 +2,11 @@ package sprout.communication;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
@@ -18,6 +22,7 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import sprout.oram.PID;
 import sprout.util.Bandwidth;
+import sprout.util.StopWatch;
 import sprout.util.Util;
 
 /**
@@ -65,14 +70,13 @@ public class Communication
 	protected InetSocketAddress mAddress;
 	
 	public Bandwidth[] bandwidth;
-	List<Integer> bandwidthState;
+	public boolean countBandwidth = false;
 
 	public Communication()
 	{
 		mState = STATE_NONE;
 		
 		bandwidth = new Bandwidth[PID.size];
-		bandwidthState = new ArrayList<Integer>();
 		
 		bandwidth[PID.oprf] = new Bandwidth("oprf");
 		bandwidth[PID.decrypt] = new Bandwidth("decrypt");
@@ -95,20 +99,19 @@ public class Communication
 		}
 	}
 	
-	public void saveBandwidthState() {
-		for (int i=0; i<bandwidth.length; i++) {
-			if (bandwidth[i].isActive()) {
-				bandwidthState.add(i);
-				bandwidth[i].stop();
-			}
-		}
-	}
-	
-	public void restoreBandwidthState() {
-		for (Integer i : bandwidthState) {
-			bandwidth[i].start();
-		}
-		bandwidthState.clear();
+	public void writeBandwidthToFile(String filename) throws IOException {
+		FileOutputStream fout = new FileOutputStream(filename);
+	    ObjectOutputStream oos = null;
+	    try {
+	      oos = new ObjectOutputStream(fout);
+	      
+	      for (int i=0; i<bandwidth.length; i++)
+	    	  oos.writeObject(bandwidth[i]);
+	      
+	    } finally {
+	      if (oos != null)
+	        oos.close();
+	    }
 	}
 	
 	/**
@@ -386,7 +389,8 @@ public class Communication
 		// Perform the write unsynchronized
 		r.write(out);
 		
-		addBandwidth(out.length);
+		if (countBandwidth)
+			addBandwidth(out.length);
 	}
 	
 	/**
