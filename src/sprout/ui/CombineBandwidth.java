@@ -9,7 +9,7 @@ import sprout.util.Bandwidth;
 
 public class CombineBandwidth
 {	
-	private Bandwidth[] readFromFile(String filename) throws IOException {
+	private static Bandwidth[] readFromFile(String filename) throws IOException {
 		Bandwidth[] out = new Bandwidth[PID.size];
 		
 		FileInputStream fin = new FileInputStream(filename);
@@ -29,13 +29,47 @@ public class CombineBandwidth
 	    return out;
 	}
 	
+	private static Bandwidth[] add(Bandwidth[] a, Bandwidth[] b) {
+		Bandwidth[] c = new Bandwidth[a.length];
+		for (int i=0; i<a.length; i++)
+			c[i] = a[i].add(b[i]);
+		return c;
+	}
+	
+	private static void print(Bandwidth[] a) {
+		for (int i=0; i<a.length; i++)
+			System.out.println(a[i]);
+		System.out.println();
+	}
+	
+	private static void printCSV(Bandwidth[] a) {
+		System.out.println(a[PID.decrypt].bandwidth*8 + 
+				"," + a[PID.pet].bandwidth*8 + 
+				"," + a[PID.aot].bandwidth*8 +
+				"," + a[PID.access].bandwidth*8 +
+				"," + a[PID.ppt].bandwidth*8 +
+				"," + a[PID.reshuffle].bandwidth*8 +
+				"," + a[PID.gcf].bandwidth*8 +
+				"," + a[PID.ssot].bandwidth*8 +
+				"," + a[PID.encrypt].bandwidth*8 +
+				"," + a[PID.eviction].bandwidth*8);
+	}
+	
 	public static void main(String[] args) throws Exception
 	{
-		Bandwidth[] c = new Bandwidth[PID.size];
-		Bandwidth[] d = new Bandwidth[PID.size];
-		Bandwidth[] e = new Bandwidth[PID.size];
+		Bandwidth[] a = readFromFile("files/charlie-bandwidth-1");
+		Bandwidth[] b = readFromFile("files/charlie-bandwidth-2");
+		a = add(a, b);
+		b = readFromFile("files/debbie-bandwidth-1");
+		a = add(a, b);
+		b = readFromFile("files/debbie-bandwidth-2");
+		a = add(a, b);
+		b = readFromFile("files/eddie-bandwidth-1");
+		a = add(a, b);
+		b = readFromFile("files/eddie-bandwidth-2");
+		a = add(a, b);
 		
-		
+		printCSV(a);
 	}
 
 }

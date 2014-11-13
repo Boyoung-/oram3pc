@@ -80,4 +80,9 @@ public class Bandwidth implements Serializable
 		c.bandwidth = bandwidth + b.bandwidth;
 		return c;
 	}
+	
+	@Override
+	public String toString() {
+		return task + ": " + bandwidth + " bytes";
+	}
 }

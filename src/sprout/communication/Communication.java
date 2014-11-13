@@ -2,10 +2,8 @@ package sprout.communication;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
 import java.math.BigInteger;
@@ -22,7 +20,6 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import sprout.oram.PID;
 import sprout.util.Bandwidth;
-import sprout.util.StopWatch;
 import sprout.util.Util;
 
 /**

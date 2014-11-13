@@ -210,8 +210,8 @@ public class Retrieve extends Operation {
 	  if (shiftN == 0) 
 		  shiftN = tau;
 	  
-	  int records = 11;     // how many random records we want to test retrieval
-	  int retrievals = 10;  // for each record, how many repeated retrievals we want to do
+	  int records = 1;     // how many random records we want to test retrieval
+	  int retrievals = 1;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
 		  String N = null;
@@ -300,10 +300,12 @@ public class Retrieve extends Operation {
 			timing.writeToFile("files/timing-eddie");
 			break;
 		}
+		
+		con1.writeBandwidthToFile("files/" + party + "-bandwidth-1");
+		con2.writeBandwidthToFile("files/" + party + "-bandwidth-2");
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
-	  
   }
   
 }
