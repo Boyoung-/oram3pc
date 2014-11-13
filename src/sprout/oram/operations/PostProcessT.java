@@ -89,7 +89,9 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     // step 2
     // party C
     timing.post_online.start();
+    System.out.println("Before random in post " + timing.post_online.elapsedWallClockTime);
     int alpha = rnd.nextInt(twotaupow) + 1;   // [1, 2^tau]
+    System.out.println("After random in post " + timing.post_online.elapsedWallClockTime);
     int j_p = BigInteger.valueOf(Nip1_pr_int+alpha).mod(BigInteger.valueOf(twotaupow)).intValue();
     timing.post_online.stop();
     
@@ -117,10 +119,12 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     }
     timing.post_online.start();
     String[] a = new String[twotaupow];
+    System.out.println("Before generate in post " + timing.post_online.elapsedWallClockTime);
     String a_all = G.generateBitString(aBits, s);
     for (int k=0; k<twotaupow; k++) {
       a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
     }
+    System.out.println("after generate in post " + timing.post_online.elapsedWallClockTime);
     
     String[] e = new String[twotaupow];
     String A_C = ""; 
@@ -174,7 +178,9 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     // step 3
     // party D
     timing.post_online.start();
+    System.out.println("Before random1 in post " + timing.post_online.elapsedWallClockTime);
     byte[] s = rnd.generateSeed(16);  // 128 bits
+    System.out.println("After random1 in post " + timing.post_online.elapsedWallClockTime);
     timing.post_online.stop();
     PRG G;
     try {
@@ -186,7 +192,9 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     timing.post_online.start();
     String[] a = new String[twotaupow];
     byte[][] a_p = new byte[twotaupow][];
+    System.out.println("Before generate1 in post " + timing.post_online.elapsedWallClockTime);
     String a_all = G.generateBitString(aBits, s);
+    System.out.println("After generate1 in post " + timing.post_online.elapsedWallClockTime);
     for (int k=0; k<twotaupow; k++) {
       a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
       if (k != j_p)
