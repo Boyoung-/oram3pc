@@ -21,9 +21,9 @@ class G_XOR_2_1 extends XOR_2_1 {
     		outputWires[0].outBitEncPair[lsb] = Cipher.encrypt(k, lb[0], 0);
     		outputWires[0].outBitEncPair[1-lsb] = Cipher.encrypt(k, lb[1], 1);
     		
-    		timing.gtt_write.start();
+    		timing.gcf_offline_write.start();
     		receiver.write(outputWires[0].outBitEncPair);
-    		timing.gtt_write.stop();
+    		timing.gcf_offline_write.stop();
     	}
     }
 }

@@ -29,6 +29,9 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
   @Override
   public String executeCharlieSubTree(Communication debbie,
       Communication eddie, String Li, Tree OT, Pair<String, List<Integer>> extraArgs) {
+	    debbie.countBandwidth = false;
+	    eddie.countBandwidth = false;
+	  
     String secretC_P = extraArgs.getLeft();
     
     // i = 0 case: no shuffle needed
@@ -97,6 +100,9 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
   public String executeDebbieSubTree(Communication charlie,
       Communication eddie, BigInteger k, Tree OT,
       Pair<String, List<Integer>> extraArgs) {
+	    charlie.countBandwidth = false;
+		  eddie.countBandwidth = false;	  
+		  
     List<Integer> pi = extraArgs.getRight();
     
     // i = 0 case: no shuffle needed
@@ -169,6 +175,9 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
   @Override
   public String executeEddieSubTree(Communication charlie,
       Communication debbie, Tree OT, Pair<String, List<Integer>> extraArgs) {
+	    charlie.countBandwidth = false;
+		  debbie.countBandwidth = false;
+		  
     String secretE_P = extraArgs.getLeft();
     List<Integer> pi = extraArgs.getRight();
     

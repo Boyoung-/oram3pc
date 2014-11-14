@@ -59,8 +59,8 @@ public class Timing
 	public StopWatch gcf_offline_write;
 	public StopWatch gcf_offline_read;
 	
-	public StopWatch gtt_write;
-	public StopWatch gtt_read;
+	//public StopWatch gtt_write;
+	//public StopWatch gtt_read;
 	
 	public StopWatch ssot;
 	public StopWatch ssot_online;
@@ -147,8 +147,8 @@ public class Timing
 		encrypt_read = new StopWatch("encrypt_read");
 		
 		// special use
-		gtt_write = new StopWatch("gtt_write");
-		gtt_read = new StopWatch("gtt_read");
+		//gtt_write = new StopWatch("gtt_write");
+		//gtt_read = new StopWatch("gtt_read");
 	}
 	
 	public void writeToFile(String filename) throws IOException {

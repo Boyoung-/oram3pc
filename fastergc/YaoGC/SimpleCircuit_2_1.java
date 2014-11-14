@@ -93,14 +93,14 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
     	}
 	    */
     	
-    	timing.gtt_write.start();
+    	timing.gcf_offline_write.start();
     	receiver.write(gtt[0][1]);
     	receiver.write(gtt[1][0]);
     	receiver.write(gtt[1][1]);
     	
     	if (outputWires[0].outBitEncPair != null) 
     		receiver.write(outputWires[0].outBitEncPair);
-    	timing.gtt_write.stop();
+    	timing.gcf_offline_write.stop();
     }
     
     protected void receiveGTT() {
@@ -115,14 +115,14 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 	    */
 	    
 	    gtt[0][0] = BigInteger.ZERO;
-	    timing.gtt_read.start();
+	    timing.gcf_offline_read.start();
 	    gtt[0][1] = sender.readBigInteger();
 	    gtt[1][0] = sender.readBigInteger();
 	    gtt[1][1] = sender.readBigInteger();
 	    
 	    if (outputWires[0].outBitEncPair != null) 
 	    	outputWires[0].outBitEncPair = sender.readBigIntegerArray();
-	    timing.gtt_read.stop();
+	    timing.gcf_offline_read.stop();
 	}
 	catch (Exception e) {
 	    e.printStackTrace();

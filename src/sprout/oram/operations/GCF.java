@@ -28,6 +28,8 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  // this line is only for checking correctness; should be removed for real execution
 	  //D.write(sE);
     
+	// precomputation
+	timing.gcf_offline.start();
     // setup circuit
 	int w = n - 2;
 	if (circuit.equals("F2FT"))
@@ -62,6 +64,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	    lbs[i][0] = glb0;
 	    lbs[i][1] = glb1;
 	}
+	timing.gcf_offline.stop();
 	
 	C.countBandwidth = true;
 	  D.countBandwidth = true;
@@ -85,9 +88,9 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	}
 	
 	// step 3
-	timing.gcf_online.start();
+	timing.gcf_online.start(); // in the Retrieval GC write/read will be subtracted from this time
 	State in_E = State.fromLabels(K_E);
-	gc_E.startExecuting(in_E); // TODO: separate gcf write/read time out of this!
+	gc_E.startExecuting(in_E); 
 	timing.gcf_online.stop();
 	
 	C.countBandwidth = false;
@@ -138,6 +141,8 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  //String input = Util.addZero(new BigInteger(sE, 2).xor(new BigInteger(sC, 2)).toString(2), n);
 	  //System.out.println("--- D: input:\t" + input);
 	  
+	  // precomputation
+		timing.gcf_offline.start();
 	  // setup circuit
 	  int w = n - 2;
 	  if (circuit.equals("F2FT"))
@@ -158,6 +163,9 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  }
 	  for (int i=0; i<gc_D.outputWires.length; i++) // TODO: not a good way; should define a function
 			gc_D.outputWires[i].outBitEncPair = new BigInteger[2];
+	  
+		timing.gcf_offline.stop();
+	  
 	  
 	  C.countBandwidth = true;
 	  E.countBandwidth = true;
