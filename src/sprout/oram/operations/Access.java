@@ -10,10 +10,6 @@ import sprout.util.Util;
 
 // TODO: remove testing code
 public class Access extends TreeOperation<AOutput, String> {
-	
-	public Access() {
-		super(null, null);
-	}
   
   public Access(Communication con1, Communication con2) {
     super(con1, con2);
@@ -35,7 +31,7 @@ public class Access extends TreeOperation<AOutput, String> {
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
-    DecryptPath dp = new DecryptPath();
+    DecryptPath dp = new DecryptPath(debbie, eddie);
     dp.loadTreeSpecificParameters(i);
     timing.decrypt.start();
     DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, Li, null, null); 
@@ -59,8 +55,9 @@ public class Access extends TreeOperation<AOutput, String> {
       }
       timing.access_online.stop();
       sanityCheck();
+      PET pet = new PET(debbie, eddie);
       timing.pet.start();
-      j_1 = PET.executeCharlie(debbie, eddie, c);
+      j_1 = pet.executeCharlie(debbie, eddie, c);
       timing.pet.stop();
       // PET outputs j_1 for C
     }
@@ -73,11 +70,12 @@ public class Access extends TreeOperation<AOutput, String> {
     }
     
     // step 4
+    AOT aot = new AOT(debbie, eddie);
     String fbar = Util.addZero("", aBits); // i = 0 case
     if (i > 0) {
       sanityCheck();
       timing.aot.start();
-      fbar = AOT.executeC(debbie, eddie, j_1);
+      fbar = aot.executeC(debbie, eddie, j_1);
       timing.aot.stop();
       // outputs fbar for C
     }
@@ -90,7 +88,7 @@ public class Access extends TreeOperation<AOutput, String> {
       sanityCheck();
       j_2 = new BigInteger(Nip1_pr, 2).intValue();
       timing.aot.start();
-      ybar_j2 = AOT.executeC(debbie, eddie, j_2);
+      ybar_j2 = aot.executeC(debbie, eddie, j_2);
       timing.aot.stop();
       // outputs ybar_j2 for C
     }
@@ -157,26 +155,28 @@ public class Access extends TreeOperation<AOutput, String> {
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
-	DecryptPath dp = new DecryptPath();
+	DecryptPath dp = new DecryptPath(charlie, eddie);
 	dp.loadTreeSpecificParameters(i);
     timing.decrypt.start();
     dp.executeDebbieSubTree(charlie, eddie, k, null, null);
     timing.decrypt.stop();
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
-    
+
+    AOT aot = new AOT(charlie, eddie);
     if (i > 0) {
     	// step 3
       sanityCheck();
+      PET pet = new PET(charlie, eddie);
       timing.pet.start();
-      PET.executeDebbie(charlie, eddie, pathTuples);
+      pet.executeDebbie(charlie, eddie, pathTuples);
       timing.pet.stop();
       // PET outputs j_1 for C
       
       sanityCheck();
       // step 4
       timing.aot.start();
-      AOT.executeD(charlie, eddie);
+      aot.executeD(charlie, eddie);
       timing.aot.stop();
     }
     
@@ -185,7 +185,7 @@ public class Access extends TreeOperation<AOutput, String> {
       // AOT(E, C, D)
       sanityCheck();
       timing.aot.start();
-      AOT.executeD(charlie, eddie); 
+      aot.executeD(charlie, eddie); 
       timing.aot.stop();
       // outputs ybar_j2 for C
     }
@@ -212,7 +212,7 @@ public class Access extends TreeOperation<AOutput, String> {
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
-	DecryptPath dp = new DecryptPath();
+	DecryptPath dp = new DecryptPath(charlie, debbie);
 	dp.loadTreeSpecificParameters(i);
     timing.decrypt.start();
     DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, OT, null); 
@@ -258,13 +258,14 @@ public class Access extends TreeOperation<AOutput, String> {
       }
       timing.access_online.stop();
       sanityCheck();
+      PET pet = new PET(charlie, debbie);
       timing.pet.start();
-      PET.executeEddie(charlie, debbie, b);
+      pet.executeEddie(charlie, debbie, b);
       timing.pet.stop();
       // PET outputs j_1 for C
     }
     
-    
+    AOT aot = new AOT(charlie, debbie);
     // step 4
     // party E
     if (i > 0) {
@@ -280,7 +281,7 @@ public class Access extends TreeOperation<AOutput, String> {
       sanityCheck();
       // AOT(E, C, D)
       timing.aot.start();
-      AOT.executeE(charlie, debbie, f);
+      aot.executeE(charlie, debbie, f);
       timing.aot.stop();
       // outputs fbar for C
     }
@@ -290,7 +291,7 @@ public class Access extends TreeOperation<AOutput, String> {
       // AOT(E, C, D)
       sanityCheck();
       timing.aot.start();
-      AOT.executeE(charlie, debbie, y);
+      aot.executeE(charlie, debbie, y);
       timing.aot.stop();
       // outputs ybar_j2 for C
     }

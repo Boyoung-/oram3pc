@@ -21,11 +21,6 @@ import sprout.oram.TreeException;
 import sprout.util.Util;
 
 public class DecryptPath extends TreeOperation<DPOutput, EPath>{
-  
-  // Should only be used for reusing operations
-  DecryptPath() {
-    super(null, null);
-  }
 
   public DecryptPath(Communication con1, Communication con2) {
     super(con1, con2);
@@ -56,6 +51,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // step 3   
     // party C
     // E sends sigma_x to C
+	  sanityCheck(eddie);
     timing.decrypt_read.start();
     ECPoint[] sigma_x = eddie.readECPointArray();
     timing.decrypt_read.stop();
@@ -75,10 +71,12 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       // For an easier description of the flow look at OPRFTest.java
       // TODO: May want a different encoding here we leave this until OPRF changes
       Message msg1 = oprf.prepare(sigma_x[j]); // contains pre-computation and online computation
+      sanityCheck(debbie);
       timing.oprf_write.start();
       debbie.write(new Message(msg1.getV()));
       timing.oprf_write.stop();
-      
+
+      sanityCheck(debbie);
       timing.oprf_read.start();
       Message msg2 = debbie.readMessage();
       timing.oprf_read.stop();
@@ -126,19 +124,22 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 	  
 	  charlie.bandwidth[PID.oprf].start();
 	  eddie.bandwidth[PID.oprf].start();
+	  
 	  // protocol
 	  // step 4
 	  timing.oprf.start();
     OPRF oprf = OPRFHelper.getOPRF(false);
     for (int j=0; j < pathBuckets; j++) {
+    	sanityCheck(charlie);
     	timing.oprf_read.start();
       Message msg = charlie.readMessage();
       timing.oprf_read.stop();
-      
+
       timing.oprf_online.start();
       msg = oprf.evaluate(msg); // TODO: pass k as arg or just read from file?
       timing.oprf_online.stop();
-      
+
+    	sanityCheck(charlie);
       timing.oprf_write.start();
       charlie.write(msg);
       timing.oprf_write.stop();
@@ -214,7 +215,8 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     ECPoint[] sigma_x = Util.permute(x, sigma);
     String[] secretE_P = Util.permute(Bbar, sigma);
 	timing.decrypt_online.stop();
-    
+	
+    sanityCheck(charlie);
 	timing.decrypt_write.start();
     charlie.write(sigma_x);
     timing.decrypt_write.stop();

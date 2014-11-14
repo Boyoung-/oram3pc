@@ -50,6 +50,8 @@ public class Retrieve extends Operation {
 	  //System.out.println(timing.access);
 	  String[] output = new String[]{AOut.Lip1, AOut.secretC_Ti};
 	  
+	  sanityCheck();
+	  
 	  // PostProcessT
 	  String secretC_Ti = AOut.secretC_Ti;
 	  String secretC_Li_p = sC_Li_p[currTree];
@@ -64,6 +66,8 @@ public class Retrieve extends Operation {
 	  String secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, Li, null, new String[]{secretC_Ti, secretC_Li_p, secretC_Lip1_p, Lip1, Nip1_pr});
 	  timing.post.stop();
 	  
+	  sanityCheck();
+	  
 	  // Reshuffle
 	  String secretC_P_p = AOut.secretC_P_p;
 	  Reshuffle rs = new Reshuffle(debbie, eddie);
@@ -73,6 +77,8 @@ public class Retrieve extends Operation {
 	  String secretC_pi_P = rs.executeCharlieSubTree(debbie, eddie, null, null, Pair.of(secretC_P_p, tmp));
 	  timing.reshuffle.stop();
 	  
+	  sanityCheck();
+	  
 	  // Eviction
 	  Eviction evict = new Eviction(debbie, eddie);
 	  evict.loadTreeSpecificParameters(currTree);
@@ -81,6 +87,8 @@ public class Retrieve extends Operation {
 	  timing.eviction.stop();
 	  if (currTree == 0)
 		  secretC_P_pp = secretC_Ti_p;
+	  
+	  sanityCheck();
 	  
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath(debbie, eddie);
@@ -101,12 +109,16 @@ public class Retrieve extends Operation {
 	  timing.access.stop();
 	  //System.out.println(timing.access);
 	  
+	  sanityCheck();
+	  
 	  // PostProcessT
 	  PostProcessT ppt = new PostProcessT(charlie, eddie);
 	  ppt.loadTreeSpecificParameters(currTree);
 	  timing.post.start();
 	  ppt.executeDebbieSubTree(charlie, eddie, null, null, null);
 	  timing.post.stop();
+	  
+	  sanityCheck();
 	  
 	  // Reshuffle
 	  List<Integer> pi = eddie.readListInt();
@@ -117,12 +129,16 @@ public class Retrieve extends Operation {
 	  rs.executeDebbieSubTree(charlie, eddie, null, null, Pair.of(tmp, pi));
 	  timing.reshuffle.stop();
 	  
+	  sanityCheck();
+	  
 	  // Eviction
 	  Eviction evict = new Eviction(charlie, eddie);
 	  evict.loadTreeSpecificParameters(currTree);
 	  timing.eviction.start();
 	  evict.executeDebbieSubTree(charlie, eddie, null, null, null);
 	  timing.eviction.stop();
+	  
+	  sanityCheck();
 	  
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath(charlie, eddie);
@@ -141,6 +157,8 @@ public class Retrieve extends Operation {
 	  timing.access.stop();
 	  //System.out.println(timing.access);
 	  
+	  sanityCheck();
+	  
 	  // PostProcessT
 	  String secretE_Ti = AOut.secretE_Ti;
 	  String secretE_Li_p = sE_Li_p[currTree];
@@ -153,6 +171,8 @@ public class Retrieve extends Operation {
 	  String secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_Ti, secretE_Li_p, secretE_Lip1_p});
 	  timing.post.stop();
 	  
+	  sanityCheck();
+	  
 	  // Reshuffle
 	  String secretE_P_p = AOut.secretE_P_p;
 	  List<Integer> pi = Util.getInversePermutation(AOut.p);
@@ -163,6 +183,8 @@ public class Retrieve extends Operation {
 	  String secretE_pi_P = rs.executeEddieSubTree(charlie, debbie, null, Pair.of(secretE_P_p, pi));
 	  timing.reshuffle.stop();
 	  
+	  sanityCheck();
+	  
 	  // Eviction
 	  Eviction evict = new Eviction(charlie, debbie);
 	  evict.loadTreeSpecificParameters(currTree);
@@ -171,6 +193,8 @@ public class Retrieve extends Operation {
 	  timing.eviction.stop();
 	  if (currTree == 0)
 		  secretE_P_pp = secretE_Ti_p;
+	  
+	  sanityCheck();
 
 	  // EncryptPath
 	  EncryptPath ep = new EncryptPath(charlie, debbie);
@@ -197,6 +221,9 @@ public class Retrieve extends Operation {
   
   @Override
   public void run(Party party, Forest forest) throws ForestException {
+	  if (ifSanityCheck())
+		  System.out.println("Sanity check enabled");
+	  
 	  long numInsert = Math.min(ForestMetadata.getNumInsert(), ForestMetadata.getAddressSpace());
 	  if (numInsert == 0L)
 		  return;
@@ -213,8 +240,8 @@ public class Retrieve extends Operation {
 	  if (shiftN == 0) 
 		  shiftN = tau;
 	  
-	  int records = 4;     // how many random records we want to test retrieval
-	  int retrievals = 3;  // for each record, how many repeated retrievals we want to do
+	  int records = 1;     // how many random records we want to test retrieval
+	  int retrievals = 1;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
 		  String N = null;
@@ -295,14 +322,14 @@ public class Retrieve extends Operation {
 			timing.writeToFile("files/timing-charlie");
 			break;
 		case Debbie:
-			timing.gcf_online = timing.gcf_online.subtract(timing.gtt_read);
-			timing.gcf_read = timing.gcf_read.add(timing.gtt_read);
+			timing.gcf_online = timing.gcf_online.subtract(timing.gcf_offline_read);
+			//timing.gcf_offline_read = timing.gcf_offline_read.add(timing.gtt_read);
 			timing.divide(cycles);
 			timing.writeToFile("files/timing-debbie");
 			break;
 		case Eddie:
-			timing.gcf_online = timing.gcf_online.subtract(timing.gtt_write);
-			timing.gcf_write = timing.gcf_write.add(timing.gtt_write);
+			timing.gcf_online = timing.gcf_online.subtract(timing.gcf_offline_write);
+			//timing.gcf_offline_write = timing.gcf_offline_write.add(timing.gtt_write);
 			timing.divide(cycles);
 			timing.writeToFile("files/timing-eddie");
 			break;

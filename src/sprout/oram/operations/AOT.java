@@ -16,7 +16,7 @@ public class AOT extends Operation {
     super(con1, con2);
   }
   
-  public static void executeE(Communication C, Communication D, String[] m) {
+  public void executeE(Communication C, Communication D, String[] m) {
 	    C.countBandwidth = false;
 	    D.countBandwidth = false;
 	  
@@ -59,6 +59,8 @@ public class AOT extends Operation {
       e.printStackTrace();
     }
     
+    sanityCheck(C);
+    
     timing.aot_write.start();
     C.write(m_p);
     C.write(alpha);
@@ -71,7 +73,7 @@ public class AOT extends Operation {
     D.countBandwidth = false;
   }
   
-  public static String executeC(Communication D, Communication E, int j) {
+  public String executeC(Communication D, Communication E, int j) {
 	    D.countBandwidth = false;
 	    E.countBandwidth = false;
 	    
@@ -83,6 +85,8 @@ public class AOT extends Operation {
     E.bandwidth[PID.aot].start();
 	D.bandwidth[PID.aot].start();
     
+	
+	sanityCheck(E);
     // step 1
     // E sends m_p and alpha to C
     timing.aot_read.start();
@@ -95,6 +99,9 @@ public class AOT extends Operation {
     timing.aot_online.start();
     BigInteger j_p = BigInteger.valueOf(j).add(alpha).mod(BigInteger.valueOf(N));
     timing.aot_online.stop();
+    
+    sanityCheck(D);
+    
     // C sends j_p to D
     timing.aot_write.start();
     D.write(j_p);
@@ -119,7 +126,7 @@ public class AOT extends Operation {
     return output;
   }
   
-  public static void executeD(Communication C, Communication E) {
+  public void executeD(Communication C, Communication E) {
 	    C.countBandwidth = false;
 	    E.countBandwidth = false;
 	    
@@ -135,6 +142,7 @@ public class AOT extends Operation {
 	E.bandwidth[PID.aot].start();
     
     // protocol
+	sanityCheck(C);
     // step 2
     // C sends j_p to D
     timing.aot_read.start();
@@ -167,7 +175,7 @@ public class AOT extends Operation {
   @Override
   public void run(Party party, Forest forest) throws ForestException {
  // for testing
-    
+    /*
     switch (party) {
     case Charlie: // R
       int j = SR.rand.nextInt(10);
@@ -190,6 +198,6 @@ public class AOT extends Operation {
     }
     
     System.out.println("Run completed");
-    
+    */
   }
 }

@@ -40,7 +40,7 @@ public class PET extends Operation {
     super(con1, con2);
   }
 
-  public static void executeDebbie(Communication charlie, Communication eddie, int n) {
+  public void executeDebbie(Communication charlie, Communication eddie, int n) {
 	  charlie.countBandwidth = false;
 	    eddie.countBandwidth = false;
 	  
@@ -86,10 +86,12 @@ public class PET extends Operation {
     eddie.write(beta);
     eddie.write(tau);
     eddie.write(r);
+	  
+	  sanityCheck();
     
   }
 
-  public static Integer executeCharlie(Communication debbie, Communication eddie, String[] cc) {
+  public Integer executeCharlie(Communication debbie, Communication eddie, String[] cc) {
 	    debbie.countBandwidth = false;
 	    eddie.countBandwidth = false;
 	  
@@ -107,6 +109,8 @@ public class PET extends Operation {
     BigInteger[] alpha = debbie.readBigIntegerArray();
     BigInteger[] gamma = debbie.readBigIntegerArray();
     BigInteger[] delta = debbie.readBigIntegerArray();
+	  
+	  sanityCheck();
     
     // on-line inputs
     timing.pet_online.start();
@@ -130,12 +134,14 @@ public class PET extends Operation {
     }
     timing.pet_online.stop();
     //System.out.println("pet online: " + timing.pet_online);
+    sanityCheck(eddie);
     // C sends u to E
     timing.pet_write.start();
     eddie.write(u);
     timing.pet_write.stop();
     
     // step 2
+    sanityCheck(eddie);
     // E sends w to C
     timing.pet_read.start();
     BigInteger[] w = eddie.readBigIntegerArray();
@@ -171,7 +177,7 @@ public class PET extends Operation {
     return -1;
   }
   
-  public static void executeEddie(Communication charlie, Communication debbie, String[] bb) {
+  public void executeEddie(Communication charlie, Communication debbie, String[] bb) {
 	    charlie.countBandwidth = false;
 	    debbie.countBandwidth = false;
 	    
@@ -190,6 +196,8 @@ public class PET extends Operation {
     BigInteger[] beta = debbie.readBigIntegerArray();
     BigInteger[] tau = debbie.readBigIntegerArray();
     BigInteger[] r = debbie.readBigIntegerArray();
+	  
+	  sanityCheck();
     
     // on-line inputs
     timing.pet_online.start();
@@ -205,6 +213,7 @@ public class PET extends Operation {
 	charlie.bandwidth[PID.pet].start();
     
     // step 1 
+	sanityCheck(charlie);
     // C sends u to E
     timing.pet_read.start();
     BigInteger[] u = charlie.readBigIntegerArray();
@@ -219,6 +228,8 @@ public class PET extends Operation {
       w[j] = beta[j].multiply(u[j]).subtract(r[j].multiply(b[j])).subtract(tau[j]).mod(p);
     }
     timing.pet_online.stop();
+    
+    sanityCheck(charlie);
     // E sends w to C
     timing.pet_write.start();
     charlie.write(w);

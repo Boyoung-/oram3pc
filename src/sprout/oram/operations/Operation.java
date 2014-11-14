@@ -35,14 +35,19 @@ public abstract class Operation {
     this.con2 = con2;
   }
   
-  private static final boolean ENSURE_SANITY = false;
+  private static final boolean ENSURE_SANITY = true;
+  
+  public boolean ifSanityCheck() {
+	  return ENSURE_SANITY;
+  }
+  
   // Utility function will test for synchrony between the parties.
   public void sanityCheck() {
     if (ENSURE_SANITY) {
     	con1.countBandwidth = false;
     	con2.countBandwidth = false;
     	
-      System.out.println("Performing sanity check");
+      //System.out.println("Sanity check");
       con1.write("sanity");
       con2.write("sanity");
       
@@ -52,11 +57,25 @@ public abstract class Operation {
         System.out.println("Sanity check failed for con2");
       }
       
-      System.out.println("Sanity check finished");
+      //System.out.println("Sanity check finished");
       
       con1.countBandwidth = true;
       con2.countBandwidth = true;
     }
+  }
+  
+  public void sanityCheck(Communication con) {
+	  if (ENSURE_SANITY) {
+	    	con.countBandwidth = false;
+	    	
+	      con.write("sanity");
+	      
+	      if (!con.readString().equals("sanity")) {
+	        System.out.println("Sanity check failed for con1");
+	      } 
+	      
+	      con.countBandwidth = true;
+	    }
   }
   
   // Even though many operations don't rely on the existance of a forest, we include it here to have a 
