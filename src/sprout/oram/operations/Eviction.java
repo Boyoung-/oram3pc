@@ -32,6 +32,8 @@ public class Eviction extends TreeOperation<String, String[]> {
 	    eddie.countBandwidth = true;
 	    debbie.bandwidth[PID.eviction].start();
 	    eddie.bandwidth[PID.eviction].start();
+	    
+	    sanityCheck();
 	  
 	  // protocol
 	  // step 1
@@ -86,8 +88,9 @@ public class Eviction extends TreeOperation<String, String[]> {
  			timing.eviction_online.stop();
  			
  	// step 5
+ 	SSOT ssot = new SSOT(debbie, eddie);
  	timing.ssot.start();
- 	String[] sC_P_pp = SSOT.executeC(debbie, eddie, sC_a);
+ 	String[] sC_P_pp = ssot.executeC(debbie, eddie, sC_a);
  	timing.ssot.stop();
  	
  	timing.eviction_online.start();
@@ -116,6 +119,8 @@ public class Eviction extends TreeOperation<String, String[]> {
 	  eddie.countBandwidth = true;	  
 	  charlie.bandwidth[PID.eviction].start();
 	  eddie.bandwidth[PID.eviction].start();
+	  
+	  sanityCheck();
     
     // protocol
  		// step 1
@@ -183,8 +188,9 @@ public class Eviction extends TreeOperation<String, String[]> {
  		
  		// step 5
  		try {
+ 			SSOT ssot = new SSOT(charlie, eddie);
  			timing.ssot.start();
-			SSOT.executeI(charlie, eddie, I);
+			ssot.executeI(charlie, eddie, I);
 			timing.ssot.stop();
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -210,6 +216,8 @@ public class Eviction extends TreeOperation<String, String[]> {
 	  debbie.countBandwidth = true;
 	  charlie.bandwidth[PID.eviction].start();
 	  debbie.bandwidth[PID.eviction].start();
+	  
+	  sanityCheck();
 	  
 	  // protocol
 	  // step 1
@@ -265,8 +273,9 @@ public class Eviction extends TreeOperation<String, String[]> {
  			timing.eviction_online.stop();
  			
  	// step 5
+ 	SSOT ssot = new SSOT(charlie, debbie);
  	timing.ssot.start();
- 	String[] sE_P_pp = SSOT.executeE(charlie, debbie, sE_a);
+ 	String[] sE_P_pp = ssot.executeE(charlie, debbie, sE_a);
  	timing.ssot.stop();
  	
  	timing.eviction_online.start();

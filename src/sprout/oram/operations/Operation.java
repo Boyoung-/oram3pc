@@ -64,6 +64,7 @@ public abstract class Operation {
     }
   }
   
+  /*
   public void sanityCheck(Communication con) {
 	  if (ENSURE_SANITY) {
 	    	con.countBandwidth = false;
@@ -77,6 +78,7 @@ public abstract class Operation {
 	      con.countBandwidth = true;
 	    }
   }
+  */
   
   // Even though many operations don't rely on the existance of a forest, we include it here to have a 
   //  unifying api

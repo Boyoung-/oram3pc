@@ -2,7 +2,6 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 import sprout.communication.Communication;
 import sprout.crypto.SR;
@@ -19,7 +18,7 @@ public class SSOT extends Operation {
     super(con1, con2);
   }
   
-  public static String[] executeC(Communication I, Communication E, String[] sC) {
+  public String[] executeC(Communication I, Communication E, String[] sC) {
 	  IOT iot = new IOT(I, E);
 	  
 	  I.countBandwidth = false;
@@ -32,6 +31,8 @@ public class SSOT extends Operation {
     E.countBandwidth = true;
     I.bandwidth[PID.ssot].start();
     E.bandwidth[PID.ssot].start();
+    
+    sanityCheck();
     
     // protocol
     // step 2
@@ -53,7 +54,7 @@ public class SSOT extends Operation {
     return a;
   }
   
-  public static void executeI(Communication C, Communication E, Integer[] i) throws NoSuchAlgorithmException {
+  public void executeI(Communication C, Communication E, Integer[] i) throws NoSuchAlgorithmException {
 	  IOT iot = new IOT(C, E);
 	  
 	    E.countBandwidth = false;
@@ -67,6 +68,8 @@ public class SSOT extends Operation {
     E.countBandwidth = true;
     C.bandwidth[PID.ssot].start();
     E.bandwidth[PID.ssot].start();
+    
+    sanityCheck();
     
     // protocol
     // step 1
@@ -93,7 +96,7 @@ public class SSOT extends Operation {
     C.bandwidth[PID.ssot].stop();
   }
   
-  public static String[] executeE(Communication C, Communication I, String[] sE) {
+  public String[] executeE(Communication C, Communication I, String[] sE) {
 	  IOT iot = new IOT(C, I);
 	  
 	    I.countBandwidth = false;
@@ -105,6 +108,8 @@ public class SSOT extends Operation {
 	    C.countBandwidth = true;
 	    I.bandwidth[PID.ssot].start();
 	    C.bandwidth[PID.ssot].start();
+	    
+	    sanityCheck();
     
 	  // protocol
     // step 2
@@ -128,6 +133,7 @@ public class SSOT extends Operation {
 
   @Override
   public void run(Party party, Forest forest) throws ForestException {
+	  /*
     switch (party) {
     case Charlie:
       String[] sC = new String[]{"000", "001", "010", "011", "100", "101", "110", "111"};
@@ -155,6 +161,7 @@ public class SSOT extends Operation {
     con2.write("finished");
     con1.readString();
     con2.readString();
+    */
   }
 
 }

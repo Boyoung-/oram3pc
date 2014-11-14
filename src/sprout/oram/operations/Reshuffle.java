@@ -63,6 +63,8 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     debbie.bandwidth[PID.reshuffle].start();
     eddie.bandwidth[PID.reshuffle].start();
     
+    sanityCheck();
+    
     // protocol
     // step 1
     // party C
@@ -71,7 +73,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     //String z = Util.addZero(new BigInteger(secretC_P, 2).xor(new BigInteger(p1, 2)).toString(2), bucketBits);
     timing.reshuffle_online.stop();
     // C sends z to E
-    sanityCheck(eddie);
+    //sanityCheck(eddie);
     timing.reshuffle_write.start();
     eddie.write(z);
     timing.reshuffle_write.stop();
@@ -79,7 +81,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     // step 2 & 3
     // D sends secretC_pi_P to C
     // C outputs secretC_pi_P
-    sanityCheck(debbie);
+    //sanityCheck(debbie);
     timing.reshuffle_read.start();
     byte[][] secretC_pi_P_byte = debbie.readDoubleByteArray();
     timing.reshuffle_read.stop();
@@ -141,7 +143,8 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
 		  eddie.countBandwidth = true;	  
 		  charlie.bandwidth[PID.reshuffle].start();
 		  eddie.bandwidth[PID.reshuffle].start();
-	      
+		  
+		  sanityCheck();
 	      
       // protocol
       // step 1
@@ -162,7 +165,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       
       // D sends secretC_pi_P to C
       // D sends s2 to E
-      sanityCheck(charlie);
+      //sanityCheck(charlie);
       timing.reshuffle_write.start();
       charlie.write(secretC_pi_P);
       timing.reshuffle_write.stop();
@@ -210,12 +213,13 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
 		  debbie.countBandwidth = true;
 		  charlie.bandwidth[PID.reshuffle].start();
 		  debbie.bandwidth[PID.reshuffle].start();
-	  
+		  
+		  sanityCheck();
     
     // protocol
     // step 1
     // C sends E z
-	sanityCheck(charlie);
+	//sanityCheck(charlie);
     timing.reshuffle_read.start();
     //String z = charlie.readString();
     byte[] z = charlie.read();

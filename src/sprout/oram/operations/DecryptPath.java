@@ -34,6 +34,8 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 	  debbie.bandwidth[PID.decrypt].start();
 	  eddie.bandwidth[PID.decrypt].start();
 	  
+	  sanityCheck();
+	  
     // protocol
     // step 1
     // party C
@@ -51,7 +53,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // step 3   
     // party C
     // E sends sigma_x to C
-	  sanityCheck(eddie);
+	  //sanityCheck(eddie);
     timing.decrypt_read.start();
     ECPoint[] sigma_x = eddie.readECPointArray();
     timing.decrypt_read.stop();
@@ -71,12 +73,12 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       // For an easier description of the flow look at OPRFTest.java
       // TODO: May want a different encoding here we leave this until OPRF changes
       Message msg1 = oprf.prepare(sigma_x[j]); // contains pre-computation and online computation
-      sanityCheck(debbie);
+      //sanityCheck(debbie);
       timing.oprf_write.start();
       debbie.write(new Message(msg1.getV()));
       timing.oprf_write.stop();
 
-      sanityCheck(debbie);
+      //sanityCheck(debbie);
       timing.oprf_read.start();
       Message msg2 = debbie.readMessage();
       timing.oprf_read.stop();
@@ -125,12 +127,14 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 	  charlie.bandwidth[PID.oprf].start();
 	  eddie.bandwidth[PID.oprf].start();
 	  
+	  sanityCheck();
+	  
 	  // protocol
 	  // step 4
 	  timing.oprf.start();
     OPRF oprf = OPRFHelper.getOPRF(false);
     for (int j=0; j < pathBuckets; j++) {
-    	sanityCheck(charlie);
+    	//sanityCheck(charlie);
     	timing.oprf_read.start();
       Message msg = charlie.readMessage();
       timing.oprf_read.stop();
@@ -139,7 +143,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       msg = oprf.evaluate(msg); // TODO: pass k as arg or just read from file?
       timing.oprf_online.stop();
 
-    	sanityCheck(charlie);
+    	//sanityCheck(charlie);
       timing.oprf_write.start();
       charlie.write(msg);
       timing.oprf_write.stop();
@@ -166,6 +170,8 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 	  debbie.countBandwidth = true;
 	  charlie.bandwidth[PID.decrypt].start();
 	  debbie.bandwidth[PID.decrypt].start();
+	  
+	  sanityCheck();
 	  
     // protocol
     // step 1
@@ -216,7 +222,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     String[] secretE_P = Util.permute(Bbar, sigma);
 	timing.decrypt_online.stop();
 	
-    sanityCheck(charlie);
+    //sanityCheck(charlie);
 	timing.decrypt_write.start();
     charlie.write(sigma_x);
     timing.decrypt_write.stop();

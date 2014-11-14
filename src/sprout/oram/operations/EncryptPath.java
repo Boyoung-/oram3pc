@@ -29,12 +29,14 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 	    eddie.countBandwidth = true;
 	    debbie.bandwidth[PID.encrypt].start();
 	    eddie.bandwidth[PID.encrypt].start();
+	    
+	    sanityCheck();
 	  
 	  // protocol
     // step 1
     // D sends s and x to E
     // D sends c to C
-	    sanityCheck(debbie);
+	    //sanityCheck(debbie);
 	  timing.encrypt_read.start();
     byte[][] c = debbie.readDoubleByteArray();
     timing.encrypt_read.stop();
@@ -50,7 +52,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
     }
     timing.encrypt_online.stop();
     // C sends d to E
-    sanityCheck(eddie);
+    //sanityCheck(eddie);
     timing.encrypt_write.start();
     eddie.write(d);
     timing.encrypt_write.stop();
@@ -70,6 +72,8 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 	  eddie.countBandwidth = true;	  
 	  charlie.bandwidth[PID.encrypt].start();
 	  eddie.bandwidth[PID.encrypt].start();
+	  
+	  sanityCheck();
 	  
     try {
       OPRF oprf = OPRFHelper.getOPRF(false);
@@ -108,8 +112,8 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       timing.encrypt_online.stop();
       // D sends s and x to E
       // D sends c to C
-      sanityCheck(eddie);
-      sanityCheck(charlie);
+      //sanityCheck(eddie);
+      //sanityCheck(charlie);
       timing.encrypt_write.start();
       eddie.write(s);
       eddie.write(x);
@@ -136,12 +140,14 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 	  charlie.bandwidth[PID.encrypt].start();
 	  debbie.bandwidth[PID.encrypt].start();
 	  
+	  sanityCheck();
+	  
     try {
     	// protocol
       // step 1
       // D sends s and x to E
       // D sends c to C
-    	sanityCheck(debbie);
+    	//sanityCheck(debbie);
     	timing.encrypt_read.start();
       byte[] s = debbie.read();
       ECPoint[] x = debbie.readECPointArray();
@@ -149,7 +155,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 
       // Step 2
       // C sends d to E
-      sanityCheck(charlie);
+      //sanityCheck(charlie);
   	timing.encrypt_read.start();
       byte[][] d = charlie.readDoubleByteArray();
       timing.encrypt_read.stop();

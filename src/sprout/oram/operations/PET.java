@@ -109,8 +109,6 @@ public class PET extends Operation {
     BigInteger[] alpha = debbie.readBigIntegerArray();
     BigInteger[] gamma = debbie.readBigIntegerArray();
     BigInteger[] delta = debbie.readBigIntegerArray();
-	  
-	  sanityCheck();
     
     // on-line inputs
     timing.pet_online.start();
@@ -123,6 +121,8 @@ public class PET extends Operation {
     eddie.countBandwidth = true;
     debbie.bandwidth[PID.pet].start();
 	eddie.bandwidth[PID.pet].start();
+	
+	sanityCheck();
     
     // Protocol       
     // step 1 
@@ -134,14 +134,14 @@ public class PET extends Operation {
     }
     timing.pet_online.stop();
     //System.out.println("pet online: " + timing.pet_online);
-    sanityCheck(eddie);
+    //sanityCheck(eddie);
     // C sends u to E
     timing.pet_write.start();
     eddie.write(u);
     timing.pet_write.stop();
     
     // step 2
-    sanityCheck(eddie);
+    //sanityCheck(eddie);
     // E sends w to C
     timing.pet_read.start();
     BigInteger[] w = eddie.readBigIntegerArray();
@@ -196,8 +196,6 @@ public class PET extends Operation {
     BigInteger[] beta = debbie.readBigIntegerArray();
     BigInteger[] tau = debbie.readBigIntegerArray();
     BigInteger[] r = debbie.readBigIntegerArray();
-	  
-	  sanityCheck();
     
     // on-line inputs
     timing.pet_online.start();
@@ -211,9 +209,11 @@ public class PET extends Operation {
     debbie.countBandwidth = true;
     debbie.bandwidth[PID.pet].start();
 	charlie.bandwidth[PID.pet].start();
+	
+	sanityCheck();
     
     // step 1 
-	sanityCheck(charlie);
+	//sanityCheck(charlie);
     // C sends u to E
     timing.pet_read.start();
     BigInteger[] u = charlie.readBigIntegerArray();
@@ -229,7 +229,7 @@ public class PET extends Operation {
     }
     timing.pet_online.stop();
     
-    sanityCheck(charlie);
+    //sanityCheck(charlie);
     // E sends w to C
     timing.pet_write.start();
     charlie.write(w);

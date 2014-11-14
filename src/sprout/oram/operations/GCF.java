@@ -70,6 +70,8 @@ public void executeE(Communication C, Communication D, String circuit, int n, St
 	  D.countBandwidth = true;
 	  C.bandwidth[PID.gcf].start();
 	  D.bandwidth[PID.gcf].start();
+	  
+	  sanityCheck();
 	
 	// protocol
 	// step 1
@@ -81,7 +83,7 @@ public void executeE(Communication C, Communication D, String circuit, int n, St
 		A[i][0] = lbs[i][alpha];
 		A[i][1] = lbs[i][1-alpha];
 		timing.gcf_online.stop();
-		sanityCheck(C);
+		//sanityCheck(C);
 		timing.gcf_write.start();
 		C.write(A[i]);
 		timing.gcf_write.stop();
@@ -109,12 +111,14 @@ public void executeE(Communication C, Communication D, String circuit, int n, St
 	  E.bandwidth[PID.gcf].start();
 	  D.bandwidth[PID.gcf].start();
 	  
+	  sanityCheck();
+	  
 	  // protocol
 	  // step 1, 2
 	  BigInteger[][] A = new BigInteger[n][2];
 	  BigInteger[] K_C = new BigInteger[n];
 	  for (int i=0; i<n; i++) {
-		  sanityCheck(E);
+		  //sanityCheck(E);
 		  timing.gcf_read.start();
 		  A[i] = E.readBigIntegerArray();
 		  timing.gcf_read.stop();
@@ -123,7 +127,7 @@ public void executeE(Communication C, Communication D, String circuit, int n, St
 		  K_C[i] = A[i][beta];
 		  timing.gcf_online.stop();
 	  }
-	  sanityCheck(D);
+	  //sanityCheck(D);
 	  timing.gcf_write.start();
 	  D.write(K_C);
 	  timing.gcf_write.stop();
@@ -175,9 +179,11 @@ public void executeE(Communication C, Communication D, String circuit, int n, St
 	  C.bandwidth[PID.gcf].start();
 	  E.bandwidth[PID.gcf].start();
 	  
+	  sanityCheck();
+	  
 	  // protocol
 	  // step 2
-	  sanityCheck(C);
+	  //sanityCheck(C);
 	  timing.gcf_read.start();
 	  BigInteger[] K_C = C.readBigIntegerArray();
 	  timing.gcf_read.stop();

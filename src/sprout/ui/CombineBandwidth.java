@@ -42,6 +42,7 @@ public class CombineBandwidth
 		System.out.println();
 	}
 	
+	// horizontal
 	private static void printCSV(Bandwidth[] a) {
 		System.out.println(a[PID.decrypt].bandwidth*8 + 
 				"," + a[PID.pet].bandwidth*8 + 
@@ -52,6 +53,19 @@ public class CombineBandwidth
 				"," + a[PID.ssot].bandwidth*8 +
 				"," + a[PID.encrypt].bandwidth*8 +
 				"," + a[PID.eviction].bandwidth*8);
+	}
+	
+	// vertical
+	private static void printCSV2(Bandwidth[] a) {
+		System.out.println(a[PID.decrypt].bandwidth*8 + 
+				"\n" + a[PID.pet].bandwidth*8 + 
+				"\n" + a[PID.aot].bandwidth*8 +
+				"\n" + a[PID.access].bandwidth*8 +
+				"\n" + (a[PID.ppt].bandwidth+a[PID.reshuffle].bandwidth)*8 +
+				"\n" + a[PID.gcf].bandwidth*8 +
+				"\n" + a[PID.ssot].bandwidth*8 +
+				"\n" + a[PID.encrypt].bandwidth*8 +
+				"\n" + a[PID.eviction].bandwidth*8);
 	}
 	
 	public static void main(String[] args) throws Exception
@@ -68,7 +82,7 @@ public class CombineBandwidth
 		b = readFromFile("stats/eddie-bandwidth-2");
 		a = add(a, b);
 		
-		printCSV(a);
+		printCSV2(a);
 	}
 
 }

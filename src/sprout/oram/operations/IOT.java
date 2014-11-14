@@ -43,6 +43,8 @@ public class IOT extends Operation {
     I.bandwidth[PID.iot].start();
     R.bandwidth[PID.iot].start();
     
+    sanityCheck();
+    
     // protocol
     // step 1
     // party S
@@ -53,7 +55,7 @@ public class IOT extends Operation {
     timing.iot_online.stop();
     
     // S sends a to R
-    sanityCheck(R);
+    //sanityCheck(R);
     timing.iot_write.start();
     R.write(a);
     timing.iot_write.stop();
@@ -77,17 +79,19 @@ public class IOT extends Operation {
     I.bandwidth[PID.iot].start();
     S.bandwidth[PID.iot].start();
     
+    sanityCheck();
+    
     // protocol
     // step 1
     // S sends a to R
-    sanityCheck(S);
+    //sanityCheck(S);
     timing.iot_read.start();
     byte[][] a = S.readDoubleByteArray();
     timing.iot_read.stop();
     
     // step 2
     // I sends j and p to R
-    sanityCheck(I);
+    //sanityCheck(I);
     timing.iot_read.start();
     Integer[] j = I.readIntegerArray();
     byte[][] p = I.readDoubleByteArray();
@@ -142,6 +146,8 @@ public class IOT extends Operation {
     S.bandwidth[PID.iot].start();
     R.bandwidth[PID.iot].start();
     
+    sanityCheck();
+    
     // protocol
     // step 2
     // party I
@@ -155,7 +161,7 @@ public class IOT extends Operation {
     timing.iot_online.stop();
     
     // I sends j and p to R
-    sanityCheck(R);
+    //sanityCheck(R);
     timing.iot_write.start();
     R.write(j);
     R.write(p);

@@ -28,6 +28,8 @@ public class Access extends TreeOperation<AOutput, String> {
     debbie.bandwidth[PID.access].start();
     eddie.bandwidth[PID.access].start();
     
+    sanityCheck();
+    
     // protocol
     // step 1
     // run DecryptPath on C's input Li, E's input OT_i, and D's input k
@@ -54,7 +56,7 @@ public class Access extends TreeOperation<AOutput, String> {
         c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2), 1+nBits); // party C
       }
       timing.access_online.stop();
-      sanityCheck();
+      //sanityCheck()();
       PET pet = new PET(debbie, eddie);
       timing.pet.start();
       j_1 = pet.executeCharlie(debbie, eddie, c);
@@ -73,7 +75,7 @@ public class Access extends TreeOperation<AOutput, String> {
     AOT aot = new AOT(debbie, eddie);
     String fbar = Util.addZero("", aBits); // i = 0 case
     if (i > 0) {
-      sanityCheck();
+      //sanityCheck();
       timing.aot.start();
       fbar = aot.executeC(debbie, eddie, j_1);
       timing.aot.stop();
@@ -85,7 +87,7 @@ public class Access extends TreeOperation<AOutput, String> {
     String ybar_j2 = "";  // i = h case
     if (i < h) {
       // AOT(E, C, D)
-      sanityCheck();
+      //sanityCheck();
       j_2 = new BigInteger(Nip1_pr, 2).intValue();
       timing.aot.start();
       ybar_j2 = aot.executeC(debbie, eddie, j_2);
@@ -137,7 +139,7 @@ public class Access extends TreeOperation<AOutput, String> {
     debbie.countBandwidth = false;
     eddie.countBandwidth = false;
     
-    sanityCheck();
+    //sanityCheck();
     // C outputs Lip1, secretC_Ti, secretC_P_p
     return new AOutput(Lip1, null, secretC_Ti, null, secretC_P_p, null, d);
     
@@ -151,6 +153,8 @@ public class Access extends TreeOperation<AOutput, String> {
 	  eddie.countBandwidth = true;	  
 	  charlie.bandwidth[PID.access].start();
 	  eddie.bandwidth[PID.access].start();
+	  
+	  sanityCheck();
 	  
     // protocol
     // step 1
@@ -166,14 +170,14 @@ public class Access extends TreeOperation<AOutput, String> {
     AOT aot = new AOT(charlie, eddie);
     if (i > 0) {
     	// step 3
-      sanityCheck();
+      //sanityCheck();
       PET pet = new PET(charlie, eddie);
       timing.pet.start();
       pet.executeDebbie(charlie, eddie, pathTuples);
       timing.pet.stop();
       // PET outputs j_1 for C
       
-      sanityCheck();
+      //sanityCheck();
       // step 4
       timing.aot.start();
       aot.executeD(charlie, eddie);
@@ -183,7 +187,7 @@ public class Access extends TreeOperation<AOutput, String> {
     // step 5
     if (i < h) {
       // AOT(E, C, D)
-      sanityCheck();
+      //sanityCheck();
       timing.aot.start();
       aot.executeD(charlie, eddie); 
       timing.aot.stop();
@@ -196,7 +200,7 @@ public class Access extends TreeOperation<AOutput, String> {
     charlie.countBandwidth = false;
     eddie.countBandwidth = false;
     
-    sanityCheck();
+    //sanityCheck();
     //return new AOutput(); 
     return null;
   }
@@ -208,6 +212,8 @@ public class Access extends TreeOperation<AOutput, String> {
 	  debbie.countBandwidth = true;
 	  charlie.bandwidth[PID.access].start();
 	  debbie.bandwidth[PID.access].start();
+	  
+	  sanityCheck();
 	  
     // protocol
     // step 1
@@ -257,7 +263,7 @@ public class Access extends TreeOperation<AOutput, String> {
         b[j] = secretE_P.substring(j*tupleBits, j*tupleBits+1+nBits); // party E
       }
       timing.access_online.stop();
-      sanityCheck();
+      //sanityCheck();
       PET pet = new PET(charlie, debbie);
       timing.pet.start();
       pet.executeEddie(charlie, debbie, b);
@@ -278,7 +284,7 @@ public class Access extends TreeOperation<AOutput, String> {
       }
       timing.access_online.stop();
       
-      sanityCheck();
+      //sanityCheck();
       // AOT(E, C, D)
       timing.aot.start();
       aot.executeE(charlie, debbie, f);
@@ -289,7 +295,7 @@ public class Access extends TreeOperation<AOutput, String> {
     // step 5
     if (i < h) {
       // AOT(E, C, D)
-      sanityCheck();
+      //sanityCheck();
       timing.aot.start();
       aot.executeE(charlie, debbie, y);
       timing.aot.stop();
@@ -302,7 +308,7 @@ public class Access extends TreeOperation<AOutput, String> {
     charlie.countBandwidth = false;
     debbie.countBandwidth = false;
     
-    sanityCheck();
+    //sanityCheck();
     // E outputs secretE_Ti and secretE_P_p
     return new AOutput(null, DecOut.p, null, secretE_Ti, null, secretE_P_p, null);
   }

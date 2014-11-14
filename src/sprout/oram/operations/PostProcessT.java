@@ -81,6 +81,8 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     debbie.bandwidth[PID.ppt].start();
     eddie.bandwidth[PID.ppt].start();
     
+    sanityCheck();
+    
     // step 1
     // E sends delta_C to C
     sanityCheck();
@@ -162,6 +164,8 @@ public class PostProcessT extends TreeOperation<String, String[]>{
 	  eddie.countBandwidth = true;	  
 	  charlie.bandwidth[PID.ppt].start();
 	  eddie.bandwidth[PID.ppt].start();
+	  
+	  sanityCheck();
     
     // step 1
     // E sends delta_D to D
@@ -256,6 +260,8 @@ public class PostProcessT extends TreeOperation<String, String[]>{
 	  debbie.countBandwidth = true;
 	  charlie.bandwidth[PID.ppt].start();
 	  debbie.bandwidth[PID.ppt].start();
+	  
+	  sanityCheck();
     
     // step 1
     // party E
