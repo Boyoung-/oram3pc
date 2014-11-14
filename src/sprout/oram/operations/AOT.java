@@ -109,6 +109,7 @@ public class AOT extends Operation {
     
     // step 3
     // D sends c to C
+    sanityCheck(D);
     timing.aot_read.start();
     BigInteger c = D.readBigInteger();
     timing.aot_read.stop();
@@ -158,6 +159,7 @@ public class AOT extends Operation {
     	BigInteger c = new BigInteger(1, f.compute(j_p.toByteArray()));
     	timing.aot_online.stop();
       // D sends c to C
+    	sanityCheck(C);
     	timing.aot_write.start();
       C.write(c);
       timing.aot_write.stop();
