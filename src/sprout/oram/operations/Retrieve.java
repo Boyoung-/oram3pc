@@ -233,7 +233,7 @@ public class Retrieve extends Operation {
 		  for (long exec=0; exec<retrievals; exec++) {
 			  String Li = "";
 			  if (party == Party.Charlie)
-				  System.out.println("Stored record is: " + expected + " (N=" + N + ")");
+				  System.out.println(test + ": stored record is: " + expected + " (N=" + N + ")");
 			  System.out.println("Execution cycle: " + exec);
 			  
 			  precomputation(); // TODO: not every party needs to do all of them
