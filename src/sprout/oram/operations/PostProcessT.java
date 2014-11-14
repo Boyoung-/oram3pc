@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
+import sprout.crypto.SR;
 import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
 import sprout.oram.Party;
@@ -43,9 +44,9 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     /*
     ////////////////////////below are for checking correctness /////////////////////
     String T_i_fb     = "1";
-    String T_i_N      = Util.addZero(new BigInteger(nBits, rnd).toString(2), nBits);
+    String T_i_N      = Util.addZero(new BigInteger(nBits, SR.rand).toString(2), nBits);
     String T_i_L      = Li;
-    String T_i_A      = Util.addZero(new BigInteger(aBits, rnd).toString(2), aBits);
+    String T_i_A      = Util.addZero(new BigInteger(aBits, SR.rand).toString(2), aBits);
     T_i_A         = T_i_A.substring(0, Nip1_pr_int*d_ip1) + Lip1 + T_i_A.substring((Nip1_pr_int+1)*d_ip1);
     String T_i;
     if (i == 0)
@@ -89,9 +90,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     // step 2
     // party C
     timing.post_online.start();
-    System.out.println("Before random in post " + timing.post_online.elapsedWallClockTime);
-    int alpha = rnd.nextInt(twotaupow) + 1;   // [1, 2^tau]
-    System.out.println("After random in post " + timing.post_online.elapsedWallClockTime);
+    int alpha = SR.rand.nextInt(twotaupow) + 1;   // [1, 2^tau]
     int j_p = BigInteger.valueOf(Nip1_pr_int+alpha).mod(BigInteger.valueOf(twotaupow)).intValue();
     timing.post_online.stop();
     
@@ -119,12 +118,10 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     }
     timing.post_online.start();
     String[] a = new String[twotaupow];
-    System.out.println("Before generate in post " + timing.post_online.elapsedWallClockTime);
     String a_all = G.generateBitString(aBits, s);
     for (int k=0; k<twotaupow; k++) {
       a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
     }
-    System.out.println("after generate in post " + timing.post_online.elapsedWallClockTime);
     
     String[] e = new String[twotaupow];
     String A_C = ""; 
@@ -178,9 +175,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     // step 3
     // party D
     timing.post_online.start();
-    System.out.println("Before random1 in post " + timing.post_online.elapsedWallClockTime);
-    byte[] s = rnd.generateSeed(16);  // 128 bits
-    System.out.println("After random1 in post " + timing.post_online.elapsedWallClockTime);
+    byte[] s = SR.rand.generateSeed(16);  // 128 bits
     timing.post_online.stop();
     PRG G;
     try {
@@ -192,9 +187,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     timing.post_online.start();
     String[] a = new String[twotaupow];
     byte[][] a_p = new byte[twotaupow][];
-    System.out.println("Before generate1 in post " + timing.post_online.elapsedWallClockTime);
     String a_all = G.generateBitString(aBits, s);
-    System.out.println("After generate1 in post " + timing.post_online.elapsedWallClockTime);
     for (int k=0; k<twotaupow; k++) {
       a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
       if (k != j_p)
@@ -261,7 +254,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     // step 1
     // party E
     timing.post_online.start();
-    byte[] delta_D = new BigInteger(d_ip1, rnd).toByteArray();
+    byte[] delta_D = new BigInteger(d_ip1, SR.rand).toByteArray();
     byte[] delta_C = new BigInteger(1, delta_D).xor(new BigInteger(secretE_Lip1_p, 2)).toByteArray();
     timing.post_online.stop();
     // E sends delta_C to C and delta_D to D
@@ -312,11 +305,11 @@ public class PostProcessT extends TreeOperation<String, String[]>{
   
   @Override
   public String [] prepareArgs(Party party) {
-    String Lip1       = Util.addZero(new BigInteger(d_ip1, rnd).toString(2), d_ip1);
-    String Nip1_pr      = Util.addZero(new BigInteger(tau, rnd).toString(2), tau);
-    String secret_Ti     = Util.addZero(new BigInteger(tupleBits, rnd).toString(2), tupleBits);
-    String secret_Li_p   = Util.addZero(new BigInteger(d_i, rnd).toString(2), d_i);
-    String secret_Lip1_p = Util.addZero(new BigInteger(d_ip1, rnd).toString(2), d_ip1);
+    String Lip1       = Util.addZero(new BigInteger(d_ip1, SR.rand).toString(2), d_ip1);
+    String Nip1_pr      = Util.addZero(new BigInteger(tau, SR.rand).toString(2), tau);
+    String secret_Ti     = Util.addZero(new BigInteger(tupleBits, SR.rand).toString(2), tupleBits);
+    String secret_Li_p   = Util.addZero(new BigInteger(d_i, SR.rand).toString(2), d_i);
+    String secret_Lip1_p = Util.addZero(new BigInteger(d_ip1, SR.rand).toString(2), d_ip1);
     
     switch (party) {
     case Charlie:

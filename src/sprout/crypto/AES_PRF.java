@@ -6,7 +6,6 @@ import javax.crypto.Cipher;
 import sprout.util.Util;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
 public class AES_PRF {
 
@@ -103,15 +102,14 @@ public class AES_PRF {
 	// testing
 	public static void main(String [] args) {
 		try {
-			SecureRandom rnd = new SecureRandom();
 			for (int l=1; l<5000; l++) {
 				System.out.println("Round: l=" + l);
 				AES_PRF f1 = new AES_PRF(l);
 				AES_PRF f2 = new AES_PRF(l);
 				byte[] k = new byte[16];
-				rnd.nextBytes(k);
-				byte[] input = new byte[rnd.nextInt(8) + 1];
-				rnd.nextBytes(input);
+				SR.rand.nextBytes(k);
+				byte[] input = new byte[SR.rand.nextInt(8) + 1];
+				SR.rand.nextBytes(input);
 				f1.init(k);
 				f2.init(k);
 				byte[] output1 = f1.compute(input);

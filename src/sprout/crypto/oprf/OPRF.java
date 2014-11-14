@@ -8,13 +8,13 @@ import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.asn1.nist.NISTNamedCurves;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 
 import sprout.crypto.CryptoException;
+import sprout.crypto.SR;
 import sprout.crypto.WrongPartyException;
 import sprout.crypto.oprf.Message;
 import sprout.util.Timing;
@@ -30,8 +30,6 @@ public class OPRF {
 
   // Private keys
   protected BigInteger k;
-  
-  static SecureRandom rand = new SecureRandom();
 
   /** 
    * Create a new keyed PRF
@@ -281,9 +279,9 @@ public class OPRF {
 
     // TODO: Should we be keeping this rand around? 
     
-    BigInteger temp = new BigInteger(range.bitLength(), rand);
+    BigInteger temp = new BigInteger(range.bitLength(), SR.rand);
     while(temp.compareTo(range) >= 0 || temp.equals(BigInteger.ZERO)){
-      temp = new BigInteger(range.bitLength(), rand);
+      temp = new BigInteger(range.bitLength(), SR.rand);
     }
     return temp;
 

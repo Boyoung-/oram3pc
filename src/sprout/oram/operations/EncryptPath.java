@@ -6,6 +6,7 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
+import sprout.crypto.SR;
 import sprout.crypto.oprf.OPRF;
 import sprout.oram.PID;
 import sprout.oram.Tree;
@@ -84,7 +85,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       byte[][] c = new byte[pathBuckets][];
       
       timing.encrypt_online.start();
-      byte[] s = rnd.generateSeed(16);  // 128 bits
+      byte[] s = SR.rand.generateSeed(16);  // 128 bits
       for (int j=0; j<pathBuckets; j++) {
         // This computation is repeated in oprf in some form
         r = oprf.randomExponent();
@@ -184,6 +185,6 @@ public class EncryptPath extends TreeOperation<EPath, String> {
   @Override
   public String prepareArgs() {
 	  int length = bucketBits * pathBuckets;
-    return Util.addZero(new BigInteger(length, rnd).toString(2), length);
+    return Util.addZero(new BigInteger(length, SR.rand).toString(2), length);
   }
 }

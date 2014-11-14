@@ -1,17 +1,15 @@
 package sprout.ui;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
 import sprout.crypto.AES_PRF;
 import sprout.crypto.PRG;
+import sprout.crypto.SR;
 import sprout.util.StopWatch;
 import sprout.util.Util;
 
 public class ExtraTiming
 {
-	static SecureRandom rnd = new SecureRandom();	
-
 	static BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p = 2^34 - 41
 	
 	public static void main(String[] args) throws Exception
@@ -33,8 +31,8 @@ public class ExtraTiming
 		for (int i=0; i<iteration; i++) {
 			input[i] = new byte[8];
 			seed[i] = new byte[16];
-			rnd.nextBytes(input[i]);
-			rnd.nextBytes(seed[i]);
+			SR.rand.nextBytes(input[i]);
+			SR.rand.nextBytes(seed[i]);
 		}
 		
 		for (int n=100; n<=1000; n+=100) {
@@ -51,7 +49,7 @@ public class ExtraTiming
 		
 		// start timing
 		for (int n=100; n<=1000; n+=100) {
-			rnd.nextBytes(k);
+			SR.rand.nextBytes(k);
 			AES_PRF prf = new AES_PRF(128*n);
 			prf.init(k);
 			PRG prg = new PRG(128*n);

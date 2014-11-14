@@ -5,6 +5,8 @@ import java.util.Arrays;
 
 import org.bouncycastle.math.ec.ECPoint;
 
+import sprout.crypto.SR;
+
 public class EPath {
   ECPoint[] x;
   BigInteger[] Bbar;
@@ -26,7 +28,7 @@ public class EPath {
     Bbar = new BigInteger[n];
     for (int i=0; i<n; i++) {
       x[i] = OPRFHelper.getOPRF().randomPoint();
-      Bbar[i] = new BigInteger(l, TreeOperation.rnd);
+      Bbar[i] = new BigInteger(l, SR.rand);
     }
   }
   

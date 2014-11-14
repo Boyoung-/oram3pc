@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import sprout.communication.Communication;
 import sprout.crypto.AES_PRF;
+import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.PID;
@@ -31,7 +32,7 @@ public class AOT extends Operation {
     // pre-computed input
     // party E
     byte[] k = new byte[16];
-    rnd.nextBytes(k);
+    SR.rand.nextBytes(k);
     // E sends k to D
     D.write(k);
     
@@ -43,7 +44,7 @@ public class AOT extends Operation {
     // step 1
     // party E
     timing.aot_online.start();
-    BigInteger alpha = BigInteger.valueOf(rnd.nextInt(N));
+    BigInteger alpha = BigInteger.valueOf(SR.rand.nextInt(N));
     timing.aot_online.stop();
     BigInteger[] m_p = new BigInteger[N];
     try {
@@ -169,7 +170,7 @@ public class AOT extends Operation {
     
     switch (party) {
     case Charlie: // R
-      int j = rnd.nextInt(10);
+      int j = SR.rand.nextInt(10);
       System.out.println(j);
       System.out.println(AOT.executeC(con1, con2, j));
       break;
@@ -177,7 +178,7 @@ public class AOT extends Operation {
       AOT.executeD(con1, con2);
       break;
     case Eddie: // S
-      String t = Util.addZero(new BigInteger(50, rnd).toString(2), 50);
+      String t = Util.addZero(new BigInteger(50, SR.rand).toString(2), 50);
       String[] m = new String[10];
       
       for (int i=0; i<10; i++)

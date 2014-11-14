@@ -9,6 +9,7 @@ import YaoGC.F2FT_2Wplus2_Wplus2;
 import YaoGC.State;
 import YaoGC.Wire;
 import sprout.communication.Communication;
+import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.PID;
@@ -31,8 +32,8 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	int w = n - 2;
 	if (circuit.equals("F2FT"))
 		w /= 2;
-	int tmp1 = rnd.nextInt(w) + 1;
-	int tmp2 = rnd.nextInt(w) + 1;
+	int tmp1 = SR.rand.nextInt(w) + 1;
+	int tmp2 = SR.rand.nextInt(w) + 1;
 	int s1 = Math.min(tmp1, tmp2);
 	int s2 = Math.max(tmp1, tmp2);
 	//System.out.println("--- E: sigma:\t" + s1 + " " + s2);
@@ -56,7 +57,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	// generate label pairs
 	BigInteger[][] lbs = new BigInteger[n][2];
 	for (int i = 0; i < n; i++) {
-	    BigInteger glb0 = new BigInteger(Wire.labelBitLength, rnd);
+	    BigInteger glb0 = new BigInteger(Wire.labelBitLength, SR.rand);
 	    BigInteger glb1 = glb0.xor(Wire.R.shiftLeft(1).setBit(0));
 	    lbs[i][0] = glb0;
 	    lbs[i][1] = glb1;
@@ -213,9 +214,9 @@ public static void executeE(Communication C, Communication D, String circuit, in
     switch (party) {
     case Charlie:
       if (circuit == "F2ET")
-    	sC = "00" + Util.addZero(new BigInteger(n-2, rnd).toString(2), n-2);
+    	sC = "00" + Util.addZero(new BigInteger(n-2, SR.rand).toString(2), n-2);
       else
-    	sC = "0011111111" + Util.addZero(new BigInteger(n-10, rnd).toString(2), n-10);
+    	sC = "0011111111" + Util.addZero(new BigInteger(n-10, SR.rand).toString(2), n-10);
       GCF.executeC(con1, con2, n, sC);
       break;
     case Debbie:

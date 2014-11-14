@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 
 import sprout.communication.Communication;
+import sprout.crypto.SR;
 import sprout.oram.Bucket;
 import sprout.oram.BucketException;
 import sprout.oram.Forest;
@@ -34,8 +35,8 @@ public class Retrieve extends Operation {
 	  sE_Li_p = new String[levels];
 	  for (int i=0; i<levels; i++) {
 		  int lBits = ForestMetadata.getLBits(i);
-		  sC_Li_p[i] = Util.addZero(new BigInteger(lBits, rnd).toString(2), lBits);
-		  sE_Li_p[i] = Util.addZero(new BigInteger(lBits, rnd).toString(2), lBits);
+		  sC_Li_p[i] = Util.addZero(new BigInteger(lBits, SR.rand).toString(2), lBits);
+		  sE_Li_p[i] = Util.addZero(new BigInteger(lBits, SR.rand).toString(2), lBits);
 	  }
   }
 
@@ -210,15 +211,15 @@ public class Retrieve extends Operation {
 	  if (shiftN == 0) 
 		  shiftN = tau;
 	  
-	  int records = 1;     // how many random records we want to test retrieval
-	  int retrievals = 1;  // for each record, how many repeated retrievals we want to do
+	  int records = 3;     // how many random records we want to test retrieval
+	  int retrievals = 2;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
 		  String N = null;
 		  long expected = 0;
 		  if (party == Party.Charlie) {
 			  if (numInsert == -1)
-				  N = Util.addZero(new BigInteger(lastNBits, rnd).toString(2), lastNBits);
+				  N = Util.addZero(new BigInteger(lastNBits, SR.rand).toString(2), lastNBits);
 			  else
 				  N = Util.addZero(Util.nextBigInteger(BigInteger.valueOf(numInsert)).toString(2), lastNBits);
 			  expected = new BigInteger(N, 2).intValue();

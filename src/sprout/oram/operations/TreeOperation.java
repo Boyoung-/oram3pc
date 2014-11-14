@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import org.apache.commons.lang3.NotImplementedException;
 
 import sprout.communication.Communication;
+import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
@@ -118,7 +119,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
       if (forest != null)
     	  OT = forest.getTree(i);
       this.loadTreeSpecificParameters(i);    
-      String Li = Util.addZero(new BigInteger(lBits, rnd).toString(2), lBits);  
+      String Li = Util.addZero(new BigInteger(lBits, SR.rand).toString(2), lBits);  
       
       T out = execute(party, Li, k, OT, prepareArgs(party));
       if (print_out && out!=null) System.out.println("Output i=" + i + " : \n" + out.toString());

@@ -2,7 +2,6 @@ package sprout.oram.operations;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.security.SecureRandom;
 
 import sprout.communication.Communication;
 import sprout.oram.Forest;
@@ -11,9 +10,7 @@ import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.util.Timing;
 
-public abstract class Operation {
-  static SecureRandom rnd = new SecureRandom();
-  
+public abstract class Operation {  
   Communication con1, con2;
   
   public static Timing timing;

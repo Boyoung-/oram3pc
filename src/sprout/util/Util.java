@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,9 +16,10 @@ import java.util.logging.SimpleFormatter;
 import org.bouncycastle.asn1.nist.NISTNamedCurves;
 import org.bouncycastle.math.ec.ECPoint;
 
+import sprout.crypto.SR;
+
 public class Util
 {
-	static SecureRandom rnd = new SecureRandom();
 	public static FileHandler fh = null;
 	public static Logger LOG = initLog();
 
@@ -242,7 +242,7 @@ public class Util
 	public static BigInteger nextBigInteger(BigInteger range) {
 		BigInteger r;
 		do {
-		    r = new BigInteger(range.bitLength(), rnd);
+		    r = new BigInteger(range.bitLength(), SR.rand);
 		} while (r.compareTo(range) >= 0);
 		return r;
 	}
@@ -274,7 +274,7 @@ public class Util
 	{
 		long bits, val;
 		do {
-			bits = (rnd.nextLong() << 1) >>> 1;
+			bits = (SR.rand.nextLong() << 1) >>> 1;
 		    val = bits % n;
 		} while (bits-val+(n-1) < 0L);
 		return val;

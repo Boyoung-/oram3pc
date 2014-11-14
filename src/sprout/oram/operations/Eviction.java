@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 
 import sprout.communication.Communication;
+import sprout.crypto.SR;
 import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.Tree;
@@ -79,7 +80,7 @@ public class Eviction extends TreeOperation<String, String[]> {
  					sC_a[w*j+l] = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits).substring(l*tupleBits, (l+1)*tupleBits);
  				}
  			sC_a[k] = sC_T_p;
- 			sC_a[k+1] = Util.addZero(new BigInteger(tupleBits-1, rnd).toString(2), tupleBits);
+ 			sC_a[k+1] = Util.addZero(new BigInteger(tupleBits-1, SR.rand).toString(2), tupleBits);
  			timing.eviction_online.stop();
  			
  	// step 5
@@ -124,10 +125,10 @@ public class Eviction extends TreeOperation<String, String[]> {
  			timing.eviction_online.start();
  			alpha1_j[j] = GCFOutput.substring(2).indexOf('1');
  			if (alpha1_j[j] == -1)
- 				alpha1_j[j] = rnd.nextInt(w);
+ 				alpha1_j[j] = SR.rand.nextInt(w);
  			alpha2_j[j] = GCFOutput.substring(2).indexOf('1', alpha1_j[j]+1);
  			while (alpha2_j[j] == -1 || alpha2_j[j] == alpha1_j[j])
- 				alpha2_j[j] = rnd.nextInt(w);
+ 				alpha2_j[j] = SR.rand.nextInt(w);
  			timing.eviction_online.stop();
  			//System.out.println("--- D: alpha_j: " + alpha1_j[j] + " " + alpha2_j[j]);
  		}
@@ -254,7 +255,7 @@ public class Eviction extends TreeOperation<String, String[]> {
  					sE_a[w*j+l] = sE_P_p.substring(j*bucketBits, (j+1)*bucketBits).substring(l*tupleBits, (l+1)*tupleBits);
  				}
  			sE_a[k] = sE_T_p;
- 			sE_a[k+1] = Util.addZero(new BigInteger(tupleBits-1, rnd).toString(2), tupleBits);
+ 			sE_a[k+1] = Util.addZero(new BigInteger(tupleBits-1, SR.rand).toString(2), tupleBits);
  			timing.eviction_online.stop();
  			
  	// step 5
@@ -279,9 +280,9 @@ public class Eviction extends TreeOperation<String, String[]> {
   @Override
   public String[] prepareArgs(Party party) {
     // Randomly generate a secret
-      String s_P_p   = Util.addZero(new BigInteger(pathBuckets*bucketBits, rnd).toString(2), pathBuckets*bucketBits);
-      String s_T_p   = Util.addZero(new BigInteger(tupleBits, rnd).toString(2), tupleBits);
-      String Li = Util.addZero(new BigInteger(lBits, rnd).toString(2), lBits);
+      String s_P_p   = Util.addZero(new BigInteger(pathBuckets*bucketBits, SR.rand).toString(2), pathBuckets*bucketBits);
+      String s_T_p   = Util.addZero(new BigInteger(tupleBits, SR.rand).toString(2), tupleBits);
+      String Li = Util.addZero(new BigInteger(lBits, SR.rand).toString(2), lBits);
       
       return new String[]{s_P_p, s_T_p, Li};
   }

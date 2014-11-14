@@ -25,7 +25,7 @@ public class PRG {
 		this.l = l;
 	}
 
-	public byte[] generateBytes(int bits) {
+	private byte[] generateBytes(int bits) {
 		byte[] bytes = new byte[(bits + 7) / 8];
 		this.rand.nextBytes(bytes);
 		return bytes;
@@ -44,7 +44,7 @@ public class PRG {
 		return generateBytes(bits, seed.getEncoded());
 	}
 	
-	public String generateBitString(int bits) {
+	private String generateBitString(int bits) {
 		return Util.addZero(new BigInteger(bits, rand).toString(2), bits);
 	}
 	

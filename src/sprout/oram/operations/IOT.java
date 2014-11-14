@@ -9,6 +9,7 @@ import java.util.List;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
+import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.PID;
@@ -119,9 +120,9 @@ public class IOT extends Operation {
     List<Integer> pi = new ArrayList<Integer>();            
     for (int o=0; o<N; o++)
       pi.add(o);
-    Collections.shuffle(pi, rnd);  
+    Collections.shuffle(pi, SR.rand);  
     List<Integer> pi_ivs = Util.getInversePermutation(pi); // inverse permutation   
-    byte[] s = rnd.generateSeed(16);
+    byte[] s = SR.rand.generateSeed(16);
     PRG G = new PRG(N*l);
     String r_all = G.generateBitString(N*l, s);
     String[] r = new String[N];

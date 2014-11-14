@@ -10,6 +10,7 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
+import sprout.crypto.SR;
 import sprout.crypto.oprf.Message;
 import sprout.crypto.oprf.OPRF;
 import sprout.oram.Bucket;
@@ -202,7 +203,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     List<Integer> sigma = new ArrayList<Integer>(); 
     for (int j=0; j<Pbar.length; j++)
       sigma.add(j);
-    Collections.shuffle(sigma, rnd);
+    Collections.shuffle(sigma, SR.rand);
     
     ECPoint[] x = new ECPoint[Pbar.length];
     String[] Bbar = new String[Pbar.length];  

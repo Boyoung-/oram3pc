@@ -8,6 +8,7 @@ import java.util.List;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
+import sprout.crypto.SR;
 import sprout.oram.PID;
 import sprout.oram.Tree;
 import sprout.util.Util;
@@ -51,7 +52,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       return null;
     }
     timing.reshuffle_online.start();
-    byte[] s1 = rnd.generateSeed(16);
+    byte[] s1 = SR.rand.generateSeed(16);
     byte[] p1 = G.generateBytes(pathBuckets*bucketBits, s1);
     byte[] z = new BigInteger(secretC_P, 2).xor(new BigInteger(1, p1)).toByteArray();
     //String z = Util.addZero(new BigInteger(secretC_P, 2).xor(new BigInteger(p1, 2)).toString(2), bucketBits);
@@ -114,7 +115,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       PRG G2 = new PRG(pathBuckets*bucketBits); // TODO: same issue: non-fresh -> non-deterministic
       timing.reshuffle_online.start();
       byte[] p1 = G1.generateBytes(pathBuckets*bucketBits, s1);
-      byte[] s2 = rnd.generateSeed(16);
+      byte[] s2 = SR.rand.generateSeed(16);
       byte[] p2 = G2.generateBytes(pathBuckets*bucketBits, s2);
       
       String a_all = Util.addZero(new BigInteger(1, p1).xor(new BigInteger(1, p2)).toString(2), pathBuckets*bucketBits);
@@ -211,11 +212,11 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
 
   @Override
   public Pair<String, List<Integer>> prepareArgs() {
-    String secret_P = Util.addZero(new BigInteger(bucketBits*pathBuckets, rnd).toString(2), bucketBits*pathBuckets);
+    String secret_P = Util.addZero(new BigInteger(bucketBits*pathBuckets, SR.rand).toString(2), bucketBits*pathBuckets);
     List<Integer> pi  = new ArrayList<Integer>(); 
     for (int j=0; j<pathBuckets; j++)
       pi.add(j);
-    Collections.shuffle(pi, rnd);
+    Collections.shuffle(pi, SR.rand);
     
     
     if (print_out) {

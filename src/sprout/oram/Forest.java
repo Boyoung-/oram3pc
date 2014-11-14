@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -19,8 +18,6 @@ import sprout.util.Util;
 
 public class Forest
 {	
-	static SecureRandom rnd = new SecureRandom();
-	
 	private static ArrayList<Tree> trees;	
 	// TODO: write large data to disk
 	private static ByteArray64 data;

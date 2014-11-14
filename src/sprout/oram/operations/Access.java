@@ -3,6 +3,7 @@ package sprout.oram.operations;
 import java.math.BigInteger;
 
 import sprout.communication.Communication;
+import sprout.crypto.SR;
 import sprout.oram.PID;
 import sprout.oram.Tree;
 import sprout.util.Util;
@@ -128,7 +129,7 @@ public class Access extends TreeOperation<AOutput, String> {
     String secretC_P_p = ""; // i = 0 case
     if (i > 0) {
       int flipBit = 1 - Integer.parseInt(secretC_P.substring(j_1*tupleBits, j_1*tupleBits+1));
-      String newTuple = flipBit + Util.addZero(new BigInteger(tupleBits-1, rnd).toString(2), tupleBits-1);
+      String newTuple = flipBit + Util.addZero(new BigInteger(tupleBits-1, SR.rand).toString(2), tupleBits-1);
       secretC_P_p = secretC_P.substring(0, j_1*tupleBits) + newTuple + secretC_P.substring((j_1+1)*tupleBits);
     }
     timing.access_online.stop();
@@ -231,7 +232,7 @@ public class Access extends TreeOperation<AOutput, String> {
     if (i == 0) 
       y_all = secretE_P;
     else if (i < h)
-      y_all = Util.addZero(new BigInteger(aBits, rnd).toString(2), aBits);
+      y_all = Util.addZero(new BigInteger(aBits, SR.rand).toString(2), aBits);
     else // i = h
       y_all = Util.addZero("", aBits);
     for (int o=0; o<twotaupow; o++) {
@@ -310,6 +311,6 @@ public class Access extends TreeOperation<AOutput, String> {
     // Nip1 
     // Note: Originally i=0 case has just tau. This should be fine since
     // nBits = i*tau, thus when i=0 nBits = 0 and nBits+tau = tau
-    return  Util.addZero(new BigInteger(nBits+tau, rnd).toString(2), nBits+tau); 
+    return  Util.addZero(new BigInteger(nBits+tau, SR.rand).toString(2), nBits+tau); 
   }
 }
