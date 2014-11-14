@@ -68,6 +68,7 @@ public class Communication
 	
 	public Bandwidth[] bandwidth;
 	public boolean countBandwidth = false;
+	public boolean bandWidthSwitch = false;
 
 	public Communication()
 	{
@@ -90,6 +91,8 @@ public class Communication
 	}
 	
 	public void addBandwidth(int bits) {
+		if (!bandWidthSwitch)
+			return;
 		for (int i=0; i<bandwidth.length; i++) {
 			if (bandwidth[i].isActive())
 				bandwidth[i].add(bits);

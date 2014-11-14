@@ -42,6 +42,9 @@ public class Timing
 	public StopWatch reshuffle_online;
 	public StopWatch reshuffle_write;
 	public StopWatch reshuffle_read;
+	public StopWatch reshuffle_offline;
+	public StopWatch reshuffle_offline_write;
+	public StopWatch reshuffle_offline_read;
 	
 	public StopWatch eviction;
 	public StopWatch eviction_online;
@@ -52,6 +55,10 @@ public class Timing
 	public StopWatch gcf_online;
 	public StopWatch gcf_write;
 	public StopWatch gcf_read;
+	public StopWatch gcf_offline;
+	public StopWatch gcf_offline_write;
+	public StopWatch gcf_offline_read;
+	
 	public StopWatch gtt_write;
 	public StopWatch gtt_read;
 	
@@ -107,6 +114,9 @@ public class Timing
 		reshuffle_online = new StopWatch("reshuffle_online");
 		reshuffle_write = new StopWatch("reshuffle_write");
 		reshuffle_read = new StopWatch("reshuffle_read");
+		reshuffle_offline = new StopWatch("reshuffle_offline");
+		reshuffle_offline_write = new StopWatch("reshuffle_offline_write");
+		reshuffle_offline_read = new StopWatch("reshuffle_offline_read");
 		
 		eviction = new StopWatch("eviction");
 		eviction_online = new StopWatch("eviction_online");
@@ -117,6 +127,9 @@ public class Timing
 		gcf_online = new StopWatch("gcf_online");
 		gcf_write = new StopWatch("gcf_write");
 		gcf_read = new StopWatch("gcf_read");
+		gcf_offline = new StopWatch("gcf_offline");
+		gcf_offline_write = new StopWatch("gcf_offline_write");
+		gcf_offline_read = new StopWatch("gcf_offline_read");
 		
 		ssot = new StopWatch("ssot");
 		ssot_online = new StopWatch("ssot_online");
@@ -178,6 +191,9 @@ public class Timing
 	      oos.writeObject(reshuffle_online);
 	      oos.writeObject(reshuffle_write);
 	      oos.writeObject(reshuffle_read);
+	      oos.writeObject(reshuffle_offline);
+	      oos.writeObject(reshuffle_offline_write);
+	      oos.writeObject(reshuffle_offline_read);
 	      
 	      oos.writeObject(eviction);
 	      oos.writeObject(eviction_online);
@@ -185,9 +201,12 @@ public class Timing
 	      oos.writeObject(eviction_read);
 	      
 	      oos.writeObject(gcf);
-	      oos.writeObject(gcf_online);
+	      oos.writeObject(gcf_online);    
 	      oos.writeObject(gcf_write);
 	      oos.writeObject(gcf_read);
+	      oos.writeObject(gcf_offline);  
+	      oos.writeObject(gcf_offline_write);  
+	      oos.writeObject(gcf_offline_read);  
 	      
 	      oos.writeObject(ssot);
 	      oos.writeObject(ssot_online);
@@ -250,6 +269,9 @@ public class Timing
 			reshuffle_online = (StopWatch) ois.readObject();
 			reshuffle_write = (StopWatch) ois.readObject();
 			reshuffle_read = (StopWatch) ois.readObject();
+			reshuffle_offline = (StopWatch) ois.readObject();
+			reshuffle_offline_write = (StopWatch) ois.readObject();
+			reshuffle_offline_read = (StopWatch) ois.readObject();
 			
 			eviction = (StopWatch) ois.readObject();
 			eviction_online = (StopWatch) ois.readObject();
@@ -260,6 +282,9 @@ public class Timing
 			gcf_online = (StopWatch) ois.readObject();
 			gcf_write = (StopWatch) ois.readObject();
 			gcf_read = (StopWatch) ois.readObject();
+			gcf_offline = (StopWatch) ois.readObject();
+			gcf_offline_write = (StopWatch) ois.readObject();
+			gcf_offline_read = (StopWatch) ois.readObject();
 			
 			ssot = (StopWatch) ois.readObject();
 			ssot_online = (StopWatch) ois.readObject();
@@ -321,6 +346,9 @@ public class Timing
 		out.reshuffle_online = reshuffle_online.add(t.reshuffle_online);
 		out.reshuffle_write = reshuffle_write.add(t.reshuffle_write);
 		out.reshuffle_read = reshuffle_read.add(t.reshuffle_read);
+		out.reshuffle_offline = reshuffle_offline.add(t.reshuffle_offline);
+		out.reshuffle_offline_write = reshuffle_offline_write.add(t.reshuffle_offline_write);
+		out.reshuffle_offline_read = reshuffle_offline_read.add(t.reshuffle_offline_read);
 		
 		out.eviction = eviction.add(t.eviction);
 		out.eviction_online = eviction_online.add(t.eviction_online);
@@ -331,6 +359,9 @@ public class Timing
 		out.gcf_online = gcf_online.add(t.gcf_online);
 		out.gcf_write = gcf_write.add(t.gcf_write);
 		out.gcf_read = gcf_read.add(t.gcf_read);
+		out.gcf_offline = gcf_offline.add(t.gcf_offline);
+		out.gcf_offline_write = gcf_offline_write.add(t.gcf_offline_write);
+		out.gcf_offline_read = gcf_offline_read.add(t.gcf_offline_read);
 		
 		out.ssot = ssot.add(t.ssot);
 		out.ssot_online = ssot_online.add(t.ssot_online);
@@ -385,6 +416,9 @@ public class Timing
 		reshuffle_online.divide(n);
 		reshuffle_write.divide(n);
 		reshuffle_read.divide(n);
+		reshuffle_offline.divide(n);
+		reshuffle_offline_write.divide(n);
+		reshuffle_offline_read.divide(n);
 		
 		eviction.divide(n);
 		eviction_online.divide(n);
@@ -395,6 +429,9 @@ public class Timing
 		gcf_online.divide(n);
 		gcf_write.divide(n);
 		gcf_read.divide(n);
+		gcf_offline.divide(n);
+		gcf_offline_write.divide(n);
+		gcf_offline_write.divide(n);
 		
 		ssot.divide(n);
 		ssot_online.divide(n);
@@ -420,9 +457,11 @@ public class Timing
 				+ pet + "\n" + pet_online + "\n" + pet_write + "\n" + pet_read + "\n\n"
 				+ aot + "\n" + aot_online + "\n" + aot_write + "\n" + aot_read + "\n\n"
 				+ post + "\n" + post_online + "\n" + post_write + "\n" + post_read + "\n\n"
-				+ reshuffle + "\n" + reshuffle_online + "\n" + reshuffle_write + "\n" + reshuffle_read + "\n\n"
+				+ reshuffle + "\n" + reshuffle_online + "\n" + reshuffle_write + "\n" + reshuffle_read + "\n"
+								   + reshuffle_offline + "\n" + reshuffle_offline_write + "\n" + reshuffle_offline_read + "\n\n"
 				+ eviction + "\n" + eviction_online + "\n" + eviction_write + "\n" + eviction_read + "\n\n"
-				+ gcf + "\n" + gcf_online + "\n" + gcf_write + "\n" + gcf_read + "\n\n"
+				+ gcf + "\n" + gcf_online + "\n" + gcf_write + "\n" + gcf_read + "\n"
+						     + gcf_offline + "\n" + gcf_offline_write + "\n" + gcf_offline_read + "\n\n"
 				+ ssot + "\n" + ssot_online + "\n" + ssot_write + "\n" + ssot_read + "\n\n"
 				+ iot + "\n" + iot_online + "\n" + iot_write + "\n" + iot_read + "\n\n"
 				+ encrypt + "\n" + encrypt_online + "\n" + encrypt_write + "\n" + encrypt_read;
@@ -436,9 +475,11 @@ public class Timing
 				+ pet.toCSV() + "\n" + pet_online.toCSV() + "\n" + pet_write.toCSV() + "\n" + pet_read.toCSV() + "\n\n"
 				+ aot.toCSV() + "\n" + aot_online.toCSV() + "\n" + aot_write.toCSV() + "\n" + aot_read.toCSV() + "\n\n"
 				+ post.toCSV() + "\n" + post_online.toCSV() + "\n" + post_write.toCSV() + "\n" + post_read.toCSV() + "\n\n"
-				+ reshuffle.toCSV() + "\n" + reshuffle_online.toCSV() + "\n" + reshuffle_write.toCSV() + "\n" + reshuffle_read.toCSV() + "\n\n"
+				+ reshuffle.toCSV() + "\n" + reshuffle_online.toCSV() + "\n" + "\n" + reshuffle_write.toCSV() + "\n" + reshuffle_read.toCSV() + "\n"
+										   + reshuffle_offline.toCSV() + "\n" + "\n" + reshuffle_offline_write.toCSV() + "\n" + reshuffle_offline_read.toCSV() + "\n\n"
 				+ eviction.toCSV() + "\n" + eviction_online.toCSV() + "\n" + eviction_write.toCSV() + "\n" + eviction_read.toCSV() + "\n\n"
-				+ gcf.toCSV() + "\n" + gcf_online.toCSV() + "\n" + gcf_write.toCSV() + "\n" + gcf_read.toCSV() + "\n\n"
+				+ gcf.toCSV() + "\n" + gcf_online.toCSV() + "\n" + gcf_write.toCSV() + "\n" + gcf_read.toCSV() + "\n"
+									 + gcf_offline.toCSV() + "\n" + gcf_offline_write.toCSV() + "\n" + gcf_offline_read.toCSV() + "\n\n"
 				+ ssot.toCSV() + "\n" + ssot_online.toCSV() + "\n" + ssot_write.toCSV() + "\n" + ssot_read.toCSV() + "\n\n"
 				+ iot.toCSV() + "\n" + iot_online.toCSV() + "\n" + iot_write.toCSV() + "\n" + iot_read.toCSV() + "\n\n"
 				+ encrypt.toCSV() + "\n" + encrypt_online.toCSV() + "\n" + encrypt_write.toCSV() + "\n" + encrypt_read.toCSV();

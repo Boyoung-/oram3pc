@@ -51,9 +51,16 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       e.printStackTrace();
       return null;
     }
-    timing.reshuffle_online.start();
+    timing.reshuffle_offline.start();
     byte[] s1 = SR.rand.generateSeed(16);
     byte[] p1 = G.generateBytes(pathBuckets*bucketBits, s1);
+    timing.reshuffle_offline.stop();
+    
+    timing.reshuffle_offline_write.start();
+    debbie.write(s1);
+    timing.reshuffle_offline_write.stop();
+    
+    timing.reshuffle_online.start();
     byte[] z = new BigInteger(secretC_P, 2).xor(new BigInteger(1, p1)).toByteArray();
     //String z = Util.addZero(new BigInteger(secretC_P, 2).xor(new BigInteger(p1, 2)).toString(2), bucketBits);
     timing.reshuffle_online.stop();
@@ -61,7 +68,6 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     // C sends s1 to D
     timing.reshuffle_write.start();
     eddie.write(z);
-    debbie.write(s1);
     timing.reshuffle_write.stop();
     
     // step 2 & 3

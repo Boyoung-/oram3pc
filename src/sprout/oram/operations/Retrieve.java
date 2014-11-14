@@ -42,7 +42,7 @@ public class Retrieve extends Operation {
 
   public String[] executeCharlie(Communication debbie, Communication eddie, String Li, String Nip1) {
 	  // Access
-	  Access access = new Access();
+	  Access access = new Access(debbie, eddie);
 	  access.loadTreeSpecificParameters(currTree);
 	  timing.access.start();
 	  AOutput AOut = access.executeCharlieSubTree(debbie, eddie, Li, null, Nip1);
@@ -58,7 +58,7 @@ public class Retrieve extends Operation {
 		  secretC_Lip1_p = sC_Li_p[currTree+1];
 	  String Lip1 = AOut.Lip1;
 	  String Nip1_pr = Nip1.substring(ForestMetadata.getNBits(currTree));
-	  PostProcessT ppt = new PostProcessT();
+	  PostProcessT ppt = new PostProcessT(debbie, eddie);
 	  ppt.loadTreeSpecificParameters(currTree);
 	  timing.post.start();
 	  String secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, Li, null, new String[]{secretC_Ti, secretC_Li_p, secretC_Lip1_p, Lip1, Nip1_pr});
@@ -66,7 +66,7 @@ public class Retrieve extends Operation {
 	  
 	  // Reshuffle
 	  String secretC_P_p = AOut.secretC_P_p;
-	  Reshuffle rs = new Reshuffle();
+	  Reshuffle rs = new Reshuffle(debbie, eddie);
 	  rs.loadTreeSpecificParameters(currTree);
 	  List<Integer> tmp = null;
 	  timing.reshuffle.start();
@@ -74,7 +74,7 @@ public class Retrieve extends Operation {
 	  timing.reshuffle.stop();
 	  
 	  // Eviction
-	  Eviction evict = new Eviction();
+	  Eviction evict = new Eviction(debbie, eddie);
 	  evict.loadTreeSpecificParameters(currTree);
 	  timing.eviction.start();
 	  String secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, null, new String[]{secretC_pi_P, secretC_Ti_p});
@@ -83,7 +83,7 @@ public class Retrieve extends Operation {
 		  secretC_P_pp = secretC_Ti_p;
 	  
 	  // EncryptPath
-	  EncryptPath ep = new EncryptPath();
+	  EncryptPath ep = new EncryptPath(debbie, eddie);
 	  ep.loadTreeSpecificParameters(currTree);
 	  timing.encrypt.start();
 	  ep.executeCharlieSubTree(debbie, eddie, null, null, secretC_P_pp);
@@ -94,7 +94,7 @@ public class Retrieve extends Operation {
 
   public void executeDebbie(Communication charlie, Communication eddie, BigInteger k) {
 	  // Access
-	  Access access = new Access();
+	  Access access = new Access(charlie, eddie);
 	  access.loadTreeSpecificParameters(currTree);
 	  timing.access.start();
 	  access.executeDebbieSubTree(charlie, eddie, k, null, null);
@@ -102,7 +102,7 @@ public class Retrieve extends Operation {
 	  //System.out.println(timing.access);
 	  
 	  // PostProcessT
-	  PostProcessT ppt = new PostProcessT();
+	  PostProcessT ppt = new PostProcessT(charlie, eddie);
 	  ppt.loadTreeSpecificParameters(currTree);
 	  timing.post.start();
 	  ppt.executeDebbieSubTree(charlie, eddie, null, null, null);
@@ -110,7 +110,7 @@ public class Retrieve extends Operation {
 	  
 	  // Reshuffle
 	  List<Integer> pi = eddie.readListInt();
-	  Reshuffle rs = new Reshuffle();
+	  Reshuffle rs = new Reshuffle(charlie, eddie);
 	  rs.loadTreeSpecificParameters(currTree);
 	  String tmp = null;
 	  timing.reshuffle.start();
@@ -118,14 +118,14 @@ public class Retrieve extends Operation {
 	  timing.reshuffle.stop();
 	  
 	  // Eviction
-	  Eviction evict = new Eviction();
+	  Eviction evict = new Eviction(charlie, eddie);
 	  evict.loadTreeSpecificParameters(currTree);
 	  timing.eviction.start();
 	  evict.executeDebbieSubTree(charlie, eddie, null, null, null);
 	  timing.eviction.stop();
 	  
 	  // EncryptPath
-	  EncryptPath ep = new EncryptPath();
+	  EncryptPath ep = new EncryptPath(charlie, eddie);
 	  ep.loadTreeSpecificParameters(currTree);
 	  timing.encrypt.start();
 	  ep.executeDebbieSubTree(charlie, eddie, k, null, null);
@@ -134,7 +134,7 @@ public class Retrieve extends Operation {
 
   public void executeEddie(Communication charlie, Communication debbie, Tree OT, String Li) {
 	  // Access
-	  Access access = new Access();
+	  Access access = new Access(charlie, debbie);
 	  access.loadTreeSpecificParameters(currTree);
 	  timing.access.start();
 	  AOutput AOut = access.executeEddieSubTree(charlie, debbie, OT, null);
@@ -147,7 +147,7 @@ public class Retrieve extends Operation {
 	  String secretE_Lip1_p = null;
 	  if (currTree < ForestMetadata.getLevels()-1)
 		  secretE_Lip1_p = sE_Li_p[currTree+1];
-	  PostProcessT ppt = new PostProcessT();
+	  PostProcessT ppt = new PostProcessT(charlie, debbie);
 	  ppt.loadTreeSpecificParameters(currTree);
 	  timing.post.start();
 	  String secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_Ti, secretE_Li_p, secretE_Lip1_p});
@@ -157,14 +157,14 @@ public class Retrieve extends Operation {
 	  String secretE_P_p = AOut.secretE_P_p;
 	  List<Integer> pi = Util.getInversePermutation(AOut.p);
 	  debbie.write(pi); // make sure D gets this pi  // TODO: move this send into Reshuffle pre-computation?
-	  Reshuffle rs = new Reshuffle();
+	  Reshuffle rs = new Reshuffle(charlie, debbie);
 	  rs.loadTreeSpecificParameters(currTree);
 	  timing.reshuffle.start();
 	  String secretE_pi_P = rs.executeEddieSubTree(charlie, debbie, null, Pair.of(secretE_P_p, pi));
 	  timing.reshuffle.stop();
 	  
 	  // Eviction
-	  Eviction evict = new Eviction();
+	  Eviction evict = new Eviction(charlie, debbie);
 	  evict.loadTreeSpecificParameters(currTree);
 	  timing.eviction.start();
 	  String secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_pi_P, secretE_Ti_p, Li});
@@ -173,7 +173,7 @@ public class Retrieve extends Operation {
 		  secretE_P_pp = secretE_Ti_p;
 
 	  // EncryptPath
-	  EncryptPath ep = new EncryptPath();
+	  EncryptPath ep = new EncryptPath(charlie, debbie);
 	  ep.loadTreeSpecificParameters(currTree);
 	  timing.encrypt.start();
 	  EPath EPOut = ep.executeEddieSubTree(charlie, debbie, null, secretE_P_pp);
@@ -203,6 +203,8 @@ public class Retrieve extends Operation {
 	  
 	  timing = new Timing();
 	  timing.init(); 
+	  con1.bandWidthSwitch = true;
+	  con2.bandWidthSwitch = true;
 	  
 	  int h = ForestMetadata.getLevels() - 1;
 	  int tau = ForestMetadata.getTau();
@@ -211,8 +213,8 @@ public class Retrieve extends Operation {
 	  if (shiftN == 0) 
 		  shiftN = tau;
 	  
-	  int records = 3;     // how many random records we want to test retrieval
-	  int retrievals = 2;  // for each record, how many repeated retrievals we want to do
+	  int records = 4;     // how many random records we want to test retrieval
+	  int retrievals = 3;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
 		  String N = null;
@@ -267,6 +269,10 @@ public class Retrieve extends Operation {
 			      break;
 			    }
 			  }
+			  
+			  // only need to count bandwidth once
+			  con1.bandWidthSwitch = false;
+			  con2.bandWidthSwitch = false;
 		  }
 		  
 		  if (test == 0 && records > 1)
