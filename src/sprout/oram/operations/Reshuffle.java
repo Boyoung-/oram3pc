@@ -36,6 +36,25 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       return secretC_P;
     }
     
+    // precomputation
+    timing.reshuffle_offline.start();
+    PRG G;
+    try {
+      G = new PRG(pathBuckets*bucketBits);
+    } catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+      return null;
+    }
+    byte[] s1 = SR.rand.generateSeed(16);
+    byte[] p1 = G.generateBytes(pathBuckets*bucketBits, s1);
+    timing.reshuffle_offline.stop();
+    
+    timing.reshuffle_offline_write.start();
+    // C sends s1 to D
+    debbie.write(s1);
+    timing.reshuffle_offline_write.stop();
+    
+    
     debbie.countBandwidth = true;
     eddie.countBandwidth = true;
     debbie.bandwidth[PID.reshuffle].start();
@@ -44,28 +63,11 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     // protocol
     // step 1
     // party C
-    PRG G;
-    try {
-      G = new PRG(pathBuckets*bucketBits);
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-      return null;
-    }
-    timing.reshuffle_offline.start();
-    byte[] s1 = SR.rand.generateSeed(16);
-    byte[] p1 = G.generateBytes(pathBuckets*bucketBits, s1);
-    timing.reshuffle_offline.stop();
-    
-    timing.reshuffle_offline_write.start();
-    debbie.write(s1);
-    timing.reshuffle_offline_write.stop();
-    
     timing.reshuffle_online.start();
     byte[] z = new BigInteger(secretC_P, 2).xor(new BigInteger(1, p1)).toByteArray();
     //String z = Util.addZero(new BigInteger(secretC_P, 2).xor(new BigInteger(p1, 2)).toString(2), bucketBits);
     timing.reshuffle_online.stop();
     // C sends z to E
-    // C sends s1 to D
     timing.reshuffle_write.start();
     eddie.write(z);
     timing.reshuffle_write.stop();
@@ -101,29 +103,45 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     if (i == 0) {
       return null;
     }
-    
-    charlie.countBandwidth = true;
-	  eddie.countBandwidth = true;	  
-	  charlie.bandwidth[PID.reshuffle].start();
-	  eddie.bandwidth[PID.reshuffle].start();
-    
-    try { 
+	  
+    byte[] p1 = null, p2 = null;
+	  try { 	  
+	  // precomputation
+		  timing.reshuffle_offline.start();
+	    PRG G1 = new PRG(pathBuckets*bucketBits);
+	    PRG G2 = new PRG(pathBuckets*bucketBits); // TODO: same issue: non-fresh -> non-deterministic
+	      byte[] s2 = SR.rand.generateSeed(16);
+	      p2 = G2.generateBytes(pathBuckets*bucketBits, s2);
+	      timing.reshuffle_offline.stop();
+	      
+	      timing.reshuffle_offline_write.start();
+	      eddie.write(s2);
+	      timing.reshuffle_offline_write.stop();
+	      
+	    timing.reshuffle_offline_read.start();
+	    byte[] s1 = charlie.read();
+	    timing.reshuffle_offline_read.stop();
+	    
+	    timing.reshuffle_offline.start();
+	      p1 = G1.generateBytes(pathBuckets*bucketBits, s1);
+	      timing.reshuffle_offline.stop();
+	 } catch (Exception e) {
+	        e.printStackTrace();
+	 }
+	    
+	    charlie.countBandwidth = true;
+		  eddie.countBandwidth = true;	  
+		  charlie.bandwidth[PID.reshuffle].start();
+		  eddie.bandwidth[PID.reshuffle].start();
+	      
+	      
       // protocol
       // step 1
       // C sends D s1
-    	timing.reshuffle_read.start();
-      byte[] s1 = charlie.read();
-      timing.reshuffle_read.stop();
       
       // step 2
       // party D
-      PRG G1 = new PRG(pathBuckets*bucketBits);
-      PRG G2 = new PRG(pathBuckets*bucketBits); // TODO: same issue: non-fresh -> non-deterministic
-      timing.reshuffle_online.start();
-      byte[] p1 = G1.generateBytes(pathBuckets*bucketBits, s1);
-      byte[] s2 = SR.rand.generateSeed(16);
-      byte[] p2 = G2.generateBytes(pathBuckets*bucketBits, s2);
-      
+      timing.reshuffle_online.start();      
       String a_all = Util.addZero(new BigInteger(1, p1).xor(new BigInteger(1, p2)).toString(2), pathBuckets*bucketBits);
       byte[][] a = new byte[pathBuckets][];
       for (int j=0; j<pathBuckets; j++)
@@ -138,11 +156,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
       // D sends s2 to E
       timing.reshuffle_write.start();
       charlie.write(secretC_pi_P);
-      eddie.write(s2);
       timing.reshuffle_write.stop();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
     
     charlie.countBandwidth = false;
 	  eddie.countBandwidth = false;	  
@@ -162,11 +176,29 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     if (i == 0) {
       return secretE_P;
     }
-    
-    charlie.countBandwidth = true;
-	  debbie.countBandwidth = true;
-	  charlie.bandwidth[PID.reshuffle].start();
-	  debbie.bandwidth[PID.reshuffle].start();
+	  
+	  // precomputation
+	    timing.reshuffle_offline_read.start();
+	    byte[] s2 = debbie.read();
+	    timing.reshuffle_offline_read.stop();
+	    
+	    timing.reshuffle_offline.start();
+	    PRG G;
+	    try {
+	      G = new PRG(pathBuckets*bucketBits);
+	    } catch (NoSuchAlgorithmException e) {
+	      e.printStackTrace();
+	      return null;
+	    }
+	    byte[] p2 = G.generateBytes(pathBuckets*bucketBits, s2);
+	    timing.reshuffle_offline.stop();
+	    
+	    
+	    charlie.countBandwidth = true;
+		  debbie.countBandwidth = true;
+		  charlie.bandwidth[PID.reshuffle].start();
+		  debbie.bandwidth[PID.reshuffle].start();
+	  
     
     // protocol
     // step 1
@@ -182,21 +214,10 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     
     // step 2
     // D sends s2 to E
-    timing.reshuffle_read.start();
-    byte[] s2 = debbie.read();
-    timing.reshuffle_read.stop();
     
     // step 4
-    // party E
-    PRG G;
-    try {
-      G = new PRG(pathBuckets*bucketBits);
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-      return null;
-    }
+    // party E    
     timing.reshuffle_online.start();
-    byte[] p2 = G.generateBytes(pathBuckets*bucketBits, s2);
     String b_all = Util.addZero(new BigInteger(secretE_P, 2).xor(new BigInteger(1, z)).xor(new BigInteger(1, p2)).toString(2), pathBuckets*bucketBits);
     String[] b = new String[pathBuckets];
     for (int j=0; j<pathBuckets; j++)
