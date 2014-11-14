@@ -302,11 +302,16 @@ public class Retrieve extends Operation {
 			timing.gcf_online = timing.gcf_online.subtract(timing.gcf_offline_write);
 			break;
 		}
+
+		int t = ForestMetadata.getTau();
+		int n = ForestMetadata.getLastNBits();
+		int w = ForestMetadata.getBucketDepth();
+		int d = ForestMetadata.getDataSize();
 		
 		timing.divide(cycles);
-		timing.writeToFile("stats/timing-" + party);
-		con1.writeBandwidthToFile("stats/" + party + "-bandwidth-1");
-		con2.writeBandwidthToFile("stats/" + party + "-bandwidth-2");
+		timing.writeToFile("stats/timing-" + party + "-t" + t + "n" + n + "w" + w + "d" + d);
+		con1.writeBandwidthToFile("stats/" + party + "-bandwidth-1" + "-t" + t + "n" + n + "w" + w + "d" + d);
+		con2.writeBandwidthToFile("stats/" + party + "-bandwidth-2" + "-t" + t + "n" + n + "w" + w + "d" + d);
 	} catch (IOException e) {
 		e.printStackTrace();
 	}

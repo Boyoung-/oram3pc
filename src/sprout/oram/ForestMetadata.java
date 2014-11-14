@@ -92,10 +92,32 @@ public class ForestMetadata implements Serializable
 		nonceBits = Integer.parseInt(configMap.get(NONCEBITS_NAME).toString());		
 		numInsert = Long.parseLong(configMap.get(INSERT_NAME).toString(), 10);
 		
-		init();
+		init(true);
 	}
+	
+	// TODO: remove duplicate code
+	public static void setup(String filename, boolean ifPrint) throws FileNotFoundException
+	{
+		Yaml yaml = new Yaml();
+		InputStream input = new FileInputStream(new File(filename));
+		@SuppressWarnings("unchecked")
+		Map<String, Object> configMap = (Map<String, Object>) yaml.load(input);
+		
+		// Retrieve all of the required parameters
+		tau = Integer.parseInt(configMap.get(TAU_NAME).toString());
+		lastNBits = Integer.parseInt(configMap.get(NBITS_NAME).toString());
+		w = Integer.parseInt(configMap.get(W_NAME).toString());
+		e = Integer.parseInt(configMap.get(E_NAME).toString());
+		//levels = Integer.parseInt(configMap.get(LEVELS_NAME).toString());
+		dBytes = Integer.parseInt(configMap.get(DBYTES_NAME).toString());
+		nonceBits = Integer.parseInt(configMap.get(NONCEBITS_NAME).toString());		
+		numInsert = Long.parseLong(configMap.get(INSERT_NAME).toString(), 10);
+		
+		init(ifPrint);
+	}
+	
 
-	private static void init()
+	private static void init(boolean ifPrint)
 	{
 		twoTauPow = (int) Math.pow(2, tau);
 		levels = (lastNBits + tau - 1) / tau + 1;
@@ -159,7 +181,8 @@ public class ForestMetadata implements Serializable
 		
 		status = true;
 		
-		printInfo();
+		if (ifPrint)
+			printInfo();
 	}
 	
 	public static void printInfo() 

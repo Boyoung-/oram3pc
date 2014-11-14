@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
 import sprout.util.Bandwidth;
 
@@ -70,16 +71,23 @@ public class CombineBandwidth
 	
 	public static void main(String[] args) throws Exception
 	{
-		Bandwidth[] a = readFromFile("stats/charlie-bandwidth-1");
-		Bandwidth[] b = readFromFile("stats/charlie-bandwidth-2");
+		ForestMetadata.setup("config/newConfig.yaml", false);
+		int t = ForestMetadata.getTau();
+		int n = ForestMetadata.getLastNBits();
+		int w = ForestMetadata.getBucketDepth();
+		int d = ForestMetadata.getDataSize();
+		String suffix = "-t" + t + "n" + n + "w" + w + "d" + d;
+		
+		Bandwidth[] a = readFromFile("stats/charlie-bandwidth-1" + suffix);
+		Bandwidth[] b = readFromFile("stats/charlie-bandwidth-2" + suffix);
 		a = add(a, b);
-		b = readFromFile("stats/debbie-bandwidth-1");
+		b = readFromFile("stats/debbie-bandwidth-1" + suffix);
 		a = add(a, b);
-		b = readFromFile("stats/debbie-bandwidth-2");
+		b = readFromFile("stats/debbie-bandwidth-2" + suffix);
 		a = add(a, b);
-		b = readFromFile("stats/eddie-bandwidth-1");
+		b = readFromFile("stats/eddie-bandwidth-1" + suffix);
 		a = add(a, b);
-		b = readFromFile("stats/eddie-bandwidth-2");
+		b = readFromFile("stats/eddie-bandwidth-2" + suffix);
 		a = add(a, b);
 		
 		printCSV2(a);
