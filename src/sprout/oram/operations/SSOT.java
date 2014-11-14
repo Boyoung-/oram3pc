@@ -20,6 +20,8 @@ public class SSOT extends Operation {
   }
   
   public static String[] executeC(Communication I, Communication E, String[] sC) {
+	  IOT iot = new IOT(I, E);
+	  
 	  I.countBandwidth = false;
 	    E.countBandwidth = false;
 	    
@@ -35,11 +37,11 @@ public class SSOT extends Operation {
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I
     timing.iot.start();
-    String[] a = IOT.executeR(I, E);
+    String[] a = iot.executeR(I, E);
     
     // step 3
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-    IOT.executeS(E, I, sC);
+    iot.executeS(E, I, sC);
     timing.iot.stop();
     
     I.countBandwidth = false;
@@ -52,6 +54,8 @@ public class SSOT extends Operation {
   }
   
   public static void executeI(Communication C, Communication E, Integer[] i) throws NoSuchAlgorithmException {
+	  IOT iot = new IOT(C, E);
+	  
 	    E.countBandwidth = false;
 	    C.countBandwidth = false;
 	    
@@ -76,11 +80,11 @@ public class SSOT extends Operation {
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I
     timing.iot.start();
-    IOT.executeI(C, E, i, delta);
+    iot.executeI(C, E, i, delta);
     
     // step 3
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-    IOT.executeI(E, C, i, delta);
+    iot.executeI(E, C, i, delta);
     timing.iot.stop();
     
     E.countBandwidth = false;
@@ -90,6 +94,8 @@ public class SSOT extends Operation {
   }
   
   public static String[] executeE(Communication C, Communication I, String[] sE) {
+	  IOT iot = new IOT(C, I);
+	  
 	    I.countBandwidth = false;
 	    C.countBandwidth = false;
 	    
@@ -104,11 +110,11 @@ public class SSOT extends Operation {
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I
 	  timing.iot.start();
-    IOT.executeS(C, I, sE);
+    iot.executeS(C, I, sE);
     
     // step 3
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-    String[] b = IOT.executeR(I, C);
+    String[] b = iot.executeR(I, C);
     timing.iot.stop();
     
     I.countBandwidth = false;

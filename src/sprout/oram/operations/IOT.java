@@ -22,7 +22,7 @@ public class IOT extends Operation {
     super(con1, con2);
   }
   
-  public static void executeS(Communication R, Communication I, String[] m) {
+  public void executeS(Communication R, Communication I, String[] m) {
 	  I.countBandwidth = false;
 	    R.countBandwidth = false;
 	    
@@ -53,6 +53,7 @@ public class IOT extends Operation {
     timing.iot_online.stop();
     
     // S sends a to R
+    sanityCheck(R);
     timing.iot_write.start();
     R.write(a);
     timing.iot_write.stop();
@@ -63,7 +64,7 @@ public class IOT extends Operation {
     R.bandwidth[PID.iot].stop();
   }
   
-  public static String[] executeR(Communication I, Communication S) {
+  public String[] executeR(Communication I, Communication S) {
 	  I.countBandwidth = false;
 	    S.countBandwidth = false;
 	    
@@ -79,11 +80,15 @@ public class IOT extends Operation {
     // protocol
     // step 1
     // S sends a to R
+    sanityCheck(S);
     timing.iot_read.start();
     byte[][] a = S.readDoubleByteArray();
+    timing.iot_read.stop();
     
     // step 2
     // I sends j and p to R
+    sanityCheck(I);
+    timing.iot_read.start();
     Integer[] j = I.readIntegerArray();
     byte[][] p = I.readDoubleByteArray();
     timing.iot_read.stop();
@@ -105,7 +110,7 @@ public class IOT extends Operation {
     return z;
   }
   
-  public static void executeI(Communication R, Communication S, Integer[] i, String[] delta) throws NoSuchAlgorithmException {
+  public void executeI(Communication R, Communication S, Integer[] i, String[] delta) throws NoSuchAlgorithmException {
 	  S.countBandwidth = false;
 	    R.countBandwidth = false;
 	    
@@ -150,6 +155,7 @@ public class IOT extends Operation {
     timing.iot_online.stop();
     
     // I sends j and p to R
+    sanityCheck(R);
     timing.iot_write.start();
     R.write(j);
     R.write(p);
@@ -163,6 +169,7 @@ public class IOT extends Operation {
 
   @Override
   public void run(Party party, Forest forest) throws ForestException {
+	  /*
     switch (party) {
     case Debbie: // I
       Integer[] i = new Integer[]{0, 1, 3, 7};
@@ -188,6 +195,7 @@ public class IOT extends Operation {
     con2.write("finished");
     con1.readString();
     con2.readString();
+    */
   }
 
 }

@@ -34,6 +34,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
     // step 1
     // D sends s and x to E
     // D sends c to C
+	    sanityCheck(debbie);
 	  timing.encrypt_read.start();
     byte[][] c = debbie.readDoubleByteArray();
     timing.encrypt_read.stop();
@@ -49,6 +50,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
     }
     timing.encrypt_online.stop();
     // C sends d to E
+    sanityCheck(eddie);
     timing.encrypt_write.start();
     eddie.write(d);
     timing.encrypt_write.stop();
@@ -106,6 +108,8 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       timing.encrypt_online.stop();
       // D sends s and x to E
       // D sends c to C
+      sanityCheck(eddie);
+      sanityCheck(charlie);
       timing.encrypt_write.start();
       eddie.write(s);
       eddie.write(x);
@@ -137,12 +141,16 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       // step 1
       // D sends s and x to E
       // D sends c to C
+    	sanityCheck(debbie);
     	timing.encrypt_read.start();
       byte[] s = debbie.read();
       ECPoint[] x = debbie.readECPointArray();
+      timing.encrypt_read.stop();
 
       // Step 2
       // C sends d to E
+      sanityCheck(charlie);
+  	timing.encrypt_read.start();
       byte[][] d = charlie.readDoubleByteArray();
       timing.encrypt_read.stop();
 

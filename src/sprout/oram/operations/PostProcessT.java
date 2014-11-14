@@ -83,6 +83,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     // step 1
     // E sends delta_C to C
+    sanityCheck();
     timing.post_read.start();
     byte[] delta_C = eddie.read();
     timing.post_read.stop();
@@ -94,6 +95,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     int j_p = BigInteger.valueOf(Nip1_pr_int+alpha).mod(BigInteger.valueOf(twotaupow)).intValue();
     timing.post_online.stop();
     
+    sanityCheck();
     timing.post_write.start();
     // C sends j_p to D
     debbie.write(j_p);
@@ -103,6 +105,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     // step 3
     // D sends s to C
+    sanityCheck();
     timing.post_read.start();
     byte[] s = debbie.read();
     timing.post_read.stop();
@@ -162,11 +165,13 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     // step 1
     // E sends delta_D to D
+	  sanityCheck();
     timing.post_read.start();
     byte[] delta_D = eddie.read();
     timing.post_read.stop(); 
     
     // step 2
+    sanityCheck();
     // C sends j_p to D
     timing.post_read.start();
     int j_p = charlie.readInt();
@@ -197,6 +202,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     }
     timing.post_online.stop();
     
+    sanityCheck();
     timing.post_write.start();
     // D sends s to C
     charlie.write(s);
@@ -258,18 +264,21 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     byte[] delta_C = new BigInteger(1, delta_D).xor(new BigInteger(secretE_Lip1_p, 2)).toByteArray();
     timing.post_online.stop();
     // E sends delta_C to C and delta_D to D
+    sanityCheck();
     timing.post_write.start();
     debbie.write(delta_D);
     charlie.write(delta_C);
     timing.post_write.stop();
 
     // step 2
+    sanityCheck();
     // C sends alpha to E
     timing.post_read.start();
     int alpha = charlie.readInt();
     timing.post_read.stop();
     
     // step 3
+    sanityCheck();
     // D sends a_p to E
     timing.post_read.start();
     byte[][] a_p_byte = debbie.readDoubleByteArray();
