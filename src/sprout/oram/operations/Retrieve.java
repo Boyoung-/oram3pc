@@ -328,9 +328,9 @@ public class Retrieve extends Operation {
 		}
 		
 		timing.divide(cycles);
-		timing.writeToFile("files/timing-" + party);
-		con1.writeBandwidthToFile("files/" + party + "-bandwidth-1");
-		con2.writeBandwidthToFile("files/" + party + "-bandwidth-2");
+		timing.writeToFile("stats/timing-" + party);
+		con1.writeBandwidthToFile("stats/" + party + "-bandwidth-1");
+		con2.writeBandwidthToFile("stats/" + party + "-bandwidth-2");
 	} catch (IOException e) {
 		e.printStackTrace();
 	}

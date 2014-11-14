@@ -56,16 +56,16 @@ public class CombineBandwidth
 	
 	public static void main(String[] args) throws Exception
 	{
-		Bandwidth[] a = readFromFile("files/charlie-bandwidth-1");
-		Bandwidth[] b = readFromFile("files/charlie-bandwidth-2");
+		Bandwidth[] a = readFromFile("stats/charlie-bandwidth-1");
+		Bandwidth[] b = readFromFile("stats/charlie-bandwidth-2");
 		a = add(a, b);
-		b = readFromFile("files/debbie-bandwidth-1");
+		b = readFromFile("stats/debbie-bandwidth-1");
 		a = add(a, b);
-		b = readFromFile("files/debbie-bandwidth-2");
+		b = readFromFile("stats/debbie-bandwidth-2");
 		a = add(a, b);
-		b = readFromFile("files/eddie-bandwidth-1");
+		b = readFromFile("stats/eddie-bandwidth-1");
 		a = add(a, b);
-		b = readFromFile("files/eddie-bandwidth-2");
+		b = readFromFile("stats/eddie-bandwidth-2");
 		a = add(a, b);
 		
 		printCSV(a);
