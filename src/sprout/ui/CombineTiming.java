@@ -24,9 +24,9 @@ public class CombineTiming
 		
 		//System.out.println(C.add(D).add(E).toCSV());
 
-		System.out.println(C + "\n\n");
-		System.out.println(D + "\n\n");
-		System.out.println(E + "\n\n");
+		System.out.println(C.toCSV() + "\n\n");
+		System.out.println(D.toCSV() + "\n\n");
+		System.out.println(E.toCSV() + "\n\n");
 	}
 
 }
