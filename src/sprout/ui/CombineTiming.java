@@ -22,11 +22,11 @@ public class CombineTiming
 		D.readFromFile("stats/timing-debbie" + suffix);
 		E.readFromFile("stats/timing-eddie" + suffix);
 		
-		System.out.println(C.add(D).add(E).toCSV());
+		//System.out.println(C.add(D).add(E).toCSV());
 
-		//System.out.println(C);
-		//System.out.println(D);
-		//System.out.println(E);
+		System.out.println(C + "\n\n");
+		System.out.println(D + "\n\n");
+		System.out.println(E + "\n\n");
 	}
 
 }
