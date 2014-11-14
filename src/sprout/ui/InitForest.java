@@ -13,7 +13,7 @@ public class InitForest
 		StopWatch sw = new StopWatch("Forest Initialization");
 		sw.start();
 		
-		Forest forest = new Forest();
+		Forest forest = new Forest(0, "files/smalltest.bin");
 		//Forest forest = new Forest("files/forest.bin");
 		
 		sw.stop();
