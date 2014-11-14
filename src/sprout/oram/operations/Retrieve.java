@@ -216,8 +216,8 @@ public class Retrieve extends Operation {
 	  if (shiftN == 0) 
 		  shiftN = tau;
 	  
-	  int records = 11;     // how many random records we want to test retrieval
-	  int retrievals = 10;  // for each record, how many repeated retrievals we want to do
+	  int records = 6;     // how many random records we want to test retrieval
+	  int retrievals = 5;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
 		  String N = null;
