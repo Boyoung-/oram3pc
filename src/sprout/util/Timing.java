@@ -431,7 +431,7 @@ public class Timing
 		gcf_read.divide(n);
 		gcf_offline.divide(n);
 		gcf_offline_write.divide(n);
-		gcf_offline_write.divide(n);
+		gcf_offline_read.divide(n);
 		
 		ssot.divide(n);
 		ssot_online.divide(n);

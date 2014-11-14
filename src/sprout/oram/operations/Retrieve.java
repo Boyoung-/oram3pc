@@ -240,8 +240,8 @@ public class Retrieve extends Operation {
 	  if (shiftN == 0) 
 		  shiftN = tau;
 	  
-	  int records = 1;     // how many random records we want to test retrieval
-	  int retrievals = 1;  // for each record, how many repeated retrievals we want to do
+	  int records = 11;     // how many random records we want to test retrieval
+	  int retrievals = 10;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
 		  String N = null;
@@ -318,23 +318,17 @@ public class Retrieve extends Operation {
 	try {
 		switch (party) {
 		case Charlie:
-			timing.divide(cycles);
-			timing.writeToFile("files/timing-charlie");
 			break;
 		case Debbie:
 			timing.gcf_online = timing.gcf_online.subtract(timing.gcf_offline_read);
-			//timing.gcf_offline_read = timing.gcf_offline_read.add(timing.gtt_read);
-			timing.divide(cycles);
-			timing.writeToFile("files/timing-debbie");
 			break;
 		case Eddie:
 			timing.gcf_online = timing.gcf_online.subtract(timing.gcf_offline_write);
-			//timing.gcf_offline_write = timing.gcf_offline_write.add(timing.gtt_write);
-			timing.divide(cycles);
-			timing.writeToFile("files/timing-eddie");
 			break;
 		}
 		
+		timing.divide(cycles);
+		timing.writeToFile("files/timing-" + party);
 		con1.writeBandwidthToFile("files/" + party + "-bandwidth-1");
 		con2.writeBandwidthToFile("files/" + party + "-bandwidth-2");
 	} catch (IOException e) {

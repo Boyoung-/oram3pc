@@ -26,6 +26,8 @@ public class Eviction extends TreeOperation<String, String[]> {
 	  if (i == 0)
 		  return null;
 	  
+	  GCF gcf = new GCF(debbie, eddie);
+	  
 	  debbie.countBandwidth = true;
 	    eddie.countBandwidth = true;
 	    debbie.bandwidth[PID.eviction].start();
@@ -50,7 +52,7 @@ public class Eviction extends TreeOperation<String, String[]> {
 		timing.eviction_online.stop();
 		
 		timing.gcf.start();
-		GCF.executeC(debbie, eddie, w*2+2, sC_input);
+		gcf.executeC(debbie, eddie, w*2+2, sC_input);
 		timing.gcf.stop();
 	}
     
@@ -66,7 +68,7 @@ public class Eviction extends TreeOperation<String, String[]> {
  		timing.eviction_online.stop();
  		
  		timing.gcf.start();
- 		GCF.executeC(debbie, eddie, w*expen+2, sC_fb);
+ 		gcf.executeC(debbie, eddie, w*expen+2, sC_fb);
  		timing.gcf.stop();
  		
  	// step 3
@@ -108,6 +110,8 @@ public class Eviction extends TreeOperation<String, String[]> {
 	  if (i == 0)
 		  return null;
 	  
+	  GCF gcf = new GCF(charlie, eddie);
+	  
 	  charlie.countBandwidth = true;
 	  eddie.countBandwidth = true;	  
 	  charlie.bandwidth[PID.eviction].start();
@@ -119,7 +123,7 @@ public class Eviction extends TreeOperation<String, String[]> {
  		int[] alpha2_j = new int[d_i];
  		for (int j=0; j<d_i; j++) {
  			timing.gcf.start();
- 			String GCFOutput = GCF.executeD(charlie, eddie, "F2FT", w*2+2);
+ 			String GCFOutput = gcf.executeD(charlie, eddie, "F2FT", w*2+2);
  			timing.gcf.stop();
  			
  			timing.eviction_online.start();
@@ -135,7 +139,7 @@ public class Eviction extends TreeOperation<String, String[]> {
  		
  	// step 2
  	timing.gcf.start();
- 	String GCFOutput = GCF.executeD(charlie, eddie, "F2ET", w*expen+2);
+ 	String GCFOutput = gcf.executeD(charlie, eddie, "F2ET", w*expen+2);
  	timing.gcf.stop();
  	
  	timing.eviction_online.start();
@@ -200,6 +204,8 @@ public class Eviction extends TreeOperation<String, String[]> {
 	  if (i == 0)
 		  return null;
 	  
+	  GCF gcf = new GCF(charlie, debbie);
+	  
 	  charlie.countBandwidth = true;
 	  debbie.countBandwidth = true;
 	  charlie.bandwidth[PID.eviction].start();
@@ -225,7 +231,7 @@ public class Eviction extends TreeOperation<String, String[]> {
 		timing.eviction_online.stop();
 		
 		timing.gcf.start();
-		GCF.executeE(charlie, debbie, "F2FT", w*2+2, sE_input);
+		gcf.executeE(charlie, debbie, "F2FT", w*2+2, sE_input);
 		timing.gcf.stop();
 	}
     
@@ -241,7 +247,7 @@ public class Eviction extends TreeOperation<String, String[]> {
  		timing.eviction_online.stop();
  		
  		timing.gcf.start();
- 		GCF.executeE(charlie, debbie, "F2ET", w*expen+2, sE_fb);
+ 		gcf.executeE(charlie, debbie, "F2ET", w*expen+2, sE_fb);
  		timing.gcf.stop();
  		
  	// step 3

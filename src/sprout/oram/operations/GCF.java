@@ -21,7 +21,7 @@ public class GCF extends Operation {
     super(con1, con2);
   }
 
-public static void executeE(Communication C, Communication D, String circuit, int n, String sE) {
+public void executeE(Communication C, Communication D, String circuit, int n, String sE) {
 	C.countBandwidth = false;
 	D.countBandwidth = false;
 	
@@ -81,6 +81,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 		A[i][0] = lbs[i][alpha];
 		A[i][1] = lbs[i][1-alpha];
 		timing.gcf_online.stop();
+		sanityCheck(C);
 		timing.gcf_write.start();
 		C.write(A[i]);
 		timing.gcf_write.stop();
@@ -99,7 +100,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  D.bandwidth[PID.gcf].stop();
   }
   
-  public static void executeC(Communication D, Communication E, int n, String sC) {
+  public void executeC(Communication D, Communication E, int n, String sC) {
 	  // this line is only for checking correctness; should be removed for real execution
 	  //D.write(sC);
 	  
@@ -113,6 +114,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  BigInteger[][] A = new BigInteger[n][2];
 	  BigInteger[] K_C = new BigInteger[n];
 	  for (int i=0; i<n; i++) {
+		  sanityCheck(E);
 		  timing.gcf_read.start();
 		  A[i] = E.readBigIntegerArray();
 		  timing.gcf_read.stop();
@@ -121,6 +123,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 		  K_C[i] = A[i][beta];
 		  timing.gcf_online.stop();
 	  }
+	  sanityCheck(D);
 	  timing.gcf_write.start();
 	  D.write(K_C);
 	  timing.gcf_write.stop();
@@ -131,7 +134,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  D.bandwidth[PID.gcf].stop();
   }
   
-  public static String executeD(Communication C, Communication E, String circuit, int n) {
+  public String executeD(Communication C, Communication E, String circuit, int n) {
 	  C.countBandwidth = false;
 	  E.countBandwidth = false;
 	  
@@ -174,6 +177,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 	  
 	  // protocol
 	  // step 2
+	  sanityCheck(C);
 	  timing.gcf_read.start();
 	  BigInteger[] K_C = C.readBigIntegerArray();
 	  timing.gcf_read.stop();
@@ -211,6 +215,7 @@ public static void executeE(Communication C, Communication D, String circuit, in
 
   @Override
   public void run(Party party, Forest forest) throws ForestException {
+	  /*
  // for testing
 	  
 	  int n = 18;
@@ -238,6 +243,6 @@ public static void executeE(Communication C, Communication D, String circuit, in
     }
     
     System.out.println("Run completed");
-    
+    */
   }
 }
