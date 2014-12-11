@@ -1,7 +1,6 @@
 package sprout.benchmarks;
 
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.util.Random;
 
 import sprout.communication.Communication;
@@ -23,10 +22,11 @@ public class CommunicationBench {
     this.b = b;
   }
   
-  public static int ignored_trials = 0;
-  public static int num_trials = 100;
-  public static int N = 100;
-  public static int bytes_per_object = 100;
+  public static int ignored_trials = 10000;
+  public static int num_trials = 1000;
+  public static int N = 10;
+  public static int bytes_per_object = 1;
+  public static int wait_seconds = 1;
   
   // TODO: have a variant of Test1_A doesn't always send the same object
   public static void Test1_A (Communication B) {
@@ -130,7 +130,86 @@ public class CommunicationBench {
   }
   
   public static void Test2_B (Communication A) {
-    Test1_B(A, 1*1000);
+    Test1_B(A, wait_seconds*1000);
+  }
+  
+  public static void Test3_A (Communication B) {
+    Bandwidth totalBand = new Bandwidth("String - totalWrite", false);
+    StopWatch totalTime = new StopWatch("String - totalWrite", false);
+    
+    byte[] bytes = new byte[bytes_per_object];
+    // Ensure all bytes are non-null
+    for (int i=0; i< bytes.length; i++) {
+      bytes[i] = 0x3B;
+    }
+    // could generate random bytes using
+    // rand.nextBytes(bytes) but this does not have consistent length.
+    
+    //String obj = new String(bytes);
+    //byte[] obj = bytes;
+    BigInteger obj = new BigInteger(bytes);
+    
+    for (int i=0; i<num_trials+ignored_trials; i++) {
+      sync(B, B);
+      StopWatch sw = new StopWatch();
+      sw.start();
+      B.sharedBandwidth.clear();
+      B.sharedBandwidth.start();
+      
+      B.write(obj);
+      B.readBigInteger();
+      
+      B.sharedBandwidth.stop();
+      sw.stop();
+      
+      if (i >= ignored_trials) {
+        totalBand.add_mut(B.sharedBandwidth);
+        totalTime.add_mut(sw);
+      }
+    }
+    
+    totalBand.divide(num_trials);
+    totalTime.divide(num_trials);
+    log("-------- Performance of STRINGS ---------");
+    log("Data transfer: " + N*bytes_per_object);
+    log("A: average total bandwidth: " + totalBand.toString());
+    log("A: average total time: " + totalTime.toString());
+    log("-----------------------------------------");
+  }
+  
+  public static void Test3_B (Communication A) {
+    Bandwidth totalBand = new Bandwidth("String - totalWrite", false);
+    StopWatch totalTime = new StopWatch("String - totalWrite", false);
+    
+    for (int i=0; i<num_trials+ignored_trials; i++) {
+      StopWatch sw = new StopWatch();
+      sync(A,A);
+      A.sharedBandwidth.start();
+      A.sharedBandwidth.clear();
+      sw.start();
+      
+      for (int j=0; j<N; j++) {
+        A.write(A.readBigInteger());
+        //A.read();
+        //A.readString();
+      }
+      
+      A.sharedBandwidth.stop();
+      sw.stop();
+      
+      if (i >= ignored_trials) {
+        totalBand.add_mut(A.sharedBandwidth);
+        totalTime.add_mut(sw);
+      }
+    }
+    
+    totalBand.divide(num_trials);
+    totalTime.divide(num_trials);
+    log("-------- Performance of STRINGS ---------");
+    log("Data transfer: " + N*bytes_per_object);
+    log("B: average total bandwidth: " + totalBand.toString());
+    log("B: average total time: " + totalTime.toString());
+    log("-----------------------------------------"); 
   }
   
   void sync() {
@@ -177,9 +256,16 @@ public class CommunicationBench {
     log("Before Test 2");
     sync();
     if (party.equals(Party.Charlie)) {
-      Test2_A(a);
+      //Test2_A(a);
     } else if(party.equals(Party.Debbie)) {
-      Test2_B(a);
+      //Test2_B(a);
+    }
+    sync();
+    log ("before Test 3");
+    if (party.equals(Party.Charlie)) {
+      Test3_A(a);
+    } else if(party.equals(Party.Debbie)) {
+      Test3_B(a);
     }
     sync();
   }

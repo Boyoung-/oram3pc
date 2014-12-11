@@ -17,7 +17,7 @@ import sprout.util.Util;
 public class CommunicationBenchmark {
 
   public static final int DEFAULT_PORT = 8000;
-  //public static final String DEFAULT_IP = "hera.ics.uci.edu"; // This should turn IPSec on, for hera.
+  //public static final String DEFAULT_IP = "hera.ics.uci.edu"; // This should turn IPSec off, for hera.
   public static final String DEFAULT_IP = "localhost";
   public static final String DEFAULT_CONFIG_FILE = "config/newConfig.yaml";
   public static final String DEFAULT_DB_FILE = "files/forest.bin";
@@ -70,6 +70,7 @@ public class CommunicationBenchmark {
 
       // For now all logic happens here. Eventually this will get wrapped
       // up in party specific classes.
+      
       System.out.println("Starting " + party + "...");
       if (party.equals("eddie"))
       {
@@ -112,6 +113,7 @@ public class CommunicationBenchmark {
         Communication eddieCon = new Communication();
         InetSocketAddress eddieAddr = new InetSocketAddress(cmd.getOptionValue("eddie_ip", DEFAULT_IP),
             debbiePort);
+        
         eddieCon.connect(eddieAddr);
 
         Communication charlieCon = new Communication();
