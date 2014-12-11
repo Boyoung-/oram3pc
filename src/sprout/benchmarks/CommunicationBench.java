@@ -81,13 +81,13 @@ public class CommunicationBench {
     Bandwidth totalBand = new Bandwidth("String - totalWrite", false);
     StopWatch totalTime = new StopWatch("String - totalWrite", false);
     
-    byte[] bytes = new byte[bytes_per_object];
-    rand.nextBytes(bytes);
+    if (read_delay != 0) {
+      log("Waiting for " +read_delay / 1000.0+ " seconds");
+    }
     
     for (int i=0; i<num_trials+ignored_trials; i++) {
       StopWatch sw = new StopWatch();
       sync(A,A);
-      sw.start();
       A.sharedBandwidth.start();
       A.sharedBandwidth.clear();
       
@@ -97,8 +97,9 @@ public class CommunicationBench {
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
-        log("Reads starting");
       }
+      
+      sw.start();
       
       for (int j=0; j<N; j++) {
         A.readBigInteger();
@@ -129,7 +130,7 @@ public class CommunicationBench {
   }
   
   public static void Test2_B (Communication A) {
-    Test1_B(A, 30*1000);
+    Test1_B(A, 1*1000);
   }
   
   void sync() {
