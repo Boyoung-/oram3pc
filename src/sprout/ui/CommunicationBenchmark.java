@@ -1,6 +1,5 @@
 package sprout.ui;
 
-import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
 
 import org.apache.commons.cli.CommandLine;
@@ -13,15 +12,6 @@ import org.apache.commons.cli.ParseException;
 import sprout.benchmarks.CommunicationBench;
 import sprout.communication.Communication;
 import sprout.oram.Party;
-import sprout.oram.operations.Access;
-import sprout.oram.operations.DecryptPath;
-import sprout.oram.operations.EncryptPath;
-import sprout.oram.operations.Eviction;
-import sprout.oram.operations.GCF;
-import sprout.oram.operations.Operation;
-import sprout.oram.operations.PostProcessT;
-import sprout.oram.operations.Reshuffle;
-import sprout.oram.operations.Retrieve;
 import sprout.util.Util;
 
 public class CommunicationBenchmark {
@@ -99,20 +89,23 @@ public class CommunicationBenchmark {
         System.out.println("Debbie: " + debbieCon.readString());
         charlieCon.write("Hello charlie, from eddie");
 
-        CommunicationBench.TestAll(charlieCon, debbieCon, Party.Eddie);
-
-        charlieCon.write("end");
-        debbieCon.write("end");
-        charlieCon.readString();
-        debbieCon.readString();
         try {
-          Thread.sleep(1000);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
+          CommunicationBench.TestAll(charlieCon, debbieCon, Party.Eddie);
 
-        charlieCon.stop();
-        debbieCon.stop();
+          charlieCon.write("end");
+          debbieCon.write("end");
+          charlieCon.readString();
+          debbieCon.readString();
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+
+        } finally {
+          charlieCon.stop();
+          debbieCon.stop();
+        }
       }
       else if (party.equals("debbie"))
       {
@@ -132,20 +125,23 @@ public class CommunicationBenchmark {
         eddieCon.write("Hello eddie, from debbie");
         System.out.println("Charlie: " + charlieCon.readString());
 
-        CommunicationBench.TestAll(charlieCon, eddieCon, Party.Debbie);
-        
-        charlieCon.write("end");
-        eddieCon.write("end");
-        charlieCon.readString();
-        eddieCon.readString();
         try {
-          Thread.sleep(1000);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
+          CommunicationBench.TestAll(charlieCon, eddieCon, Party.Debbie);
 
-        eddieCon.stop();
-        charlieCon.stop();
+          charlieCon.write("end");
+          eddieCon.write("end");
+          charlieCon.readString();
+          eddieCon.readString();
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+
+        } finally {
+          eddieCon.stop();
+          charlieCon.stop();
+        }
       }
       else if (party.equals("charlie"))
       {
@@ -172,36 +168,37 @@ public class CommunicationBenchmark {
 
         System.out.println("Eddie: " + eddieCon.readString());
 
-        CommunicationBench.TestAll(debbieCon, eddieCon, Party.Charlie);
-        
-        debbieCon.write("end");
-        eddieCon.write("end");
-        debbieCon.readString();
-        eddieCon.readString();
         try {
-          Thread.sleep(1000);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
+          CommunicationBench.TestAll(debbieCon, eddieCon, Party.Charlie);
+
+          debbieCon.write("end");
+          eddieCon.write("end");
+          debbieCon.readString();
+          eddieCon.readString();
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        } finally {
+          eddieCon.stop();
+          debbieCon.stop();
         }
-        
-      eddieCon.stop();
-      debbieCon.stop();
+      }
+      else
+      {
+        throw new ParseException("Invalid party, " + party + ", specified");
+      }
+      System.out.println(party + " exiting...");
+
     }
-    else
+    catch (ParseException e)
     {
-      throw new ParseException("Invalid party, " + party + ", specified");
+      Util.error("Parsing error: " + e.getMessage());
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp("see the options below", options);
+    } catch (SecurityException e1) {
+      e1.printStackTrace();
     }
-    System.out.println(party + " exiting...");
-
   }
-  catch (ParseException e)
-  {
-    Util.error("Parsing error: " + e.getMessage());
-    HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("see the options below", options);
-  } catch (SecurityException e1) {
-    e1.printStackTrace();
-  }
-
-}
 }

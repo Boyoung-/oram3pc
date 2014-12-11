@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -67,6 +68,7 @@ public class Communication
 	protected InetSocketAddress mAddress;
 	
 	public Bandwidth[] bandwidth;
+	public Bandwidth sharedBandwidth;
 	public boolean countBandwidth = false;
 	public boolean bandWidthSwitch = false;
 
@@ -88,11 +90,15 @@ public class Communication
 		bandwidth[PID.access] = new Bandwidth("access");
 		bandwidth[PID.ppt] = new Bandwidth("ppt");
 		bandwidth[PID.eviction] = new Bandwidth("eviction");
+		
+		sharedBandwidth = new Bandwidth("shared", false);
 	}
 	
 	public void addBandwidth(int bits) {
-		if (!bandWidthSwitch)
+		if (!bandWidthSwitch && sharedBandwidth.isActive()) {
+		  sharedBandwidth.add(bits);
 			return;
+		}
 		for (int i=0; i<bandwidth.length; i++) {
 			if (bandwidth[i].isActive())
 				bandwidth[i].add(bits);
@@ -390,7 +396,7 @@ public class Communication
 		r.write(out);
 		
 		if (countBandwidth)
-			addBandwidth(out.length);
+			addBandwidth(out.length+4); // 4 accounts for the size of the integer length used in every transmission.
 	}
 	
 	/**
@@ -404,12 +410,21 @@ public class Communication
 		write(out);
 	}
 
+	public static final Charset defaultCharset = Charset.forName("ASCII");
 	//TODO: Rather than having millions of write/read methods can we take advantage of DataStreams?
 	public void write(String buffer)
 	{
-		write(buffer.getBytes());
-		if (D)
-			Util.debug("Write: " + buffer);
+		write(buffer, defaultCharset);
+	}
+	
+	/*
+	 * This was added to allow backwords compaitibility with older versions which used the default charset (usually utf-8) instead of asc-ii.
+	 * This is almost never what we want to do
+	 */
+	public void write(String buffer, Charset charset) {
+	  write(buffer.getBytes(charset));
+    if (D)
+      Util.debug("Write: " + buffer);
 	}
 
 	/**
