@@ -115,12 +115,12 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     // step 4
     // party C
     PRG G;
-    try {
+    //try {
       G = new PRG(aBits);
-    } catch (NoSuchAlgorithmException e1) {
-      e1.printStackTrace();
-      return null;
-    }
+    //} catch (NoSuchAlgorithmException e1) {
+    //  e1.printStackTrace();
+    //  return null;
+    //}
     timing.post_online.start();
     String[] a = new String[twotaupow];
     String a_all = G.generateBitString(aBits, s);
@@ -187,12 +187,12 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     byte[] s = SR.rand.generateSeed(16);  // 128 bits
     timing.post_online.stop();
     PRG G;
-    try {
+    //try {
       G = new PRG(aBits);
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-      return null;
-    }
+    //} catch (NoSuchAlgorithmException e) {
+     // e.printStackTrace();
+    //  return null;
+    //}
     timing.post_online.start();
     String[] a = new String[twotaupow];
     byte[][] a_p = new byte[twotaupow][];

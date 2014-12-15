@@ -19,7 +19,7 @@ import sprout.oram.operations.*;
 public class TestCLI
 {
 	public static final int DEFAULT_PORT = 8000;
-	public static final String DEFAULT_IP = "hera.ics.uci.edu";
+	public static final String DEFAULT_IP = "localhost";
 	public static final String DEFAULT_CONFIG_FILE = "config/newConfig.yaml";
 	public static final String DEFAULT_DB_FILE = "files/forest.bin";
 	//public static final String DEFAULT_DATA_FILE = "config/smallData.txt";

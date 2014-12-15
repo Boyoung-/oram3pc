@@ -257,6 +257,8 @@ public class OPRF {
     System.arraycopy(message, 0, input, 1, message.length);
     input[0] = selector;
 
+    MessageDigest digest = SR.digest;
+    /*
     MessageDigest digest = null;
     try {
       digest = MessageDigest.getInstance("SHA-1");
@@ -264,6 +266,7 @@ public class OPRF {
       throw new CryptoException("SHA-1 is not supported");
     }
     digest.reset();
+    */
 
     return new BigInteger(digest.digest(input));
   }

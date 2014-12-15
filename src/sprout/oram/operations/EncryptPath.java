@@ -105,8 +105,9 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       String a_all = G1.generateBitString(bucketBits*pathBuckets, s);
       for (int j=0; j<pathBuckets; j++) {
         a[j] = a_all.substring(j*bucketBits, (j+1)*bucketBits);
-        PRG G2 = new PRG(bucketBits); // non-fresh generated SecureRandom cannot guarantee determinism... (why???)
-        b[j] = G2.generateBytes(bucketBits, v[j]);
+        PRG G2 = new PRG(bucketBits); 
+        //b[j] = G2.generateBytes(bucketBits, v[j]);
+        b[j] = G2.compute(v[j].getEncoded());
         c[j] = new BigInteger(a[j], 2).xor(new BigInteger(1, b[j])).toByteArray();
       }
       timing.encrypt_online.stop();

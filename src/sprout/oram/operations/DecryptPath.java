@@ -89,12 +89,12 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       timing.oprf_online.stop();
 
       PRG G;
-      try {
+      //try {
         G = new PRG(bucketBits); // TODO: fresh PRG non-deterministic problem?
-      } catch (NoSuchAlgorithmException e) {
-        e.printStackTrace();
-        return null;
-      }
+      //} catch (NoSuchAlgorithmException e) {
+      //  e.printStackTrace();
+      //  return null;
+      //}
 
       timing.oprf_online.start();
       secretC_P[j] = G.generateBitString(bucketBits, res.getResult());

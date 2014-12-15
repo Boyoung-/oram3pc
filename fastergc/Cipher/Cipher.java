@@ -5,6 +5,7 @@ package Cipher;
 import java.security.*;
 import java.math.*;
 
+import sprout.crypto.SR;
 import YaoGC.Wire;
 
 public final class Cipher {
@@ -15,8 +16,8 @@ public final class Cipher {
     
     private static final BigInteger mask2 = BigInteger.ONE.shiftLeft(128).subtract(BigInteger.ONE);
 
-    private static MessageDigest sha1 = null;
-
+    private static MessageDigest sha1 = SR.digest;
+    /*
     static {
 	try {
 	    sha1 = MessageDigest.getInstance("SHA-1");
@@ -26,6 +27,7 @@ public final class Cipher {
 	    System.exit(1);
 	}
     }
+    */
 
     public static BigInteger encrypt(BigInteger lp0, BigInteger lp1, 
 				     int k, BigInteger m) {

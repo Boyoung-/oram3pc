@@ -42,14 +42,15 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     // precomputation
     timing.reshuffle_offline.start();
     PRG G;
-    try {
+    //try {
       G = new PRG(pathBuckets*bucketBits);
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-      return null;
-    }
+    //} catch (NoSuchAlgorithmException e) {
+    //  e.printStackTrace();
+    //  return null;
+    //}
     byte[] s1 = SR.rand.generateSeed(16);
-    byte[] p1 = G.generateBytes(pathBuckets*bucketBits, s1);
+    //byte[] p1 = G.generateBytes(pathBuckets*bucketBits, s1);
+    byte[] p1 = G.compute(s1);
     timing.reshuffle_offline.stop();
     
     timing.reshuffle_offline_write.start();
@@ -121,7 +122,8 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
 	    PRG G1 = new PRG(pathBuckets*bucketBits);
 	    PRG G2 = new PRG(pathBuckets*bucketBits); // TODO: same issue: non-fresh -> non-deterministic
 	      byte[] s2 = SR.rand.generateSeed(16);
-	      p2 = G2.generateBytes(pathBuckets*bucketBits, s2);
+	      //p2 = G2.generateBytes(pathBuckets*bucketBits, s2);
+	      p2 = G2.compute(s2);
 	      timing.reshuffle_offline.stop();
 	      
 	      timing.reshuffle_offline_write.start();
@@ -133,7 +135,8 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
 	    timing.reshuffle_offline_read.stop();
 	    
 	    timing.reshuffle_offline.start();
-	      p1 = G1.generateBytes(pathBuckets*bucketBits, s1);
+	      //p1 = G1.generateBytes(pathBuckets*bucketBits, s1);
+	    p1 = G1.compute(s1);
 	      timing.reshuffle_offline.stop();
 	 } catch (Exception e) {
 	        e.printStackTrace();
@@ -199,13 +202,14 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
 	    
 	    timing.reshuffle_offline.start();
 	    PRG G;
-	    try {
+	    //try {
 	      G = new PRG(pathBuckets*bucketBits);
-	    } catch (NoSuchAlgorithmException e) {
-	      e.printStackTrace();
-	      return null;
-	    }
-	    byte[] p2 = G.generateBytes(pathBuckets*bucketBits, s2);
+	    //} catch (NoSuchAlgorithmException e) {
+	    //  e.printStackTrace();
+	    //  return null;
+	    //}
+	    //byte[] p2 = G.generateBytes(pathBuckets*bucketBits, s2);
+	    byte[] p2 = G.compute(s2);
 	    timing.reshuffle_offline.stop();
 	    
 	    

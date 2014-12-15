@@ -73,7 +73,8 @@ public class ExtraTiming
 			for (int i=0; i<iteration; i++) {
 				if (i == iteration/2)
 					prg_bytes_sw.start();
-				prg.generateBytes(128*n, seed[i]);
+				//prg.generateBytes(128*n, seed[i]);
+				prg.compute(seed[i]);
 			}
 			prg_bytes_sw.stop();
 
