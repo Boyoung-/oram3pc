@@ -223,9 +223,16 @@ public class Access extends TreeOperation<AOutput, String> {
     timing.decrypt.start();
     DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, OT, null); 
     timing.decrypt.stop();
+    byte[][] secretE_P = new byte[pathTuples][];
+    for (int m=0; m<pathBuckets; m++)
+    	for (int n=0; n<w; n++) {
+    		secretE_P[m*w+n] = Util.getSubBits(DecOut.secretE_P[m], (w-n-1)*tupleBits, (w-n)*tupleBits);
+    	}
+    /*
     String secretE_P = "";
     for (int j=0; j<DecOut.secretE_P.length; j++)
     	secretE_P += DecOut.secretE_P[j];
+    	*/
     //System.out.println("secretE: " + secretE_P);
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     
@@ -233,35 +240,59 @@ public class Access extends TreeOperation<AOutput, String> {
     // step 2
     // party E
     timing.access_online.start();
-    String[] y = new String[twotaupow];
-    String y_all;
-    if (i == 0) 
-      y_all = secretE_P;
-    else if (i < h)
-      y_all = Util.addZero(new BigInteger(aBits, SR.rand).toString(2), aBits);
-    else // i = h
-      y_all = Util.addZero("", aBits);
+    //String[] y = new String[twotaupow];
+    //String y_all;
+    byte[][] y = new byte[twotaupow][];
+    byte[] y_all;
+    if (i == 0) {
+      //y_all = secretE_P;
+    	y_all = secretE_P[0].clone();
+    }
+    else if (i < h) {
+      //y_all = Util.addZero(new BigInteger(aBits, SR.rand).toString(2), aBits);
+    	y_all = Util.addOrRmBits(new BigInteger(aBits, SR.rand).toByteArray(), aBits);
+    }
+    else {// i = h 
+      //y_all = Util.addZero("", aBits);
+    	y_all = new byte[(aBits + 7) / 8];
+    }
     for (int o=0; o<twotaupow; o++) {
-      y[o] = y_all.substring(o*d_ip1, (o+1)*d_ip1);
+      //y[o] = y_all.substring(o*d_ip1, (o+1)*d_ip1);
+    	y[o] = Util.getSubBits(y_all, (twotaupow-o-1)*d_ip1, (twotaupow-o)*d_ip1);
     }
     
+    /*
     String secretE_Ti = "0" + Util.addZero("", i*tau) + Util.addZero ("", d_i) + y_all;
     if (i == 0)
       secretE_Ti = y_all;
+      */
+    byte[] secretE_Ti = Util.addOrRmBits(y_all, tupleBits);
+    
+    /*
     String secretE_P_p = ""; //  i = 0 case
     if (i > 0) { 
       secretE_P_p = secretE_P;
     }
+    */
+    byte[][] secretE_P_p = null;
+    if (i > 0)
+    	secretE_P_p = Util.cloneMatrix(secretE_P);
     timing.access_online.stop();
     
     // step 3
     // party C and E
-    String[] b = new String[pathTuples];
+    //String[] b = new String[pathTuples];
+    byte[][] b = new byte[pathTuples][];
     if (i > 0) {
     	timing.access_online.start();
+    	/*
       for (int j=0; j<pathTuples; j++) {
         b[j] = secretE_P.substring(j*tupleBits, j*tupleBits+1+nBits); // party E
       }
+      */
+    	for (int j=0; j<pathTuples; j++) {
+            b[j] = Util.getSubBits(secretE_P[j], (pathTuples-j)*tupleBits-1-nBits, (pathTuples-j)*tupleBits);
+          }
       timing.access_online.stop();
       //sanityCheck();
       PET pet = new PET(charlie, debbie);

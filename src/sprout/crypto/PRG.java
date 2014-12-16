@@ -17,6 +17,10 @@ public class PRG {
 		this.l = l;
 	}
 	
+	public byte[] compute(ECPoint ecp) {
+		return compute(ecp.getEncoded());
+	}
+	
 	public byte[] compute(byte[] seed) {
 		byte[] output = null;
 		if (l <= 160) {

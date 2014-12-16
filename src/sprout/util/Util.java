@@ -191,6 +191,30 @@ public class Util
 		return s;
 	}
 	
+	public static byte[] addOrRmBits(byte[] b, int bits) {
+		int outBytes = (bits + 7) / 8;
+		if (b.length > outBytes)
+			return Util.rmSignBit(b);
+		else if (b.length < outBytes) {
+			byte[] tmp = new byte[outBytes];
+			System.arraycopy(b, 0, tmp, outBytes-b.length, b.length);
+			return tmp;
+		}
+		else
+			return b;
+	}
+	
+	public static byte[] addZeroBits(byte[] b, int bits) {
+		int outBytes = (bits + 7) / 8;
+		if (b.length < outBytes) {
+			byte[] tmp = new byte[outBytes];
+			System.arraycopy(b, 0, tmp, outBytes-b.length, b.length);
+			return tmp;
+		}
+		else
+			return b;
+	}
+	
 	public static List<Integer> getInversePermutation(List<Integer> p) {
 		// p;
 		List<Integer> p_new = new ArrayList<Integer>(p);
@@ -247,6 +271,11 @@ public class Util
 		return r;
 	}
 	
+	public static byte[] getSubBits(byte[] b, int i, int j) {
+		BigInteger bi = Util.getSubBits(new BigInteger(1, b), i, j);
+		return Util.addOrRmBits(bi.toByteArray(), j-i);
+	}
+	
 	public static BigInteger getSubBits(BigInteger n, int i, int j)
 	{
 		return BigInteger.ONE.shiftLeft(j-i).subtract(BigInteger.ONE).shiftLeft(i).and(n).shiftRight(i);
@@ -288,4 +317,24 @@ public class Util
 	  public static ECPoint byteArrayToECPoint(byte[] bytes) {
 		  return NISTNamedCurves.getByName("P-224").getCurve().decodePoint(bytes);
 	  }
+	  
+	  public static byte[][] cloneMatrix(byte[][] m) {
+		  if (m == null)
+			  return null;
+		  byte[][] out = new byte[m.length][];
+		  for (int i=0; i<m.length; i++)
+			  out[i] = m[i].clone();
+		  return out;
+	  }
+	  
+	  /*
+	  public static <T> T[][] cloneMatrix(T[][] m) {
+		  if (m == null)
+			  return null;
+		  T[][] out = m.clone();
+		  for (int i=0; i<m.length; i++)
+			  out[i] = m[i].clone();
+		  return out;
+		}
+		*/
 }
