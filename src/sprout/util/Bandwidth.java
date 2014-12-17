@@ -9,10 +9,23 @@ public class Bandwidth implements Serializable
 	public String task;
 	public int bandwidth;
 	public boolean active = false;
+	public boolean strict = true;
 	
 	public Bandwidth(String t) {
 		task = t;
 		bandwidth = 0;
+	}
+	
+	public Bandwidth(String t, boolean strict) {
+	  task = t;
+	  bandwidth = 0;
+	  this.strict = strict;
+	}
+	
+	public Bandwidth(Bandwidth b) {
+	  task = b.task;
+	  bandwidth = b.bandwidth;
+	  strict = b.strict;
 	}
 	
 	public boolean isTask(String t) {
@@ -65,7 +78,10 @@ public class Bandwidth implements Serializable
 		bandwidth /= n;
 	}
 	
-	public Bandwidth add(Bandwidth b) {
+	/*
+	 * This is slightly more efficient version of add, but mutates the current bandwidth
+	 */
+	public Bandwidth add_mut(Bandwidth b) {
 		if (active) {
 			System.err.println("Bandwidth.add2: " + task + " still in use");
 			return null;
@@ -74,11 +90,19 @@ public class Bandwidth implements Serializable
 			System.err.println("Bandwidth.add2: " + b.task + " still in use");
 			return null;
 		}
-		if (!task.equals(b.task))
+		if (!task.equals(b.task) && (b.strict || strict))
 			System.err.println("Warning: adding bandwidth of " + task + " and " + b.task);
-		Bandwidth c = new Bandwidth(task);
-		c.bandwidth = bandwidth + b.bandwidth;
-		return c;
+
+		bandwidth = bandwidth + b.bandwidth;
+		return this;
+	}
+	
+	public Bandwidth add(Bandwidth b) {
+	  return new Bandwidth(this).add_mut(b);
+	}
+	
+	public void clear() {
+	  bandwidth = 0;
 	}
 	
 	@Override

@@ -15,16 +15,18 @@ public class StopWatch implements Serializable
 	public long elapsedWallClockTime;
 	public long elapsedCPUTime;
 	private boolean running;
+	private boolean strict = true;
 	
 	private long startWallClockTime;
 	private long startCPUTime;
 	
-	int convert = 1000000; // from nanoseconds to milliseconds
+	static final int convert = 1000000; // from nanoseconds to milliseconds
 	
 	public StopWatch() {
 		elapsedWallClockTime = 0;
 		elapsedCPUTime = 0;
 		running = false;
+		strict = false;
 	}
 	
 	public StopWatch(String t) {
@@ -32,6 +34,22 @@ public class StopWatch implements Serializable
 		elapsedWallClockTime = 0;
 		elapsedCPUTime = 0;
 		running = false;
+	}
+	
+	public StopWatch(StopWatch sw) {
+	  task = sw.task;
+	  elapsedWallClockTime = sw.elapsedWallClockTime;
+	  elapsedCPUTime = sw.elapsedCPUTime;
+	  running = sw.running;
+	  strict = sw.strict;
+	}
+	
+	public StopWatch(String t, boolean strict) {
+	  task = t;
+	  elapsedWallClockTime = 0;
+    elapsedCPUTime = 0;
+    running = false;
+    this.strict = strict;
 	}
 	
 	public void start() {
@@ -66,15 +84,18 @@ public class StopWatch implements Serializable
 		elapsedCPUTime = 0;
 	}
 	
-	public StopWatch add(StopWatch sw) {
-		if (!task.equals(sw.task)) {
+	public StopWatch add_mut(StopWatch sw) {
+		if (!task.equals(sw.task) && (strict || sw.strict)) {
 			System.out.println("Warning: addition between different task!");
 		}
 		
-		StopWatch out = new StopWatch(task);
-		out.elapsedWallClockTime = elapsedWallClockTime + sw.elapsedWallClockTime;
-		out.elapsedCPUTime = elapsedCPUTime + sw.elapsedCPUTime;
-		return out;
+		elapsedWallClockTime = elapsedWallClockTime + sw.elapsedWallClockTime;
+		elapsedCPUTime = elapsedCPUTime + sw.elapsedCPUTime;
+		return this;
+	}
+	
+	public StopWatch add(StopWatch sw) {
+	  return (new StopWatch(this)).add_mut(sw);
 	}
 	
 	public StopWatch subtract(StopWatch sw) {
