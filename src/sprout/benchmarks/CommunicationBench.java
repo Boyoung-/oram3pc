@@ -25,13 +25,13 @@ public class CommunicationBench {
   public static int ignored_trials = 10000;
   public static int num_trials = 1000;
   public static int N = 10;
-  public static int bytes_per_object = 1;
+  public static int bytes_per_object = 10000000;
   public static int wait_seconds = 1;
   
   // TODO: have a variant of Test1_A doesn't always send the same object
   public static void Test1_A (Communication B) {
-    Bandwidth totalBand = new Bandwidth("String - totalWrite", false);
-    StopWatch totalTime = new StopWatch("String - totalWrite", false);
+    Bandwidth totalBand = new Bandwidth("totalWrite", false);
+    StopWatch totalTime = new StopWatch("totalWrite", false);
     
     byte[] bytes = new byte[bytes_per_object];
     // Ensure all bytes are non-null
@@ -78,8 +78,8 @@ public class CommunicationBench {
     Test1_B(A, 0);
   }
   public static void Test1_B (Communication A, long read_delay) {
-    Bandwidth totalBand = new Bandwidth("String - totalWrite", false);
-    StopWatch totalTime = new StopWatch("String - totalWrite", false);
+    Bandwidth totalBand = new Bandwidth("totalWrite", false);
+    StopWatch totalTime = new StopWatch("totalWrite", false);
     
     if (read_delay != 0) {
       log("Waiting for " +read_delay / 1000.0+ " seconds");
@@ -134,8 +134,8 @@ public class CommunicationBench {
   }
   
   public static void Test3_A (Communication B) {
-    Bandwidth totalBand = new Bandwidth("String - totalWrite", false);
-    StopWatch totalTime = new StopWatch("String - totalWrite", false);
+    Bandwidth totalBand = new Bandwidth("totalWrite", false);
+    StopWatch totalTime = new StopWatch("totalWrite", false);
     
     byte[] bytes = new byte[bytes_per_object];
     // Ensure all bytes are non-null
@@ -146,8 +146,8 @@ public class CommunicationBench {
     // rand.nextBytes(bytes) but this does not have consistent length.
     
     //String obj = new String(bytes);
-    //byte[] obj = bytes;
-    BigInteger obj = new BigInteger(bytes);
+    byte[] obj = bytes;
+    //BigInteger obj = new BigInteger(bytes);
     
     for (int i=0; i<num_trials+ignored_trials; i++) {
       sync(B, B);
@@ -157,7 +157,7 @@ public class CommunicationBench {
       B.sharedBandwidth.start();
       
       B.write(obj);
-      B.readBigInteger();
+      B.read();
       
       B.sharedBandwidth.stop();
       sw.stop();
@@ -171,15 +171,15 @@ public class CommunicationBench {
     totalBand.divide(num_trials);
     totalTime.divide(num_trials);
     log("-------- Performance of STRINGS ---------");
-    log("Data transfer: " + N*bytes_per_object);
+    log("Data transfer: " + bytes_per_object);
     log("A: average total bandwidth: " + totalBand.toString());
     log("A: average total time: " + totalTime.toString());
     log("-----------------------------------------");
   }
   
   public static void Test3_B (Communication A) {
-    Bandwidth totalBand = new Bandwidth("String - totalWrite", false);
-    StopWatch totalTime = new StopWatch("String - totalWrite", false);
+    Bandwidth totalBand = new Bandwidth("totalWrite", false);
+    StopWatch totalTime = new StopWatch("totalWrite", false);
     
     for (int i=0; i<num_trials+ignored_trials; i++) {
       StopWatch sw = new StopWatch();
@@ -188,11 +188,9 @@ public class CommunicationBench {
       A.sharedBandwidth.clear();
       sw.start();
       
-      for (int j=0; j<N; j++) {
-        A.write(A.readBigInteger());
-        //A.read();
-        //A.readString();
-      }
+      //A.write(A.readBigInteger());
+      A.write(A.read());
+      //A.readString();
       
       A.sharedBandwidth.stop();
       sw.stop();
@@ -205,8 +203,8 @@ public class CommunicationBench {
     
     totalBand.divide(num_trials);
     totalTime.divide(num_trials);
-    log("-------- Performance of STRINGS ---------");
-    log("Data transfer: " + N*bytes_per_object);
+    log("-------- Performance of Test3B ----------");
+    log("Data transfer: " + bytes_per_object);
     log("B: average total bandwidth: " + totalBand.toString());
     log("B: average total time: " + totalTime.toString());
     log("-----------------------------------------"); 
