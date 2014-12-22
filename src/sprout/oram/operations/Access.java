@@ -85,53 +85,56 @@ public class Access extends TreeOperation<AOutput, String> {
     
     // step 5
     int j_2 = 0;
-    String ybar_j2 = "";  // i = h case
+    //String ybar_j2 = "";  // i = h case
+    BigInteger ybar_j2 = null;
     if (i < h) {
       // AOT(E, C, D)
       //sanityCheck();
       j_2 = new BigInteger(Nip1_pr, 2).intValue();
       timing.aot.start();
-      ybar_j2 = Util.addZero(aot.executeC(debbie, eddie, j_2).toString(2), d_ip1);
+      ybar_j2 = aot.executeC(debbie, eddie, j_2);
       timing.aot.stop();
       // outputs ybar_j2 for C
     }
     
     // step 6
     // party C
-    String ybar = "";
-    String zeros = Util.addZero("", d_ip1);
+    BigInteger ybar = BigInteger.ZERO;
     timing.access_online.start();
     for (int o=0; o<twotaupow; o++) {
+    	ybar = ybar.shiftLeft(d_ip1);
       if (i < h && o == j_2)
-        ybar += ybar_j2;
-      else // i = h case
-        ybar += zeros;
+    	  ybar = ybar.xor(ybar_j2);
     }
     
-    String secretC_Aj1;
+    BigInteger secretC_Aj1;
     if (i == 0)
-      secretC_Aj1 = Util.addZero(secretC_P.toString(2), pathTuples*tupleBits);
+      secretC_Aj1 = secretC_P;
     else
-      secretC_Aj1 = Util.addZero(secretC_P.toString(2), pathTuples*tupleBits).substring(j_1*tupleBits+1+nBits+lBits, (j_1+1)*tupleBits);
-    String Abar = Util.addZero(new BigInteger(secretC_Aj1, 2).xor(fbar).xor(new BigInteger(ybar, 2)).toString(2), aBits);
+    	secretC_Aj1 = Util.getSubBits(secretC_P, (pathTuples-j_1-1)*tupleBits, (pathTuples-j_1-1)*tupleBits+aBits);
+    BigInteger Abar = secretC_Aj1.xor(fbar).xor(ybar);
     
-    String d = "";
-    String Lip1 = ""; // i = h case
+    BigInteger d = null;
+    BigInteger Lip1 = null;
     if (i < h) {
-      Lip1 = Abar.substring(j_2*d_ip1, (j_2+1)*d_ip1);
+    	Lip1 = Util.getSubBits(Abar, (twotaupow-j_2-1)*d_ip1, (twotaupow-j_2)*d_ip1);
     }
     else {
       d = Abar;
     }
     
-    String secretC_Ti = "1" + Ni + Li + Util.addZero(new BigInteger(secretC_Aj1, 2).xor(fbar).toString(2), aBits);
-    if (i == 0)
-      secretC_Ti = Util.addZero(new BigInteger(secretC_Aj1, 2).xor(fbar).toString(2), aBits);
-    String secretC_P_p = ""; // i = 0 case
+    BigInteger secretC_Ti = secretC_Aj1.xor(fbar);
+    if (i > 0)
+    	secretC_Ti = new BigInteger(Ni, 2).shiftLeft(lBits+aBits).xor(new BigInteger(Li, 2).shiftLeft(aBits)).xor(secretC_Ti).setBit(tupleBits-1);
+    BigInteger secretC_P_p = null;
     if (i > 0) {
-      int flipBit = 1 - Integer.parseInt(Util.addZero(secretC_P.toString(2), pathTuples*tupleBits).substring(j_1*tupleBits, j_1*tupleBits+1));
-      String newTuple = flipBit + Util.addZero(new BigInteger(tupleBits-1, SR.rand).toString(2), tupleBits-1);
-      secretC_P_p = Util.addZero(secretC_P.toString(2), pathTuples*tupleBits).substring(0, j_1*tupleBits) + newTuple + Util.addZero(secretC_P.toString(2), pathTuples*tupleBits).substring((j_1+1)*tupleBits);
+    	boolean flipBit = secretC_P.testBit((pathTuples-j_1)*tupleBits-1);
+    	BigInteger newTuple = new BigInteger(tupleBits-1, SR.rand);
+    	if (flipBit)
+    		newTuple = newTuple.setBit(tupleBits-1);
+    	BigInteger tmp1 = Util.getSubBits(secretC_P, (pathTuples-j_1)*tupleBits, pathTuples*tupleBits);
+    	BigInteger tmp2 = Util.getSubBits(secretC_P, 0, (pathTuples-j_1-1)*tupleBits);
+    	secretC_P_p = tmp1.shiftLeft((pathTuples-j_1)*tupleBits).xor(newTuple.shiftLeft((pathTuples-j_1-1)*tupleBits)).xor(tmp2); //TODO:better way?
     }
     timing.access_online.stop();
     
@@ -140,11 +143,23 @@ public class Access extends TreeOperation<AOutput, String> {
     debbie.countBandwidth = false;
     eddie.countBandwidth = false;
     
-    //sanityCheck();
-    // C outputs Lip1, secretC_Ti, secretC_P_p
-    return new AOutput(Lip1, null, secretC_Ti, null, secretC_P_p, null, d);
+  //sanityCheck();
+    // C outputs Lip1, secretC_Ti, secretC_P_p    
+    String out_Lip1, out_secretC_P_p, out_d;
+    if (Lip1 == null)
+    	out_Lip1 = "";
+    else
+    	out_Lip1 = Util.addZero(Lip1.toString(2), d_ip1);
     
-    //return null;
+    if (secretC_P_p == null)
+    	out_secretC_P_p = "";
+    else
+    	out_secretC_P_p = Util.addZero(secretC_P_p.toString(2), pathTuples*tupleBits);
+    if (d == null)
+    	out_d = "";
+    else
+    	out_d = Util.addZero(d.toString(2), twotaupow*d_ip1);
+    return new AOutput(out_Lip1, null, Util.addZero(secretC_Ti.toString(2), tupleBits), null, out_secretC_P_p, null, out_d);
   }
   
   @Override
