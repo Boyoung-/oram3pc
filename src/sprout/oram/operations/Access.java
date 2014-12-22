@@ -40,7 +40,8 @@ public class Access extends TreeOperation<AOutput, String> {
     timing.decrypt.stop();
     String secretC_P = "";
     for (int j=0; j<DecOut.secretC_P.length; j++)
-    	secretC_P += DecOut.secretC_P[j]; 
+    	//secretC_P += DecOut.secretC_P[j]; 
+    	secretC_P += Util.addZero(DecOut.secretC_P[j].toString(2), bucketBits);
     //System.out.println("secretC: " + secretC_P);
     
     
@@ -225,7 +226,8 @@ public class Access extends TreeOperation<AOutput, String> {
     timing.decrypt.stop();
     String secretE_P = "";
     for (int j=0; j<DecOut.secretE_P.length; j++)
-    	secretE_P += DecOut.secretE_P[j];
+    	//secretE_P += DecOut.secretE_P[j];
+    	secretE_P += Util.addZero(new BigInteger(1, DecOut.secretE_P[j].getByteTuples()).toString(2), bucketBits);
     //System.out.println("secretE: " + secretE_P);
     // DecryptPath outpus sigma and secretE_P for E and secretC_P for C
     

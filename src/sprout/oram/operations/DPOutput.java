@@ -1,17 +1,22 @@
 package sprout.oram.operations;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import sprout.oram.Bucket;
+
 public class DPOutput {
-  public String[] secretC_P;
-  public String[] secretE_P;
+  //public String[] secretC_P;
+	public BigInteger[] secretC_P;
+  //public String[] secretE_P;
+  public Bucket[] secretE_P;
   List<Integer> p;
   
   DPOutput() {
   }
   
-  DPOutput(String[] c, String[] e, List<Integer> per) {
+  DPOutput(BigInteger[] c, Bucket[] e, List<Integer> per) {
 	  if (c != null)
 		  secretC_P = c.clone();
 	  if (e != null)
@@ -20,6 +25,7 @@ public class DPOutput {
       p = new ArrayList<Integer>(per);
   }
   
+  /*
   @Override
   public String toString() {
     String out =  "";
@@ -34,4 +40,5 @@ public class DPOutput {
     
     return out;
   }
+  */
 }
