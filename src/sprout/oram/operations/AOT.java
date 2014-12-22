@@ -16,12 +16,13 @@ public class AOT extends Operation {
     super(con1, con2);
   }
   
-  public void executeE(Communication C, Communication D, String[] m) {
+  public void executeE(Communication C, Communication D, BigInteger[] m, int mLength) {
 	    C.countBandwidth = false;
 	    D.countBandwidth = false;
 	  
     int N = m.length;
-    int l = m[0].length();
+    //int l = m[0].length();
+    int l = mLength;
     
     // We may be able to do this without communication
     C.write(N);
@@ -54,7 +55,7 @@ public class AOT extends Operation {
   	  f.init(k);
       timing.aot_online.start();
       for (int t=0; t<N; t++) {
-    	  m_p[t] = new BigInteger(1, f.compute(BigInteger.valueOf(t).add(alpha).mod(BigInteger.valueOf(N)).toByteArray())).xor(new BigInteger(m[t], 2));
+    	  m_p[t] = new BigInteger(1, f.compute(BigInteger.valueOf(t).add(alpha).mod(BigInteger.valueOf(N)).toByteArray())).xor(m[t]);
       }
       timing.aot_online.stop();
     } catch (Exception e){

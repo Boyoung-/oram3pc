@@ -10,13 +10,13 @@ public class DPOutput {
   //public String[] secretC_P;
 	public BigInteger[] secretC_P;
   //public String[] secretE_P;
-  public Bucket[] secretE_P;
+  public BigInteger[] secretE_P;
   List<Integer> p;
   
   DPOutput() {
   }
   
-  DPOutput(BigInteger[] c, Bucket[] e, List<Integer> per) {
+  DPOutput(BigInteger[] c, BigInteger[] e, List<Integer> per) {
 	  if (c != null)
 		  secretC_P = c.clone();
 	  if (e != null)

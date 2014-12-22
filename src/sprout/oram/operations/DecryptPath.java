@@ -216,19 +216,21 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     
     ECPoint[] x = new ECPoint[Pbar.length];
     //String[] Bbar = new String[Pbar.length];  
+    BigInteger[] Bbar = new BigInteger[Pbar.length];
     for (int j=0; j<Pbar.length; j++) { 
     	x[j] = Util.byteArrayToECPoint(Pbar[j].getNonce());
     	//Bbar[j] = Util.addZero(new BigInteger(1, Pbar[j].getByteTuples()).toString(2), bucketBits);
-    	try {
-			Pbar[j].setNonce(null);
-		} catch (BucketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	Bbar[j] = new BigInteger(1, Pbar[j].getByteTuples());
+    	//try {
+		//	Pbar[j].setNonce(null);
+		//} catch (BucketException e) {
+		//	// TODO Auto-generated catch block
+		//	e.printStackTrace();
+		//}
     }
     ECPoint[] sigma_x = Util.permute(x, sigma);
     //String[] secretE_P = Util.permute(Bbar, sigma);
-    Bucket[] secretE_P = Util.permute(Pbar, sigma);
+    BigInteger[] secretE_P = Util.permute(Bbar, sigma);
 	timing.decrypt_online.stop();
 	
     //sanityCheck(charlie);
