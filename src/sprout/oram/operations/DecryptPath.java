@@ -20,7 +20,6 @@ import sprout.oram.Tree;
 import sprout.oram.TreeException;
 import sprout.util.Util;
 
-//TODO: change Li from string to byte[] ??
 public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 
   public DecryptPath(Communication con1, Communication con2) {
@@ -68,8 +67,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     timing.oprf.start();
     OPRF oprf = OPRFHelper.getOPRF();
     oprf.timing = timing;  // TODO: better way?
-    //String[] secretC_P = new String[sigma_x.length];
-    byte[][] secretC_P = new byte[sigma_x.length][];
+    String[] secretC_P = new String[sigma_x.length];
     for (int j=0; j<sigma_x.length; j++) {
       // This oprf should possibly be evaulated in as an Operation
       // For an easier description of the flow look at OPRFTest.java
@@ -99,8 +97,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
       //}
 
       timing.oprf_online.start();
-      //secretC_P[j] = G.generateBitString(bucketBits, res.getResult());
-      secretC_P[j] = G.compute(res.getResult());
+      secretC_P[j] = G.generateBitString(bucketBits, res.getResult());
       timing.oprf_online.stop();
     }
     timing.oprf.stop();
@@ -216,16 +213,13 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     Collections.shuffle(sigma, SR.rand);
     
     ECPoint[] x = new ECPoint[Pbar.length];
-    //String[] Bbar = new String[Pbar.length];  
-    byte[][] Bbar = new byte[Pbar.length][];
+    String[] Bbar = new String[Pbar.length];  
     for (int j=0; j<Pbar.length; j++) { 
     	x[j] = Util.byteArrayToECPoint(Pbar[j].getNonce());
-    	//Bbar[j] = Util.addZero(new BigInteger(1, Pbar[j].getByteTuples()).toString(2), bucketBits);
-    	Bbar[j] = Pbar[j].getByteTuples();
+    	Bbar[j] = Util.addZero(new BigInteger(1, Pbar[j].getByteTuples()).toString(2), bucketBits);
     }
     ECPoint[] sigma_x = Util.permute(x, sigma);
-    //String[] secretE_P = Util.permute(Bbar, sigma);
-    byte[][] secretE_P = Util.permute(Bbar, sigma);
+    String[] secretE_P = Util.permute(Bbar, sigma);
 	timing.decrypt_online.stop();
 	
     //sanityCheck(charlie);

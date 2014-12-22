@@ -3,29 +3,23 @@ package sprout.oram.operations;
 import java.util.ArrayList;
 import java.util.List;
 
-import sprout.util.Util;
-
 public class DPOutput {
-  //public String[] secretC_P;
-  //public String[] secretE_P;
-	public byte[][] secretC_P;
-	public byte[][] secretE_P;
+  public String[] secretC_P;
+  public String[] secretE_P;
   List<Integer> p;
   
   DPOutput() {
   }
   
-  //DPOutput(String[] c, String[] e, List<Integer> per) {
-  DPOutput(byte[][] c, byte[][] e, List<Integer> per) {
+  DPOutput(String[] c, String[] e, List<Integer> per) {
 	  if (c != null)
-		  secretC_P = Util.cloneMatrix(c);
+		  secretC_P = c.clone();
 	  if (e != null)
-		  secretE_P = Util.cloneMatrix(e);
+		  secretE_P = e.clone();
     if (per != null) 
       p = new ArrayList<Integer>(per);
   }
   
-  /*
   @Override
   public String toString() {
     String out =  "";
@@ -40,5 +34,4 @@ public class DPOutput {
     
     return out;
   }
-  */
 }
