@@ -91,7 +91,7 @@ public class PET extends Operation {
     
   }
 
-  public Integer executeCharlie(Communication debbie, Communication eddie, String[] cc) {
+  public Integer executeCharlie(Communication debbie, Communication eddie, BigInteger[] cc) {
 	    debbie.countBandwidth = false;
 	    eddie.countBandwidth = false;
 	  
@@ -114,7 +114,7 @@ public class PET extends Operation {
     timing.pet_online.start();
     BigInteger[] c = new BigInteger[n];
     for (int j=0; j<n; j++) {
-      c[j] = new BigInteger(cc[j], 2);
+      c[j] = cc[j];
     }
     
     debbie.countBandwidth = true;
@@ -177,7 +177,7 @@ public class PET extends Operation {
     return -1;
   }
   
-  public void executeEddie(Communication charlie, Communication debbie, String[] bb) {
+  public void executeEddie(Communication charlie, Communication debbie, BigInteger[] bb) {
 	    charlie.countBandwidth = false;
 	    debbie.countBandwidth = false;
 	    
@@ -201,7 +201,7 @@ public class PET extends Operation {
     timing.pet_online.start();
     BigInteger[] b = new BigInteger[n];
     for (int j=0; j<n; j++) {
-      b[j] = new BigInteger(bb[j], 2);
+      b[j] = bb[j];
     }
     timing.pet_online.stop();
     

@@ -46,13 +46,13 @@ public class Access extends TreeOperation<AOutput, String> {
     // step 3
     // party C and E
     int j_1 = 0; // i = 0 case; as the j_1 = 1 in the write up
-    String[] a = new String[pathTuples];
-    String[] c = new String[pathTuples];
+    BigInteger[] a = new BigInteger[pathTuples];
+    BigInteger[] c = new BigInteger[pathTuples];
     if (i > 0) {
     	timing.access_online.start();
       for (int j=0; j<pathTuples; j++) {
-        a[j] = Util.addZero(secretC_P.toString(2), pathTuples*tupleBits).substring(j*tupleBits, j*tupleBits+1+nBits); // party C
-        c[j] = Util.addZero(new BigInteger(a[j], 2).xor(new BigInteger("1"+Ni, 2)).toString(2), 1+nBits); // party C
+    	  a[j] = Util.getSubBits(secretC_P, (pathTuples-j)*tupleBits-1-nBits, (pathTuples-j)*tupleBits); // TODO: better way?
+    	  c[j] = new BigInteger(Ni, 2).setBit(nBits).xor(a[j]);
       }
       timing.access_online.stop();
       //sanityCheck()();
@@ -231,22 +231,14 @@ public class Access extends TreeOperation<AOutput, String> {
     // step 2
     // party E
     timing.access_online.start();
-    //String[] y = new String[twotaupow];
-    //String y_all;
     BigInteger[] y = new BigInteger[twotaupow];
     BigInteger y_all;
     if (i == 0) 
-      //y_all = Util.addZero(secretE_P.toString(2), tupleBits*pathTuples);
     	y_all = secretE_P;
     else if (i < h)
-      //y_all = Util.addZero(new BigInteger(aBits, SR.rand).toString(2), aBits);
     	y_all = new BigInteger(aBits, SR.rand);
     else // i = h
-      //y_all = Util.addZero("", aBits);
     	y_all = BigInteger.ZERO;
-    //for (int o=0; o<twotaupow; o++) {
-      //y[o] = y_all.substring(o*d_ip1, (o+1)*d_ip1);
-    //}
     BigInteger helper = BigInteger.ONE.shiftLeft(d_ip1).subtract(BigInteger.ONE);
     BigInteger tmp = y_all;
     for (int o=twotaupow-1; o>=0; o--) {
@@ -254,26 +246,20 @@ public class Access extends TreeOperation<AOutput, String> {
     	tmp = tmp.shiftRight(d_ip1);
     }
     
-    //String secretE_Ti = "0" + Util.addZero("", i*tau) + Util.addZero ("", d_i) + y_all;
-    //if (i == 0)
-      //secretE_Ti = y_all;
     BigInteger secretE_Ti = y_all;
-  //String secretE_P_p = ""; //  i = 0 case
-    //if (i > 0) { 
-    //  secretE_P_p = secretE_P;
-    //}
     BigInteger secretE_P_p = null;
     if (i > 0)
     	secretE_P_p = secretE_P;
     timing.access_online.stop();
     
+    
     // step 3
     // party C and E
-    String[] b = new String[pathTuples];
+    BigInteger[] b = new BigInteger[pathTuples];
     if (i > 0) {
     	timing.access_online.start();
       for (int j=0; j<pathTuples; j++) {
-        b[j] = Util.addZero(secretE_P.toString(2), tupleBits*pathTuples).substring(j*tupleBits, j*tupleBits+1+nBits); // party E
+    	  b[j] = Util.getSubBits(secretE_P, (pathTuples-j)*tupleBits-1-nBits, (pathTuples-j)*tupleBits); //TODO: better way?
       }
       timing.access_online.stop();
       //sanityCheck();
