@@ -22,8 +22,10 @@ import sprout.util.Util;
 public class Retrieve extends Operation {
 	
 	private int currTree;
-	private String[] sC_Li_p;
-	private String[] sE_Li_p;
+	//private String[] sC_Li_p;
+	//private String[] sE_Li_p;
+	private BigInteger[] sC_Li_p;
+	private BigInteger[] sE_Li_p;
 	
   public Retrieve(Communication con1, Communication con2) {
     super(con1, con2);
@@ -31,16 +33,20 @@ public class Retrieve extends Operation {
   
   private void precomputation() {
 	  int levels = ForestMetadata.getLevels();
-	  sC_Li_p = new String[levels];
-	  sE_Li_p = new String[levels];
+	  //sC_Li_p = new String[levels];
+	  //sE_Li_p = new String[levels];
+	  sC_Li_p = new BigInteger[levels];
+	  sE_Li_p = new BigInteger[levels];
 	  for (int i=0; i<levels; i++) {
 		  int lBits = ForestMetadata.getLBits(i);
-		  sC_Li_p[i] = Util.addZero(new BigInteger(lBits, SR.rand).toString(2), lBits);
-		  sE_Li_p[i] = Util.addZero(new BigInteger(lBits, SR.rand).toString(2), lBits);
+		  //sC_Li_p[i] = Util.addZero(new BigInteger(lBits, SR.rand).toString(2), lBits);
+		  //sE_Li_p[i] = Util.addZero(new BigInteger(lBits, SR.rand).toString(2), lBits);
+		  sC_Li_p[i] = new BigInteger(lBits, SR.rand);
+		  sE_Li_p[i] = new BigInteger(lBits, SR.rand);
 	  }
   }
 
-  public String[] executeCharlie(Communication debbie, Communication eddie, String Li, String Nip1) {
+  public BigInteger[] executeCharlie(Communication debbie, Communication eddie, String Li, String Nip1) {
 	  // Access
 	  Access access = new Access(debbie, eddie);
 	  access.loadTreeSpecificParameters(currTree);
@@ -48,24 +54,36 @@ public class Retrieve extends Operation {
 	  AOutput AOut = access.executeCharlieSubTree(debbie, eddie, Li, null, Nip1);
 	  timing.access.stop();
 	  //System.out.println(timing.access);
-	  String[] output = new String[]{AOut.Lip1, AOut.secretC_Ti};
+	  //String[] output = new String[]{AOut.Lip1, AOut.secretC_Ti};
+	  BigInteger[] output = new BigInteger[]{AOut.Lip1, AOut.secretC_Ti};
 	  
 	  // PostProcessT
-	  String secretC_Ti = AOut.secretC_Ti;
-	  String secretC_Li_p = sC_Li_p[currTree];
-	  String secretC_Lip1_p = null;
+	  //String secretC_Ti = AOut.secretC_Ti;
+	  //String secretC_Li_p = sC_Li_p[currTree];
+	  //String secretC_Lip1_p = null;
+	  //if (currTree < ForestMetadata.getLevels()-1)
+	  //  secretC_Lip1_p = sC_Li_p[currTree+1];
+	  //String Lip1 = AOut.Lip1;
+	  //String Nip1_pr = Nip1.substring(ForestMetadata.getNBits(currTree));
+	  BigInteger secretC_Ti = AOut.secretC_Ti;
+	  BigInteger secretC_Li_p = sC_Li_p[currTree];
+	  BigInteger secretC_Lip1_p = null;
 	  if (currTree < ForestMetadata.getLevels()-1)
 		  secretC_Lip1_p = sC_Li_p[currTree+1];
-	  String Lip1 = AOut.Lip1;
-	  String Nip1_pr = Nip1.substring(ForestMetadata.getNBits(currTree));
+	  BigInteger Lip1 = AOut.Lip1;
+	  BigInteger Nip1_pr = BigInteger.ZERO;
+	  if (Nip1.substring(ForestMetadata.getNBits(currTree)).length() > 0)
+		  Nip1_pr = new BigInteger(Nip1.substring(ForestMetadata.getNBits(currTree)), 2);
 	  PostProcessT ppt = new PostProcessT(debbie, eddie);
 	  ppt.loadTreeSpecificParameters(currTree);
 	  timing.post.start();
-	  String secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, Li, null, new String[]{secretC_Ti, secretC_Li_p, secretC_Lip1_p, Lip1, Nip1_pr});
+	  //String secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, Li, null, new String[]{secretC_Ti, secretC_Li_p, secretC_Lip1_p, Lip1, Nip1_pr});
+	  String secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, Li, null, new BigInteger[]{secretC_Ti, secretC_Li_p, secretC_Lip1_p, Lip1, Nip1_pr});
 	  timing.post.stop();
 	  
 	  // Reshuffle
-	  String secretC_P_p = AOut.secretC_P_p;
+	  //String secretC_P_p = AOut.secretC_P_p;
+	  BigInteger secretC_P_p = AOut.secretC_P_p;
 	  Reshuffle rs = new Reshuffle(debbie, eddie);
 	  rs.loadTreeSpecificParameters(currTree);
 	  List<Integer> tmp = null;
@@ -112,7 +130,7 @@ public class Retrieve extends Operation {
 	  List<Integer> pi = eddie.readListInt();
 	  Reshuffle rs = new Reshuffle(charlie, eddie);
 	  rs.loadTreeSpecificParameters(currTree);
-	  String tmp = null;
+	  BigInteger tmp = null;
 	  timing.reshuffle.start();
 	  rs.executeDebbieSubTree(charlie, eddie, null, null, Pair.of(tmp, pi));
 	  timing.reshuffle.stop();
@@ -142,19 +160,23 @@ public class Retrieve extends Operation {
 	  //System.out.println(timing.access);
 	  
 	  // PostProcessT
-	  String secretE_Ti = AOut.secretE_Ti;
-	  String secretE_Li_p = sE_Li_p[currTree];
-	  String secretE_Lip1_p = null;
+	  //String secretE_Ti = AOut.secretE_Ti;
+	  //String secretE_Li_p = sE_Li_p[currTree];
+	  //String secretE_Lip1_p = null;
+	  BigInteger secretE_Ti = AOut.secretE_Ti;
+	  BigInteger secretE_Li_p = sE_Li_p[currTree];
+	  BigInteger secretE_Lip1_p = null;
 	  if (currTree < ForestMetadata.getLevels()-1)
 		  secretE_Lip1_p = sE_Li_p[currTree+1];
 	  PostProcessT ppt = new PostProcessT(charlie, debbie);
 	  ppt.loadTreeSpecificParameters(currTree);
 	  timing.post.start();
-	  String secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_Ti, secretE_Li_p, secretE_Lip1_p});
+	  String secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{secretE_Ti, secretE_Li_p, secretE_Lip1_p});
 	  timing.post.stop();
 	  
 	  // Reshuffle
-	  String secretE_P_p = AOut.secretE_P_p;
+	  //String secretE_P_p = AOut.secretE_P_p;
+	  BigInteger secretE_P_p = AOut.secretE_P_p;
 	  List<Integer> pi = Util.getInversePermutation(AOut.p);
 	  debbie.write(pi); // make sure D gets this pi  // TODO: move this send into Reshuffle pre-computation?
 	  Reshuffle rs = new Reshuffle(charlie, debbie);
@@ -248,10 +270,20 @@ public class Retrieve extends Operation {
 			    		Ni = N.substring(0, (i+1)*tau);
 			    	System.out.println("i=" + i + ", Li=" + Li);
 			    	con2.write(Li);
-			    	String[] outC = executeCharlie(con1, con2, Li, Ni);
-			    	Li = outC[0];
+			    	BigInteger[] outC = executeCharlie(con1, con2, Li, Ni);
+			    	int d_ip1;
+			    	if (i == h)
+			    	      d_ip1     	= ForestMetadata.getABits(i) / ForestMetadata.getTwoTauPow();
+			    	    else
+			    	      d_ip1     	= ForestMetadata.getLBits(i+1); 
+			    	Li = "";
+			    	if (outC[0] != null)
+			    		Li = Util.addZero(outC[0].toString(2), d_ip1);
 			    	if (i == h) {
-			    		String D = outC[1].substring(outC[1].length()-ForestMetadata.getDataSize()*8);
+			    		//String D = outC[1].substring(outC[1].length()-ForestMetadata.getDataSize()*8);
+			    		String outC_1 = Util.addZero(outC[1].toString(2), ForestMetadata.getTupleBits(i));
+			    		String D = outC_1.substring(outC_1.length()-ForestMetadata.getDataSize()*8);
+			    		
 			    		int record = new BigInteger(D, 2).intValue();
 			    		System.out.println("Retrieved record is: " + new BigInteger(D, 2));
 			    		System.out.println("Is record correct: " + (record==expected?"YES":"NO!!") + "\n");

@@ -1,9 +1,11 @@
 package sprout.oram.operations;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AOutput {
+	/*
   String Lip1;
   List<Integer> p;
   String secretC_Ti;
@@ -11,10 +13,19 @@ public class AOutput {
   String secretC_P_p;
   String secretE_P_p;
   String data;
+  */
+	BigInteger Lip1;
+	  List<Integer> p;
+	  BigInteger secretC_Ti;
+	  BigInteger secretE_Ti;
+	  BigInteger secretC_P_p;
+	  BigInteger secretE_P_p;
+	  BigInteger data;
   
   AOutput() {}
   
-  AOutput(String l, List<Integer> per, String ct, String et, String cp, String ep, String d) {
+  //AOutput(String l, List<Integer> per, String ct, String et, String cp, String ep, String d) {
+  AOutput(BigInteger l, List<Integer> per, BigInteger ct, BigInteger et, BigInteger cp, BigInteger ep, BigInteger d) {
     Lip1 = l;
     if (per != null)
       p = new ArrayList<Integer>(per);
@@ -25,6 +36,7 @@ public class AOutput {
     data = d;
   }
   
+  /*
   @Override
   public String toString() {
     String out = "";
@@ -47,4 +59,5 @@ public class AOutput {
     
     return out;
   }
+  */
 }

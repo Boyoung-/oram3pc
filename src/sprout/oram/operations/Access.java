@@ -145,6 +145,9 @@ public class Access extends TreeOperation<AOutput, String> {
     
   //sanityCheck();
     // C outputs Lip1, secretC_Ti, secretC_P_p    
+    return new AOutput(Lip1, null, secretC_Ti, null, secretC_P_p, null, d);
+    
+    /*
     String out_Lip1, out_secretC_P_p, out_d;
     if (Lip1 == null)
     	out_Lip1 = "";
@@ -160,6 +163,7 @@ public class Access extends TreeOperation<AOutput, String> {
     else
     	out_d = Util.addZero(d.toString(2), twotaupow*d_ip1);
     return new AOutput(out_Lip1, null, Util.addZero(secretC_Ti.toString(2), tupleBits), null, out_secretC_P_p, null, out_d);
+    */
   }
   
   @Override
@@ -326,9 +330,13 @@ public class Access extends TreeOperation<AOutput, String> {
     
     //sanityCheck();
     // E outputs secretE_Ti and secretE_P_p
+    return new AOutput(null, DecOut.p, null, secretE_Ti, null, secretE_P_p, null);
+    
+    /*
     if (secretE_P_p == null)
     	return new AOutput(null, DecOut.p, null, Util.addZero(secretE_Ti.toString(2), tupleBits), null, "", null);
     return new AOutput(null, DecOut.p, null, Util.addZero(secretE_Ti.toString(2), tupleBits), null, Util.addZero(secretE_P_p.toString(2), tupleBits*pathTuples), null);
+  */
   }
 
   @Override

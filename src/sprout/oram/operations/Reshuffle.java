@@ -15,7 +15,7 @@ import sprout.util.Util;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>> {
+public class Reshuffle extends TreeOperation<String, Pair<BigInteger, List<Integer>>> {
 
 	public Reshuffle() {
 		super(null, null);
@@ -28,11 +28,13 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
 
   @Override
   public String executeCharlieSubTree(Communication debbie,
-      Communication eddie, String Li, Tree OT, Pair<String, List<Integer>> extraArgs) {
+      Communication eddie, String Li, Tree OT, Pair<BigInteger, List<Integer>> extraArgs) {
 	    debbie.countBandwidth = false;
 	    eddie.countBandwidth = false;
 	  
-    String secretC_P = extraArgs.getLeft();
+    String secretC_P = "";
+    if (extraArgs.getLeft() != null)
+    	secretC_P = Util.addZero(extraArgs.getLeft().toString(2), tupleBits*pathTuples);
     
     // i = 0 case: no shuffle needed
     if (i == 0) {
@@ -104,7 +106,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
   @Override
   public String executeDebbieSubTree(Communication charlie,
       Communication eddie, BigInteger k, Tree OT,
-      Pair<String, List<Integer>> extraArgs) {
+      Pair<BigInteger, List<Integer>> extraArgs) {
 	    charlie.countBandwidth = false;
 		  eddie.countBandwidth = false;	  
 		  
@@ -183,11 +185,13 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
 
   @Override
   public String executeEddieSubTree(Communication charlie,
-      Communication debbie, Tree OT, Pair<String, List<Integer>> extraArgs) {
+      Communication debbie, Tree OT, Pair<BigInteger, List<Integer>> extraArgs) {
 	    charlie.countBandwidth = false;
 		  debbie.countBandwidth = false;
 		  
-    String secretE_P = extraArgs.getLeft();
+    String secretE_P = "";
+    if (extraArgs.getLeft() != null)
+    	secretE_P = Util.addZero(extraArgs.getLeft().toString(2), pathTuples*tupleBits);
     List<Integer> pi = extraArgs.getRight();
     
     // i = 0 case: no shuffle needed
@@ -258,6 +262,7 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     return secretE_pi_P;
   }
 
+  /*
   @Override
   public Pair<String, List<Integer>> prepareArgs() {
     String secret_P = Util.addZero(new BigInteger(bucketBits*pathBuckets, SR.rand).toString(2), bucketBits*pathBuckets);
@@ -274,4 +279,5 @@ public class Reshuffle extends TreeOperation<String, Pair<String, List<Integer>>
     
     return Pair.of(secret_P, pi);
   }
+  */
 }

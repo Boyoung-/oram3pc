@@ -15,7 +15,7 @@ import sprout.util.Util;
 
 // TODO: This operation is unlike the other TreeOperations we may want to 
 //   Extend Operation ourselves, or redefine execute & run
-public class PostProcessT extends TreeOperation<String, String[]>{
+public class PostProcessT extends TreeOperation<String, BigInteger[]>{
 	
 	public PostProcessT() {
 		super(null, null);
@@ -27,19 +27,23 @@ public class PostProcessT extends TreeOperation<String, String[]>{
 
   @Override
   public String executeCharlieSubTree(Communication debbie, Communication eddie, 
-		  String Li, Tree u2, String[] extraArgs) {
+		  String Li, Tree u2, BigInteger[] extraArgs) {
     if (extraArgs.length != 5) {
       throw new IllegalArgumentException("Must supply sC_Ti, sC_Li_p, sC_Lip1_p, Lip1, Nip1_pr to charlie");
     }
     
-    String secretC_Ti = extraArgs[0];
-    String secretC_Li_p = extraArgs[1];
-    String secretC_Lip1_p = extraArgs[2];
-    String Lip1 = extraArgs[3];
-    String Nip1_pr = extraArgs[4];
+    String secretC_Ti = Util.addZero(extraArgs[0].toString(2), tupleBits);
+    String secretC_Li_p = Util.addZero(extraArgs[1].toString(2), lBits);
+    String secretC_Lip1_p = "";
+    if (extraArgs[2] != null) 
+    	secretC_Lip1_p = Util.addZero(extraArgs[2].toString(2), d_ip1);
+    String Lip1 = "";
+    if (extraArgs[3] != null)
+    	Lip1 = Util.addZero(extraArgs[3].toString(2), d_ip1);
+    BigInteger Nip1_pr = extraArgs[4];
     int Nip1_pr_int = 0;
     if (i < h)
-    	Nip1_pr_int = new BigInteger(Nip1_pr, 2).intValue();
+    	Nip1_pr_int = Nip1_pr.intValue();
     
     /*
     ////////////////////////below are for checking correctness /////////////////////
@@ -155,7 +159,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
 
   @Override
   public String executeDebbieSubTree(Communication charlie, Communication eddie, 
-		  BigInteger u1, Tree u3, String[] u4) {
+		  BigInteger u1, Tree u3, BigInteger[] u4) {
     if (i == h) {
       return null;    
     }
@@ -224,14 +228,16 @@ public class PostProcessT extends TreeOperation<String, String[]>{
 
   @Override
   public String executeEddieSubTree(Communication charlie, Communication debbie, 
-		  Tree u2, String[] extraArgs) {
+		  Tree u2, BigInteger[] extraArgs) {
     if (extraArgs.length != 3) {
       throw new IllegalArgumentException("Must supply sE_Ti, sE_Li_p, and sE_Lip1_p to eddie");
     }
     
-    String secretE_Ti = extraArgs[0];
-    String secretE_Li_p = extraArgs[1];
-    String secretE_Lip1_p = extraArgs[2];
+    String secretE_Ti = Util.addZero(extraArgs[0].toString(2), tupleBits);
+    String secretE_Li_p = Util.addZero(extraArgs[1].toString(2), lBits);
+    String secretE_Lip1_p = "";
+    if (extraArgs[2] != null) 
+    	secretE_Lip1_p = Util.addZero(extraArgs[2].toString(2), d_ip1);
     
     /*
     ////////////////////////below are for checking correctness /////////////////////
@@ -318,6 +324,7 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     return secretE_Ti_p;
   }
   
+  /*
   @Override
   public String [] prepareArgs(Party party) {
     String Lip1       = Util.addZero(new BigInteger(d_ip1, SR.rand).toString(2), d_ip1);
@@ -337,5 +344,5 @@ public class PostProcessT extends TreeOperation<String, String[]>{
     
     return null;
   }
-
+*/
 }
