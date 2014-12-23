@@ -15,7 +15,7 @@ import sprout.util.Util;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-public class Reshuffle extends TreeOperation<String, Pair<BigInteger, List<Integer>>> {
+public class Reshuffle extends TreeOperation<BigInteger, Pair<BigInteger, List<Integer>>> {
 
 	public Reshuffle() {
 		super(null, null);
@@ -27,7 +27,7 @@ public class Reshuffle extends TreeOperation<String, Pair<BigInteger, List<Integ
   
 
   @Override
-  public String executeCharlieSubTree(Communication debbie,
+  public BigInteger executeCharlieSubTree(Communication debbie,
       Communication eddie, String Li, Tree OT, Pair<BigInteger, List<Integer>> extraArgs) {
 	    debbie.countBandwidth = false;
 	    eddie.countBandwidth = false;
@@ -36,9 +36,7 @@ public class Reshuffle extends TreeOperation<String, Pair<BigInteger, List<Integ
     
     // i = 0 case: no shuffle needed
     if (i == 0) {
-    	if (secretC_P == null)
-    		return "";
-      return Util.addZero(secretC_P.toString(2), tupleBits*pathTuples);
+    	return secretC_P;
     }
     
     // precomputation
@@ -92,11 +90,11 @@ public class Reshuffle extends TreeOperation<String, Pair<BigInteger, List<Integ
     debbie.bandwidth[PID.reshuffle].stop();
     eddie.bandwidth[PID.reshuffle].stop();
     
-    return Util.addZero(secretC_pi_P.toString(2), bucketBits*pathBuckets);
+    return secretC_pi_P;
   }
 
   @Override
-  public String executeDebbieSubTree(Communication charlie,
+  public BigInteger executeDebbieSubTree(Communication charlie,
       Communication eddie, BigInteger k, Tree OT,
       Pair<BigInteger, List<Integer>> extraArgs) {
 	    charlie.countBandwidth = false;
@@ -176,7 +174,7 @@ public class Reshuffle extends TreeOperation<String, Pair<BigInteger, List<Integ
   }
 
   @Override
-  public String executeEddieSubTree(Communication charlie,
+  public BigInteger executeEddieSubTree(Communication charlie,
       Communication debbie, Tree OT, Pair<BigInteger, List<Integer>> extraArgs) {
 	    charlie.countBandwidth = false;
 		  debbie.countBandwidth = false;
@@ -186,9 +184,7 @@ public class Reshuffle extends TreeOperation<String, Pair<BigInteger, List<Integ
     
     // i = 0 case: no shuffle needed
     if (i == 0) {
-    	if (secretE_P == null)
-    		return "";
-      return Util.addZero(secretE_P.toString(2), tupleBits*pathTuples);
+    	return secretE_P;
     }
 	  
 	  // precomputation
@@ -218,34 +214,23 @@ public class Reshuffle extends TreeOperation<String, Pair<BigInteger, List<Integ
     BigInteger z = charlie.readBigInteger();
     timing.reshuffle_read.stop();
     
-    //timing.reshuffle_online.start();
-    //String z = Util.addZero(new BigInteger(1, z_byte).toString(2), bucketBits);
-    //timing.reshuffle_online.stop();
-    
     // step 2
     // D sends s2 to E
     
     // step 4
     // party E    
     timing.reshuffle_online.start();
-    //String b_all = Util.addZero(secretE_P.xor(z).xor(new BigInteger(1, p2)).toString(2), pathBuckets*bucketBits);
     BigInteger b_all = secretE_P.xor(z).xor(new BigInteger(1, p2));
-    //String[] b = new String[pathBuckets];
     BigInteger[] b = new BigInteger[pathBuckets];
-    //for (int j=0; j<pathBuckets; j++)
-    //  b[j] = b_all.substring(j*bucketBits, (j+1)*bucketBits);
     BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(BigInteger.ONE);
     BigInteger tmp = b_all;
     for (int j=pathBuckets-1; j>=0; j--) {
     	b[j] = tmp.and(helper);
     	tmp = tmp.shiftRight(d_ip1);
     }
-    //String[] secretE_pi_P_arr = Util.permute(b, pi);
-    //String secretE_pi_P = "";
     BigInteger[] secretE_pi_P_arr = Util.permute(b, pi);
     BigInteger secretE_pi_P = BigInteger.ZERO;
     for (int j=0; j<pathBuckets; j++)
-      //secretE_pi_P += secretE_pi_P_arr[j];
     	secretE_pi_P.shiftLeft(bucketBits).xor(secretE_pi_P_arr[j]);
     timing.reshuffle_online.stop();
     
@@ -255,7 +240,7 @@ public class Reshuffle extends TreeOperation<String, Pair<BigInteger, List<Integ
 	  debbie.bandwidth[PID.reshuffle].stop();
     
     // E outputs secretE_pi_P
-    return Util.addZero(secretE_pi_P.toString(2), bucketBits*pathBuckets);
+    return secretE_pi_P;
   }
 
   /*

@@ -37,29 +37,44 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 	  
 	  // protocol
 	  // step 1
-    String sC_P_p = Util.addZero(extraArgs[0].toString(2), tupleBits*pathTuples);
-    String sC_T_p = Util.addZero(extraArgs[1].toString(2), tupleBits);
+    BigInteger sC_P_p = extraArgs[0];
+    BigInteger sC_T_p = extraArgs[1];
     
     for (int j=0; j<d_i; j++) {
 		timing.eviction_online.start();
-		String sC_fb = "";
-		String sC_dir = "";
-		String sC_bucket = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits);
+		//String sC_fb = "";
+		//String sC_dir = "";
+		//String sC_bucket = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits);
+		BigInteger sC_fb = BigInteger.ZERO;
+		BigInteger sC_dir = BigInteger.ZERO;
+		BigInteger sC_bucket = Util.getSubBits(sC_P_p, (d_i-j-1)*bucketBits, (d_i-j)*bucketBits);
+		//for (int l=0; l<w; l++) {
+		//	String sC_tuple = sC_bucket.substring(l*tupleBits, (l+1)*tupleBits);
+		//	sC_fb += sC_tuple.substring(0, 1);
+		//	sC_dir += sC_tuple.substring(1+nBits, 1+nBits+lBits).substring(j, j+1);
+		//}
+		//String sC_input = "00" + sC_dir + sC_fb; // enable + dir + fb
 		for (int l=0; l<w; l++) {
-			String sC_tuple = sC_bucket.substring(l*tupleBits, (l+1)*tupleBits);
-			sC_fb += sC_tuple.substring(0, 1);
-			sC_dir += sC_tuple.substring(1+nBits, 1+nBits+lBits).substring(j, j+1);
+			BigInteger sC_tuple = Util.getSubBits(sC_bucket, (w-l-1)*tupleBits, (w-l)*tupleBits);
+			sC_fb = sC_fb.shiftLeft(1);
+			if (sC_tuple.testBit(tupleBits-1))
+				sC_fb.setBit(0);
+			int bit = (sC_tuple.testBit(lBits-j-1+aBits)?1:0);
+			sC_dir = sC_dir.shiftLeft(1);
+			if (bit == 1)
+				sC_dir.setBit(0);
 		}
-		String sC_input = "00" + sC_dir + sC_fb; // enable + dir + fb
+		BigInteger sC_input = sC_dir.shiftLeft(w).xor(sC_fb);
 		timing.eviction_online.stop();
 		
 		timing.gcf.start();
-		gcf.executeC(debbie, eddie, w*2+2, sC_input);
+		gcf.executeC(debbie, eddie, w*2+2, Util.addZero(sC_input.toString(2), w*2+2));
 		timing.gcf.stop();
 	}
     
     	// step 2
     	timing.eviction_online.start();
+    	/*
  		String sC_fb = "00";
  		for (int j=d_i; j<pathBuckets; j++) {
  			String sC_bucket = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits);
@@ -67,10 +82,20 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
  				sC_fb += sC_bucket.substring(l*tupleBits, l*tupleBits+1);
  			}
  		}
+ 		*/
+    	BigInteger sC_fb = BigInteger.ZERO;
+ 		for (int j=d_i; j<pathBuckets; j++) {
+ 			BigInteger sC_bucket = Util.getSubBits(sC_P_p, (pathBuckets-j-1)*bucketBits, (pathBuckets-j)*bucketBits);
+ 			for (int l=0; l<w; l++) {
+ 				sC_fb = sC_fb.shiftLeft(1);
+ 				if (sC_bucket.testBit((w-l)*tupleBits-1))
+ 					sC_fb.setBit(0);
+ 			}
+ 		}
  		timing.eviction_online.stop();
  		
  		timing.gcf.start();
- 		gcf.executeC(debbie, eddie, w*expen+2, sC_fb);
+ 		gcf.executeC(debbie, eddie, w*expen+2, Util.addZero(sC_fb.toString(2), w*expen+2));
  		timing.gcf.stop();
  		
  	// step 3
@@ -81,9 +106,10 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
  			String[] sC_a = new String[k+2];
  			for (int j=0; j<pathBuckets; j++)
  				for (int l=0; l<w; l++) {
- 					sC_a[w*j+l] = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits).substring(l*tupleBits, (l+1)*tupleBits);
+ 					//sC_a[w*j+l] = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits).substring(l*tupleBits, (l+1)*tupleBits);
+ 					sC_a[w*j+l] = Util.addZero(Util.getSubBits(sC_P_p, (pathBuckets-j-1)*bucketBits+(w-l-1)*tupleBits, (pathBuckets-j-1)*bucketBits+(w-l)*tupleBits).toString(2), tupleBits);
  				}
- 			sC_a[k] = sC_T_p;
+ 			sC_a[k] = Util.addZero(sC_T_p.toString(2), tupleBits);
  			sC_a[k+1] = Util.addZero(new BigInteger(tupleBits-1, SR.rand).toString(2), tupleBits);
  			timing.eviction_online.stop();
  			
@@ -221,41 +247,48 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 	  
 	  // protocol
 	  // step 1
-    String sE_P_p = Util.addZero(extraArgs[0].toString(2), tupleBits*pathTuples);
-    String sE_T_p = Util.addZero(extraArgs[1].toString(2), tupleBits);
-    String Li = Util.addZero(extraArgs[2].toString(2), lBits);
+    BigInteger sE_P_p = extraArgs[0];
+    BigInteger sE_T_p = extraArgs[1];
+    BigInteger Li = extraArgs[2];
     
     for (int j=0; j<d_i; j++) {
 		timing.eviction_online.start();
-		String sE_fb = "";
-		String sE_dir = "";
-		String sE_bucket = sE_P_p.substring(j*bucketBits, (j+1)*bucketBits);
+		BigInteger sE_fb = BigInteger.ZERO;
+		BigInteger sE_dir = BigInteger.ZERO;
+		BigInteger sE_bucket = Util.getSubBits(sE_P_p, (d_i-j-1)*bucketBits, (d_i-j)*bucketBits);
 		for (int l=0; l<w; l++) {
-			String sE_tuple = sE_bucket.substring(l*tupleBits, (l+1)*tupleBits);
-			sE_fb += sE_tuple.substring(0, 1);
-			sE_dir += (Character.getNumericValue(sE_tuple.substring(1+nBits, 1+nBits+lBits).charAt(j))^1^Character.getNumericValue(Li.charAt(j)));
+			BigInteger sE_tuple = Util.getSubBits(sE_bucket, (w-l-1)*tupleBits, (w-l)*tupleBits);
+			sE_fb = sE_fb.shiftLeft(1);
+			if (sE_tuple.testBit(tupleBits-1))
+				sE_fb.setBit(0);
+			int bit = (sE_tuple.testBit(lBits-j-1+aBits)?1:0)^1^(Li.testBit(lBits-j-1)?1:0);
+			sE_dir = sE_dir.shiftLeft(1);
+			if (bit == 1)
+				sE_dir.setBit(0);
 		}
-		String sE_input = "00" + sE_dir + sE_fb; // enable + dir + fb
+		BigInteger sE_input = sE_dir.shiftLeft(w).xor(sE_fb);
 		timing.eviction_online.stop();
 		
 		timing.gcf.start();
-		gcf.executeE(charlie, debbie, "F2FT", w*2+2, sE_input);
+		gcf.executeE(charlie, debbie, "F2FT", w*2+2, Util.addZero(sE_input.toString(2), w*2+2));
 		timing.gcf.stop();
 	}
     
     	// step 2
     	timing.eviction_online.start();
- 		String sE_fb = "00";
+    	BigInteger sE_fb = BigInteger.ZERO;
  		for (int j=d_i; j<pathBuckets; j++) {
- 			String sE_bucket = sE_P_p.substring(j*bucketBits, (j+1)*bucketBits);
+ 			BigInteger sE_bucket = Util.getSubBits(sE_P_p, (pathBuckets-j-1)*bucketBits, (pathBuckets-j)*bucketBits);
  			for (int l=0; l<w; l++) {
- 				sE_fb += sE_bucket.substring(l*tupleBits, l*tupleBits+1);
+ 				sE_fb = sE_fb.shiftLeft(1);
+ 				if (sE_bucket.testBit((w-l)*tupleBits-1))
+ 					sE_fb.setBit(0);
  			}
  		}
  		timing.eviction_online.stop();
  		
  		timing.gcf.start();
- 		gcf.executeE(charlie, debbie, "F2ET", w*expen+2, sE_fb);
+ 		gcf.executeE(charlie, debbie, "F2ET", w*expen+2, Util.addZero(sE_fb.toString(2), w*expen+2));
  		timing.gcf.stop();
  		
  	// step 3
@@ -266,9 +299,9 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
  			timing.eviction_online.start();
  			for (int j=0; j<pathBuckets; j++)
  				for (int l=0; l<w; l++) {
- 					sE_a[w*j+l] = sE_P_p.substring(j*bucketBits, (j+1)*bucketBits).substring(l*tupleBits, (l+1)*tupleBits);
+ 					sE_a[w*j+l] = Util.addZero(Util.getSubBits(sE_P_p, (pathBuckets-j-1)*bucketBits+(w-l-1)*tupleBits, (pathBuckets-j-1)*bucketBits+(w-l)*tupleBits).toString(2), tupleBits);
  				}
- 			sE_a[k] = sE_T_p;
+ 			sE_a[k] = Util.addZero(sE_T_p.toString(2), tupleBits);
  			sE_a[k+1] = Util.addZero(new BigInteger(tupleBits-1, SR.rand).toString(2), tupleBits);
  			timing.eviction_online.stop();
  			

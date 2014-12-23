@@ -71,14 +71,14 @@ public class Retrieve extends Operation {
 	  rs.loadTreeSpecificParameters(currTree);
 	  List<Integer> tmp = null;
 	  timing.reshuffle.start();
-	  String secretC_pi_P = rs.executeCharlieSubTree(debbie, eddie, null, null, Pair.of(secretC_P_p, tmp));
+	  BigInteger secretC_pi_P = rs.executeCharlieSubTree(debbie, eddie, null, null, Pair.of(secretC_P_p, tmp));
 	  timing.reshuffle.stop();
 	  
 	  // Eviction
 	  Eviction evict = new Eviction(debbie, eddie);
 	  evict.loadTreeSpecificParameters(currTree);
 	  timing.eviction.start();
-	  BigInteger secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, null, new BigInteger[]{secretC_pi_P.equals("")?null:new BigInteger(secretC_pi_P, 2), secretC_Ti_p});
+	  BigInteger secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, null, new BigInteger[]{secretC_pi_P, secretC_Ti_p});
 	  timing.eviction.stop();
 	  if (currTree == 0)
 		  secretC_P_pp = secretC_Ti_p;
@@ -160,14 +160,14 @@ public class Retrieve extends Operation {
 	  Reshuffle rs = new Reshuffle(charlie, debbie);
 	  rs.loadTreeSpecificParameters(currTree);
 	  timing.reshuffle.start();
-	  String secretE_pi_P = rs.executeEddieSubTree(charlie, debbie, null, Pair.of(secretE_P_p, pi));
+	  BigInteger secretE_pi_P = rs.executeEddieSubTree(charlie, debbie, null, Pair.of(secretE_P_p, pi));
 	  timing.reshuffle.stop();
 	  
 	  // Eviction
 	  Eviction evict = new Eviction(charlie, debbie);
 	  evict.loadTreeSpecificParameters(currTree);
 	  timing.eviction.start();
-	  BigInteger secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{secretE_pi_P.equals("")?null:new BigInteger(secretE_pi_P, 2), secretE_Ti_p, Li.equals("")?null:new BigInteger(Li, 2)});
+	  BigInteger secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{secretE_pi_P, secretE_Ti_p, Li.equals("")?null:new BigInteger(Li, 2)});
 	  timing.eviction.stop();
 	  if (currTree == 0)
 		  secretE_P_pp = secretE_Ti_p;
