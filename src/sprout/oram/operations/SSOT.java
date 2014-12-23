@@ -18,13 +18,14 @@ public class SSOT extends Operation {
     super(con1, con2);
   }
   
-  public String[] executeC(Communication I, Communication E, String[] sC) {
+  public BigInteger[] executeC(Communication I, Communication E, BigInteger[] sC, int length) {
 	  IOT iot = new IOT(I, E);
 	  
 	  I.countBandwidth = false;
 	    E.countBandwidth = false;
 	    
-    int l = sC[0].length();
+    //int l = sC[0].length();
+	    int l = length; //TODO: remove this?
     I.write(l);
     
     I.countBandwidth = true;
@@ -38,11 +39,11 @@ public class SSOT extends Operation {
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I
     timing.iot.start();
-    String[] a = iot.executeR(I, E);
+    BigInteger[] a = iot.executeR(I, E);
     
     // step 3
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-    iot.executeS(E, I, sC);
+    iot.executeS(E, I, sC, length);
     timing.iot.stop();
     
     I.countBandwidth = false;
@@ -75,9 +76,9 @@ public class SSOT extends Operation {
     // step 1
     // party I
     timing.ssot_online.start();
-    String[] delta = new String[k];
+    BigInteger[] delta = new BigInteger[k];
     for (int o=0; o<k; o++)
-      delta[o] = Util.addZero(new BigInteger(l, SR.rand).toString(2), l);
+      delta[o] = new BigInteger(l, SR.rand); // TODO: generate once?
     timing.ssot_online.stop();
     
     // step 2
@@ -96,7 +97,7 @@ public class SSOT extends Operation {
     C.bandwidth[PID.ssot].stop();
   }
   
-  public String[] executeE(Communication C, Communication I, String[] sE) {
+  public BigInteger[] executeE(Communication C, Communication I, BigInteger[] sE, int length) {
 	  IOT iot = new IOT(C, I);
 	  
 	    I.countBandwidth = false;
@@ -115,11 +116,11 @@ public class SSOT extends Operation {
     // step 2
     // parties run IOT(E, C, I) on inputs sE for E and i, delta for I
 	  timing.iot.start();
-    iot.executeS(C, I, sE);
+    iot.executeS(C, I, sE, length);
     
     // step 3
     // parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-    String[] b = iot.executeR(I, C);
+    BigInteger[] b = iot.executeR(I, C);
     timing.iot.stop();
     
     I.countBandwidth = false;

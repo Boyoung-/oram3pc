@@ -22,13 +22,14 @@ public class IOT extends Operation {
     super(con1, con2);
   }
   
-  public void executeS(Communication R, Communication I, String[] m) {
+  public void executeS(Communication R, Communication I, BigInteger[] m, int length) {
 	  I.countBandwidth = false;
 	    R.countBandwidth = false;
 	    
     // parameters
     int N = m.length;
-    int l = m[0].length();
+    //int l = m[0].length();
+    int l = length;
     
     I.write(N);
     I.write(l);
@@ -36,7 +37,7 @@ public class IOT extends Operation {
     
     // Pre-computed inputs
     Integer[] pi = I.readIntegerArray();
-    String[] r = I.readStringArray();
+    BigInteger[] r = I.readBigIntegerArray();
     
     I.countBandwidth = true;
     R.countBandwidth = true;
@@ -48,10 +49,10 @@ public class IOT extends Operation {
     // protocol
     // step 1
     // party S
-    byte[][] a = new byte[N][];
+    BigInteger[] a = new BigInteger[N];
     timing.iot_online.start();
     for (int o=0; o<N; o++)
-      a[o] = new BigInteger(m[pi[o]], 2).xor(new BigInteger(r[o], 2)).toByteArray();
+      a[o] = m[pi[o]].xor(r[o]);
     timing.iot_online.stop();
     
     // S sends a to R
@@ -66,7 +67,7 @@ public class IOT extends Operation {
     R.bandwidth[PID.iot].stop();
   }
   
-  public String[] executeR(Communication I, Communication S) {
+  public BigInteger[] executeR(Communication I, Communication S) {
 	  I.countBandwidth = false;
 	    S.countBandwidth = false;
 	    
@@ -86,7 +87,7 @@ public class IOT extends Operation {
     // S sends a to R
     //sanityCheck(S);
     timing.iot_read.start();
-    byte[][] a = S.readDoubleByteArray();
+    BigInteger[] a = S.readBigIntegerArray();
     timing.iot_read.stop();
     
     // step 2
@@ -94,15 +95,15 @@ public class IOT extends Operation {
     //sanityCheck(I);
     timing.iot_read.start();
     Integer[] j = I.readIntegerArray();
-    byte[][] p = I.readDoubleByteArray();
+    BigInteger[] p = I.readBigIntegerArray();
     timing.iot_read.stop();
     
     // step 3
     // party R
-    String[] z = new String[k];
+    BigInteger[] z = new BigInteger[k];
     timing.iot_online.start();
     for (int o=0; o<k; o++)
-      z[o] = Util.addZero(new BigInteger(1, a[j[o]]).xor(new BigInteger(1, p[o])).toString(2), l);
+      z[o] = a[j[o]].xor(p[o]);
     timing.iot_online.stop();
     
     I.countBandwidth = false;
@@ -114,7 +115,7 @@ public class IOT extends Operation {
     return z;
   }
   
-  public void executeI(Communication R, Communication S, Integer[] i, String[] delta) throws NoSuchAlgorithmException {
+  public void executeI(Communication R, Communication S, Integer[] i, BigInteger[] delta) throws NoSuchAlgorithmException {
 	  S.countBandwidth = false;
 	    R.countBandwidth = false;
 	    
@@ -133,10 +134,14 @@ public class IOT extends Operation {
     List<Integer> pi_ivs = Util.getInversePermutation(pi); // inverse permutation   
     byte[] s = SR.rand.generateSeed(16);
     PRG G = new PRG(N*l);
-    String r_all = G.generateBitString(N*l, s);
-    String[] r = new String[N];
-    for (int o=0; o<N; o++)
-      r[o] = r_all.substring(o*l, (o+1)*l);
+    BigInteger r_all = new BigInteger(1, G.compute(s));
+    BigInteger[] r = new BigInteger[N];
+    BigInteger helper = BigInteger.ONE.shiftLeft(l).subtract(BigInteger.ONE);
+    BigInteger tmp = r_all;
+    for (int o=N-1; o>=0; o--) {
+    	r[o] = tmp.and(helper);
+    	tmp = tmp.shiftRight(l);
+    }
     // I sends S pi and r
     S.write(pi.toArray(new Integer[0]));
     S.write(r);
@@ -152,11 +157,11 @@ public class IOT extends Operation {
     // step 2
     // party I
     Integer[] j = new Integer[k];
-    byte[][] p = new byte[k][];
+    BigInteger[] p = new BigInteger[k];
     timing.iot_online.start();
     for (int o=0; o<k; o++) {
       j[o] = pi_ivs.get(i[o]);
-      p[o] = new BigInteger(r[j[o]], 2).xor(new BigInteger(delta[o], 2)).toByteArray();
+      p[o] = r[j[o]].xor(delta[o]);
     }
     timing.iot_online.stop();
     
