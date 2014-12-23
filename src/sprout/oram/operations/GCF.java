@@ -21,13 +21,10 @@ public class GCF extends Operation {
     super(con1, con2);
   }
 
-public void executeE(Communication C, Communication D, String circuit, int n, String sE) {
+public void executeE(Communication C, Communication D, String circuit, int n, BigInteger sE) {
 	C.countBandwidth = false;
 	D.countBandwidth = false;
-	
-	  // this line is only for checking correctness; should be removed for real execution
-	  //D.write(sE);
-    
+		     
 	// precomputation
 	timing.gcf_offline.start();
     // setup circuit
@@ -79,7 +76,8 @@ public void executeE(Communication C, Communication D, String circuit, int n, St
 	BigInteger[] K_E = new BigInteger[n];
 	for (int i=0; i<n; i++) {
 		timing.gcf_online.start();
-		int alpha = Character.getNumericValue(sE.charAt(i));
+		//int alpha = Character.getNumericValue(sE.charAt(i));
+		int alpha = sE.testBit(n-i-1)?1:0;
 		A[i][0] = lbs[i][alpha];
 		A[i][1] = lbs[i][1-alpha];
 		timing.gcf_online.stop();
@@ -102,10 +100,7 @@ public void executeE(Communication C, Communication D, String circuit, int n, St
 	  D.bandwidth[PID.gcf].stop();
   }
   
-  public void executeC(Communication D, Communication E, int n, String sC) {
-	  // this line is only for checking correctness; should be removed for real execution
-	  //D.write(sC);
-	  
+  public void executeC(Communication D, Communication E, int n, BigInteger sC) {	  
 	  E.countBandwidth = true;
 	  D.countBandwidth = true;
 	  E.bandwidth[PID.gcf].start();
@@ -123,7 +118,8 @@ public void executeE(Communication C, Communication D, String circuit, int n, St
 		  A[i] = E.readBigIntegerArray();
 		  timing.gcf_read.stop();
 		  timing.gcf_online.start();
-		  int beta = Character.getNumericValue(sC.charAt(i));
+		  //int beta = Character.getNumericValue(sC.charAt(i));
+		  int beta = sC.testBit(n-i-1)?1:0;
 		  K_C[i] = A[i][beta];
 		  timing.gcf_online.stop();
 	  }
@@ -138,15 +134,9 @@ public void executeE(Communication C, Communication D, String circuit, int n, St
 	  D.bandwidth[PID.gcf].stop();
   }
   
-  public String executeD(Communication C, Communication E, String circuit, int n) {
+  public BigInteger executeD(Communication C, Communication E, String circuit, int n) {
 	  C.countBandwidth = false;
 	  E.countBandwidth = false;
-	  
-	  // these lines are only for checking correctness; should be removed for real execution
-	  //String sE = E.readString();
-	  //String sC = C.readString();
-	  //String input = Util.addZero(new BigInteger(sE, 2).xor(new BigInteger(sC, 2)).toString(2), n);
-	  //System.out.println("--- D: input:\t" + input);
 	  
 	  // precomputation
 		timing.gcf_offline.start();
@@ -204,11 +194,11 @@ public void executeE(Communication C, Communication D, String circuit, int n, St
 			  output = output.setBit(length-1-i);
 	  }
 	  
-	  String out = output.toString(2);
-		if (circuit.equals("F2ET"))
-			out = Util.addZero(out, n);
-		else
-			out = Util.addZero(out, w+2);
+	  //String out = output.toString(2);
+		//if (circuit.equals("F2ET"))
+		//	out = Util.addZero(out, n);
+		//else
+		//	out = Util.addZero(out, w+2);
 		  timing.gcf_online.stop();
 		  
 		  C.countBandwidth = false;
@@ -216,7 +206,8 @@ public void executeE(Communication C, Communication D, String circuit, int n, St
 		  C.bandwidth[PID.gcf].stop();
 		  E.bandwidth[PID.gcf].stop();
 		  
-	  return out;
+	  //return out;
+		  return output;
   }
 
   @Override
