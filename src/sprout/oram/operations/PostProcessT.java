@@ -98,34 +98,32 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     
     // step 4
     // party C
-    PRG G;
-    //try {
-      G = new PRG(aBits);
-    //} catch (NoSuchAlgorithmException e1) {
-    //  e1.printStackTrace();
-    //  return null;
-    //}
+    PRG G = new PRG(aBits);
+    
     timing.post_online.start();
-    String[] a = new String[twotaupow];
-    String a_all = G.generateBitString(aBits, s);
-    for (int k=0; k<twotaupow; k++) {
-      a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
+    BigInteger[] a = new BigInteger[twotaupow];
+    BigInteger a_all = new BigInteger(1, G.compute(s));
+    BigInteger helper = BigInteger.ONE.shiftLeft(d_ip1).subtract(BigInteger.ONE);
+    BigInteger tmp = a_all;
+    for (int k=twotaupow-1; k>=0; k--) {
+    	a[k] = tmp.and(helper);
+    	tmp = tmp.shiftRight(d_ip1);
     }
     
-    String[] e = new String[twotaupow];
-    String A_C = ""; 
+    BigInteger[] e = new BigInteger[twotaupow];
+    BigInteger A_C = BigInteger.ZERO;
     for (int k=0; k<twotaupow; k++) {
-      e[k] = a[BigInteger.valueOf(k+alpha).mod(BigInteger.valueOf(twotaupow)).intValue()];
-      if (k == Nip1_pr_int)
-        e[k] = Util.addZero(new BigInteger(e[k], 2).xor(Lip1).xor(secretC_Lip1_p).xor(delta_C).toString(2), d_ip1);
-      A_C += e[k];
+    	e[k] = a[BigInteger.valueOf(k+alpha).mod(BigInteger.valueOf(twotaupow)).intValue()];
+        if (k == Nip1_pr_int)
+    		e[k] = e[k].xor(Lip1).xor(secretC_Lip1_p).xor(delta_C);
+    	A_C = A_C.shiftLeft(d_ip1).xor(e[k]);
     }
-    String triangle_C;
+    BigInteger triangle_C;
     if (i == 0)
       triangle_C = A_C;
     else
-      triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(secretC_Li_p).toString(2), lBits) + A_C;
-    String secretC_Ti_p = Util.addZero(secretC_Ti.xor(new BigInteger(triangle_C, 2)).toString(2), tupleBits);
+    	triangle_C = new BigInteger(Li, 2).xor(secretC_Li_p).shiftLeft(aBits).xor(A_C);
+    BigInteger secretC_Ti_p = secretC_Ti.xor(triangle_C);
     timing.post_online.stop();
     
     debbie.countBandwidth = false;
@@ -134,7 +132,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     eddie.bandwidth[PID.ppt].stop();
     
     // C outputs secretC_Ti_p
-    return secretC_Ti_p;
+    return Util.addZero(secretC_Ti_p.toString(2), tupleBits);
   }
 
   @Override
