@@ -172,21 +172,9 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     PRG G = new PRG(aBits);
     
     timing.post_online.start();
-    //String[] a = new String[twotaupow];
-    //byte[][] a_p = new byte[twotaupow][];
-    //String a_all = G.generateBitString(aBits, s);
     BigInteger[] a = new BigInteger[twotaupow];
     BigInteger[] a_p = new BigInteger[twotaupow];
     BigInteger a_all = new BigInteger(1, G.compute(s));
-    /*
-    for (int k=0; k<twotaupow; k++) {
-      a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
-      if (k != j_p)
-        a_p[k] = new BigInteger(a[k], 2).toByteArray();
-      else
-        a_p[k] = new BigInteger(a[k], 2).xor(delta_D).toByteArray();
-    }
-    */
     BigInteger helper = BigInteger.ONE.shiftLeft(d_ip1).subtract(BigInteger.ONE);
     BigInteger tmp = a_all;
     for (int k=twotaupow-1; k>=0; k--) {
@@ -279,26 +267,28 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     // D sends a_p to E
     timing.post_read.start();
     //byte[][] a_p_byte = debbie.readDoubleByteArray();
-    BigInteger[] a_p_byte = debbie.readBigIntegerArray();
+    BigInteger[] a_p = debbie.readBigIntegerArray();
     timing.post_read.stop();
     
     // step 5
     // party E
     timing.post_online.start();
-    String[] a_p = new String[twotaupow];
-    for (int k=0; k<twotaupow; k++)
-    	a_p[k] = Util.addZero(a_p_byte[k].toString(2), d_ip1);
+    //String[] a_p = new String[twotaupow];
+    //for (int k=0; k<twotaupow; k++)
+    //	a_p[k] = Util.addZero(a_p_byte[k].toString(2), d_ip1);
     
-    String A_E = "";
+    BigInteger A_E = BigInteger.ZERO;
     for (int k=0; k<twotaupow; k++) {
-      A_E += a_p[BigInteger.valueOf(k+alpha).mod(BigInteger.valueOf(twotaupow)).intValue()];
+      //A_E += a_p[BigInteger.valueOf(k+alpha).mod(BigInteger.valueOf(twotaupow)).intValue()];
+    	A_E = A_E.shiftLeft(d_ip1).xor(a_p[BigInteger.valueOf(k+alpha).mod(BigInteger.valueOf(twotaupow)).intValue()]);
     }
-    String triangle_E;
+    BigInteger triangle_E;
     if (i == 0)
       triangle_E = A_E;
     else
-      triangle_E = "0" + Util.addZero("", i*tau) + Util.addZero(secretE_Li_p.toString(2), lBits) + A_E;
-    String secretE_Ti_p = Util.addZero(secretE_Ti.xor(new BigInteger(triangle_E, 2)).toString(2), tupleBits);
+      //triangle_E = "0" + Util.addZero("", i*tau) + Util.addZero(secretE_Li_p.toString(2), lBits) + A_E;
+    	triangle_E = secretE_Li_p.shiftLeft(aBits).xor(A_E);
+    BigInteger secretE_Ti_p = secretE_Ti.xor(triangle_E);
     timing.post_online.stop();
     
     charlie.bandwidth[PID.ppt].stop();
@@ -307,7 +297,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
   debbie.countBandwidth = false;
     
     // E outputs secretE_Ti_p
-    return secretE_Ti_p;
+    return Util.addZero(secretE_Ti_p.toString(2), tupleBits);
   }
   
   /*
