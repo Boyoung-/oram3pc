@@ -38,17 +38,20 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
     // D sends c to C
 	    //sanityCheck(debbie);
 	  timing.encrypt_read.start();
-    byte[][] c = debbie.readDoubleByteArray();
+    BigInteger[] c = debbie.readBigIntegerArray();
     timing.encrypt_read.stop();
     
     // step 2
     // party C
-    String[] secretC_B = new String[pathBuckets];
-    byte[][] d = new byte[pathBuckets][];
+    BigInteger[] secretC_B = new BigInteger[pathBuckets];
+    BigInteger[] d = new BigInteger[pathBuckets];
     timing.encrypt_online.start();
-    for (int j=0; j<pathBuckets; j++) {
-      secretC_B[j] = Util.addZero(secretC_P.toString(2), tupleBits*pathTuples).substring(j*bucketBits, (j+1)*bucketBits);
-      d[j] = new BigInteger(1, c[j]).xor(new BigInteger(secretC_B[j], 2)).toByteArray();
+    BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(BigInteger.ONE);
+    BigInteger tmp = secretC_P;
+    for (int j=pathBuckets-1; j>=0; j--) {
+    	secretC_B[j] = tmp.and(helper);
+    	tmp = tmp.shiftRight(bucketBits);
+      d[j] = c[j].xor(secretC_B[j]);
     }
     timing.encrypt_online.stop();
     // C sends d to E
@@ -86,9 +89,9 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
       ECPoint[] v = new ECPoint[pathBuckets];
       BigInteger r;
       PRG G1 = new PRG(bucketBits*pathBuckets);
-      String[] a = new String[pathBuckets];
-      byte[][] b = new byte[pathBuckets][];
-      byte[][] c = new byte[pathBuckets][];
+      BigInteger[] a = new BigInteger[pathBuckets];
+      BigInteger[] b = new BigInteger[pathBuckets];
+      BigInteger[] c = new BigInteger[pathBuckets];
       
       timing.encrypt_online.start();
       byte[] s = SR.rand.generateSeed(16);  // 128 bits
@@ -102,13 +105,15 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
         // x[j] = oprf.randomPoint();
         // v[j] = oprf.evaluate(x[j]).getResult();
       }
-      String a_all = G1.generateBitString(bucketBits*pathBuckets, s);
-      for (int j=0; j<pathBuckets; j++) {
-        a[j] = a_all.substring(j*bucketBits, (j+1)*bucketBits);
-        PRG G2 = new PRG(bucketBits); 
-        //b[j] = G2.generateBytes(bucketBits, v[j]);
-        b[j] = G2.compute(v[j].getEncoded());
-        c[j] = new BigInteger(a[j], 2).xor(new BigInteger(1, b[j])).toByteArray();
+      PRG G2 = new PRG(bucketBits); 
+      BigInteger a_all = new BigInteger(1, G1.compute(s));
+      BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(BigInteger.ONE);
+      BigInteger tmp = a_all;
+      for (int j=pathBuckets-1; j>=0; j--) {
+    	  a[j] = tmp.and(helper);
+      	tmp = tmp.shiftRight(bucketBits);
+        b[j] = new BigInteger(1, G2.compute(v[j].getEncoded()));
+        c[j] = a[j].xor(b[j]);
       }
       timing.encrypt_online.stop();
       // D sends s and x to E
@@ -158,28 +163,33 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
       // C sends d to E
       //sanityCheck(charlie);
   	timing.encrypt_read.start();
-      byte[][] d = charlie.readDoubleByteArray();
+      BigInteger[] d = charlie.readBigIntegerArray();
       timing.encrypt_read.stop();
 
       // step 3
       // party E
       // regeneration of a[]
       PRG G1 = new PRG(bucketBits*pathBuckets);
-      String[] a = new String[pathBuckets];
+      BigInteger[] a = new BigInteger[pathBuckets];
       timing.encrypt_online.start();
-      String a_all = G1.generateBitString(bucketBits*pathBuckets, s);
-      for (int j=0; j<pathBuckets; j++) {
-        a[j] = a_all.substring(j*bucketBits, (j+1)*bucketBits);
+      BigInteger a_all = new BigInteger(1, G1.compute(s));
+      BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(BigInteger.ONE);
+      BigInteger tmp = a_all;
+      for (int j=pathBuckets-1; j>=0; j--) {
+    	  a[j] = tmp.and(helper);
+      	tmp = tmp.shiftRight(bucketBits);
       }
       timing.encrypt_online.stop();
       // end generation of a[]
       
-      String[] secretE_B = new String[pathBuckets];
+      BigInteger[] secretE_B = new BigInteger[pathBuckets];
       BigInteger[] Bbar = new BigInteger[pathBuckets];
       timing.encrypt_online.start();
-      for (int j=0; j<pathBuckets; j++) {
-        secretE_B[j] = Util.addZero(secretE_P.toString(2), tupleBits*pathTuples).substring(j*bucketBits, (j+1)*bucketBits);
-        Bbar[j] = new BigInteger(secretE_B[j], 2).xor(new BigInteger(a[j], 2)).xor(new BigInteger(1, d[j]));
+      tmp = secretE_P;
+      for (int j=pathBuckets-1; j>=0; j--) {
+    	  secretE_B[j] = tmp.and(helper);
+    	  tmp = tmp.shiftRight(bucketBits);
+        Bbar[j] = secretE_B[j].xor(a[j]).xor(d[j]);
       }
       timing.encrypt_online.stop();
       
