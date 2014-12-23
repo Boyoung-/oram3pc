@@ -71,7 +71,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     // E sends delta_C to C
     sanityCheck();
     timing.post_read.start();
-    byte[] delta_C = eddie.read();
+    BigInteger delta_C = eddie.readBigInteger();
     timing.post_read.stop();
     
     // step 2
@@ -117,7 +117,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     for (int k=0; k<twotaupow; k++) {
       e[k] = a[BigInteger.valueOf(k+alpha).mod(BigInteger.valueOf(twotaupow)).intValue()];
       if (k == Nip1_pr_int)
-        e[k] = Util.addZero(new BigInteger(e[k], 2).xor(Lip1).xor(secretC_Lip1_p).xor(new BigInteger(1, delta_C)).toString(2), d_ip1);
+        e[k] = Util.addZero(new BigInteger(e[k], 2).xor(Lip1).xor(secretC_Lip1_p).xor(delta_C).toString(2), d_ip1);
       A_C += e[k];
     }
     String triangle_C;
@@ -155,7 +155,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     // E sends delta_D to D
 	  sanityCheck();
     timing.post_read.start();
-    byte[] delta_D = eddie.read();
+    BigInteger delta_D = eddie.readBigInteger();
     timing.post_read.stop(); 
     
     // step 2
@@ -170,23 +170,34 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     timing.post_online.start();
     byte[] s = SR.rand.generateSeed(16);  // 128 bits
     timing.post_online.stop();
-    PRG G;
-    //try {
-      G = new PRG(aBits);
-    //} catch (NoSuchAlgorithmException e) {
-     // e.printStackTrace();
-    //  return null;
-    //}
+    
+    PRG G = new PRG(aBits);
+    
     timing.post_online.start();
-    String[] a = new String[twotaupow];
-    byte[][] a_p = new byte[twotaupow][];
-    String a_all = G.generateBitString(aBits, s);
+    //String[] a = new String[twotaupow];
+    //byte[][] a_p = new byte[twotaupow][];
+    //String a_all = G.generateBitString(aBits, s);
+    BigInteger[] a = new BigInteger[twotaupow];
+    BigInteger[] a_p = new BigInteger[twotaupow];
+    BigInteger a_all = new BigInteger(1, G.compute(s));
+    /*
     for (int k=0; k<twotaupow; k++) {
       a[k] = a_all.substring(k*d_ip1, (k+1)*d_ip1);
       if (k != j_p)
         a_p[k] = new BigInteger(a[k], 2).toByteArray();
       else
-        a_p[k] = new BigInteger(a[k], 2).xor(new BigInteger(1, delta_D)).toByteArray();
+        a_p[k] = new BigInteger(a[k], 2).xor(delta_D).toByteArray();
+    }
+    */
+    BigInteger helper = BigInteger.ONE.shiftLeft(d_ip1).subtract(BigInteger.ONE);
+    BigInteger tmp = a_all;
+    for (int k=twotaupow-1; k>=0; k--) {
+    	a[k] = tmp.and(helper);
+    	tmp = tmp.shiftRight(d_ip1);
+    	if (k != j_p)
+            a_p[k] = a[k];
+          else
+            a_p[k] = a[k].xor(delta_D);
     }
     timing.post_online.stop();
     
@@ -248,8 +259,8 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     // step 1
     // party E
     timing.post_online.start();
-    byte[] delta_D = new BigInteger(d_ip1, SR.rand).toByteArray();
-    byte[] delta_C = new BigInteger(1, delta_D).xor(secretE_Lip1_p).toByteArray();
+    BigInteger delta_D = new BigInteger(d_ip1, SR.rand);
+    BigInteger delta_C = delta_D.xor(secretE_Lip1_p);
     timing.post_online.stop();
     // E sends delta_C to C and delta_D to D
     sanityCheck();
@@ -269,7 +280,8 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     sanityCheck();
     // D sends a_p to E
     timing.post_read.start();
-    byte[][] a_p_byte = debbie.readDoubleByteArray();
+    //byte[][] a_p_byte = debbie.readDoubleByteArray();
+    BigInteger[] a_p_byte = debbie.readBigIntegerArray();
     timing.post_read.stop();
     
     // step 5
@@ -277,7 +289,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     timing.post_online.start();
     String[] a_p = new String[twotaupow];
     for (int k=0; k<twotaupow; k++)
-    	a_p[k] = Util.addZero(new BigInteger(1, a_p_byte[k]).toString(2), d_ip1);
+    	a_p[k] = Util.addZero(a_p_byte[k].toString(2), d_ip1);
     
     String A_E = "";
     for (int k=0; k<twotaupow; k++) {
