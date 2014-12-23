@@ -62,7 +62,7 @@ public class Retrieve extends Operation {
 	  PostProcessT ppt = new PostProcessT(debbie, eddie);
 	  ppt.loadTreeSpecificParameters(currTree);
 	  timing.post.start();
-	  String secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, Li, null, new BigInteger[]{secretC_Ti, secretC_Li_p, secretC_Lip1_p, Lip1, Nip1_pr});
+	  BigInteger secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, Li, null, new BigInteger[]{secretC_Ti, secretC_Li_p, secretC_Lip1_p, Lip1, Nip1_pr});
 	  timing.post.stop();
 	  
 	  // Reshuffle
@@ -78,7 +78,7 @@ public class Retrieve extends Operation {
 	  Eviction evict = new Eviction(debbie, eddie);
 	  evict.loadTreeSpecificParameters(currTree);
 	  timing.eviction.start();
-	  String secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, null, new String[]{secretC_pi_P, secretC_Ti_p});
+	  BigInteger secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, null, new BigInteger[]{secretC_pi_P.equals("")?null:new BigInteger(secretC_pi_P, 2), secretC_Ti_p});
 	  timing.eviction.stop();
 	  if (currTree == 0)
 		  secretC_P_pp = secretC_Ti_p;
@@ -150,7 +150,7 @@ public class Retrieve extends Operation {
 	  PostProcessT ppt = new PostProcessT(charlie, debbie);
 	  ppt.loadTreeSpecificParameters(currTree);
 	  timing.post.start();
-	  String secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{secretE_Ti, secretE_Li_p, secretE_Lip1_p});
+	  BigInteger secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{secretE_Ti, secretE_Li_p, secretE_Lip1_p});
 	  timing.post.stop();
 	  
 	  // Reshuffle
@@ -167,7 +167,7 @@ public class Retrieve extends Operation {
 	  Eviction evict = new Eviction(charlie, debbie);
 	  evict.loadTreeSpecificParameters(currTree);
 	  timing.eviction.start();
-	  String secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new String[]{secretE_pi_P, secretE_Ti_p, Li});
+	  BigInteger secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{secretE_pi_P.equals("")?null:new BigInteger(secretE_pi_P, 2), secretE_Ti_p, Li.equals("")?null:new BigInteger(Li, 2)});
 	  timing.eviction.stop();
 	  if (currTree == 0)
 		  secretE_P_pp = secretE_Ti_p;

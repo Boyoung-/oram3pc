@@ -12,7 +12,7 @@ import sprout.oram.PID;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
-public class EncryptPath extends TreeOperation<EPath, String> {
+public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 	public EncryptPath() {
 		super(null, null);
@@ -24,7 +24,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 
   @Override
   public EPath executeCharlieSubTree(Communication debbie, Communication eddie, 
-		  String unused1, Tree unused2, String secretC_P) {
+		  String unused1, Tree unused2, BigInteger secretC_P) {
 	  debbie.countBandwidth = true;
 	    eddie.countBandwidth = true;
 	    debbie.bandwidth[PID.encrypt].start();
@@ -47,7 +47,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
     byte[][] d = new byte[pathBuckets][];
     timing.encrypt_online.start();
     for (int j=0; j<pathBuckets; j++) {
-      secretC_B[j] = secretC_P.substring(j*bucketBits, (j+1)*bucketBits);
+      secretC_B[j] = Util.addZero(secretC_P.toString(2), tupleBits*pathTuples).substring(j*bucketBits, (j+1)*bucketBits);
       d[j] = new BigInteger(1, c[j]).xor(new BigInteger(secretC_B[j], 2)).toByteArray();
     }
     timing.encrypt_online.stop();
@@ -67,7 +67,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 
   @Override
   public EPath executeDebbieSubTree(Communication charlie, Communication eddie, 
-		  BigInteger k, Tree unused1, String unused2) {
+		  BigInteger k, Tree unused1, BigInteger unused2) {
 	  charlie.countBandwidth = true;
 	  eddie.countBandwidth = true;	  
 	  charlie.bandwidth[PID.encrypt].start();
@@ -135,7 +135,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
 
   @Override
   public EPath executeEddieSubTree(Communication charlie, Communication debbie, 
-		  Tree unused, String secretE_P) {
+		  Tree unused, BigInteger secretE_P) {
 	  charlie.countBandwidth = true;
 	  debbie.countBandwidth = true;
 	  charlie.bandwidth[PID.encrypt].start();
@@ -178,7 +178,7 @@ public class EncryptPath extends TreeOperation<EPath, String> {
       BigInteger[] Bbar = new BigInteger[pathBuckets];
       timing.encrypt_online.start();
       for (int j=0; j<pathBuckets; j++) {
-        secretE_B[j] = secretE_P.substring(j*bucketBits, (j+1)*bucketBits);
+        secretE_B[j] = Util.addZero(secretE_P.toString(2), tupleBits*pathTuples).substring(j*bucketBits, (j+1)*bucketBits);
         Bbar[j] = new BigInteger(secretE_B[j], 2).xor(new BigInteger(a[j], 2)).xor(new BigInteger(1, d[j]));
       }
       timing.encrypt_online.stop();
@@ -197,9 +197,11 @@ public class EncryptPath extends TreeOperation<EPath, String> {
     }
   }
 
+ /*
   @Override
   public String prepareArgs() {
 	  int length = bucketBits * pathBuckets;
     return Util.addZero(new BigInteger(length, SR.rand).toString(2), length);
   }
+  */
 }

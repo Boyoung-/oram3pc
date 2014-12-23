@@ -15,7 +15,7 @@ import sprout.util.Util;
 
 // TODO: This operation is unlike the other TreeOperations we may want to 
 //   Extend Operation ourselves, or redefine execute & run
-public class PostProcessT extends TreeOperation<String, BigInteger[]>{
+public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]>{
 	
 	public PostProcessT() {
 		super(null, null);
@@ -26,7 +26,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
   }
 
   @Override
-  public String executeCharlieSubTree(Communication debbie, Communication eddie, 
+  public BigInteger executeCharlieSubTree(Communication debbie, Communication eddie, 
 		  String Li, Tree u2, BigInteger[] extraArgs) {
     if (extraArgs.length != 5) {
       throw new IllegalArgumentException("Must supply sC_Ti, sC_Li_p, sC_Lip1_p, Lip1, Nip1_pr to charlie");
@@ -57,7 +57,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
       BigInteger triangle_C = new BigInteger(Li, 2).xor(secretC_Li_p).shiftLeft(d_size);  
       BigInteger secretC_Ti_p = secretC_Ti.xor(triangle_C);
       timing.post_online.stop();
-      return Util.addZero(secretC_Ti_p.toString(2), tupleBits);      
+      return secretC_Ti_p;      
     }
     
     debbie.countBandwidth = true;
@@ -132,11 +132,11 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     eddie.bandwidth[PID.ppt].stop();
     
     // C outputs secretC_Ti_p
-    return Util.addZero(secretC_Ti_p.toString(2), tupleBits);
+    return secretC_Ti_p;
   }
 
   @Override
-  public String executeDebbieSubTree(Communication charlie, Communication eddie, 
+  public BigInteger executeDebbieSubTree(Communication charlie, Communication eddie, 
 		  BigInteger u1, Tree u3, BigInteger[] u4) {
     if (i == h) {
       return null;    
@@ -204,7 +204,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
   }
 
   @Override
-  public String executeEddieSubTree(Communication charlie, Communication debbie, 
+  public BigInteger executeEddieSubTree(Communication charlie, Communication debbie, 
 		  Tree u2, BigInteger[] extraArgs) {
     if (extraArgs.length != 3) {
       throw new IllegalArgumentException("Must supply sE_Ti, sE_Li_p, and sE_Lip1_p to eddie");
@@ -232,7 +232,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
       BigInteger triangle_E = secretE_Li_p.shiftLeft(d_size);
       BigInteger secretE_Ti_p = secretE_Ti.xor(triangle_E);
       timing.post_online.stop();
-      return Util.addZero(secretE_Ti_p.toString(2), tupleBits);      
+      return secretE_Ti_p;      
     }
     
     charlie.countBandwidth = true;
@@ -297,7 +297,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
   debbie.countBandwidth = false;
     
     // E outputs secretE_Ti_p
-    return Util.addZero(secretE_Ti_p.toString(2), tupleBits);
+    return secretE_Ti_p;
   }
   
   /*

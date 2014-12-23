@@ -10,7 +10,7 @@ import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
-public class Eviction extends TreeOperation<String, String[]> {
+public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 	
 	public Eviction() {
 		super(null, null);
@@ -21,8 +21,8 @@ public class Eviction extends TreeOperation<String, String[]> {
   }
 
   @Override
-  public String executeCharlieSubTree(Communication debbie, Communication eddie, 
-		  String unused1, Tree unused2, String[] extraArgs) {
+  public BigInteger executeCharlieSubTree(Communication debbie, Communication eddie, 
+		  String unused1, Tree unused2, BigInteger[] extraArgs) {
 	  if (i == 0)
 		  return null;
 	  
@@ -37,8 +37,8 @@ public class Eviction extends TreeOperation<String, String[]> {
 	  
 	  // protocol
 	  // step 1
-    String sC_P_p = extraArgs[0];
-    String sC_T_p = extraArgs[1];
+    String sC_P_p = Util.addZero(extraArgs[0].toString(2), tupleBits*pathTuples);
+    String sC_T_p = Util.addZero(extraArgs[1].toString(2), tupleBits);
     
     for (int j=0; j<d_i; j++) {
 		timing.eviction_online.start();
@@ -104,12 +104,12 @@ public class Eviction extends TreeOperation<String, String[]> {
     debbie.bandwidth[PID.eviction].stop();
     eddie.bandwidth[PID.eviction].stop();
  	
-    return secretC_P_pp;
+    return new BigInteger(secretC_P_pp, 2);
   }
 
   @Override
-  public String executeDebbieSubTree(Communication charlie, Communication eddie, 
-		  BigInteger unused1, Tree unused2, String[] unused3) {
+  public BigInteger executeDebbieSubTree(Communication charlie, Communication eddie, 
+		  BigInteger unused1, Tree unused2, BigInteger[] unused3) {
 	  if (i == 0)
 		  return null;
 	  
@@ -205,8 +205,8 @@ public class Eviction extends TreeOperation<String, String[]> {
   }
 
   @Override
-  public String executeEddieSubTree(Communication charlie, Communication debbie, 
-		  Tree unused, String[] extraArgs) {
+  public BigInteger executeEddieSubTree(Communication charlie, Communication debbie, 
+		  Tree unused, BigInteger[] extraArgs) {
 	  if (i == 0)
 		  return null;
 	  
@@ -221,9 +221,9 @@ public class Eviction extends TreeOperation<String, String[]> {
 	  
 	  // protocol
 	  // step 1
-    String sE_P_p = extraArgs[0];
-    String sE_T_p = extraArgs[1];
-    String Li = extraArgs[2];
+    String sE_P_p = Util.addZero(extraArgs[0].toString(2), tupleBits*pathTuples);
+    String sE_T_p = Util.addZero(extraArgs[1].toString(2), tupleBits);
+    String Li = Util.addZero(extraArgs[2].toString(2), lBits);
     
     for (int j=0; j<d_i; j++) {
 		timing.eviction_online.start();
@@ -289,9 +289,10 @@ public class Eviction extends TreeOperation<String, String[]> {
 	  charlie.bandwidth[PID.eviction].stop();
 	  debbie.bandwidth[PID.eviction].stop();
     
-    return secretE_P_pp;
+    return new BigInteger(secretE_P_pp, 2);
   }
 
+  /*
   @Override
   public String[] prepareArgs(Party party) {
     // Randomly generate a secret
@@ -301,5 +302,5 @@ public class Eviction extends TreeOperation<String, String[]> {
       
       return new String[]{s_P_p, s_T_p, Li};
   }
-
+*/
 }
