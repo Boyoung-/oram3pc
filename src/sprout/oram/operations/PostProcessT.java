@@ -32,41 +32,21 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
       throw new IllegalArgumentException("Must supply sC_Ti, sC_Li_p, sC_Lip1_p, Lip1, Nip1_pr to charlie");
     }
     
-    String secretC_Ti = Util.addZero(extraArgs[0].toString(2), tupleBits);
-    String secretC_Li_p = Util.addZero(extraArgs[1].toString(2), lBits);
-    String secretC_Lip1_p = "";
-    if (extraArgs[2] != null) 
-    	secretC_Lip1_p = Util.addZero(extraArgs[2].toString(2), d_ip1);
-    String Lip1 = "";
-    if (extraArgs[3] != null)
-    	Lip1 = Util.addZero(extraArgs[3].toString(2), d_ip1);
+    BigInteger secretC_Ti = extraArgs[0];
+    BigInteger secretC_Li_p = extraArgs[1];
+    BigInteger secretC_Lip1_p = extraArgs[2];
+    BigInteger Lip1 = extraArgs[3];
     BigInteger Nip1_pr = extraArgs[4];
     int Nip1_pr_int = 0;
     if (i < h)
     	Nip1_pr_int = Nip1_pr.intValue();
     
-    /*
-    ////////////////////////below are for checking correctness /////////////////////
-    String T_i_fb     = "1";
-    String T_i_N      = Util.addZero(new BigInteger(nBits, SR.rand).toString(2), nBits);
-    String T_i_L      = Li;
-    String T_i_A      = Util.addZero(new BigInteger(aBits, SR.rand).toString(2), aBits);
-    T_i_A         = T_i_A.substring(0, Nip1_pr_int*d_ip1) + Lip1 + T_i_A.substring((Nip1_pr_int+1)*d_ip1);
-    String T_i;
-    if (i == 0)
-      T_i         = T_i_A;
-    else
-      T_i         = T_i_fb + T_i_N + T_i_L + T_i_A;
-    String secretE_Ti    = Util.addZero(new BigInteger(T_i, 2).xor(new BigInteger(secretC_Ti, 2)).toString(2), tupleBits);  
-    eddie.write(secretE_Ti);
-    //////////////////////// above are for checking correctness /////////////////////
-     */
     
     // protocol
     // i = 0 case
     if (i == 0) {
       Li = "";
-      secretC_Li_p = "";
+    	secretC_Li_p = null;
     }
     
     // protocol doesn't run for i=h case
@@ -74,10 +54,10 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
       int d_size = ForestMetadata.getABits(i);
       // party C
       timing.post_online.start();
-      String triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(new BigInteger(secretC_Li_p, 2)).toString(2), lBits) + Util.addZero("", d_size);  
-      String secretC_Ti_p = Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(triangle_C, 2)).toString(2), tupleBits);
+      BigInteger triangle_C = new BigInteger(Li, 2).xor(secretC_Li_p).shiftLeft(d_size);  
+      BigInteger secretC_Ti_p = secretC_Ti.xor(triangle_C);
       timing.post_online.stop();
-      return secretC_Ti_p;      
+      return Util.addZero(secretC_Ti_p.toString(2), tupleBits);      
     }
     
     debbie.countBandwidth = true;
@@ -137,15 +117,15 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     for (int k=0; k<twotaupow; k++) {
       e[k] = a[BigInteger.valueOf(k+alpha).mod(BigInteger.valueOf(twotaupow)).intValue()];
       if (k == Nip1_pr_int)
-        e[k] = Util.addZero(new BigInteger(e[k], 2).xor(new BigInteger(Lip1, 2)).xor(new BigInteger(secretC_Lip1_p, 2)).xor(new BigInteger(1, delta_C)).toString(2), d_ip1);
+        e[k] = Util.addZero(new BigInteger(e[k], 2).xor(Lip1).xor(secretC_Lip1_p).xor(new BigInteger(1, delta_C)).toString(2), d_ip1);
       A_C += e[k];
     }
     String triangle_C;
     if (i == 0)
       triangle_C = A_C;
     else
-      triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(new BigInteger(secretC_Li_p, 2)).toString(2), lBits) + A_C;
-    String secretC_Ti_p = Util.addZero(new BigInteger(secretC_Ti, 2).xor(new BigInteger(triangle_C, 2)).toString(2), tupleBits);
+      triangle_C = "0" + Util.addZero("", i*tau) + Util.addZero(new BigInteger(Li, 2).xor(secretC_Li_p).toString(2), lBits) + A_C;
+    String secretC_Ti_p = Util.addZero(secretC_Ti.xor(new BigInteger(triangle_C, 2)).toString(2), tupleBits);
     timing.post_online.stop();
     
     debbie.countBandwidth = false;
@@ -233,22 +213,16 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
       throw new IllegalArgumentException("Must supply sE_Ti, sE_Li_p, and sE_Lip1_p to eddie");
     }
     
-    String secretE_Ti = Util.addZero(extraArgs[0].toString(2), tupleBits);
-    String secretE_Li_p = Util.addZero(extraArgs[1].toString(2), lBits);
-    String secretE_Lip1_p = "";
-    if (extraArgs[2] != null) 
-    	secretE_Lip1_p = Util.addZero(extraArgs[2].toString(2), d_ip1);
+    BigInteger secretE_Ti = extraArgs[0];
+    BigInteger secretE_Li_p = extraArgs[1];
+    BigInteger secretE_Lip1_p = extraArgs[2];
     
-    /*
-    ////////////////////////below are for checking correctness /////////////////////
-    secretE_Ti = charlie.readString();
-    //////////////////////// above are for checking correctness /////////////////////
-     */
 
     // protocol
     // i = 0 case
     if (i == 0) {
-      secretE_Li_p = "";
+      //secretE_Li_p = "";
+    	secretE_Li_p = null;
     }
     
     // protocol doesn't run for i=h case
@@ -256,10 +230,12 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
       int d_size = ForestMetadata.getABits(i);
       // party E
       timing.post_online.start();
-      String triangle_E = "0" + Util.addZero("", i*tau) + secretE_Li_p + Util.addZero("", d_size);
-      String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBits);
+      //String triangle_E = "0" + Util.addZero("", i*tau) + secretE_Li_p + Util.addZero("", d_size);
+      //String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBits);
+      BigInteger triangle_E = secretE_Li_p.shiftLeft(d_size);
+      BigInteger secretE_Ti_p = secretE_Ti.xor(triangle_E);
       timing.post_online.stop();
-      return secretE_Ti_p;      
+      return Util.addZero(secretE_Ti_p.toString(2), tupleBits);      
     }
     
     charlie.countBandwidth = true;
@@ -273,7 +249,7 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     // party E
     timing.post_online.start();
     byte[] delta_D = new BigInteger(d_ip1, SR.rand).toByteArray();
-    byte[] delta_C = new BigInteger(1, delta_D).xor(new BigInteger(secretE_Lip1_p, 2)).toByteArray();
+    byte[] delta_C = new BigInteger(1, delta_D).xor(secretE_Lip1_p).toByteArray();
     timing.post_online.stop();
     // E sends delta_C to C and delta_D to D
     sanityCheck();
@@ -311,8 +287,8 @@ public class PostProcessT extends TreeOperation<String, BigInteger[]>{
     if (i == 0)
       triangle_E = A_E;
     else
-      triangle_E = "0" + Util.addZero("", i*tau) + secretE_Li_p + A_E;
-    String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti, 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBits);
+      triangle_E = "0" + Util.addZero("", i*tau) + Util.addZero(secretE_Li_p.toString(2), lBits) + A_E;
+    String secretE_Ti_p = Util.addZero(secretE_Ti.xor(new BigInteger(triangle_E, 2)).toString(2), tupleBits);
     timing.post_online.stop();
     
     charlie.bandwidth[PID.ppt].stop();
