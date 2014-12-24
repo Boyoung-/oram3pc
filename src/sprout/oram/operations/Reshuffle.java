@@ -82,7 +82,7 @@ public class Reshuffle extends TreeOperation<BigInteger, Pair<BigInteger, List<I
     BigInteger secretC_pi_P = BigInteger.ZERO;
     timing.reshuffle_online.start();
     for (int j=0; j<pathBuckets; j++)
-    	secretC_pi_P.shiftLeft(bucketBits).xor(secretC_pi_P_arr[j]);
+    	secretC_pi_P = secretC_pi_P.shiftLeft(bucketBits).xor(secretC_pi_P_arr[j]);
     timing.reshuffle_online.stop();
     
     debbie.countBandwidth = false;
@@ -152,7 +152,7 @@ public class Reshuffle extends TreeOperation<BigInteger, Pair<BigInteger, List<I
       BigInteger tmp = a_all;
       for (int j=pathBuckets-1; j>=0; j--) {
       	a[j] = tmp.and(helper);
-      	tmp = tmp.shiftRight(d_ip1);
+      	tmp = tmp.shiftRight(bucketBits);
       }
       
       BigInteger[] secretC_pi_P = Util.permute(a, pi);
@@ -226,12 +226,12 @@ public class Reshuffle extends TreeOperation<BigInteger, Pair<BigInteger, List<I
     BigInteger tmp = b_all;
     for (int j=pathBuckets-1; j>=0; j--) {
     	b[j] = tmp.and(helper);
-    	tmp = tmp.shiftRight(d_ip1);
+    	tmp = tmp.shiftRight(bucketBits);
     }
     BigInteger[] secretE_pi_P_arr = Util.permute(b, pi);
     BigInteger secretE_pi_P = BigInteger.ZERO;
     for (int j=0; j<pathBuckets; j++)
-    	secretE_pi_P.shiftLeft(bucketBits).xor(secretE_pi_P_arr[j]);
+    	secretE_pi_P = secretE_pi_P.shiftLeft(bucketBits).xor(secretE_pi_P_arr[j]);
     timing.reshuffle_online.stop();
     
     charlie.countBandwidth = false;

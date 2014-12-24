@@ -128,7 +128,7 @@ public class Access extends TreeOperation<AOutput, String> {
     	secretC_Ti = new BigInteger(Ni, 2).shiftLeft(lBits+aBits).xor(new BigInteger(Li, 2).shiftLeft(aBits)).xor(secretC_Ti).setBit(tupleBits-1);
     BigInteger secretC_P_p = null;
     if (i > 0) {
-    	boolean flipBit = secretC_P.testBit((pathTuples-j_1)*tupleBits-1);
+    	boolean flipBit = !secretC_P.testBit((pathTuples-j_1)*tupleBits-1);
     	BigInteger newTuple = new BigInteger(tupleBits-1, SR.rand);
     	if (flipBit)
     		newTuple = newTuple.setBit(tupleBits-1);
