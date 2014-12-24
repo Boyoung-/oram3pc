@@ -10,13 +10,13 @@ import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
-public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
+public class CopyOfEviction extends TreeOperation<BigInteger, BigInteger[]> {
 	
-	public Eviction() {
+	public CopyOfEviction() {
 		super(null, null);
 	}
 
-  public Eviction(Communication con1, Communication con2) {
+  public CopyOfEviction(Communication con1, Communication con2) {
     super(con1, con2);
   }
 
@@ -42,42 +42,60 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
     
     for (int j=0; j<d_i; j++) {
 		timing.eviction_online.start();
+		//String sC_fb = "";
+		//String sC_dir = "";
+		//String sC_bucket = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits);
 		BigInteger sC_fb = BigInteger.ZERO;
 		BigInteger sC_dir = BigInteger.ZERO;
 		BigInteger sC_bucket = Util.getSubBits(sC_P_p, (d_i-j-1)*bucketBits, (d_i-j)*bucketBits);
+		//for (int l=0; l<w; l++) {
+		//	String sC_tuple = sC_bucket.substring(l*tupleBits, (l+1)*tupleBits);
+		//	sC_fb += sC_tuple.substring(0, 1);
+		//	sC_dir += sC_tuple.substring(1+nBits, 1+nBits+lBits).substring(j, j+1);
+		//}
+		//String sC_input = "00" + sC_dir + sC_fb; // enable + dir + fb
 		for (int l=0; l<w; l++) {
 			BigInteger sC_tuple = Util.getSubBits(sC_bucket, (w-l-1)*tupleBits, (w-l)*tupleBits);
 			sC_fb = sC_fb.shiftLeft(1);
 			if (sC_tuple.testBit(tupleBits-1))
-				sC_fb = sC_fb.setBit(0);
+				sC_fb.setBit(0);
 			int bit = (sC_tuple.testBit(lBits-j-1+aBits)?1:0);
 			sC_dir = sC_dir.shiftLeft(1);
 			if (bit == 1)
-				sC_dir = sC_dir.setBit(0);
+				sC_dir.setBit(0);
 		}
 		BigInteger sC_input = sC_dir.shiftLeft(w).xor(sC_fb);
 		timing.eviction_online.stop();
 		
 		timing.gcf.start();
-		gcf.executeC(debbie, eddie, w*2+2, sC_input);
+		gcf.executeC(debbie, eddie, w*2+2, Util.addZero(sC_input.toString(2), w*2+2));
 		timing.gcf.stop();
 	}
     
     	// step 2
     	timing.eviction_online.start();
+    	/*
+ 		String sC_fb = "00";
+ 		for (int j=d_i; j<pathBuckets; j++) {
+ 			String sC_bucket = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits);
+ 			for (int l=0; l<w; l++) {
+ 				sC_fb += sC_bucket.substring(l*tupleBits, l*tupleBits+1);
+ 			}
+ 		}
+ 		*/
     	BigInteger sC_fb = BigInteger.ZERO;
  		for (int j=d_i; j<pathBuckets; j++) {
  			BigInteger sC_bucket = Util.getSubBits(sC_P_p, (pathBuckets-j-1)*bucketBits, (pathBuckets-j)*bucketBits);
  			for (int l=0; l<w; l++) {
  				sC_fb = sC_fb.shiftLeft(1);
  				if (sC_bucket.testBit((w-l)*tupleBits-1))
- 					sC_fb = sC_fb.setBit(0);
+ 					sC_fb.setBit(0);
  			}
  		}
  		timing.eviction_online.stop();
  		
  		timing.gcf.start();
- 		gcf.executeC(debbie, eddie, w*expen+2, sC_fb);
+ 		gcf.executeC(debbie, eddie, w*expen+2, Util.addZero(sC_fb.toString(2), w*expen+2));
  		timing.gcf.stop();
  		
  	// step 3
@@ -85,25 +103,26 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
  		
  	// step 4
 			timing.eviction_online.start();
- 			BigInteger[] sC_a = new BigInteger[k+2];
+ 			String[] sC_a = new String[k+2];
  			for (int j=0; j<pathBuckets; j++)
  				for (int l=0; l<w; l++) {
- 					sC_a[w*j+l] = Util.getSubBits(sC_P_p, (pathBuckets-j-1)*bucketBits+(w-l-1)*tupleBits, (pathBuckets-j-1)*bucketBits+(w-l)*tupleBits);
+ 					//sC_a[w*j+l] = sC_P_p.substring(j*bucketBits, (j+1)*bucketBits).substring(l*tupleBits, (l+1)*tupleBits);
+ 					sC_a[w*j+l] = Util.addZero(Util.getSubBits(sC_P_p, (pathBuckets-j-1)*bucketBits+(w-l-1)*tupleBits, (pathBuckets-j-1)*bucketBits+(w-l)*tupleBits).toString(2), tupleBits);
  				}
- 			sC_a[k] = sC_T_p;
- 			sC_a[k+1] = new BigInteger(tupleBits-1, SR.rand);
+ 			sC_a[k] = Util.addZero(sC_T_p.toString(2), tupleBits);
+ 			sC_a[k+1] = Util.addZero(new BigInteger(tupleBits-1, SR.rand).toString(2), tupleBits);
  			timing.eviction_online.stop();
  			
  	// step 5
  	SSOT ssot = new SSOT(debbie, eddie);
  	timing.ssot.start();
- 	BigInteger[] sC_P_pp = ssot.executeC(debbie, eddie, sC_a, tupleBits);
+ 	String[] sC_P_pp = ssot.executeC(debbie, eddie, sC_a);
  	timing.ssot.stop();
  	
  	timing.eviction_online.start();
- 	BigInteger secretC_P_pp = BigInteger.ZERO;
+ 	String secretC_P_pp = "";
  	for (int j=0; j<sC_P_pp.length; j++)
- 		secretC_P_pp = secretC_P_pp.shiftLeft(tupleBits).xor(sC_P_pp[j]);
+ 		secretC_P_pp += sC_P_pp[j];
  	timing.eviction_online.stop();
  	
  	debbie.countBandwidth = false;
@@ -111,7 +130,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
     debbie.bandwidth[PID.eviction].stop();
     eddie.bandwidth[PID.eviction].stop();
  	
-    return secretC_P_pp;
+    return new BigInteger(secretC_P_pp, 2);
   }
 
   @Override
@@ -135,46 +154,37 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
  		int[] alpha2_j = new int[d_i];
  		for (int j=0; j<d_i; j++) {
  			timing.gcf.start();
- 			BigInteger GCFOutput = gcf.executeD(charlie, eddie, "F2FT", w*2+2);
+ 			String GCFOutput = gcf.executeD(charlie, eddie, "F2FT", w*2+2);
  			timing.gcf.stop();
  			
  			timing.eviction_online.start();
- 			for (alpha1_j[j]=0; alpha1_j[j]<w; alpha1_j[j]++)
- 				if (GCFOutput.testBit(w-alpha1_j[j]-1))
- 					break;
- 			if (alpha1_j[j] == w)
+ 			alpha1_j[j] = GCFOutput.substring(2).indexOf('1');
+ 			if (alpha1_j[j] == -1)
  				alpha1_j[j] = SR.rand.nextInt(w);
- 			
- 			for (alpha2_j[j]=alpha1_j[j]+1; alpha2_j[j]<w; alpha2_j[j]++)
- 				if (GCFOutput.testBit(w-alpha2_j[j]-1))
- 					break;
- 			while (alpha2_j[j] == w || alpha2_j[j] == alpha1_j[j])
- 	 			alpha2_j[j] = SR.rand.nextInt(w);
+ 			alpha2_j[j] = GCFOutput.substring(2).indexOf('1', alpha1_j[j]+1);
+ 			while (alpha2_j[j] == -1 || alpha2_j[j] == alpha1_j[j])
+ 				alpha2_j[j] = SR.rand.nextInt(w);
  			timing.eviction_online.stop();
+ 			//System.out.println("--- D: alpha_j: " + alpha1_j[j] + " " + alpha2_j[j]);
  		}
  		
  	// step 2
  	timing.gcf.start();
- 	BigInteger GCFOutput = gcf.executeD(charlie, eddie, "F2ET", w*expen+2);
+ 	String GCFOutput = gcf.executeD(charlie, eddie, "F2ET", w*expen+2);
  	timing.gcf.stop();
  	
  	timing.eviction_online.start();
- 	int alpha1_d;
- 	for (alpha1_d=0; alpha1_d<w*expen; alpha1_d++)
- 		if (GCFOutput.testBit(w*expen-alpha1_d-1))
- 			break;
- 	int alpha2_d;
- 	for (alpha2_d=alpha1_d+1; alpha2_d<w*expen; alpha2_d++)
- 		if (GCFOutput.testBit(w*expen-alpha2_d-1))
- 			break;
+ 	int alpha1_d = GCFOutput.substring(2).indexOf('1');
+ 	int alpha2_d = GCFOutput.substring(2).indexOf('1', alpha1_d+1);
  	timing.eviction_online.stop();
- 	if (alpha2_d == w*expen) {
+ 	if (alpha2_d == -1) {
  		try {
 			throw new Exception("Overflow!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
  	}
+ 	//System.out.println("--- D: alpha_d: " + alpha1_d + " " + alpha2_d);
  	
  // step 3
  		int k = w * pathBuckets;
@@ -199,6 +209,8 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
  			}
  		timing.eviction_online.stop();
  		Integer[] I = beta;
+ 		//System.out.println("k: " + k);
+ 		//Util.printArrH(I);
  		
  		// step 5
  		try {
@@ -248,17 +260,17 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			BigInteger sE_tuple = Util.getSubBits(sE_bucket, (w-l-1)*tupleBits, (w-l)*tupleBits);
 			sE_fb = sE_fb.shiftLeft(1);
 			if (sE_tuple.testBit(tupleBits-1))
-				sE_fb = sE_fb.setBit(0);
+				sE_fb.setBit(0);
 			int bit = (sE_tuple.testBit(lBits-j-1+aBits)?1:0)^1^(Li.testBit(lBits-j-1)?1:0);
 			sE_dir = sE_dir.shiftLeft(1);
 			if (bit == 1)
-				sE_dir = sE_dir.setBit(0);
+				sE_dir.setBit(0);
 		}
 		BigInteger sE_input = sE_dir.shiftLeft(w).xor(sE_fb);
 		timing.eviction_online.stop();
 		
 		timing.gcf.start();
-		gcf.executeE(charlie, debbie, "F2FT", w*2+2, sE_input);
+		gcf.executeE(charlie, debbie, "F2FT", w*2+2, Util.addZero(sE_input.toString(2), w*2+2));
 		timing.gcf.stop();
 	}
     
@@ -270,39 +282,39 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
  			for (int l=0; l<w; l++) {
  				sE_fb = sE_fb.shiftLeft(1);
  				if (sE_bucket.testBit((w-l)*tupleBits-1))
- 					sE_fb = sE_fb.setBit(0);
+ 					sE_fb.setBit(0);
  			}
  		}
  		timing.eviction_online.stop();
  		
  		timing.gcf.start();
- 		gcf.executeE(charlie, debbie, "F2ET", w*expen+2, sE_fb);
+ 		gcf.executeE(charlie, debbie, "F2ET", w*expen+2, Util.addZero(sE_fb.toString(2), w*expen+2));
  		timing.gcf.stop();
  		
  	// step 3
  			int k = w * pathBuckets;
  			
  			// step 4
- 			BigInteger[] sE_a = new BigInteger[k+2];
+ 			String[] sE_a = new String[k+2];
  			timing.eviction_online.start();
  			for (int j=0; j<pathBuckets; j++)
  				for (int l=0; l<w; l++) {
- 					sE_a[w*j+l] = Util.getSubBits(sE_P_p, (pathBuckets-j-1)*bucketBits+(w-l-1)*tupleBits, (pathBuckets-j-1)*bucketBits+(w-l)*tupleBits);
+ 					sE_a[w*j+l] = Util.addZero(Util.getSubBits(sE_P_p, (pathBuckets-j-1)*bucketBits+(w-l-1)*tupleBits, (pathBuckets-j-1)*bucketBits+(w-l)*tupleBits).toString(2), tupleBits);
  				}
- 			sE_a[k] = sE_T_p;
- 			sE_a[k+1] = new BigInteger(tupleBits-1, SR.rand);
+ 			sE_a[k] = Util.addZero(sE_T_p.toString(2), tupleBits);
+ 			sE_a[k+1] = Util.addZero(new BigInteger(tupleBits-1, SR.rand).toString(2), tupleBits);
  			timing.eviction_online.stop();
  			
  	// step 5
  	SSOT ssot = new SSOT(charlie, debbie);
  	timing.ssot.start();
- 	BigInteger[] sE_P_pp = ssot.executeE(charlie, debbie, sE_a, tupleBits);
+ 	String[] sE_P_pp = ssot.executeE(charlie, debbie, sE_a);
  	timing.ssot.stop();
  	
  	timing.eviction_online.start();
- 	BigInteger secretE_P_pp = BigInteger.ZERO;
+ 	String secretE_P_pp = "";
  	for (int j=0; j<sE_P_pp.length; j++)
- 		secretE_P_pp = secretE_P_pp.shiftLeft(tupleBits).xor(sE_P_pp[j]);
+ 		secretE_P_pp += sE_P_pp[j];
  	timing.eviction_online.stop();
  	
  	charlie.countBandwidth = false;
@@ -310,7 +322,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 	  charlie.bandwidth[PID.eviction].stop();
 	  debbie.bandwidth[PID.eviction].stop();
     
-	  return secretE_P_pp;
+    return new BigInteger(secretE_P_pp, 2);
   }
 
   /*
