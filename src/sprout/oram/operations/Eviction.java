@@ -44,7 +44,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		timing.eviction_online.start();
 		BigInteger sC_fb = BigInteger.ZERO;
 		BigInteger sC_dir = BigInteger.ZERO;
-		BigInteger sC_bucket = Util.getSubBits(sC_P_p, (d_i-j-1)*bucketBits, (d_i-j)*bucketBits);
+		BigInteger sC_bucket = Util.getSubBits(sC_P_p, (pathBuckets-j-1)*bucketBits, (pathBuckets-j)*bucketBits);
 		for (int l=0; l<w; l++) {
 			BigInteger sC_tuple = Util.getSubBits(sC_bucket, (w-l-1)*tupleBits, (w-l)*tupleBits);
 			sC_fb = sC_fb.shiftLeft(1);
@@ -243,7 +243,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		timing.eviction_online.start();
 		BigInteger sE_fb = BigInteger.ZERO;
 		BigInteger sE_dir = BigInteger.ZERO;
-		BigInteger sE_bucket = Util.getSubBits(sE_P_p, (d_i-j-1)*bucketBits, (d_i-j)*bucketBits);
+		BigInteger sE_bucket = Util.getSubBits(sE_P_p, (pathBuckets-j-1)*bucketBits, (pathBuckets-j)*bucketBits);
 		for (int l=0; l<w; l++) {
 			BigInteger sE_tuple = Util.getSubBits(sE_bucket, (w-l-1)*tupleBits, (w-l)*tupleBits);
 			sE_fb = sE_fb.shiftLeft(1);
