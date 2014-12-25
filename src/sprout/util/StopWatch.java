@@ -6,132 +6,132 @@ import java.lang.management.ThreadMXBean;
 
 public class StopWatch implements Serializable
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 	
-	public String task = null;
-	public long elapsedWallClockTime;
-	public long elapsedCPUTime;
-	private boolean running;
-	private boolean strict = true;
+    public String task = null;
+    public long elapsedWallClockTime;
+    public long elapsedCPUTime;
+    private boolean running;
+    private boolean strict = true;
 	
-	private long startWallClockTime;
-	private long startCPUTime;
+    private long startWallClockTime;
+    private long startCPUTime;
 	
-	static final int convert = 1000000; // from nanoseconds to milliseconds
+    static final int convert = 1000000; // from nanoseconds to milliseconds
 	
-	public StopWatch() {
-		elapsedWallClockTime = 0;
-		elapsedCPUTime = 0;
-		running = false;
-		strict = false;
+    public StopWatch() {
+	elapsedWallClockTime = 0;
+	elapsedCPUTime = 0;
+	running = false;
+	strict = false;
+    }
+	
+    public StopWatch(String t) {
+	task = t;
+	elapsedWallClockTime = 0;
+	elapsedCPUTime = 0;
+	running = false;
+    }
+	
+    public StopWatch(StopWatch sw) {
+	task = sw.task;
+	elapsedWallClockTime = sw.elapsedWallClockTime;
+	elapsedCPUTime = sw.elapsedCPUTime;
+	running = sw.running;
+	strict = sw.strict;
+    }
+	
+    public StopWatch(String t, boolean strict) {
+	task = t;
+	elapsedWallClockTime = 0;
+	elapsedCPUTime = 0;
+	running = false;
+	this.strict = strict;
+    }
+	
+    public void start() {
+	if (running) {
+	    System.err.println(task + ": StopWatch is alrealdy running.");
+	    return;
 	}
-	
-	public StopWatch(String t) {
-		task = t;
-		elapsedWallClockTime = 0;
-		elapsedCPUTime = 0;
-		running = false;
-	}
-	
-	public StopWatch(StopWatch sw) {
-	  task = sw.task;
-	  elapsedWallClockTime = sw.elapsedWallClockTime;
-	  elapsedCPUTime = sw.elapsedCPUTime;
-	  running = sw.running;
-	  strict = sw.strict;
-	}
-	
-	public StopWatch(String t, boolean strict) {
-	  task = t;
-	  elapsedWallClockTime = 0;
-    elapsedCPUTime = 0;
-    running = false;
-    this.strict = strict;
-	}
-	
-	public void start() {
-		if (running) {
-			System.err.println(task + ": StopWatch is alrealdy running.");
-			return;
-		}
 		
-		running = true;		
-		startWallClockTime = System.nanoTime();		
-		startCPUTime = getCPUTime();
-	}
+	running = true;		
+	startWallClockTime = System.nanoTime();		
+	startCPUTime = getCPUTime();
+    }
 	
-	public void stop() {
-		if (!running) {
-			System.err.println(task + ":StopWatch is not running.");
-			return;
-		}
+    public void stop() {
+	if (!running) {
+	    System.err.println(task + ":StopWatch is not running.");
+	    return;
+	}
 		
-		running = false;		
-		elapsedCPUTime += getCPUTime() - startCPUTime;
-		elapsedWallClockTime += System.nanoTime() - startWallClockTime;
-	}
+	running = false;		
+	elapsedCPUTime += getCPUTime() - startCPUTime;
+	elapsedWallClockTime += System.nanoTime() - startWallClockTime;
+    }
 	
-	public void reset() {
-		if (running) {
-			System.err.println(task + ": StopWatch is still running. Please stop first.");
-			return;
-		}
+    public void reset() {
+	if (running) {
+	    System.err.println(task + ": StopWatch is still running. Please stop first.");
+	    return;
+	}
 		
-		elapsedWallClockTime = 0;
-		elapsedCPUTime = 0;
-	}
+	elapsedWallClockTime = 0;
+	elapsedCPUTime = 0;
+    }
 	
-	public StopWatch add_mut(StopWatch sw) {
-		if (!task.equals(sw.task) && (strict || sw.strict)) {
-			System.out.println("Warning: addition between different task!");
-		}
+    public StopWatch add_mut(StopWatch sw) {
+	if (!task.equals(sw.task) && (strict || sw.strict)) {
+	    System.out.println("Warning: addition between different task!");
+	}
 		
-		elapsedWallClockTime = elapsedWallClockTime + sw.elapsedWallClockTime;
-		elapsedCPUTime = elapsedCPUTime + sw.elapsedCPUTime;
-		return this;
-	}
+	elapsedWallClockTime = elapsedWallClockTime + sw.elapsedWallClockTime;
+	elapsedCPUTime = elapsedCPUTime + sw.elapsedCPUTime;
+	return this;
+    }
 	
-	public StopWatch add(StopWatch sw) {
-	  return (new StopWatch(this)).add_mut(sw);
-	}
+    public StopWatch add(StopWatch sw) {
+	return (new StopWatch(this)).add_mut(sw);
+    }
 	
-	public StopWatch subtract(StopWatch sw) {
-		if (!task.equals(sw.task)) {
-			System.out.println("Warning: subtraction between different task!");
-		}
+    public StopWatch subtract(StopWatch sw) {
+	if (!task.equals(sw.task)) {
+	    System.out.println("Warning: subtraction between different task!");
+	}
 		
-		StopWatch out = new StopWatch(task);
-		out.elapsedWallClockTime = elapsedWallClockTime - sw.elapsedWallClockTime;
-		out.elapsedCPUTime = elapsedCPUTime - sw.elapsedCPUTime;
-		return out;
-	}
+	StopWatch out = new StopWatch(task);
+	out.elapsedWallClockTime = elapsedWallClockTime - sw.elapsedWallClockTime;
+	out.elapsedCPUTime = elapsedCPUTime - sw.elapsedCPUTime;
+	return out;
+    }
 	
-	public void divide(int n) {
-		elapsedWallClockTime /= n;
-		elapsedCPUTime /= n;
-	}
+    public void divide(int n) {
+	elapsedWallClockTime /= n;
+	elapsedCPUTime /= n;
+    }
 	
-	@Override
-	public String toString() {
-		String out = " - Wall clock time(ms): " + elapsedWallClockTime/convert +
-				"\n - CPU time(ms): " + elapsedCPUTime/convert;
-		if (task == null)
-			return out;
-		return "Task: " + task + "\n" + out;
-	}
+    @Override
+    public String toString() {
+	String out = " - Wall clock time(ms): " + elapsedWallClockTime/convert +
+	    "\n - CPU time(ms): " + elapsedCPUTime/convert;
+	if (task == null)
+	    return out;
+	return "Task: " + task + "\n" + out;
+    }
 	
-	public String toCSV() {
-		String csv = task + ",Wall clock(ms)," + elapsedWallClockTime/convert +
-				"\n,CPU(ms)," + elapsedCPUTime/convert;
-		return csv;
-	}
+    public String toCSV() {
+	String csv = task + ",Wall clock(ms)," + elapsedWallClockTime/convert +
+	    "\n,CPU(ms)," + elapsedCPUTime/convert;
+	return csv;
+    }
 	
-	private long getCPUTime() {
-	    ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
-	    return bean.isCurrentThreadCpuTimeSupported( ) ?
-	        bean.getCurrentThreadCpuTime( ) : 0L;
-	}
+    private long getCPUTime() {
+	ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
+	return bean.isCurrentThreadCpuTimeSupported( ) ?
+	    bean.getCurrentThreadCpuTime( ) : 0L;
+    }
 }
