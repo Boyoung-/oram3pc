@@ -58,10 +58,6 @@ public class Retrieve extends Operation {
 		if (currTree < ForestMetadata.getLevels() - 1)
 			secretC_Lip1_p = sC_Li_p[currTree + 1];
 		BigInteger Lip1 = AOut.Lip1;
-		// BigInteger Nip1_pr = BigInteger.ZERO;
-		// if (Nip1.substring(ForestMetadata.getNBits(currTree)).length() > 0)
-		// Nip1_pr = new
-		// BigInteger(Nip1.substring(ForestMetadata.getNBits(currTree)), 2);
 		int h = ForestMetadata.getLevels() - 1;
 		int tau = ForestMetadata.getTau();
 		int Nip1Bits;
@@ -118,7 +114,6 @@ public class Retrieve extends Operation {
 		timing.access.start();
 		access.executeDebbieSubTree(charlie, eddie, k, null, null);
 		timing.access.stop();
-		// System.out.println(timing.access);
 
 		// PostProcessT
 		PostProcessT ppt = new PostProcessT(charlie, eddie);
@@ -243,27 +238,20 @@ public class Retrieve extends Operation {
 		if (shiftN == 0)
 			shiftN = tau;
 
-		int records = 15; // how many random records we want to test retrieval
-		int retrievals = 10; // for each record, how many repeated retrievals we
+		int records = 6; // how many random records we want to test retrieval
+		int retrievals = 5; // for each record, how many repeated retrievals we
 								// want to do
 
 		for (int test = 0; test < records; test++) {
 			BigInteger N = null;
 			if (party == Party.Charlie) {
 				if (numInsert == -1)
-					// N = Util.addZero(new BigInteger(lastNBits,
-					// SR.rand).toString(2), lastNBits);
 					N = new BigInteger(lastNBits, SR.rand);
 				else
-					// N =
-					// Util.addZero(Util.nextBigInteger(BigInteger.valueOf(numInsert)).toString(2),
-					// lastNBits);
 					N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
-				// expected = new BigInteger(N, 2).intValue();
 			}
 
 			for (long exec = 0; exec < retrievals; exec++) {
-				// String Li = "";
 				BigInteger Li = null;
 				if (party == Party.Charlie)
 					System.out.println(test + ": stored record is: "
@@ -276,26 +264,16 @@ public class Retrieve extends Operation {
 
 				for (int i = 0; i <= h; i++) {
 					currTree = i;
-					// int d_ip1;
-					// if (i == h)
-					// d_ip1 = ForestMetadata.getABits(i) /
-					// ForestMetadata.getTwoTauPow();
-					// else
-					// d_ip1 = ForestMetadata.getLBits(i+1);
 
 					switch (party) {
 					case Charlie:
 						// String Ni = N;
 						BigInteger Ni;
-						int length;
 						if (i < h - 1) {
-							// Ni = N.substring(0, (i+1)*tau);
 							Ni = Util.getSubBits(N, lastNBits - (i + 1) * tau,
 									lastNBits);
-							length = (i + 1) * tau;
 						} else {
 							Ni = N;
-							length = lastNBits;
 						}
 
 						System.out.println("i="
@@ -306,28 +284,14 @@ public class Retrieve extends Operation {
 										ForestMetadata.getLBits(i))));
 						con2.write(Li);
 						BigInteger[] outC = executeCharlie(con1, con2, Li, Ni);
-						// Li = "";
-						// if (outC[0] != null)
-						// Li = Util.addZero(outC[0].toString(2), d_ip1);
 						Li = outC[0];
 						if (i == h) {
-							// String D =
-							// outC[1].substring(outC[1].length()-ForestMetadata.getDataSize()*8);
-							// String outC_1 = Util.addZero(outC[1].toString(2),
-							// ForestMetadata.getTupleBits(i));
-							// String D =
-							// outC_1.substring(outC_1.length()-ForestMetadata.getDataSize()*8);
 							BigInteger D = Util.getSubBits(outC[1], 0,
 									ForestMetadata.getDataSize() * 8);
-
-							// long record = new BigInteger(D, 2).longValue();
 							System.out.println("Retrieved record is: " + D);
-							// System.out.println("Is record correct: " +
-							// (record==N.longValue()?"YES":"NO!!") + "\n");
 							System.out.println("Is record correct: "
 									+ (D.compareTo(D) == 0 ? "YES" : "NO!!")
 									+ "\n");
-							// if (record != N.longValue())
 							if (D.compareTo(N) != 0)
 								try {
 									throw new Exception("Retrieval error");
@@ -340,7 +304,6 @@ public class Retrieve extends Operation {
 						executeDebbie(con1, con2, null);
 						break;
 					case Eddie:
-						// Li = con1.readString();
 						Li = con1.readBigInteger();
 						executeEddie(con1, con2, forest.getTree(currTree), (Li));
 						break;

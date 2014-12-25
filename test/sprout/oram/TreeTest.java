@@ -39,7 +39,8 @@ public class TreeTest
 				for (long l = 0; l < numLeaves; l++)
 				{
 					Util.disp("\tFetch leaf path: " + l);
-					Bucket[] buckets = t.getBucketsOnPath(l);
+					//Bucket[] buckets = t.getBucketsOnPath(l);
+					t.getBucketsOnPath(l);
 				}
 			}
 			catch (Exception e)

@@ -14,7 +14,6 @@ import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.PID;
 import sprout.oram.Party;
-import sprout.util.Util;
 
 public class GCF extends Operation {
 	public GCF(Communication con1, Communication con2) {
@@ -36,7 +35,6 @@ public class GCF extends Operation {
 		int tmp2 = SR.rand.nextInt(w) + 1;
 		int s1 = Math.min(tmp1, tmp2);
 		int s2 = Math.max(tmp1, tmp2);
-		// System.out.println("--- E: sigma:\t" + s1 + " " + s2);
 
 		Circuit gc_E = null;
 		Circuit.isForGarbling = true;
@@ -78,7 +76,6 @@ public class GCF extends Operation {
 		BigInteger[] K_E = new BigInteger[n];
 		for (int i = 0; i < n; i++) {
 			timing.gcf_online.start();
-			// int alpha = Character.getNumericValue(sE.charAt(i));
 			int alpha = sE.testBit(n - i - 1) ? 1 : 0;
 			A[i][0] = lbs[i][alpha];
 			A[i][1] = lbs[i][1 - alpha];
@@ -121,7 +118,6 @@ public class GCF extends Operation {
 			A[i] = E.readBigIntegerArray();
 			timing.gcf_read.stop();
 			timing.gcf_online.start();
-			// int beta = Character.getNumericValue(sC.charAt(i));
 			int beta = sC.testBit(n - i - 1) ? 1 : 0;
 			K_C[i] = A[i][beta];
 			timing.gcf_online.stop();
@@ -199,12 +195,6 @@ public class GCF extends Operation {
 			if (outBit == 1)
 				output = output.setBit(length - 1 - i);
 		}
-
-		// String out = output.toString(2);
-		// if (circuit.equals("F2ET"))
-		// out = Util.addZero(out, n);
-		// else
-		// out = Util.addZero(out, w+2);
 		timing.gcf_online.stop();
 
 		C.countBandwidth = false;
@@ -212,28 +202,10 @@ public class GCF extends Operation {
 		C.bandwidth[PID.gcf].stop();
 		E.bandwidth[PID.gcf].stop();
 
-		// return out;
 		return output;
 	}
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		/*
-		 * // for testing
-		 * 
-		 * int n = 18; String circuit = "F2ET"; //String circuit = "F2FT";
-		 * String sC = null, sE = null; String output = null;
-		 * 
-		 * switch (party) { case Charlie: if (circuit == "F2ET") sC = "00" +
-		 * Util.addZero(new BigInteger(n-2, SR.rand).toString(2), n-2); else sC
-		 * = "0011111111" + Util.addZero(new BigInteger(n-10,
-		 * SR.rand).toString(2), n-10); GCF.executeC(con1, con2, n, sC); break;
-		 * case Debbie: output = GCF.executeD(con1, con2, circuit, n);
-		 * System.out.println("--- D: output:\t" + output); break; case Eddie:
-		 * sE = Util.addZero("", n); GCF.executeE(con1, con2, circuit, n, sE);
-		 * break; }
-		 * 
-		 * System.out.println("Run completed");
-		 */
 	}
 }

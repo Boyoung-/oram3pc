@@ -36,6 +36,7 @@ public class CombineBandwidth {
 		return c;
 	}
 
+	/*
 	private static void print(Bandwidth[] a) {
 		for (int i = 0; i < a.length; i++)
 			System.out.println(a[i]);
@@ -52,6 +53,7 @@ public class CombineBandwidth {
 				+ "," + a[PID.encrypt].bandwidth * 8 + ","
 				+ a[PID.eviction].bandwidth * 8);
 	}
+	*/
 
 	// vertical
 	private static void printCSV2(Bandwidth[] a) {

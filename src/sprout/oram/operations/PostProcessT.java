@@ -1,16 +1,13 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
 import sprout.crypto.SR;
 import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
-import sprout.oram.Party;
 import sprout.oram.Tree;
-import sprout.util.Util;
 
 // TODO: This operation is unlike the other TreeOperations we may want to 
 //   Extend Operation ourselves, or redefine execute & run
@@ -222,7 +219,6 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		// protocol
 		// i = 0 case
 		if (i == 0) {
-			// secretE_Li_p = "";
 			secretE_Li_p = null;
 		}
 
@@ -231,10 +227,6 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 			int d_size = ForestMetadata.getABits(i);
 			// party E
 			timing.post_online.start();
-			// String triangle_E = "0" + Util.addZero("", i*tau) + secretE_Li_p
-			// + Util.addZero("", d_size);
-			// String secretE_Ti_p = Util.addZero(new BigInteger(secretE_Ti,
-			// 2).xor(new BigInteger(triangle_E, 2)).toString(2), tupleBits);
 			BigInteger triangle_E = secretE_Li_p.shiftLeft(d_size);
 			BigInteger secretE_Ti_p = secretE_Ti.xor(triangle_E);
 			timing.post_online.stop();
@@ -272,21 +264,14 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		sanityCheck();
 		// D sends a_p to E
 		timing.post_read.start();
-		// byte[][] a_p_byte = debbie.readDoubleByteArray();
 		BigInteger[] a_p = debbie.readBigIntegerArray();
 		timing.post_read.stop();
 
 		// step 5
 		// party E
 		timing.post_online.start();
-		// String[] a_p = new String[twotaupow];
-		// for (int k=0; k<twotaupow; k++)
-		// a_p[k] = Util.addZero(a_p_byte[k].toString(2), d_ip1);
-
 		BigInteger A_E = BigInteger.ZERO;
 		for (int k = 0; k < twotaupow; k++) {
-			// A_E +=
-			// a_p[BigInteger.valueOf(k+alpha).mod(BigInteger.valueOf(twotaupow)).intValue()];
 			A_E = A_E.shiftLeft(d_ip1).xor(
 					a_p[BigInteger.valueOf(k + alpha)
 							.mod(BigInteger.valueOf(twotaupow)).intValue()]);
@@ -295,8 +280,6 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		if (i == 0)
 			triangle_E = A_E;
 		else
-			// triangle_E = "0" + Util.addZero("", i*tau) +
-			// Util.addZero(secretE_Li_p.toString(2), lBits) + A_E;
 			triangle_E = secretE_Li_p.shiftLeft(aBits).xor(A_E);
 		BigInteger secretE_Ti_p = secretE_Ti.xor(triangle_E);
 		timing.post_online.stop();
@@ -309,20 +292,4 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		// E outputs secretE_Ti_p
 		return secretE_Ti_p;
 	}
-
-	/*
-	 * @Override public String [] prepareArgs(Party party) { String Lip1 =
-	 * Util.addZero(new BigInteger(d_ip1, SR.rand).toString(2), d_ip1); String
-	 * Nip1_pr = Util.addZero(new BigInteger(tau, SR.rand).toString(2), tau);
-	 * String secret_Ti = Util.addZero(new BigInteger(tupleBits,
-	 * SR.rand).toString(2), tupleBits); String secret_Li_p = Util.addZero(new
-	 * BigInteger(d_i, SR.rand).toString(2), d_i); String secret_Lip1_p =
-	 * Util.addZero(new BigInteger(d_ip1, SR.rand).toString(2), d_ip1);
-	 * 
-	 * switch (party) { case Charlie: return new String[]{secret_Ti,
-	 * secret_Li_p, secret_Lip1_p, Lip1, Nip1_pr}; case Debbie: return null;
-	 * case Eddie: return new String[]{secret_Ti, secret_Li_p, secret_Lip1_p}; }
-	 * 
-	 * return null; }
-	 */
 }

@@ -27,8 +27,6 @@ public class Access extends TreeOperation<AOutput, BigInteger> {
 		} else {
 			Nip1Bits = ForestMetadata.getLastNBits();
 		}
-		// String Ni = Nip1.substring(0, nBits);
-		// String Nip1_pr = Nip1.substring(nBits);
 		BigInteger Ni = Util.getSubBits(Nip1, Nip1Bits - nBits, Nip1Bits);
 		BigInteger Nip1_pr = Util.getSubBits(Nip1, 0, Nip1Bits - nBits);
 
@@ -98,7 +96,6 @@ public class Access extends TreeOperation<AOutput, BigInteger> {
 
 		// step 5
 		int j_2 = 0;
-		// String ybar_j2 = ""; // i = h case
 		BigInteger ybar_j2 = null;
 		if (i < h) {
 			// AOT(E, C, D)
@@ -167,18 +164,6 @@ public class Access extends TreeOperation<AOutput, BigInteger> {
 		// sanityCheck();
 		// C outputs Lip1, secretC_Ti, secretC_P_p
 		return new AOutput(Lip1, null, secretC_Ti, null, secretC_P_p, null, d);
-
-		/*
-		 * String out_Lip1, out_secretC_P_p, out_d; if (Lip1 == null) out_Lip1 =
-		 * ""; else out_Lip1 = Util.addZero(Lip1.toString(2), d_ip1);
-		 * 
-		 * if (secretC_P_p == null) out_secretC_P_p = ""; else out_secretC_P_p =
-		 * Util.addZero(secretC_P_p.toString(2), pathTuples*tupleBits); if (d ==
-		 * null) out_d = ""; else out_d = Util.addZero(d.toString(2),
-		 * twotaupow*d_ip1); return new AOutput(out_Lip1, null,
-		 * Util.addZero(secretC_Ti.toString(2), tupleBits), null,
-		 * out_secretC_P_p, null, out_d);
-		 */
 	}
 
 	@Override
@@ -351,20 +336,5 @@ public class Access extends TreeOperation<AOutput, BigInteger> {
 		// E outputs secretE_Ti and secretE_P_p
 		return new AOutput(null, DecOut.p, null, secretE_Ti, null, secretE_P_p,
 				null);
-
-		/*
-		 * if (secretE_P_p == null) return new AOutput(null, DecOut.p, null,
-		 * Util.addZero(secretE_Ti.toString(2), tupleBits), null, "", null);
-		 * return new AOutput(null, DecOut.p, null,
-		 * Util.addZero(secretE_Ti.toString(2), tupleBits), null,
-		 * Util.addZero(secretE_P_p.toString(2), tupleBits*pathTuples), null);
-		 */
 	}
-
-	/*
-	 * @Override public String prepareArgs() { // Nip1 // Note: Originally i=0
-	 * case has just tau. This should be fine since // nBits = i*tau, thus when
-	 * i=0 nBits = 0 and nBits+tau = tau return Util.addZero(new
-	 * BigInteger(nBits+tau, SR.rand).toString(2), nBits+tau); }
-	 */
 }

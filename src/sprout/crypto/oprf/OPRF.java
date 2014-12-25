@@ -7,7 +7,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.asn1.nist.NISTNamedCurves;

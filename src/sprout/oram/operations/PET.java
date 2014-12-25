@@ -54,21 +54,13 @@ public class PET extends Operation {
 		BigInteger[] gama = new BigInteger[n];
 		BigInteger[] delta = new BigInteger[n];
 		for (int j = 0; j < n; j++) {
-			// alpha[j] = BigInteger.valueOf(Math.abs(rnd.nextLong()) %
-			// p.longValue()); // [0, p-1], Z_p
-			alpha[j] = Util.nextBigInteger(p);
+			alpha[j] = Util.nextBigInteger(p); // [0, p-1], Z_p
 		}
 		for (int j = 0; j < n; j++) {
-			// beta[j] = BigInteger.valueOf(Math.abs(rnd.nextLong()) %
-			// p.longValue()); // [0, p-1], Z_p
-			// tau[j] = BigInteger.valueOf(Math.abs(rnd.nextLong()) %
-			// p.longValue()); // [0, p-1], Z_p
-			// r[j] = BigInteger.valueOf(Math.abs(rnd.nextLong()) %
-			// (p.longValue()-1L) + 1L); // [1, p-1], Z_p*
-			beta[j] = Util.nextBigInteger(p);
-			tau[j] = Util.nextBigInteger(p);
+			beta[j] = Util.nextBigInteger(p); // [0, p-1], Z_p
+			tau[j] = Util.nextBigInteger(p); // [0, p-1], Z_p
 			r[j] = Util.nextBigInteger(p.subtract(BigInteger.ONE)).add(
-					BigInteger.ONE);
+					BigInteger.ONE); // [1, p-1], Z_p*
 		}
 		for (int j = 0; j < n; j++) {
 			// gama_j <- (alpha_j * beta_j - tau_j) mod p
@@ -97,9 +89,6 @@ public class PET extends Operation {
 
 		// parameters
 		int n = cc.length;
-		// m = 32
-		// BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p
-		// = 2^34 - 41
 
 		if (D) {
 			System.out.println("PET: n=" + n);
@@ -134,7 +123,6 @@ public class PET extends Operation {
 			u[j] = alpha[j].subtract(c[j]).mod(p);
 		}
 		timing.pet_online.stop();
-		// System.out.println("pet online: " + timing.pet_online);
 		// sanityCheck(eddie);
 		// C sends u to E
 		timing.pet_write.start();
@@ -149,7 +137,7 @@ public class PET extends Operation {
 		timing.pet_read.stop();
 
 		// step 3
-		// party Cforest
+		// party C
 		timing.pet_online.start();
 		BigInteger[] v = new BigInteger[n];
 		for (int j = 0; j < n; j++) {
@@ -185,10 +173,6 @@ public class PET extends Operation {
 
 		// parameters
 		int n = bb.length;
-		// m = 32
-
-		// BigInteger p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p
-		// = 2^34 - 41
 
 		if (D) {
 			System.out.println("PET: n=" + n);

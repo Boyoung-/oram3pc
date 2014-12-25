@@ -10,7 +10,6 @@ import sprout.crypto.SR;
 import sprout.crypto.oprf.OPRF;
 import sprout.oram.PID;
 import sprout.oram.Tree;
-import sprout.util.Util;
 
 public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
@@ -85,8 +84,6 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 			// protocol
 			// step 1
 			// party D
-			// ECPoint y = oprf.getY();
-			// BigInteger[] r = new BigInteger[pathBuckets];
 			ECPoint[] x = new ECPoint[pathBuckets];
 			ECPoint[] v = new ECPoint[pathBuckets];
 			BigInteger r;
@@ -96,7 +93,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 			BigInteger[] c = new BigInteger[pathBuckets];
 
 			timing.encrypt_online.start();
-			byte[] s = SR.rand.generateSeed(16); // 128 bits
+			byte[] s = SR.rand.generateSeed(16);
 			for (int j = 0; j < pathBuckets; j++) {
 				// This computation is repeated in oprf in some form
 				r = oprf.randomExponent();
@@ -213,10 +210,4 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 			return null;
 		}
 	}
-
-	/*
-	 * @Override public String prepareArgs() { int length = bucketBits *
-	 * pathBuckets; return Util.addZero(new BigInteger(length,
-	 * SR.rand).toString(2), length); }
-	 */
 }

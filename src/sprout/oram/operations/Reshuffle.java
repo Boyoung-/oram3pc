@@ -1,9 +1,6 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import sprout.communication.Communication;
@@ -248,18 +245,4 @@ public class Reshuffle extends
 		// E outputs secretE_pi_P
 		return secretE_pi_P;
 	}
-
-	/*
-	 * @Override public Pair<String, List<Integer>> prepareArgs() { String
-	 * secret_P = Util.addZero(new BigInteger(bucketBits*pathBuckets,
-	 * SR.rand).toString(2), bucketBits*pathBuckets); List<Integer> pi = new
-	 * ArrayList<Integer>(); for (int j=0; j<pathBuckets; j++) pi.add(j);
-	 * Collections.shuffle(pi, SR.rand);
-	 * 
-	 * 
-	 * if (print_out) { System.out.println("secret: " + secret_P);
-	 * System.out.println("pi: " + pi); }
-	 * 
-	 * return Pair.of(secret_P, pi); }
-	 */
 }

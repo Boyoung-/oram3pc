@@ -59,21 +59,8 @@ public abstract class Operation {
 		}
 	}
 
-	/*
-	 * public void sanityCheck(Communication con) { if (ENSURE_SANITY) {
-	 * con.countBandwidth = false;
-	 * 
-	 * con.write("sanity");
-	 * 
-	 * if (!con.readString().equals("sanity")) {
-	 * System.out.println("Sanity check failed for con1"); }
-	 * 
-	 * con.countBandwidth = true; } }
-	 */
-
 	// Even though many operations don't rely on the existance of a forest, we
-	// include it here to have a
-	// unifying api
+	// include it here to have a unifying api
 	public void run(Party party) throws ForestException {
 		run(party, "config/newConfig.yaml", "files/forest.bin", false);
 	}
@@ -85,23 +72,6 @@ public abstract class Operation {
 
 	public void run(Party party, String configFile, String dbFile, boolean build)
 			throws ForestException {
-		/*
-		 * if (build && (dataFile == null || !(new File(dataFile)).exists())) {
-		 * throw new
-		 * IllegalArgumentException("Must supply a data file to build the database"
-		 * ); } else if (!build && !(new File(dbFile)).exists()) { throw new
-		 * IllegalArgumentException("DB file does not exist " + dbFile); }
-		 * 
-		 * Forest forest = new Forest(); try { if (build) {
-		 * System.out.println("Creating forest at " + dbFile +
-		 * " with parameters " + configFile); forest.buildFromFile(configFile,
-		 * dataFile, dbFile); System.out.println("Forest built.\n"); } else {
-		 * System.out.println("Opening forest stored at " + configFile + " : " +
-		 * dbFile); forest.loadFile(configFile, dbFile);
-		 * System.out.println("Forest loaded.\n"); } } catch (Exception e) {
-		 * e.printStackTrace(); return; }
-		 */
-
 		if (!build && !(new File(dbFile)).exists()) {
 			throw new IllegalArgumentException("DB file does not exist "
 					+ dbFile);

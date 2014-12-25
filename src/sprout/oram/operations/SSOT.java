@@ -9,7 +9,6 @@ import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.PID;
 import sprout.oram.Party;
-import sprout.util.Util;
 
 // TODO: Possible parallelization opportunity in running each IOT
 public class SSOT extends Operation {
@@ -25,7 +24,6 @@ public class SSOT extends Operation {
 		I.countBandwidth = false;
 		E.countBandwidth = false;
 
-		// int l = sC[0].length();
 		int l = length; // TODO: remove this?
 		I.write(l);
 
@@ -106,8 +104,6 @@ public class SSOT extends Operation {
 		I.countBandwidth = false;
 		C.countBandwidth = false;
 
-		// int l = sE[0].length();
-
 		I.countBandwidth = true;
 		C.countBandwidth = true;
 		I.bandwidth[PID.ssot].start();
@@ -137,23 +133,6 @@ public class SSOT extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		/*
-		 * switch (party) { case Charlie: String[] sC = new String[]{"000",
-		 * "001", "010", "011", "100", "101", "110", "111"}; String[] a =
-		 * SSOT.executeC(con1, con2, sC);
-		 * System.out.println(Arrays.toString(a));
-		 * 
-		 * break; case Debbie: // I Integer[] i = new Integer[]{0, 1, 3, 6}; try
-		 * { SSOT.executeI(con1, con2, i); } catch (NoSuchAlgorithmException e)
-		 * { e.printStackTrace(); } break; case Eddie: String[] sE = new
-		 * String[]{"000", "000", "000", "000", "000", "000", "000", "000"};
-		 * String[] b = SSOT.executeE(con1, con2, sE);
-		 * System.out.println(Arrays.toString(b)); break; }
-		 * 
-		 * // Ensure we don't close the connection before processing is finished
-		 * con1.write("finished"); con2.write("finished"); con1.readString();
-		 * con2.readString();
-		 */
 	}
 
 }

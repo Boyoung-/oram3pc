@@ -6,7 +6,6 @@ import java.security.NoSuchAlgorithmException;
 import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.PID;
-import sprout.oram.Party;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
@@ -333,15 +332,4 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 		return secretE_P_pp;
 	}
-
-	/*
-	 * @Override public String[] prepareArgs(Party party) { // Randomly generate
-	 * a secret String s_P_p = Util.addZero(new
-	 * BigInteger(pathBuckets*bucketBits, SR.rand).toString(2),
-	 * pathBuckets*bucketBits); String s_T_p = Util.addZero(new
-	 * BigInteger(tupleBits, SR.rand).toString(2), tupleBits); String Li =
-	 * Util.addZero(new BigInteger(lBits, SR.rand).toString(2), lBits);
-	 * 
-	 * return new String[]{s_P_p, s_T_p, Li}; }
-	 */
 }

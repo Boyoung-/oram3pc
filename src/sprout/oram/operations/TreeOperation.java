@@ -11,7 +11,6 @@ import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.Tree;
-import sprout.util.Util;
 
 public abstract class TreeOperation<T extends Object, V> extends Operation {
 
@@ -20,7 +19,6 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 	int h; // # trees - 1
 	int w; // # tuples in each bucket
 	int expen; // # buckets in each leaf
-	// ForestMetadata metadata;
 
 	static boolean print_out = true;
 
@@ -29,21 +27,12 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 		initializeMetadata();
 	}
 
-	/*
-	 * TreeOperation(Communication con1, Communication con2, ForestMetadata
-	 * metadata) { super(con1, con2); initializeMetadata(metadata); }
-	 */
-
 	private void initializeMetadata() {
-		// if (metadata != null) {
-		// parameters
 		tau = ForestMetadata.getTau();
 		twotaupow = ForestMetadata.getTwoTauPow();
 		h = ForestMetadata.getLevels() - 1;
 		w = ForestMetadata.getBucketDepth();
 		expen = ForestMetadata.getLeafExpansion();
-		// this.metadata = metadata;
-		// }
 	}
 
 	int i; // tree index in the writeup
@@ -56,13 +45,6 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 	int bucketBits;
 	int pathBuckets;
 	int pathTuples;
-
-	// int ln; // # N bits
-	// int ll; // # L bits
-	// int ld; // # data bits
-	// int tupleBitLength; // # tuple size (bits)
-	// int l; // # bucket size (bits)
-	// int n; // # tuples in one path
 
 	public void loadTreeSpecificParameters(int index) {
 		// TODO: Do these need to be accessed by all parties? If not we should
@@ -80,7 +62,6 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 		tupleBits = ForestMetadata.getTupleBits(i); // # tuple size (bits)
 		bucketBits = ForestMetadata.getBucketTupleBits(i); // # bucket tuples'
 															// size (bits)
-		// n = w * (d_i + expen); // # tuples in one path
 		if (i == 0) {
 			pathBuckets = 1;
 			pathTuples = 1;
@@ -121,8 +102,6 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 			if (forest != null)
 				OT = forest.getTree(i);
 			this.loadTreeSpecificParameters(i);
-			// String Li = Util.addZero(new BigInteger(lBits,
-			// SR.rand).toString(2), lBits);
 			BigInteger Li = new BigInteger(lBits, SR.rand);
 
 			T out = execute(party, Li, k, OT, prepareArgs(party));

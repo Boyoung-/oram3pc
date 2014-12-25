@@ -9,7 +9,6 @@ import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.PID;
 import sprout.oram.Party;
-import sprout.util.Util;
 
 public class AOT extends Operation {
 	public AOT(Communication con1, Communication con2) {
@@ -22,13 +21,10 @@ public class AOT extends Operation {
 		D.countBandwidth = false;
 
 		int N = m.length;
-		// int l = m[0].length();
-		int l = mLength;
+		int l = mLength; // bits of each item in m
 
 		// We may be able to do this without communication
 		C.write(N);
-		C.write(l);
-		// D.write(N);
 		D.write(l);
 
 		// pre-computed input
@@ -84,7 +80,6 @@ public class AOT extends Operation {
 		E.countBandwidth = false;
 
 		int N = E.readInt();
-		int l = E.readInt();
 
 		D.countBandwidth = true;
 		E.countBandwidth = true;
@@ -140,7 +135,6 @@ public class AOT extends Operation {
 		C.countBandwidth = false;
 		E.countBandwidth = false;
 
-		// int N = E.readInt();
 		int l = E.readInt();
 
 		// pre-computed input
@@ -188,19 +182,5 @@ public class AOT extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		// for testing
-		/*
-		 * switch (party) { case Charlie: // R int j = SR.rand.nextInt(10);
-		 * System.out.println(j); System.out.println(AOT.executeC(con1, con2,
-		 * j)); break; case Debbie: // H AOT.executeD(con1, con2); break; case
-		 * Eddie: // S String t = Util.addZero(new BigInteger(50,
-		 * SR.rand).toString(2), 50); String[] m = new String[10];
-		 * 
-		 * for (int i=0; i<10; i++) m[i] = t.substring(i*5, (i+1)*5);
-		 * 
-		 * Util.printArrH(m); AOT.executeE(con1, con2, m); break; }
-		 * 
-		 * System.out.println("Run completed");
-		 */
 	}
 }

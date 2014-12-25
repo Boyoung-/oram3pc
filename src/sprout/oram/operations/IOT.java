@@ -3,7 +3,6 @@ package sprout.oram.operations;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,12 +28,10 @@ public class IOT extends Operation {
 
 		// parameters
 		int N = m.length;
-		// int l = m[0].length();
-		int l = length;
+		int l = length; // bits of each item in m
 
 		I.write(N);
 		I.write(l);
-		R.write(l);
 
 		// Pre-computed inputs
 		Integer[] pi = I.readIntegerArray();
@@ -74,7 +71,6 @@ public class IOT extends Operation {
 
 		// parameters // TODO: should not be transmitted
 		int k = I.readInt();
-		int l = S.readInt();
 
 		I.countBandwidth = true;
 		S.countBandwidth = true;
@@ -184,21 +180,6 @@ public class IOT extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		/*
-		 * switch (party) { case Debbie: // I Integer[] i = new Integer[]{0, 1,
-		 * 3, 7}; String[] delta = new String[]{"000", "111", "000", "111"}; try
-		 * { IOT.executeI(con1, con2, i, delta); } catch
-		 * (NoSuchAlgorithmException e) { e.printStackTrace(); } break; case
-		 * Charlie: // R // In current configuration expected output is [000,
-		 * 110, 011, 000] System.out.println(Arrays.toString(IOT.executeR(con1,
-		 * con2))); break; case Eddie: // S String[] m = new String[]{"000",
-		 * "001", "010", "011", "100", "101", "110", "111"}; IOT.executeS(con1,
-		 * con2, m); break; }
-		 * 
-		 * // Ensure we don't close the connection before processing is finished
-		 * con1.write("finished"); con2.write("finished"); con1.readString();
-		 * con2.readString();
-		 */
 	}
 
 }

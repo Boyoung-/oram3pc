@@ -1,7 +1,6 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +56,6 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath> {
 		timing.decrypt_read.start();
 		ECPoint[] sigma_x = eddie.readECPointArray();
 		timing.decrypt_read.stop();
-		// System.out.println("--- D: sigma_x: " + sigma_x.length);
 
 		debbie.bandwidth[PID.oprf].start();
 		eddie.bandwidth[PID.oprf].start();
@@ -66,7 +64,6 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath> {
 		timing.oprf.start();
 		OPRF oprf = OPRFHelper.getOPRF();
 		oprf.timing = timing; // TODO: better way?
-		// String[] secretC_P = new String[sigma_x.length];
 		BigInteger[] secretC_P = new BigInteger[sigma_x.length];
 		for (int j = 0; j < sigma_x.length; j++) {
 			// This oprf should possibly be evaulated in as an Operation
@@ -91,17 +88,9 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath> {
 			Message res = oprf.deblind(msg2);
 			timing.oprf_online.stop();
 
-			PRG G;
-			// try {
-			G = new PRG(bucketBits); // TODO: fresh PRG non-deterministic
-										// problem?
-			// } catch (NoSuchAlgorithmException e) {
-			// e.printStackTrace();
-			// return null;
-			// }
+			PRG G = new PRG(bucketBits);
 
 			timing.oprf_online.start();
-			// secretC_P[j] = G.generateBitString(bucketBits, res.getResult());
 			secretC_P[j] = new BigInteger(1, G.compute(res.getResult()));
 			timing.oprf_online.stop();
 		}
@@ -214,22 +203,12 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath> {
 		Collections.shuffle(sigma, SR.rand);
 
 		ECPoint[] x = new ECPoint[Pbar.length];
-		// String[] Bbar = new String[Pbar.length];
 		BigInteger[] Bbar = new BigInteger[Pbar.length];
 		for (int j = 0; j < Pbar.length; j++) {
 			x[j] = Util.byteArrayToECPoint(Pbar[j].getNonce());
-			// Bbar[j] = Util.addZero(new BigInteger(1,
-			// Pbar[j].getByteTuples()).toString(2), bucketBits);
 			Bbar[j] = new BigInteger(1, Pbar[j].getByteTuples());
-			// try {
-			// Pbar[j].setNonce(null);
-			// } catch (BucketException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
 		}
 		ECPoint[] sigma_x = Util.permute(x, sigma);
-		// String[] secretE_P = Util.permute(Bbar, sigma);
 		BigInteger[] secretE_P = Util.permute(Bbar, sigma);
 		timing.decrypt_online.stop();
 
@@ -245,13 +224,5 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath> {
 
 		// E outputs sigma and secretE_P
 		return new DPOutput(null, secretE_P, sigma);
-	}
-
-	@Override
-	public EPath prepareArgs() {
-		return null;
-		/*
-		 * if (i==0) return null; return new EPath(n, l);
-		 */
 	}
 }
