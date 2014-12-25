@@ -1,18 +1,17 @@
 package sprout.oram;
 
-public class BucketException extends Exception
-{
-    /**
+public class BucketException extends Exception {
+	/**
      * 
      */
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * Default constructor for the TupleException.
-     * @param s
-     */
-    public BucketException(String s)
-    {
-	super(s);
-    }
+	/**
+	 * Default constructor for the TupleException.
+	 * 
+	 * @param s
+	 */
+	public BucketException(String s) {
+		super(s);
+	}
 }

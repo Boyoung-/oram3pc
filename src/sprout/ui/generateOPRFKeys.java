@@ -6,20 +6,19 @@ import sprout.crypto.oprf.OPRF;
 
 public class generateOPRFKeys {
 
-    public static String publicFilename = "keys/publicKey";
-    public static String privateFilename = "keys/privateKey";
-  
-    public static void main(String[] args)
-    {
-	OPRF serverOprf = new OPRF();
-	OPRF clientOprf = new OPRF(serverOprf.getPK());
-    
-	try {
-	    serverOprf.save(privateFilename);
-	    clientOprf.save(publicFilename);
-      
-	} catch (IOException e) {
-	    e.printStackTrace();
+	public static String publicFilename = "keys/publicKey";
+	public static String privateFilename = "keys/privateKey";
+
+	public static void main(String[] args) {
+		OPRF serverOprf = new OPRF();
+		OPRF clientOprf = new OPRF(serverOprf.getPK());
+
+		try {
+			serverOprf.save(privateFilename);
+			clientOprf.save(publicFilename);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-    }
 }
