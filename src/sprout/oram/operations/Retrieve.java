@@ -46,8 +46,8 @@ public class Retrieve extends Operation {
 		Access access = new Access(debbie, eddie);
 		access.loadTreeSpecificParameters(currTree);
 		timing.access.start();
-		AOutput AOut = access.executeCharlieSubTree(debbie, eddie, Li, null,
-				Nip1);
+		AOutput AOut = access.executeCharlieSubTree(debbie, eddie,
+				new BigInteger[] { Li, Nip1 });
 		timing.access.stop();
 		BigInteger[] output = new BigInteger[] { AOut.Lip1, AOut.secretC_Ti };
 
@@ -71,8 +71,8 @@ public class Retrieve extends Operation {
 		PostProcessT ppt = new PostProcessT(debbie, eddie);
 		ppt.loadTreeSpecificParameters(currTree);
 		timing.post.start();
-		BigInteger secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, Li,
-				null, new BigInteger[] { secretC_Ti, secretC_Li_p,
+		BigInteger secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie,
+				new BigInteger[] { Li, secretC_Ti, secretC_Li_p,
 						secretC_Lip1_p, Lip1, Nip1_pr });
 		timing.post.stop();
 
@@ -82,8 +82,8 @@ public class Retrieve extends Operation {
 		rs.loadTreeSpecificParameters(currTree);
 		List<Integer> tmp = null;
 		timing.reshuffle.start();
-		BigInteger secretC_pi_P = rs.executeCharlieSubTree(debbie, eddie, null,
-				null, Pair.of(secretC_P_p, tmp));
+		BigInteger secretC_pi_P = rs.executeCharlieSubTree(debbie, eddie,
+				Pair.of(secretC_P_p, tmp));
 		timing.reshuffle.stop();
 
 		// Eviction
@@ -91,7 +91,7 @@ public class Retrieve extends Operation {
 		evict.loadTreeSpecificParameters(currTree);
 		timing.eviction.start();
 		BigInteger secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie,
-				null, null, new BigInteger[] { secretC_pi_P, secretC_Ti_p });
+				new BigInteger[] { secretC_pi_P, secretC_Ti_p });
 		timing.eviction.stop();
 		if (currTree == 0)
 			secretC_P_pp = secretC_Ti_p;
@@ -100,7 +100,7 @@ public class Retrieve extends Operation {
 		EncryptPath ep = new EncryptPath(debbie, eddie);
 		ep.loadTreeSpecificParameters(currTree);
 		timing.encrypt.start();
-		ep.executeCharlieSubTree(debbie, eddie, null, null, secretC_P_pp);
+		ep.executeCharlieSubTree(debbie, eddie, secretC_P_pp);
 		timing.encrypt.stop();
 
 		return output;
@@ -112,14 +112,14 @@ public class Retrieve extends Operation {
 		Access access = new Access(charlie, eddie);
 		access.loadTreeSpecificParameters(currTree);
 		timing.access.start();
-		access.executeDebbieSubTree(charlie, eddie, k, null, null);
+		access.executeDebbieSubTree(charlie, eddie, new BigInteger[] { k });
 		timing.access.stop();
 
 		// PostProcessT
 		PostProcessT ppt = new PostProcessT(charlie, eddie);
 		ppt.loadTreeSpecificParameters(currTree);
 		timing.post.start();
-		ppt.executeDebbieSubTree(charlie, eddie, null, null, null);
+		ppt.executeDebbieSubTree(charlie, eddie, new BigInteger[] {});
 		timing.post.stop();
 
 		// Reshuffle
@@ -128,21 +128,21 @@ public class Retrieve extends Operation {
 		rs.loadTreeSpecificParameters(currTree);
 		BigInteger tmp = null;
 		timing.reshuffle.start();
-		rs.executeDebbieSubTree(charlie, eddie, null, null, Pair.of(tmp, pi));
+		rs.executeDebbieSubTree(charlie, eddie, Pair.of(tmp, pi));
 		timing.reshuffle.stop();
 
 		// Eviction
 		Eviction evict = new Eviction(charlie, eddie);
 		evict.loadTreeSpecificParameters(currTree);
 		timing.eviction.start();
-		evict.executeDebbieSubTree(charlie, eddie, null, null, null);
+		evict.executeDebbieSubTree(charlie, eddie, new BigInteger[] {});
 		timing.eviction.stop();
 
 		// EncryptPath
 		EncryptPath ep = new EncryptPath(charlie, eddie);
 		ep.loadTreeSpecificParameters(currTree);
 		timing.encrypt.start();
-		ep.executeDebbieSubTree(charlie, eddie, k, null, null);
+		ep.executeDebbieSubTree(charlie, eddie, k);
 		timing.encrypt.stop();
 	}
 
@@ -152,7 +152,8 @@ public class Retrieve extends Operation {
 		Access access = new Access(charlie, debbie);
 		access.loadTreeSpecificParameters(currTree);
 		timing.access.start();
-		AOutput AOut = access.executeEddieSubTree(charlie, debbie, OT, null);
+		AOutput AOut = access.executeEddieSubTree(charlie, debbie,
+				new BigInteger[] {});
 		timing.access.stop();
 
 		// PostProcessT
@@ -165,8 +166,7 @@ public class Retrieve extends Operation {
 		ppt.loadTreeSpecificParameters(currTree);
 		timing.post.start();
 		BigInteger secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie,
-				null, new BigInteger[] { secretE_Ti, secretE_Li_p,
-						secretE_Lip1_p });
+				new BigInteger[] { secretE_Ti, secretE_Li_p, secretE_Lip1_p });
 		timing.post.stop();
 
 		// Reshuffle
@@ -177,7 +177,7 @@ public class Retrieve extends Operation {
 		Reshuffle rs = new Reshuffle(charlie, debbie);
 		rs.loadTreeSpecificParameters(currTree);
 		timing.reshuffle.start();
-		BigInteger secretE_pi_P = rs.executeEddieSubTree(charlie, debbie, null,
+		BigInteger secretE_pi_P = rs.executeEddieSubTree(charlie, debbie,
 				Pair.of(secretE_P_p, pi));
 		timing.reshuffle.stop();
 
@@ -186,7 +186,7 @@ public class Retrieve extends Operation {
 		evict.loadTreeSpecificParameters(currTree);
 		timing.eviction.start();
 		BigInteger secretE_P_pp = evict.executeEddieSubTree(charlie, debbie,
-				null, new BigInteger[] { secretE_pi_P, secretE_Ti_p, Li });
+				new BigInteger[] { secretE_pi_P, secretE_Ti_p, Li });
 		timing.eviction.stop();
 		if (currTree == 0)
 			secretE_P_pp = secretE_Ti_p;
@@ -195,8 +195,7 @@ public class Retrieve extends Operation {
 		EncryptPath ep = new EncryptPath(charlie, debbie);
 		ep.loadTreeSpecificParameters(currTree);
 		timing.encrypt.start();
-		EPath EPOut = ep.executeEddieSubTree(charlie, debbie, null,
-				secretE_P_pp);
+		EPath EPOut = ep.executeEddieSubTree(charlie, debbie, secretE_P_pp);
 		timing.encrypt.stop();
 
 		// put encrypted path back to tree
@@ -240,7 +239,7 @@ public class Retrieve extends Operation {
 
 		int records = 6; // how many random records we want to test retrieval
 		int retrievals = 5; // for each record, how many repeated retrievals we
-								// want to do
+							// want to do
 
 		for (int test = 0; test < records; test++) {
 			BigInteger N = null;

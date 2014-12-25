@@ -9,7 +9,6 @@ import sprout.crypto.PRG;
 import sprout.crypto.SR;
 import sprout.crypto.oprf.OPRF;
 import sprout.oram.PID;
-import sprout.oram.Tree;
 
 public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
@@ -23,8 +22,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 	@Override
 	public EPath executeCharlieSubTree(Communication debbie,
-			Communication eddie, BigInteger unused1, Tree unused2,
-			BigInteger secretC_P) {
+			Communication eddie, BigInteger secretC_P) {
 		debbie.countBandwidth = true;
 		eddie.countBandwidth = true;
 		debbie.bandwidth[PID.encrypt].start();
@@ -71,7 +69,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 	@Override
 	public EPath executeDebbieSubTree(Communication charlie,
-			Communication eddie, BigInteger k, Tree unused1, BigInteger unused2) {
+			Communication eddie, BigInteger k) {
 		charlie.countBandwidth = true;
 		eddie.countBandwidth = true;
 		charlie.bandwidth[PID.encrypt].start();
@@ -142,7 +140,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 	@Override
 	public EPath executeEddieSubTree(Communication charlie,
-			Communication debbie, Tree unused, BigInteger secretE_P) {
+			Communication debbie, BigInteger secretE_P) {
 		charlie.countBandwidth = true;
 		debbie.countBandwidth = true;
 		charlie.bandwidth[PID.encrypt].start();

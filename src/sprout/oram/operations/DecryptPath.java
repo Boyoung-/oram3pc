@@ -19,7 +19,7 @@ import sprout.oram.Tree;
 import sprout.oram.TreeException;
 import sprout.util.Util;
 
-public class DecryptPath extends TreeOperation<DPOutput, EPath> {
+public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 
 	public DecryptPath(Communication con1, Communication con2) {
 		super(con1, con2);
@@ -27,7 +27,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath> {
 
 	@Override
 	public DPOutput executeCharlieSubTree(Communication debbie,
-			Communication eddie, BigInteger Li, Tree unused1, EPath unused2) {
+			Communication eddie, BigInteger Li) {
 		debbie.countBandwidth = true;
 		eddie.countBandwidth = true;
 		debbie.bandwidth[PID.decrypt].start();
@@ -110,7 +110,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath> {
 
 	@Override
 	public DPOutput executeDebbieSubTree(Communication charlie,
-			Communication eddie, BigInteger k, Tree unused1, EPath unused2) {
+			Communication eddie, BigInteger k) {
 		charlie.countBandwidth = true;
 		eddie.countBandwidth = true;
 		charlie.bandwidth[PID.decrypt].start();
@@ -157,7 +157,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath> {
 
 	@Override
 	public DPOutput executeEddieSubTree(Communication charlie,
-			Communication debbie, Tree OT, EPath unused1) {
+			Communication debbie, BigInteger arg_unused) {
 		charlie.countBandwidth = true;
 		debbie.countBandwidth = true;
 		charlie.bandwidth[PID.decrypt].start();
@@ -185,7 +185,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath> {
 		Bucket[] Pbar = null;
 		try {
 			timing.decrypt_online.start();
-			Pbar = OT.getBucketsOnPath(Li);
+			Pbar = new Tree(i).getBucketsOnPath(Li);
 			timing.decrypt_online.stop();
 		} catch (TreeException e) {
 			e.printStackTrace();

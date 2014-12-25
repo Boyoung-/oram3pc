@@ -7,7 +7,6 @@ import sprout.crypto.PRG;
 import sprout.crypto.SR;
 import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
-import sprout.oram.Tree;
 
 // TODO: This operation is unlike the other TreeOperations we may want to 
 //   Extend Operation ourselves, or redefine execute & run
@@ -23,17 +22,18 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
-			Communication eddie, BigInteger Li, Tree u2, BigInteger[] extraArgs) {
-		if (extraArgs.length != 5) {
+			Communication eddie, BigInteger[] args) {
+		if (args.length != 6) {
 			throw new IllegalArgumentException(
-					"Must supply sC_Ti, sC_Li_p, sC_Lip1_p, Lip1, Nip1_pr to charlie");
+					"Must supply Li, sC_Ti, sC_Li_p, sC_Lip1_p, Lip1, Nip1_pr to charlie");
 		}
 
-		BigInteger secretC_Ti = extraArgs[0];
-		BigInteger secretC_Li_p = extraArgs[1];
-		BigInteger secretC_Lip1_p = extraArgs[2];
-		BigInteger Lip1 = extraArgs[3];
-		BigInteger Nip1_pr = extraArgs[4];
+		BigInteger Li = args[0];
+		BigInteger secretC_Ti = args[1];
+		BigInteger secretC_Li_p = args[2];
+		BigInteger secretC_Lip1_p = args[3];
+		BigInteger Lip1 = args[4];
+		BigInteger Nip1_pr = args[5];
 		int Nip1_pr_int = 0;
 		if (i < h)
 			Nip1_pr_int = Nip1_pr.intValue();
@@ -137,7 +137,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 	@Override
 	public BigInteger executeDebbieSubTree(Communication charlie,
-			Communication eddie, BigInteger u1, Tree u3, BigInteger[] u4) {
+			Communication eddie, BigInteger[] args_unused) {
 		if (i == h) {
 			return null;
 		}
@@ -206,15 +206,15 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
-			Communication debbie, Tree u2, BigInteger[] extraArgs) {
-		if (extraArgs.length != 3) {
+			Communication debbie, BigInteger[] args) {
+		if (args.length != 3) {
 			throw new IllegalArgumentException(
 					"Must supply sE_Ti, sE_Li_p, and sE_Lip1_p to eddie");
 		}
 
-		BigInteger secretE_Ti = extraArgs[0];
-		BigInteger secretE_Li_p = extraArgs[1];
-		BigInteger secretE_Lip1_p = extraArgs[2];
+		BigInteger secretE_Ti = args[0];
+		BigInteger secretE_Li_p = args[1];
+		BigInteger secretE_Lip1_p = args[2];
 
 		// protocol
 		// i = 0 case

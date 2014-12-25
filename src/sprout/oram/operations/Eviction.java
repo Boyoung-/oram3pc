@@ -6,7 +6,6 @@ import java.security.NoSuchAlgorithmException;
 import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.PID;
-import sprout.oram.Tree;
 import sprout.util.Util;
 
 public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
@@ -21,8 +20,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
-			Communication eddie, BigInteger unused1, Tree unused2,
-			BigInteger[] extraArgs) {
+			Communication eddie, BigInteger[] args) {
 		if (i == 0)
 			return null;
 
@@ -37,8 +35,8 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// protocol
 		// step 1
-		BigInteger sC_P_p = extraArgs[0];
-		BigInteger sC_T_p = extraArgs[1];
+		BigInteger sC_P_p = args[0];
+		BigInteger sC_T_p = args[1];
 
 		for (int j = 0; j < d_i; j++) {
 			timing.eviction_online.start();
@@ -124,8 +122,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 	@Override
 	public BigInteger executeDebbieSubTree(Communication charlie,
-			Communication eddie, BigInteger unused1, Tree unused2,
-			BigInteger[] unused3) {
+			Communication eddie, BigInteger[] args_unused) {
 		if (i == 0)
 			return null;
 
@@ -231,7 +228,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
-			Communication debbie, Tree unused, BigInteger[] extraArgs) {
+			Communication debbie, BigInteger[] args) {
 		if (i == 0)
 			return null;
 
@@ -246,9 +243,9 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// protocol
 		// step 1
-		BigInteger sE_P_p = extraArgs[0];
-		BigInteger sE_T_p = extraArgs[1];
-		BigInteger Li = extraArgs[2];
+		BigInteger sE_P_p = args[0];
+		BigInteger sE_T_p = args[1];
+		BigInteger Li = args[2];
 
 		for (int j = 0; j < d_i; j++) {
 			timing.eviction_online.start();

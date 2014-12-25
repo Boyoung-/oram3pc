@@ -7,7 +7,6 @@ import sprout.communication.Communication;
 import sprout.crypto.PRG;
 import sprout.crypto.SR;
 import sprout.oram.PID;
-import sprout.oram.Tree;
 import sprout.util.Util;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,12 +24,11 @@ public class Reshuffle extends
 
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
-			Communication eddie, BigInteger Li, Tree OT,
-			Pair<BigInteger, List<Integer>> extraArgs) {
+			Communication eddie, Pair<BigInteger, List<Integer>> args) {
 		debbie.countBandwidth = false;
 		eddie.countBandwidth = false;
 
-		BigInteger secretC_P = extraArgs.getLeft();
+		BigInteger secretC_P = args.getLeft();
 
 		// i = 0 case: no shuffle needed
 		if (i == 0) {
@@ -93,12 +91,11 @@ public class Reshuffle extends
 
 	@Override
 	public BigInteger executeDebbieSubTree(Communication charlie,
-			Communication eddie, BigInteger k, Tree OT,
-			Pair<BigInteger, List<Integer>> extraArgs) {
+			Communication eddie, Pair<BigInteger, List<Integer>> args) {
 		charlie.countBandwidth = false;
 		eddie.countBandwidth = false;
 
-		List<Integer> pi = extraArgs.getRight();
+		List<Integer> pi = args.getRight();
 
 		// i = 0 case: no shuffle needed
 		if (i == 0) {
@@ -176,13 +173,12 @@ public class Reshuffle extends
 
 	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
-			Communication debbie, Tree OT,
-			Pair<BigInteger, List<Integer>> extraArgs) {
+			Communication debbie, Pair<BigInteger, List<Integer>> args) {
 		charlie.countBandwidth = false;
 		debbie.countBandwidth = false;
 
-		BigInteger secretE_P = extraArgs.getLeft();
-		List<Integer> pi = extraArgs.getRight();
+		BigInteger secretE_P = args.getLeft();
+		List<Integer> pi = args.getRight();
 
 		// i = 0 case: no shuffle needed
 		if (i == 0) {

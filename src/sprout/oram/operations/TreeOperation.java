@@ -1,16 +1,12 @@
 package sprout.oram.operations;
 
-import java.math.BigInteger;
-
 import org.apache.commons.lang3.NotImplementedException;
 
 import sprout.communication.Communication;
-import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
-import sprout.oram.Tree;
 
 public abstract class TreeOperation<T extends Object, V> extends Operation {
 
@@ -71,18 +67,26 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 		}
 	}
 
-	public T execute(Party party, BigInteger Li, BigInteger k, Tree OT,
-			V extraArgs) {
+	/*
+	 * public T execute(Party party, BigInteger Li, BigInteger k, Tree OT, V
+	 * extraArgs) { loadTreeSpecificParameters(i);
+	 * 
+	 * // TODO: remove unnecessary args switch (party) { case Charlie: return
+	 * executeCharlieSubTree(con1, con2, Li, OT, extraArgs); case Debbie: return
+	 * executeDebbieSubTree(con1, con2, k, OT, extraArgs); case Eddie: return
+	 * executeEddieSubTree(con1, con2, OT, extraArgs); } return null; }
+	 */
+	public T execute(Party party, V args) {
 		loadTreeSpecificParameters(i);
 
 		// TODO: remove unnecessary args
 		switch (party) {
 		case Charlie:
-			return executeCharlieSubTree(con1, con2, Li, OT, extraArgs);
+			return executeCharlieSubTree(con1, con2, args);
 		case Debbie:
-			return executeDebbieSubTree(con1, con2, k, OT, extraArgs);
+			return executeDebbieSubTree(con1, con2, args);
 		case Eddie:
-			return executeEddieSubTree(con1, con2, OT, extraArgs);
+			return executeEddieSubTree(con1, con2, args);
 		}
 		return null;
 	}
@@ -94,32 +98,38 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		initializeMetadata();
-
-		BigInteger k = OPRFHelper.getOPRF(party).getK();
-		for (int i = 0; i <= h; i++) {
-			Tree OT = null;
-			if (forest != null)
-				OT = forest.getTree(i);
-			this.loadTreeSpecificParameters(i);
-			BigInteger Li = new BigInteger(lBits, SR.rand);
-
-			T out = execute(party, Li, k, OT, prepareArgs(party));
-			if (print_out && out != null)
-				System.out.println("Output i=" + i + " : \n" + out.toString());
-			else
-				System.out.println("Finished round " + i);
-		}
+		/*
+		 * initializeMetadata();
+		 * 
+		 * BigInteger k = OPRFHelper.getOPRF(party).getK(); for (int i = 0; i <=
+		 * h; i++) { Tree OT = null; if (forest != null) OT = forest.getTree(i);
+		 * this.loadTreeSpecificParameters(i); BigInteger Li = new
+		 * BigInteger(lBits, SR.rand);
+		 * 
+		 * T out = execute(party, prepareArgs(party)); if (print_out && out !=
+		 * null) System.out.println("Output i=" + i + " : \n" + out.toString());
+		 * else System.out.println("Finished round " + i); }
+		 */
 	}
 
+	/*
+	 * public abstract T executeCharlieSubTree(Communication debbie,
+	 * Communication eddie, BigInteger Li, Tree OT, V extraArgs);
+	 * 
+	 * public abstract T executeDebbieSubTree(Communication charlie,
+	 * Communication eddie, BigInteger k, Tree OT, V extraArgs);
+	 * 
+	 * public abstract T executeEddieSubTree(Communication charlie,
+	 * Communication debbie, Tree OT, V extraArgs);
+	 */
 	public abstract T executeCharlieSubTree(Communication debbie,
-			Communication eddie, BigInteger Li, Tree OT, V extraArgs);
+			Communication eddie, V args);
 
 	public abstract T executeDebbieSubTree(Communication charlie,
-			Communication eddie, BigInteger k, Tree OT, V extraArgs);
+			Communication eddie, V args);
 
 	public abstract T executeEddieSubTree(Communication charlie,
-			Communication debbie, Tree OT, V extraArgs);
+			Communication debbie, V args);
 
 	public V prepareArgs() {
 		return prepareArgs(null);
