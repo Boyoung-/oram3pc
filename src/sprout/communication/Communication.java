@@ -438,6 +438,10 @@ public class Communication
 	}
 	
 	public void write(BigInteger out){
+		if (out == null) {
+		      write(new byte[] {});
+		      return;
+		    }
     write(out.toByteArray());
   }
 
@@ -450,7 +454,11 @@ public class Communication
   }
 
   public BigInteger readBigInteger(){
-    return new BigInteger(read());
+	  byte[] msg = read();
+	    
+	    if (msg.length == 0)
+	      return null;
+    return new BigInteger(1, msg);
   }
 
   public ECPoint readECPoint(){

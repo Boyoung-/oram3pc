@@ -4,12 +4,13 @@ import java.math.BigInteger;
 
 import sprout.communication.Communication;
 import sprout.crypto.SR;
+import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
 import sprout.oram.Tree;
 import sprout.util.Util;
 
 // TODO: remove testing code
-public class Access extends TreeOperation<AOutput, String> {
+public class Access extends TreeOperation<AOutput, BigInteger> {
   
   public Access(Communication con1, Communication con2) {
     super(con1, con2);
@@ -17,11 +18,20 @@ public class Access extends TreeOperation<AOutput, String> {
   
   @Override
   public AOutput executeCharlieSubTree(Communication debbie, Communication eddie,
-                                       String Li, Tree unused, String Nip1) {
+                                       BigInteger Li, Tree unused, BigInteger Nip1) {
 	  
-    // prepare                                 
-    String Ni = Nip1.substring(0, nBits);     
-    String Nip1_pr = Nip1.substring(nBits);  
+    // prepare       
+	  int Nip1Bits;
+  	if (i < h-1) {
+  		Nip1Bits = (i+1)*tau;
+  	}
+  	else {
+  		Nip1Bits = ForestMetadata.getLastNBits();
+  	}
+    //String Ni = Nip1.substring(0, nBits);     
+    //String Nip1_pr = Nip1.substring(nBits);  
+	  BigInteger Ni = Util.getSubBits(Nip1, Nip1Bits-nBits, Nip1Bits);
+	  BigInteger Nip1_pr = Util.getSubBits(Nip1, 0, Nip1Bits-nBits);
     
     debbie.countBandwidth = true;
     eddie.countBandwidth = true;
@@ -52,7 +62,7 @@ public class Access extends TreeOperation<AOutput, String> {
     	timing.access_online.start();
       for (int j=0; j<pathTuples; j++) {
     	  a[j] = Util.getSubBits(secretC_P, (pathTuples-j)*tupleBits-1-nBits, (pathTuples-j)*tupleBits); // TODO: better way?
-    	  c[j] = new BigInteger(Ni, 2).setBit(nBits).xor(a[j]);
+    	  c[j] = Ni.setBit(nBits).xor(a[j]);
       }
       timing.access_online.stop();
       //sanityCheck()();
@@ -90,7 +100,7 @@ public class Access extends TreeOperation<AOutput, String> {
     if (i < h) {
       // AOT(E, C, D)
       //sanityCheck();
-      j_2 = new BigInteger(Nip1_pr, 2).intValue();
+      j_2 = Nip1_pr.intValue();
       timing.aot.start();
       ybar_j2 = aot.executeC(debbie, eddie, j_2);
       timing.aot.stop();
@@ -125,7 +135,7 @@ public class Access extends TreeOperation<AOutput, String> {
     
     BigInteger secretC_Ti = secretC_Aj1.xor(fbar);
     if (i > 0)
-    	secretC_Ti = new BigInteger(Ni, 2).shiftLeft(lBits+aBits).xor(new BigInteger(Li, 2).shiftLeft(aBits)).xor(secretC_Ti).setBit(tupleBits-1);
+    	secretC_Ti = Ni.shiftLeft(lBits+aBits).xor(Li.shiftLeft(aBits)).xor(secretC_Ti).setBit(tupleBits-1);
     BigInteger secretC_P_p = null;
     if (i > 0) {
     	boolean flipBit = !secretC_P.testBit((pathTuples-j_1)*tupleBits-1);
@@ -168,7 +178,7 @@ public class Access extends TreeOperation<AOutput, String> {
   
   @Override
   public AOutput executeDebbieSubTree(Communication charlie, Communication eddie,
-                                      BigInteger k, Tree unused1, String unused2) {
+                                      BigInteger k, Tree unused1, BigInteger unused2) {
 	  charlie.countBandwidth = true;
 	  eddie.countBandwidth = true;	  
 	  charlie.bandwidth[PID.access].start();
@@ -227,7 +237,7 @@ public class Access extends TreeOperation<AOutput, String> {
   
   @Override
   public AOutput executeEddieSubTree(Communication charlie, Communication debbie,
-                                     Tree OT, String unused) {
+                                     Tree OT, BigInteger unused) {
 	  charlie.countBandwidth = true;
 	  debbie.countBandwidth = true;
 	  charlie.bandwidth[PID.access].start();
@@ -339,6 +349,7 @@ public class Access extends TreeOperation<AOutput, String> {
   */
   }
 
+  /*
   @Override
   public String prepareArgs() {
     // Nip1 
@@ -346,4 +357,5 @@ public class Access extends TreeOperation<AOutput, String> {
     // nBits = i*tau, thus when i=0 nBits = 0 and nBits+tau = tau
     return  Util.addZero(new BigInteger(nBits+tau, SR.rand).toString(2), nBits+tau); 
   }
+  */
 }

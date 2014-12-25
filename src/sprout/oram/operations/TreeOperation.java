@@ -90,7 +90,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
     }
   }
   
-  public T execute(Party party, String Li, BigInteger k, Tree OT, V extraArgs) {
+  public T execute(Party party, BigInteger Li, BigInteger k, Tree OT, V extraArgs) {
     loadTreeSpecificParameters(i);
     
     // TODO: remove unnecessary args 
@@ -109,6 +109,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
   /*
    * This is mostly just testing code and may need to change for the purpose of an actual execution
    */
+  
   @Override
   public void run(Party party, Forest forest) throws ForestException {
     initializeMetadata();
@@ -119,7 +120,8 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
       if (forest != null)
     	  OT = forest.getTree(i);
       this.loadTreeSpecificParameters(i);    
-      String Li = Util.addZero(new BigInteger(lBits, SR.rand).toString(2), lBits);  
+      //String Li = Util.addZero(new BigInteger(lBits, SR.rand).toString(2), lBits);  
+      BigInteger Li = new BigInteger(lBits, SR.rand);
       
       T out = execute(party, Li, k, OT, prepareArgs(party));
       if (print_out && out!=null) System.out.println("Output i=" + i + " : \n" + out.toString());
@@ -127,7 +129,8 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
     }
   }
   
-  public abstract T executeCharlieSubTree(Communication debbie, Communication eddie, String Li, Tree OT, V extraArgs);
+  
+  public abstract T executeCharlieSubTree(Communication debbie, Communication eddie, BigInteger Li, Tree OT, V extraArgs);
   public abstract T executeDebbieSubTree(Communication charlie, Communication eddie, BigInteger k, Tree OT, V extraArgs);
   public abstract T executeEddieSubTree(Communication charlie, Communication debbie, Tree OT, V extraArgs);
   

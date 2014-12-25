@@ -271,10 +271,14 @@ public class Util
 		return r;
 	}
 	
+	/*
 	public static byte[] getSubBits(byte[] b, int i, int j) {
+		if (i == j)
+			return new byte[]{};
 		BigInteger bi = Util.getSubBits(new BigInteger(1, b), i, j);
 		return Util.addOrRmBits(bi.toByteArray(), j-i);
 	}
+	*/
 	
 	public static BigInteger getSubBits(BigInteger n, int i, int j)
 	{

@@ -103,6 +103,17 @@ public class Tree
 		return getBucketsOnPath(new BigInteger(L, 2).longValue());
 	}
 	
+	public void setBucketsOnPath(Bucket[] buckets, BigInteger L) throws TreeException {
+		if (L == null && index != 0)
+			throw new TreeException("L is null");
+		else if (L == null && index == 0) {
+			setBucketsOnPath(buckets, 0);
+			return;
+		}
+		else
+			setBucketsOnPath(buckets, L.longValue());
+	}
+	
 	public void setBucketsOnPath(Bucket[] buckets, long L) throws TreeException
 	{
 		List<Long> indices = getBucketIndicesOnPath(L);

@@ -28,7 +28,7 @@ public class Reshuffle extends TreeOperation<BigInteger, Pair<BigInteger, List<I
 
   @Override
   public BigInteger executeCharlieSubTree(Communication debbie,
-      Communication eddie, String Li, Tree OT, Pair<BigInteger, List<Integer>> extraArgs) {
+      Communication eddie, BigInteger Li, Tree OT, Pair<BigInteger, List<Integer>> extraArgs) {
 	    debbie.countBandwidth = false;
 	    eddie.countBandwidth = false;
 	  

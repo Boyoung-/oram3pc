@@ -24,7 +24,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
   @Override
   public EPath executeCharlieSubTree(Communication debbie, Communication eddie, 
-		  String unused1, Tree unused2, BigInteger secretC_P) {
+		  BigInteger unused1, Tree unused2, BigInteger secretC_P) {
 	  debbie.countBandwidth = true;
 	    eddie.countBandwidth = true;
 	    debbie.bandwidth[PID.encrypt].start();

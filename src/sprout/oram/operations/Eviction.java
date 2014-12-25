@@ -22,7 +22,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
   @Override
   public BigInteger executeCharlieSubTree(Communication debbie, Communication eddie, 
-		  String unused1, Tree unused2, BigInteger[] extraArgs) {
+		  BigInteger unused1, Tree unused2, BigInteger[] extraArgs) {
 	  if (i == 0)
 		  return null;
 	  

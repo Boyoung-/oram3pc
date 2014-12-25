@@ -40,7 +40,7 @@ public class Retrieve extends Operation {
 	  }
   }
 
-  public BigInteger[] executeCharlie(Communication debbie, Communication eddie, String Li, String Nip1) {
+  public BigInteger[] executeCharlie(Communication debbie, Communication eddie, BigInteger Li, BigInteger Nip1) {
 	  // Access
 	  Access access = new Access(debbie, eddie);
 	  access.loadTreeSpecificParameters(currTree);
@@ -56,9 +56,19 @@ public class Retrieve extends Operation {
 	  if (currTree < ForestMetadata.getLevels()-1)
 		  secretC_Lip1_p = sC_Li_p[currTree+1];
 	  BigInteger Lip1 = AOut.Lip1;
-	  BigInteger Nip1_pr = BigInteger.ZERO;
-	  if (Nip1.substring(ForestMetadata.getNBits(currTree)).length() > 0)
-		  Nip1_pr = new BigInteger(Nip1.substring(ForestMetadata.getNBits(currTree)), 2);
+	  //BigInteger Nip1_pr = BigInteger.ZERO;
+	  //if (Nip1.substring(ForestMetadata.getNBits(currTree)).length() > 0)
+		//  Nip1_pr = new BigInteger(Nip1.substring(ForestMetadata.getNBits(currTree)), 2);
+	  int h = ForestMetadata.getLevels()-1;
+	  int tau = ForestMetadata.getTau();
+	  int Nip1Bits;
+	  	if (currTree < h-1) {
+	  		Nip1Bits = (currTree+1)*tau;
+	  	}
+	  	else {
+	  		Nip1Bits = ForestMetadata.getLastNBits();
+	  	}
+	  	BigInteger Nip1_pr = Util.getSubBits(Nip1, 0, Nip1Bits-ForestMetadata.getNBits(currTree));
 	  PostProcessT ppt = new PostProcessT(debbie, eddie);
 	  ppt.loadTreeSpecificParameters(currTree);
 	  timing.post.start();
@@ -133,7 +143,7 @@ public class Retrieve extends Operation {
 	  timing.encrypt.stop();
   }
 
-  public void executeEddie(Communication charlie, Communication debbie, Tree OT, String Li) {
+  public void executeEddie(Communication charlie, Communication debbie, Tree OT, BigInteger Li) {
 	  // Access
 	  Access access = new Access(charlie, debbie);
 	  access.loadTreeSpecificParameters(currTree);
@@ -167,7 +177,7 @@ public class Retrieve extends Operation {
 	  Eviction evict = new Eviction(charlie, debbie);
 	  evict.loadTreeSpecificParameters(currTree);
 	  timing.eviction.start();
-	  BigInteger secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{secretE_pi_P, secretE_Ti_p, Li.equals("")?null:new BigInteger(Li, 2)});
+	  BigInteger secretE_P_pp = evict.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{secretE_pi_P, secretE_Ti_p, Li});
 	  timing.eviction.stop();
 	  if (currTree == 0)
 		  secretE_P_pp = secretE_Ti_p;
@@ -216,56 +226,72 @@ public class Retrieve extends Operation {
 	  if (shiftN == 0) 
 		  shiftN = tau;
 	  
-	  int records = 6;     // how many random records we want to test retrieval
-	  int retrievals = 5;  // for each record, how many repeated retrievals we want to do
+	  int records = 15;     // how many random records we want to test retrieval
+	  int retrievals = 10;  // for each record, how many repeated retrievals we want to do
 	  
 	  for (int test=0; test<records; test++) { 
-		  String N = null;
-		  long expected = 0;
+		  BigInteger N = null;
 		  if (party == Party.Charlie) {
 			  if (numInsert == -1)
-				  N = Util.addZero(new BigInteger(lastNBits, SR.rand).toString(2), lastNBits);
+				  //N = Util.addZero(new BigInteger(lastNBits, SR.rand).toString(2), lastNBits);
+				  N = new BigInteger(lastNBits, SR.rand);
 			  else
-				  N = Util.addZero(Util.nextBigInteger(BigInteger.valueOf(numInsert)).toString(2), lastNBits);
-			  expected = new BigInteger(N, 2).intValue();
+				  //N = Util.addZero(Util.nextBigInteger(BigInteger.valueOf(numInsert)).toString(2), lastNBits);
+				  N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
+			  //expected = new BigInteger(N, 2).intValue();
 		  }
 		  
 		  for (long exec=0; exec<retrievals; exec++) {
-			  String Li = "";
+			  //String Li = "";
+			  BigInteger Li = null;
 			  if (party == Party.Charlie)
-				  System.out.println(test + ": stored record is: " + expected + " (N=" + N + ")");
+				  System.out.println(test + ": stored record is: " + N.longValue() + " (N=" + Util.addZero(N.toString(2), lastNBits) + ")");
 			  System.out.println("Execution cycle: " + exec);
 			  
 			  precomputation(); // TODO: not every party needs to do all of them
 			  
 			  for (int i=0; i<= h; i++) {
 				  currTree = i;
+			    	//int d_ip1;
+			    	//if (i == h)
+			    	 //     d_ip1     	= ForestMetadata.getABits(i) / ForestMetadata.getTwoTauPow();
+			    	 //   else
+			    	 //     d_ip1     	= ForestMetadata.getLBits(i+1); 
 				  
 			    switch (party) {
 			    case Charlie: 
-			    	String Ni = N;
-			    	if (i < h-1) 
-			    		Ni = N.substring(0, (i+1)*tau);
-			    	System.out.println("i=" + i + ", Li=" + Li);
+			    	//String Ni = N;
+			    	BigInteger Ni;
+			    	int length;
+			    	if (i < h-1) {
+			    		//Ni = N.substring(0, (i+1)*tau);
+			    		Ni = Util.getSubBits(N, lastNBits-(i+1)*tau, lastNBits);
+			    		length = (i+1)*tau;
+			    	}
+			    	else {
+			    		Ni = N;
+			    		length = lastNBits;
+			    	}
+			    	
+			    	System.out.println("i=" + i + ", Li=" + (Li==null?"":Util.addZero(Li.toString(2), ForestMetadata.getLBits(i))));
 			    	con2.write(Li);
 			    	BigInteger[] outC = executeCharlie(con1, con2, Li, Ni);
-			    	int d_ip1;
-			    	if (i == h)
-			    	      d_ip1     	= ForestMetadata.getABits(i) / ForestMetadata.getTwoTauPow();
-			    	    else
-			    	      d_ip1     	= ForestMetadata.getLBits(i+1); 
-			    	Li = "";
-			    	if (outC[0] != null)
-			    		Li = Util.addZero(outC[0].toString(2), d_ip1);
+			    	//Li = "";
+			    	//if (outC[0] != null)
+			    		//Li = Util.addZero(outC[0].toString(2), d_ip1);
+			    	Li = outC[0];
 			    	if (i == h) {
 			    		//String D = outC[1].substring(outC[1].length()-ForestMetadata.getDataSize()*8);
-			    		String outC_1 = Util.addZero(outC[1].toString(2), ForestMetadata.getTupleBits(i));
-			    		String D = outC_1.substring(outC_1.length()-ForestMetadata.getDataSize()*8);
+			    		//String outC_1 = Util.addZero(outC[1].toString(2), ForestMetadata.getTupleBits(i));
+			    		//String D = outC_1.substring(outC_1.length()-ForestMetadata.getDataSize()*8);
+			    		BigInteger D = Util.getSubBits(outC[1], 0, ForestMetadata.getDataSize()*8);
 			    		
-			    		int record = new BigInteger(D, 2).intValue();
-			    		System.out.println("Retrieved record is: " + new BigInteger(D, 2));
-			    		System.out.println("Is record correct: " + (record==expected?"YES":"NO!!") + "\n");
-			    		if (record != expected)
+			    		//long record = new BigInteger(D, 2).longValue();
+			    		System.out.println("Retrieved record is: " + D);
+			    		//System.out.println("Is record correct: " + (record==N.longValue()?"YES":"NO!!") + "\n");
+			    		System.out.println("Is record correct: " + (D.compareTo(D)==0?"YES":"NO!!") + "\n");
+			    		//if (record != N.longValue())
+			    		if (D.compareTo(N)!=0)
 							try {
 								throw new Exception("Retrieval error");
 							} catch (Exception e) {
@@ -277,8 +303,9 @@ public class Retrieve extends Operation {
 			    	executeDebbie(con1, con2, null);
 			      break;
 			    case Eddie: 
-			    	Li = con1.readString();
-			    	executeEddie(con1, con2, forest.getTree(currTree), Li);
+			    	//Li = con1.readString();
+			    	Li = con1.readBigInteger();
+			    	executeEddie(con1, con2, forest.getTree(currTree), (Li));
 			      break;
 			    }
 			  }

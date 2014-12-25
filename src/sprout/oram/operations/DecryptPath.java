@@ -28,7 +28,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
 
   @Override
   public DPOutput executeCharlieSubTree(Communication debbie, Communication eddie,
-                                        String Li, Tree unused1, EPath unused2) {
+                                        BigInteger Li, Tree unused1, EPath unused2) {
 	  debbie.countBandwidth = true;
 	  eddie.countBandwidth = true;
 	  debbie.bandwidth[PID.decrypt].start();
@@ -42,7 +42,7 @@ public class DecryptPath extends TreeOperation<DPOutput, EPath>{
     // C sends Li to E
 	  if (lBits > 0) {
 		  timing.decrypt_online.start();
-		  byte[] Li_byte = new BigInteger(Li, 2).toByteArray();
+		  byte[] Li_byte = Li.toByteArray();
 		  timing.decrypt_online.stop();
 		  
 		  timing.decrypt_write.start();

@@ -27,7 +27,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]>{
 
   @Override
   public BigInteger executeCharlieSubTree(Communication debbie, Communication eddie, 
-		  String Li, Tree u2, BigInteger[] extraArgs) {
+		  BigInteger Li, Tree u2, BigInteger[] extraArgs) {
     if (extraArgs.length != 5) {
       throw new IllegalArgumentException("Must supply sC_Ti, sC_Li_p, sC_Lip1_p, Lip1, Nip1_pr to charlie");
     }
@@ -45,7 +45,8 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]>{
     // protocol
     // i = 0 case
     if (i == 0) {
-      Li = "";
+      //Li = "";
+    	Li = null;
     	secretC_Li_p = null;
     }
     
@@ -54,7 +55,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]>{
       int d_size = ForestMetadata.getABits(i);
       // party C
       timing.post_online.start();
-      BigInteger triangle_C = new BigInteger(Li, 2).xor(secretC_Li_p).shiftLeft(d_size);  
+      BigInteger triangle_C = Li.xor(secretC_Li_p).shiftLeft(d_size);  
       BigInteger secretC_Ti_p = secretC_Ti.xor(triangle_C);
       timing.post_online.stop();
       return secretC_Ti_p;      
@@ -122,7 +123,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]>{
     if (i == 0)
       triangle_C = A_C;
     else
-    	triangle_C = new BigInteger(Li, 2).xor(secretC_Li_p).shiftLeft(aBits).xor(A_C);
+    	triangle_C = Li.xor(secretC_Li_p).shiftLeft(aBits).xor(A_C);
     BigInteger secretC_Ti_p = secretC_Ti.xor(triangle_C);
     timing.post_online.stop();
     
