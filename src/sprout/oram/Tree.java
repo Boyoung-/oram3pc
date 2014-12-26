@@ -77,6 +77,16 @@ public class Tree {
 		return indices;
 	}
 
+	public Bucket[] getBucketsOnPath(BigInteger L) throws TreeException,
+			BucketException {
+		if (L == null && index != 0)
+			throw new TreeException("L is null");
+		else if (L == null && index == 0)
+			return getBucketsOnPath(0);
+		else
+			return getBucketsOnPath(L.longValue());
+	}
+
 	public Bucket[] getBucketsOnPath(long L) throws TreeException,
 			BucketException {
 		List<Long> indices = getBucketIndicesOnPath(L);

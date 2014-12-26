@@ -106,12 +106,9 @@ public class Reshuffle extends
 		try {
 			// precomputation
 			timing.reshuffle_offline.start();
-			PRG G1 = new PRG(pathBuckets * bucketBits);
-			PRG G2 = new PRG(pathBuckets * bucketBits); // TODO: same issue:
-														// non-fresh ->
-														// non-deterministic
+			PRG G = new PRG(pathBuckets * bucketBits);
 			byte[] s2 = SR.rand.generateSeed(16);
-			p2 = G2.compute(s2);
+			p2 = G.compute(s2);
 			timing.reshuffle_offline.stop();
 
 			timing.reshuffle_offline_write.start();
@@ -123,7 +120,7 @@ public class Reshuffle extends
 			timing.reshuffle_offline_read.stop();
 
 			timing.reshuffle_offline.start();
-			p1 = G1.compute(s1);
+			p1 = G.compute(s1);
 			timing.reshuffle_offline.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -207,7 +204,6 @@ public class Reshuffle extends
 		// C sends E z
 		// sanityCheck(charlie);
 		timing.reshuffle_read.start();
-		// String z = charlie.readString();
 		BigInteger z = charlie.readBigInteger();
 		timing.reshuffle_read.stop();
 

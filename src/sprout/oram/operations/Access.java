@@ -8,7 +8,6 @@ import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
 import sprout.util.Util;
 
-// TODO: remove testing code
 public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 	public Access(Communication con1, Communication con2) {
@@ -23,12 +22,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		BigInteger Li = args[0];
 		BigInteger Nip1 = args[1];
 
-		int Nip1Bits;
-		if (i < h - 1) {
-			Nip1Bits = (i + 1) * tau;
-		} else {
-			Nip1Bits = ForestMetadata.getLastNBits();
-		}
+		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata
+				.getLastNBits();
 		BigInteger Ni = Util.getSubBits(Nip1, Nip1Bits - nBits, Nip1Bits);
 		BigInteger Nip1_pr = Util.getSubBits(Nip1, 0, Nip1Bits - nBits);
 
@@ -59,11 +54,12 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		BigInteger[] c = new BigInteger[pathTuples];
 		if (i > 0) {
 			timing.access_online.start();
-			for (int j = 0; j < pathTuples; j++) {
-				a[j] = Util.getSubBits(secretC_P, (pathTuples - j) * tupleBits
-						- 1 - nBits, (pathTuples - j) * tupleBits); // TODO:
-																	// better
-																	// way?
+			BigInteger helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
+					BigInteger.ONE);
+			BigInteger tmp = secretC_P.shiftRight(lBits + aBits);
+			for (int j = pathTuples - 1; j >= 0; j--) {
+				a[j] = tmp.and(helper);
+				tmp = tmp.shiftRight(tupleBits);
 				c[j] = Ni.setBit(nBits).xor(a[j]);
 			}
 			timing.access_online.stop();
@@ -74,6 +70,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			timing.pet.stop();
 			// PET outputs j_1 for C
 		}
+
 		if (j_1 < 0) {
 			try {
 				throw new Exception("PET error!");
@@ -146,14 +143,17 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			BigInteger newTuple = new BigInteger(tupleBits - 1, SR.rand);
 			if (flipBit)
 				newTuple = newTuple.setBit(tupleBits - 1);
-			BigInteger tmp1 = Util.getSubBits(secretC_P, (pathTuples - j_1)
-					* tupleBits, pathTuples * tupleBits);
-			BigInteger tmp2 = Util.getSubBits(secretC_P, 0,
-					(pathTuples - j_1 - 1) * tupleBits);
-			secretC_P_p = tmp1
-					.shiftLeft((pathTuples - j_1) * tupleBits)
-					.xor(newTuple.shiftLeft((pathTuples - j_1 - 1) * tupleBits))
-					.xor(tmp2); // TODO:better way?
+			/*
+			 * BigInteger tmp1 = Util.getSubBits(secretC_P, (pathTuples - j_1)
+			 * tupleBits, pathTuples * tupleBits); BigInteger tmp2 =
+			 * Util.getSubBits(secretC_P, 0, (pathTuples - j_1 - 1) *
+			 * tupleBits); secretC_P_p = tmp1 .shiftLeft((pathTuples - j_1) *
+			 * tupleBits) .xor(newTuple.shiftLeft((pathTuples - j_1 - 1) *
+			 * tupleBits)) .xor(tmp2);
+			 */
+			secretC_P_p = Util.setSubBits(secretC_P, newTuple, (pathTuples
+					- j_1 - 1)
+					* tupleBits, (pathTuples - j_1) * tupleBits);
 		}
 		timing.access_online.stop();
 
@@ -260,7 +260,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		else if (i < h)
 			y_all = new BigInteger(aBits, SR.rand);
 		else
-			// i = h
 			y_all = BigInteger.ZERO;
 		BigInteger helper = BigInteger.ONE.shiftLeft(d_ip1).subtract(
 				BigInteger.ONE);
@@ -281,11 +280,12 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		BigInteger[] b = new BigInteger[pathTuples];
 		if (i > 0) {
 			timing.access_online.start();
-			for (int j = 0; j < pathTuples; j++) {
-				b[j] = Util.getSubBits(secretE_P, (pathTuples - j) * tupleBits
-						- 1 - nBits, (pathTuples - j) * tupleBits); // TODO:
-																	// better
-																	// way?
+			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
+					BigInteger.ONE);
+			tmp = secretE_P.shiftRight(lBits + aBits);
+			for (int j = pathTuples - 1; j >= 0; j--) {
+				b[j] = tmp.and(helper);
+				tmp = tmp.shiftRight(tupleBits);
 			}
 			timing.access_online.stop();
 			// sanityCheck();
@@ -303,11 +303,12 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			timing.access_online.start();
 			BigInteger[] e = new BigInteger[pathTuples];
 			BigInteger[] f = new BigInteger[pathTuples];
-			for (int o = 0; o < pathTuples; o++) {
-				e[o] = Util.getSubBits(secretE_P, (pathTuples - o - 1)
-						* tupleBits, (pathTuples - o - 1) * tupleBits + aBits); // TODO:
-																				// better
-																				// way?
+			helper = BigInteger.ONE.shiftLeft(aBits).subtract(
+					BigInteger.ONE);
+			tmp = secretE_P;
+			for (int o = pathTuples - 1; o >= 0; o--) {
+				e[o] = tmp.and(helper);
+				tmp = tmp.shiftRight(tupleBits);
 				f[o] = e[o].xor(y_all);
 			}
 			timing.access_online.stop();

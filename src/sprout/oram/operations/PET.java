@@ -13,6 +13,7 @@ import sprout.util.Util;
 import org.apache.commons.lang3.NotImplementedException;
 
 // TODO: PET doesn't need all of the paramaters that the other operations have, can we make it more generic?
+// TODO: optimize pre-computation by just sending seeds
 public class PET extends Operation {
 
 	/*
@@ -38,7 +39,6 @@ public class PET extends Operation {
 		eddie.countBandwidth = false;
 
 		// Debbie does nothing online
-		// return -1;
 
 		// m = 32
 		if (D)

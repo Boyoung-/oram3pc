@@ -15,6 +15,7 @@ import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.util.Util;
 
+// TODO: optimize pre-computation by only sending seed
 public class IOT extends Operation {
 
 	public IOT(Communication con1, Communication con2) {

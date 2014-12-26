@@ -40,12 +40,12 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		// party C
 		// C sends Li to E
 		if (lBits > 0) {
-			timing.decrypt_online.start();
-			byte[] Li_byte = Li.toByteArray();
-			timing.decrypt_online.stop();
+			// timing.decrypt_online.start();
+			// byte[] Li_byte = Li.toByteArray();
+			// timing.decrypt_online.stop();
 
 			timing.decrypt_write.start();
-			eddie.write(Li_byte);
+			eddie.write(Li);
 			timing.decrypt_write.stop();
 		}
 
@@ -169,14 +169,12 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		// step 1
 		// party C
 		// C sends Li to E
-		String Li = "";
+		BigInteger Li = null;
 
 		if (lBits > 0) {
 			timing.decrypt_read.start();
-			byte[] Li_byte = charlie.read();
+			Li = charlie.readBigInteger();
 			timing.decrypt_read.stop();
-
-			Li = Util.addZero(new BigInteger(1, Li_byte).toString(2), lBits);
 		}
 
 		// step 2

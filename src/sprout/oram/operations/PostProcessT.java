@@ -41,7 +41,6 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		// protocol
 		// i = 0 case
 		if (i == 0) {
-			// Li = "";
 			Li = null;
 			secretC_Li_p = null;
 		}

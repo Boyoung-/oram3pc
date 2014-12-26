@@ -118,7 +118,6 @@ public class AOT extends Operation {
 		timing.aot_read.stop();
 
 		timing.aot_online.start();
-		// String output = Util.addZero(c.xor(m_p[j]).toString(2), l);
 		BigInteger output = c.xor(m_p[j]);
 		timing.aot_online.stop();
 		// C outputs output
