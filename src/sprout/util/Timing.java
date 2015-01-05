@@ -6,7 +6,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import sprout.oram.PID;
+import sprout.oram.TID;
+
 public class Timing {
+	public StopWatch[][] stopwatch = null;
+	
+	/*
 	public StopWatch access;
 	public StopWatch access_online;
 	public StopWatch access_write;
@@ -75,11 +81,13 @@ public class Timing {
 	public StopWatch encrypt_online;
 	public StopWatch encrypt_write;
 	public StopWatch encrypt_read;
+	*/
 
 	public Timing() {
 	}
 
 	public void init() {
+		/*
 		access = new StopWatch("access");
 		access_online = new StopWatch("access_online");
 		access_write = new StopWatch("access_write");
@@ -149,6 +157,12 @@ public class Timing {
 		// special use
 		// gtt_write = new StopWatch("gtt_write");
 		// gtt_read = new StopWatch("gtt_read");
+		 */
+
+		stopwatch = new StopWatch[PID.size][TID.size];
+		for (int i=0; i<PID.size; i++)
+			for (int j=0; j<TID.size; j++)
+				stopwatch[i][j] = new StopWatch(PID.names[i] + "_" + TID.names[j]);
 	}
 
 	public void writeToFile(String filename) throws IOException {
@@ -156,7 +170,11 @@ public class Timing {
 		ObjectOutputStream oos = null;
 		try {
 			oos = new ObjectOutputStream(fout);
-
+			for (int i=0; i<PID.size; i++)
+				for (int j=0; j<TID.size; j++)
+					oos.writeObject(stopwatch[i][j]);
+					
+			/*
 			oos.writeObject(access);
 			oos.writeObject(access_online);
 			oos.writeObject(access_write);
@@ -222,7 +240,8 @@ public class Timing {
 			oos.writeObject(encrypt_online);
 			oos.writeObject(encrypt_write);
 			oos.writeObject(encrypt_read);
-
+			*/
+			
 		} finally {
 			if (oos != null)
 				oos.close();
@@ -230,11 +249,18 @@ public class Timing {
 	}
 
 	public void readFromFile(String filename) throws IOException {
+		if (stopwatch == null)
+			stopwatch = new StopWatch[PID.size][TID.size];
+		
 		FileInputStream fin = new FileInputStream(filename);
 		ObjectInputStream ois = null;
 		try {
 			ois = new ObjectInputStream(fin);
+			for (int i=0; i<PID.size; i++)
+				for (int j=0; j<TID.size; j++)
+					stopwatch[i][j] = (StopWatch) ois.readObject();
 
+			/*
 			access = (StopWatch) ois.readObject();
 			access_online = (StopWatch) ois.readObject();
 			access_write = (StopWatch) ois.readObject();
@@ -300,6 +326,7 @@ public class Timing {
 			encrypt_online = (StopWatch) ois.readObject();
 			encrypt_write = (StopWatch) ois.readObject();
 			encrypt_read = (StopWatch) ois.readObject();
+			*/
 
 		} catch (ClassNotFoundException e) {
 			throw new IOException("File contains invalid structure.", e);
@@ -311,7 +338,11 @@ public class Timing {
 
 	public Timing add(Timing t) {
 		Timing out = new Timing();
+		for (int i=0; i<PID.size; i++)
+			for (int j=0; j<TID.size; j++)
+				out.stopwatch[i][j] = stopwatch[i][j].add(t.stopwatch[i][j]);
 
+		/*
 		out.access = access.add(t.access);
 		out.access_online = access_online.add(t.access_online);
 		out.access_write = access_write.add(t.access_write);
@@ -379,11 +410,17 @@ public class Timing {
 		out.encrypt_online = encrypt_online.add(t.encrypt_online);
 		out.encrypt_write = encrypt_write.add(t.encrypt_write);
 		out.encrypt_read = encrypt_read.add(t.encrypt_read);
+		*/
 
 		return out;
 	}
 
 	public void divide(int n) {
+		for (int i=0; i<PID.size; i++)
+			for (int j=0; j<TID.size; j++)
+				stopwatch[i][j].divide(n);
+		
+		/*
 		access.divide(n);
 		access_online.divide(n);
 		access_write.divide(n);
@@ -449,8 +486,10 @@ public class Timing {
 		encrypt_online.divide(n);
 		encrypt_write.divide(n);
 		encrypt_read.divide(n);
+		*/
 	}
 
+	/*
 	@Override
 	public String toString() {
 		String out = access + "\n" + access_online + "\n" + access_write + "\n"
@@ -475,8 +514,10 @@ public class Timing {
 				+ encrypt_read;
 		return out;
 	}
+	*/
 
 	public String toCSV() {
+		/*
 		String csv = access.toCSV() + "\n" + access_online.toCSV() + "\n"
 				+ access_write.toCSV() + "\n" + access_read.toCSV() + "\n\n"
 				+ decrypt.toCSV() + "\n" + decrypt_online.toCSV() + "\n"
@@ -506,6 +547,11 @@ public class Timing {
 				+ iot_read.toCSV() + "\n\n" + encrypt.toCSV() + "\n"
 				+ encrypt_online.toCSV() + "\n" + encrypt_write.toCSV() + "\n"
 				+ encrypt_read.toCSV();
+				*/
+		String csv = "";
+		for (int i=0; i<PID.size; i++)
+			for (int j=0; j<TID.size; j++)
+				csv += stopwatch[i][j] + "\n";
 		return "\n" + csv;
 	}
 }

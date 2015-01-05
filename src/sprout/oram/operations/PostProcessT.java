@@ -7,6 +7,7 @@ import sprout.crypto.PRG;
 import sprout.crypto.SR;
 import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
+import sprout.oram.TID;
 
 // TODO: This operation is unlike the other TreeOperations we may want to 
 //   Extend Operation ourselves, or redefine execute & run
@@ -49,10 +50,12 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		if (i == h) {
 			int d_size = ForestMetadata.getABits(i);
 			// party C
-			timing.post_online.start();
+			//timing.post_online.start();
+			timing.stopwatch[PID.ppt][TID.online].start();
 			BigInteger triangle_C = Li.xor(secretC_Li_p).shiftLeft(d_size);
 			BigInteger secretC_Ti_p = secretC_Ti.xor(triangle_C);
-			timing.post_online.stop();
+			timing.stopwatch[PID.ppt][TID.online].stop();
+			//timing.post_online.stop();
 			return secretC_Ti_p;
 		}
 
@@ -66,38 +69,47 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		// step 1
 		// E sends delta_C to C
 		sanityCheck();
-		timing.post_read.start();
+		//timing.post_read.start();
+		timing.stopwatch[PID.ppt][TID.online_read].start();
 		BigInteger delta_C = eddie.readBigInteger();
-		timing.post_read.stop();
+		timing.stopwatch[PID.ppt][TID.online_read].stop();
+		//timing.post_read.stop();
 
 		// step 2
 		// party C
-		timing.post_online.start();
+		//timing.post_online.start();
+		timing.stopwatch[PID.ppt][TID.online].start();
 		int alpha = SR.rand.nextInt(twotaupow) + 1; // [1, 2^tau]
 		int j_p = BigInteger.valueOf(Nip1_pr_int + alpha)
 				.mod(BigInteger.valueOf(twotaupow)).intValue();
-		timing.post_online.stop();
+		timing.stopwatch[PID.ppt][TID.online].stop();
+		//timing.post_online.stop();
 
 		sanityCheck();
-		timing.post_write.start();
+		//timing.post_write.start();
+		timing.stopwatch[PID.ppt][TID.online_write].start();
 		// C sends j_p to D
 		debbie.write(j_p);
 		// C sends alpha to E
 		eddie.write(alpha);
-		timing.post_write.stop();
+		timing.stopwatch[PID.ppt][TID.online_write].stop();
+		//timing.post_write.stop();
 
 		// step 3
 		// D sends s to C
 		sanityCheck();
-		timing.post_read.start();
+		//timing.post_read.start();
+		timing.stopwatch[PID.ppt][TID.online_read].start();
 		byte[] s = debbie.read();
-		timing.post_read.stop();
+		timing.stopwatch[PID.ppt][TID.online_read].stop();
+		//timing.post_read.stop();
 
 		// step 4
 		// party C
 		PRG G = new PRG(aBits);
 
-		timing.post_online.start();
+		//timing.post_online.start();
+		timing.stopwatch[PID.ppt][TID.online].start();
 		BigInteger[] a = new BigInteger[twotaupow];
 		BigInteger a_all = new BigInteger(1, G.compute(s));
 		BigInteger helper = BigInteger.ONE.shiftLeft(d_ip1).subtract(
@@ -123,7 +135,8 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		else
 			triangle_C = Li.xor(secretC_Li_p).shiftLeft(aBits).xor(A_C);
 		BigInteger secretC_Ti_p = secretC_Ti.xor(triangle_C);
-		timing.post_online.stop();
+		timing.stopwatch[PID.ppt][TID.online].stop();
+		//timing.post_online.stop();
 
 		debbie.countBandwidth = false;
 		eddie.countBandwidth = false;
@@ -151,26 +164,26 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		// step 1
 		// E sends delta_D to D
 		sanityCheck();
-		timing.post_read.start();
+		//timing.post_read.start();
+		timing.stopwatch[PID.ppt][TID.online_read].start();
 		BigInteger delta_D = eddie.readBigInteger();
-		timing.post_read.stop();
+		//timing.post_read.stop();
 
 		// step 2
-		sanityCheck();
+		//sanityCheck();
 		// C sends j_p to D
-		timing.post_read.start();
+		//timing.post_read.start();
 		int j_p = charlie.readInt();
-		timing.post_read.stop();
+		timing.stopwatch[PID.ppt][TID.online_read].stop();
+		//timing.post_read.stop();
 
 		// step 3
 		// party D
-		timing.post_online.start();
-		byte[] s = SR.rand.generateSeed(16); // 128 bits
-		timing.post_online.stop();
-
 		PRG G = new PRG(aBits);
-
-		timing.post_online.start();
+		//timing.post_online.start();
+		timing.stopwatch[PID.ppt][TID.online].start();
+		byte[] s = SR.rand.generateSeed(16); // 128 bits
+		
 		BigInteger[] a = new BigInteger[twotaupow];
 		BigInteger[] a_p = new BigInteger[twotaupow];
 		BigInteger a_all = new BigInteger(1, G.compute(s));
@@ -185,15 +198,18 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 			else
 				a_p[k] = a[k].xor(delta_D);
 		}
-		timing.post_online.stop();
+		timing.stopwatch[PID.ppt][TID.online].stop();
+		//timing.post_online.stop();
 
 		sanityCheck();
-		timing.post_write.start();
+		timing.stopwatch[PID.ppt][TID.online_write].start();
+		//timing.post_write.start();
 		// D sends s to C
 		charlie.write(s);
 		// D sends a_p to E
 		eddie.write(a_p);
-		timing.post_write.stop();
+		timing.stopwatch[PID.ppt][TID.online_write].stop();
+		//timing.post_write.stop();
 
 		charlie.countBandwidth = false;
 		eddie.countBandwidth = false;
@@ -225,10 +241,12 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		if (i == h) {
 			int d_size = ForestMetadata.getABits(i);
 			// party E
-			timing.post_online.start();
+			//timing.post_online.start();
+			timing.stopwatch[PID.ppt][TID.online].start();
 			BigInteger triangle_E = secretE_Li_p.shiftLeft(d_size);
 			BigInteger secretE_Ti_p = secretE_Ti.xor(triangle_E);
-			timing.post_online.stop();
+			timing.stopwatch[PID.ppt][TID.online].stop();
+			//timing.post_online.stop();
 			return secretE_Ti_p;
 		}
 
@@ -241,34 +259,41 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// step 1
 		// party E
-		timing.post_online.start();
+		//timing.post_online.start();
+		timing.stopwatch[PID.ppt][TID.online].start();
 		BigInteger delta_D = new BigInteger(d_ip1, SR.rand);
 		BigInteger delta_C = delta_D.xor(secretE_Lip1_p);
-		timing.post_online.stop();
+		timing.stopwatch[PID.ppt][TID.online].stop();
+		//timing.post_online.stop();
 		// E sends delta_C to C and delta_D to D
 		sanityCheck();
-		timing.post_write.start();
+		//timing.post_write.start();
+		timing.stopwatch[PID.ppt][TID.online_write].start();
 		debbie.write(delta_D);
 		charlie.write(delta_C);
-		timing.post_write.stop();
+		timing.stopwatch[PID.ppt][TID.online_write].stop();
+		//timing.post_write.stop();
 
 		// step 2
 		sanityCheck();
 		// C sends alpha to E
-		timing.post_read.start();
+		//timing.post_read.start();
+		timing.stopwatch[PID.ppt][TID.online_read].start();
 		int alpha = charlie.readInt();
-		timing.post_read.stop();
+		//timing.post_read.stop();
 
 		// step 3
-		sanityCheck();
+		//sanityCheck();
 		// D sends a_p to E
-		timing.post_read.start();
+		//timing.post_read.start();
 		BigInteger[] a_p = debbie.readBigIntegerArray();
-		timing.post_read.stop();
+		timing.stopwatch[PID.ppt][TID.online_read].stop();
+		//timing.post_read.stop();
 
 		// step 5
 		// party E
-		timing.post_online.start();
+		//timing.post_online.start();
+		timing.stopwatch[PID.ppt][TID.online].start();
 		BigInteger A_E = BigInteger.ZERO;
 		for (int k = 0; k < twotaupow; k++) {
 			A_E = A_E.shiftLeft(d_ip1).xor(
@@ -281,7 +306,8 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		else
 			triangle_E = secretE_Li_p.shiftLeft(aBits).xor(A_E);
 		BigInteger secretE_Ti_p = secretE_Ti.xor(triangle_E);
-		timing.post_online.stop();
+		timing.stopwatch[PID.ppt][TID.online].stop();
+		//timing.post_online.stop();
 
 		charlie.bandwidth[PID.ppt].stop();
 		debbie.bandwidth[PID.ppt].stop();

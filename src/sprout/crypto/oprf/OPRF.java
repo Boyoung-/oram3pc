@@ -16,6 +16,8 @@ import sprout.crypto.CryptoException;
 import sprout.crypto.SR;
 import sprout.crypto.WrongPartyException;
 import sprout.crypto.oprf.Message;
+import sprout.oram.PID;
+import sprout.oram.TID;
 import sprout.util.Timing;
 
 // For now we simply use an EC based OPRF. 
@@ -167,14 +169,20 @@ public class OPRF {
 
 	public Message prepare(ECPoint msg) throws CryptoException,
 			WrongPartyException {
+		timing.stopwatch[PID.oprf][TID.offline].start();
 		BigInteger t = randomRange(n);
-
+		
 		ECPoint gt = g.multiply(t);
-		timing.oprf_online.start();
-		ECPoint v = msg.add(gt);
-		timing.oprf_online.stop();
-
+		
 		ECPoint w = y.multiply(t).negate();
+		timing.stopwatch[PID.oprf][TID.offline].stop();
+		
+		//timing.oprf_online.start();
+		timing.stopwatch[PID.oprf][TID.online].start();
+		ECPoint v = msg.add(gt);
+		timing.stopwatch[PID.oprf][TID.online].stop();
+		//timing.oprf_online.stop();
+		
 		return new Message(v, w);
 	}
 

@@ -15,6 +15,7 @@ import sprout.crypto.oprf.OPRF;
 import sprout.oram.Bucket;
 import sprout.oram.BucketException;
 import sprout.oram.PID;
+import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
 import sprout.util.Util;
@@ -44,27 +45,35 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 			// byte[] Li_byte = Li.toByteArray();
 			// timing.decrypt_online.stop();
 
-			timing.decrypt_write.start();
+			//timing.decrypt_write.start();
+			timing.stopwatch[PID.decrypt][TID.online_write].start();
 			eddie.write(Li);
-			timing.decrypt_write.stop();
+			timing.stopwatch[PID.decrypt][TID.online_write].stop();
+			//timing.decrypt_write.stop();
 		}
 
 		// step 3
 		// party C
 		// E sends sigma_x to C
 		// sanityCheck(eddie);
-		timing.decrypt_read.start();
+		//timing.decrypt_read.start();
+		timing.stopwatch[PID.decrypt][TID.online_read].start();
 		ECPoint[] sigma_x = eddie.readECPointArray();
-		timing.decrypt_read.stop();
+		timing.stopwatch[PID.decrypt][TID.online_read].stop();
+		//timing.decrypt_read.stop();
 
 		debbie.bandwidth[PID.oprf].start();
 		eddie.bandwidth[PID.oprf].start();
 		// step 4
 		// party C and D run OPRF on C's input sigma_x and D's input k
-		timing.oprf.start();
+		//timing.oprf.start();
+		timing.stopwatch[PID.oprf][TID.offline].start();
+		PRG G = new PRG(bucketBits);
 		OPRF oprf = OPRFHelper.getOPRF();
 		oprf.timing = timing; // TODO: better way?
 		BigInteger[] secretC_P = new BigInteger[sigma_x.length];
+		timing.stopwatch[PID.oprf][TID.offline].stop();
+		
 		for (int j = 0; j < sigma_x.length; j++) {
 			// This oprf should possibly be evaulated in as an Operation
 			// For an easier description of the flow look at OPRFTest.java
@@ -74,27 +83,28 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 														// and online
 														// computation
 			// sanityCheck(debbie);
-			timing.oprf_write.start();
+			//timing.oprf_write.start();
+			timing.stopwatch[PID.oprf][TID.online_write].start();
 			debbie.write(new Message(msg1.getV()));
-			timing.oprf_write.stop();
+			timing.stopwatch[PID.oprf][TID.online_write].stop();
+			//timing.oprf_write.stop();
 
 			// sanityCheck(debbie);
-			timing.oprf_read.start();
+			//timing.oprf_read.start();
+			timing.stopwatch[PID.oprf][TID.online_read].start();
 			Message msg2 = debbie.readMessage();
-			timing.oprf_read.stop();
+			timing.stopwatch[PID.oprf][TID.online_read].stop();
+			//timing.oprf_read.stop();
 
-			timing.oprf_online.start();
+			//timing.oprf_online.start();
+			timing.stopwatch[PID.oprf][TID.online].start();
 			msg2.setW(msg1.getW());
 			Message res = oprf.deblind(msg2);
-			timing.oprf_online.stop();
-
-			PRG G = new PRG(bucketBits);
-
-			timing.oprf_online.start();
 			secretC_P[j] = new BigInteger(1, G.compute(res.getResult()));
-			timing.oprf_online.stop();
+			timing.stopwatch[PID.oprf][TID.online].stop();
+			//timing.oprf_online.stop();
 		}
-		timing.oprf.stop();
+		//timing.oprf.stop();
 
 		debbie.bandwidth[PID.oprf].stop();
 		eddie.bandwidth[PID.oprf].stop();
@@ -123,25 +133,34 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 
 		// protocol
 		// step 4
-		timing.oprf.start();
+		//timing.oprf.start();
+		timing.stopwatch[PID.oprf][TID.offline].start();
 		OPRF oprf = OPRFHelper.getOPRF(false);
+		timing.stopwatch[PID.oprf][TID.offline].stop();
+		
 		for (int j = 0; j < pathBuckets; j++) {
 			// sanityCheck(charlie);
-			timing.oprf_read.start();
+			//timing.oprf_read.start();
+			timing.stopwatch[PID.oprf][TID.online_read].start();
 			Message msg = charlie.readMessage();
-			timing.oprf_read.stop();
+			timing.stopwatch[PID.oprf][TID.online_read].stop();
+			//timing.oprf_read.stop();
 
-			timing.oprf_online.start();
+			//timing.oprf_online.start();
+			timing.stopwatch[PID.oprf][TID.online].start();
 			msg = oprf.evaluate(msg); // TODO: pass k as arg or just read from
 										// file?
-			timing.oprf_online.stop();
+			timing.stopwatch[PID.oprf][TID.online].stop();
+			//timing.oprf_online.stop();
 
 			// sanityCheck(charlie);
-			timing.oprf_write.start();
+			//timing.oprf_write.start();
+			timing.stopwatch[PID.oprf][TID.online_write].start();
 			charlie.write(msg);
-			timing.oprf_write.stop();
+			timing.stopwatch[PID.oprf][TID.online_write].stop();
+			//timing.oprf_write.stop();
 		}
-		timing.oprf.stop();
+		//timing.oprf.stop();
 
 		charlie.bandwidth[PID.oprf].stop();
 		eddie.bandwidth[PID.oprf].stop();
@@ -172,9 +191,11 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		BigInteger Li = null;
 
 		if (lBits > 0) {
-			timing.decrypt_read.start();
+			//timing.decrypt_read.start();
+			timing.stopwatch[PID.decrypt][TID.online_read].start();
 			Li = charlie.readBigInteger();
-			timing.decrypt_read.stop();
+			timing.stopwatch[PID.decrypt][TID.online_read].stop();
+			//timing.decrypt_read.stop();
 		}
 
 		// step 2
@@ -182,9 +203,11 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		// E retrieves encrypted path Pbar using Li
 		Bucket[] Pbar = null;
 		try {
-			timing.decrypt_online.start();
+			//timing.decrypt_online.start();
+			timing.stopwatch[PID.decrypt][TID.online].start();
 			Pbar = new Tree(i).getBucketsOnPath(Li);
-			timing.decrypt_online.stop();
+			timing.stopwatch[PID.decrypt][TID.online].stop();
+			//timing.decrypt_online.stop();
 		} catch (TreeException e) {
 			e.printStackTrace();
 		} catch (BucketException e) {
@@ -194,7 +217,8 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		// step 3
 		// party E
 		// E sends sigma_x to C
-		timing.decrypt_online.start();
+		//timing.decrypt_online.start();
+		timing.stopwatch[PID.decrypt][TID.online].start();
 		List<Integer> sigma = new ArrayList<Integer>();
 		for (int j = 0; j < Pbar.length; j++)
 			sigma.add(j);
@@ -208,12 +232,15 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		}
 		ECPoint[] sigma_x = Util.permute(x, sigma);
 		BigInteger[] secretE_P = Util.permute(Bbar, sigma);
-		timing.decrypt_online.stop();
+		timing.stopwatch[PID.decrypt][TID.online].stop();
+		//timing.decrypt_online.stop();
 
 		// sanityCheck(charlie);
-		timing.decrypt_write.start();
+		//timing.decrypt_write.start();
+		timing.stopwatch[PID.decrypt][TID.online_write].start();
 		charlie.write(sigma_x);
-		timing.decrypt_write.stop();
+		timing.stopwatch[PID.decrypt][TID.online_write].stop();
+		//timing.decrypt_write.stop();
 
 		debbie.bandwidth[PID.decrypt].stop();
 		charlie.bandwidth[PID.decrypt].stop();

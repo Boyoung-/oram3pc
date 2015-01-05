@@ -15,4 +15,8 @@ public class PID {
 	public static final int access = 9;
 	public static final int ppt = 10;
 	public static final int eviction = 11;
+
+	public static final String[] names = { "oprf", "decrypt", "reshuffle",
+			"encrypt", "aot", "iot", "ssot", "pet", "gcf", "access", "ppt",
+			"eviction" };
 }

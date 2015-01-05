@@ -8,6 +8,7 @@ import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.PID;
 import sprout.oram.Party;
+import sprout.oram.TID;
 import sprout.util.Util;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -47,6 +48,7 @@ public class PET extends Operation {
 		// TODO: Debbie should precompute these, but for now we just do it here
 		// pre-computed inputs
 		// party D
+		timing.stopwatch[PID.pet][TID.offline].start();
 		BigInteger[] alpha = new BigInteger[n];
 		BigInteger[] beta = new BigInteger[n];
 		BigInteger[] tau = new BigInteger[n];
@@ -68,7 +70,10 @@ public class PET extends Operation {
 			// delta_j <- (beta_j + r_j) mod p
 			delta[j] = beta[j].add(r[j]).mod(p);
 		}
+		timing.stopwatch[PID.pet][TID.offline].stop();
+		
 		// D sends alpha, gama, delta to C
+		timing.stopwatch[PID.pet][TID.offline_write].start();
 		charlie.write(alpha);
 		charlie.write(gama);
 		charlie.write(delta);
@@ -77,6 +82,7 @@ public class PET extends Operation {
 		eddie.write(beta);
 		eddie.write(tau);
 		eddie.write(r);
+		timing.stopwatch[PID.pet][TID.offline_write].stop();
 
 		sanityCheck();
 
@@ -96,12 +102,14 @@ public class PET extends Operation {
 		}
 
 		// TODO: load precomputed values instead of reading here
+		timing.stopwatch[PID.pet][TID.offline_read].start();
 		BigInteger[] alpha = debbie.readBigIntegerArray();
 		BigInteger[] gamma = debbie.readBigIntegerArray();
 		BigInteger[] delta = debbie.readBigIntegerArray();
+		timing.stopwatch[PID.pet][TID.offline_read].stop();
 
 		// on-line inputs
-		timing.pet_online.start();
+		//timing.pet_online.start();
 		BigInteger[] c = new BigInteger[n];
 		for (int j = 0; j < n; j++) {
 			c[j] = cc[j];
@@ -118,35 +126,42 @@ public class PET extends Operation {
 		// step 1
 		// party C
 		BigInteger[] u = new BigInteger[n];
+		timing.stopwatch[PID.pet][TID.online].start();
 		for (int j = 0; j < n; j++) {
 			// u_j <- (alpha_j - c_j) mod p
 			u[j] = alpha[j].subtract(c[j]).mod(p);
 		}
-		timing.pet_online.stop();
+		timing.stopwatch[PID.pet][TID.online].stop();
+		//timing.pet_online.stop();
 		// sanityCheck(eddie);
 		// C sends u to E
-		timing.pet_write.start();
+		//timing.pet_write.start();
+		timing.stopwatch[PID.pet][TID.online_write].start();
 		eddie.write(u);
-		timing.pet_write.stop();
+		timing.stopwatch[PID.pet][TID.online_write].stop();
+		//timing.pet_write.stop();
 
 		// step 2
 		// sanityCheck(eddie);
 		// E sends w to C
-		timing.pet_read.start();
+		//timing.pet_read.start();
+		timing.stopwatch[PID.pet][TID.online_read].start();
 		BigInteger[] w = eddie.readBigIntegerArray();
-		timing.pet_read.stop();
+		timing.stopwatch[PID.pet][TID.online_read].stop();
+		//timing.pet_read.stop();
 
 		// step 3
 		// party C
-		timing.pet_online.start();
+		//timing.pet_online.start();
 		BigInteger[] v = new BigInteger[n];
+		timing.stopwatch[PID.pet][TID.online].start();
 		for (int j = 0; j < n; j++) {
 			// v_j <- (c_j * delta_j + w_j - gama_j) mod p
 			v[j] = c[j].multiply(delta[j]).add(w[j]).subtract(gamma[j]).mod(p);
 
 			if (v[j].longValue() == 0L) {
-				timing.pet_online.stop();
-
+				//timing.pet_online.stop();
+				timing.stopwatch[PID.pet][TID.online].stop();
 				debbie.bandwidth[PID.pet].stop();
 				eddie.bandwidth[PID.pet].stop();
 				debbie.countBandwidth = false;
@@ -155,7 +170,8 @@ public class PET extends Operation {
 				return j;
 			}
 		}
-		timing.pet_online.stop();
+		timing.stopwatch[PID.pet][TID.online].stop();
+		//timing.pet_online.stop();
 
 		debbie.bandwidth[PID.pet].stop();
 		eddie.bandwidth[PID.pet].stop();
@@ -180,17 +196,19 @@ public class PET extends Operation {
 		}
 
 		// TODO: load precomputed values instead of reading here
+		timing.stopwatch[PID.pet][TID.offline_read].start();
 		BigInteger[] beta = debbie.readBigIntegerArray();
 		BigInteger[] tau = debbie.readBigIntegerArray();
 		BigInteger[] r = debbie.readBigIntegerArray();
+		timing.stopwatch[PID.pet][TID.offline_read].stop();
 
 		// on-line inputs
-		timing.pet_online.start();
+		//timing.pet_online.start();
 		BigInteger[] b = new BigInteger[n];
 		for (int j = 0; j < n; j++) {
 			b[j] = bb[j];
 		}
-		timing.pet_online.stop();
+		//timing.pet_online.stop();
 
 		charlie.countBandwidth = true;
 		debbie.countBandwidth = true;
@@ -202,26 +220,32 @@ public class PET extends Operation {
 		// step 1
 		// sanityCheck(charlie);
 		// C sends u to E
-		timing.pet_read.start();
+		//timing.pet_read.start();
+		timing.stopwatch[PID.pet][TID.online_read].start();
 		BigInteger[] u = charlie.readBigIntegerArray();
-		timing.pet_read.stop();
+		timing.stopwatch[PID.pet][TID.online_read].stop();
+		//timing.pet_read.stop();
 
 		// step 2
 		// party E
-		timing.pet_online.start();
+		//timing.pet_online.start();
 		BigInteger[] w = new BigInteger[n];
+		timing.stopwatch[PID.pet][TID.online].start();
 		for (int j = 0; j < n; j++) {
 			// w_j <- (beta_j * u_j - r_j * b_j - tau_j) mod p
 			w[j] = beta[j].multiply(u[j]).subtract(r[j].multiply(b[j]))
 					.subtract(tau[j]).mod(p);
 		}
-		timing.pet_online.stop();
+		timing.stopwatch[PID.pet][TID.online].stop();
+		//timing.pet_online.stop();
 
 		// sanityCheck(charlie);
 		// E sends w to C
-		timing.pet_write.start();
+		//timing.pet_write.start();
+		timing.stopwatch[PID.pet][TID.online_write].start();
 		charlie.write(w);
-		timing.pet_write.stop();
+		timing.stopwatch[PID.pet][TID.online_write].stop();
+		//timing.pet_write.stop();
 
 		debbie.bandwidth[PID.pet].stop();
 		charlie.bandwidth[PID.pet].stop();

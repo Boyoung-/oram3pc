@@ -13,6 +13,7 @@ import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.PID;
 import sprout.oram.Party;
+import sprout.oram.TID;
 import sprout.util.Util;
 
 // TODO: optimize pre-computation by only sending seed
@@ -35,8 +36,10 @@ public class IOT extends Operation {
 		I.write(l);
 
 		// Pre-computed inputs
+		timing.stopwatch[PID.iot][TID.offline_read].start();
 		Integer[] pi = I.readIntegerArray();
 		BigInteger[] r = I.readBigIntegerArray();
+		timing.stopwatch[PID.iot][TID.offline_read].stop();
 
 		I.countBandwidth = true;
 		R.countBandwidth = true;
@@ -49,16 +52,20 @@ public class IOT extends Operation {
 		// step 1
 		// party S
 		BigInteger[] a = new BigInteger[N];
-		timing.iot_online.start();
+		//timing.iot_online.start();
+		timing.stopwatch[PID.iot][TID.online].start();
 		for (int o = 0; o < N; o++)
 			a[o] = m[pi[o]].xor(r[o]);
-		timing.iot_online.stop();
+		timing.stopwatch[PID.iot][TID.online].stop();
+		//timing.iot_online.stop();
 
 		// S sends a to R
 		// sanityCheck(R);
-		timing.iot_write.start();
+		//timing.iot_write.start();
+		timing.stopwatch[PID.iot][TID.online_write].start();
 		R.write(a);
-		timing.iot_write.stop();
+		timing.stopwatch[PID.iot][TID.online_write].stop();
+		//timing.iot_write.stop();
 
 		I.countBandwidth = false;
 		R.countBandwidth = false;
@@ -84,25 +91,29 @@ public class IOT extends Operation {
 		// step 1
 		// S sends a to R
 		// sanityCheck(S);
-		timing.iot_read.start();
+		//timing.iot_read.start();
+		timing.stopwatch[PID.iot][TID.online_read].start();
 		BigInteger[] a = S.readBigIntegerArray();
-		timing.iot_read.stop();
+		//timing.iot_read.stop();
 
 		// step 2
 		// I sends j and p to R
 		// sanityCheck(I);
-		timing.iot_read.start();
+		//timing.iot_read.start();
 		Integer[] j = I.readIntegerArray();
 		BigInteger[] p = I.readBigIntegerArray();
-		timing.iot_read.stop();
+		timing.stopwatch[PID.iot][TID.online_read].stop();
+		//timing.iot_read.stop();
 
 		// step 3
 		// party R
 		BigInteger[] z = new BigInteger[k];
-		timing.iot_online.start();
+		//timing.iot_online.start();
+		timing.stopwatch[PID.iot][TID.online].start();
 		for (int o = 0; o < k; o++)
 			z[o] = a[j[o]].xor(p[o]);
-		timing.iot_online.stop();
+		timing.stopwatch[PID.iot][TID.online].stop();
+		//timing.iot_online.stop();
 
 		I.countBandwidth = false;
 		S.countBandwidth = false;
@@ -126,6 +137,7 @@ public class IOT extends Operation {
 
 		// pre-computed inputs
 		// party I
+		timing.stopwatch[PID.iot][TID.offline].start();
 		List<Integer> pi = new ArrayList<Integer>();
 		for (int o = 0; o < N; o++)
 			pi.add(o);
@@ -143,9 +155,13 @@ public class IOT extends Operation {
 			r[o] = tmp.and(helper);
 			tmp = tmp.shiftRight(l);
 		}
+		timing.stopwatch[PID.iot][TID.offline].stop();
+		
 		// I sends S pi and r
+		timing.stopwatch[PID.iot][TID.offline_write].start();
 		S.write(pi.toArray(new Integer[0]));
 		S.write(r);
+		timing.stopwatch[PID.iot][TID.offline_write].stop();
 
 		S.countBandwidth = true;
 		R.countBandwidth = true;
@@ -159,19 +175,23 @@ public class IOT extends Operation {
 		// party I
 		Integer[] j = new Integer[k];
 		BigInteger[] p = new BigInteger[k];
-		timing.iot_online.start();
+		//timing.iot_online.start();
+		timing.stopwatch[PID.iot][TID.online].start();
 		for (int o = 0; o < k; o++) {
 			j[o] = pi_ivs.get(i[o]);
 			p[o] = r[j[o]].xor(delta[o]);
 		}
-		timing.iot_online.stop();
+		timing.stopwatch[PID.iot][TID.online].stop();
+		//timing.iot_online.stop();
 
 		// I sends j and p to R
 		// sanityCheck(R);
-		timing.iot_write.start();
+		//timing.iot_write.start();
+		timing.stopwatch[PID.iot][TID.online_write].start();
 		R.write(j);
 		R.write(p);
-		timing.iot_write.stop();
+		timing.stopwatch[PID.iot][TID.online_write].stop();
+		//timing.iot_write.stop();
 
 		S.countBandwidth = false;
 		R.countBandwidth = false;

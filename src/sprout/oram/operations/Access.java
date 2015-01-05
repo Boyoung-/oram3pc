@@ -6,6 +6,7 @@ import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
+import sprout.oram.TID;
 import sprout.util.Util;
 
 public class Access extends TreeOperation<AOutput, BigInteger[]> {
@@ -39,13 +40,15 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
 		DecryptPath dp = new DecryptPath(debbie, eddie);
 		dp.loadTreeSpecificParameters(i);
-		timing.decrypt.start();
+		//timing.decrypt.start();
 		DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, Li);
-		timing.decrypt.stop();
+		//timing.decrypt.stop();
+		timing.stopwatch[PID.access][TID.online].start();
 		BigInteger secretC_P = DecOut.secretC_P[0];
 		for (int j = 1; j < DecOut.secretC_P.length; j++)
 			secretC_P = secretC_P.shiftLeft(bucketBits)
 					.xor(DecOut.secretC_P[j]);
+		timing.stopwatch[PID.access][TID.online].stop();
 
 		// step 3
 		// party C and E
@@ -53,7 +56,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		BigInteger[] a = new BigInteger[pathTuples];
 		BigInteger[] c = new BigInteger[pathTuples];
 		if (i > 0) {
-			timing.access_online.start();
+			//timing.access_online.start();
+			timing.stopwatch[PID.access][TID.online].start();
 			BigInteger helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
 					BigInteger.ONE);
 			BigInteger tmp = secretC_P.shiftRight(lBits + aBits);
@@ -62,12 +66,13 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				tmp = tmp.shiftRight(tupleBits);
 				c[j] = Ni.setBit(nBits).xor(a[j]);
 			}
-			timing.access_online.stop();
+			timing.stopwatch[PID.access][TID.online].stop();
+			//timing.access_online.stop();
 			// sanityCheck()();
 			PET pet = new PET(debbie, eddie);
-			timing.pet.start();
+			//timing.pet.start();
 			j_1 = pet.executeCharlie(debbie, eddie, c);
-			timing.pet.stop();
+			//timing.pet.stop();
 			// PET outputs j_1 for C
 		}
 
@@ -86,9 +91,9 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			fbar = BigInteger.ZERO;
 		else {
 			// sanityCheck();
-			timing.aot.start();
+			//timing.aot.start();
 			fbar = aot.executeC(debbie, eddie, j_1);
-			timing.aot.stop();
+			//timing.aot.stop();
 			// outputs fbar for C
 		}
 
@@ -99,16 +104,17 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			// AOT(E, C, D)
 			// sanityCheck();
 			j_2 = Nip1_pr.intValue();
-			timing.aot.start();
+			//timing.aot.start();
 			ybar_j2 = aot.executeC(debbie, eddie, j_2);
-			timing.aot.stop();
+			//timing.aot.stop();
 			// outputs ybar_j2 for C
 		}
 
 		// step 6
 		// party C
 		BigInteger ybar = BigInteger.ZERO;
-		timing.access_online.start();
+		//timing.access_online.start();
+		timing.stopwatch[PID.access][TID.online].start();
 		for (int o = 0; o < twotaupow; o++) {
 			ybar = ybar.shiftLeft(d_ip1);
 			if (i < h && o == j_2)
@@ -155,7 +161,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 					- j_1 - 1)
 					* tupleBits, (pathTuples - j_1) * tupleBits);
 		}
-		timing.access_online.stop();
+		timing.stopwatch[PID.access][TID.online].stop();
+		//timing.access_online.stop();
 
 		debbie.bandwidth[PID.access].stop();
 		eddie.bandwidth[PID.access].stop();
@@ -184,9 +191,9 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
 		DecryptPath dp = new DecryptPath(charlie, eddie);
 		dp.loadTreeSpecificParameters(i);
-		timing.decrypt.start();
+		//timing.decrypt.start();
 		dp.executeDebbieSubTree(charlie, eddie, k);
-		timing.decrypt.stop();
+		//timing.decrypt.stop();
 		// DecryptPath outpus sigma and secretE_P for E and secretC_P for C
 
 		AOT aot = new AOT(charlie, eddie);
@@ -194,25 +201,25 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			// step 3
 			// sanityCheck();
 			PET pet = new PET(charlie, eddie);
-			timing.pet.start();
+			//timing.pet.start();
 			pet.executeDebbie(charlie, eddie, pathTuples);
-			timing.pet.stop();
+			//timing.pet.stop();
 			// PET outputs j_1 for C
 
 			// sanityCheck();
 			// step 4
-			timing.aot.start();
+			//timing.aot.start();
 			aot.executeD(charlie, eddie);
-			timing.aot.stop();
+			//timing.aot.stop();
 		}
 
 		// step 5
 		if (i < h) {
 			// AOT(E, C, D)
 			// sanityCheck();
-			timing.aot.start();
+			//timing.aot.start();
 			aot.executeD(charlie, eddie);
-			timing.aot.stop();
+			//timing.aot.stop();
 			// outputs ybar_j2 for C
 		}
 
@@ -241,9 +248,11 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
 		DecryptPath dp = new DecryptPath(charlie, debbie);
 		dp.loadTreeSpecificParameters(i);
-		timing.decrypt.start();
+		//timing.decrypt.start();
 		DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, null);
-		timing.decrypt.stop();
+		//timing.decrypt.stop();
+		
+		timing.stopwatch[PID.access][TID.online].start();
 		BigInteger secretE_P = DecOut.secretE_P[0];
 		for (int j = 1; j < DecOut.secretE_P.length; j++)
 			secretE_P = secretE_P.shiftLeft(bucketBits)
@@ -252,7 +261,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 		// step 2
 		// party E
-		timing.access_online.start();
+		//timing.access_online.start();
 		BigInteger[] y = new BigInteger[twotaupow];
 		BigInteger y_all;
 		if (i == 0)
@@ -273,13 +282,15 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		BigInteger secretE_P_p = null;
 		if (i > 0)
 			secretE_P_p = secretE_P;
-		timing.access_online.stop();
+		timing.stopwatch[PID.access][TID.online].stop();
+		//timing.access_online.stop();
 
 		// step 3
 		// party C and E
 		BigInteger[] b = new BigInteger[pathTuples];
 		if (i > 0) {
-			timing.access_online.start();
+			//timing.access_online.start();
+			timing.stopwatch[PID.access][TID.online].start();
 			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
 					BigInteger.ONE);
 			tmp = secretE_P.shiftRight(lBits + aBits);
@@ -287,12 +298,13 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				b[j] = tmp.and(helper);
 				tmp = tmp.shiftRight(tupleBits);
 			}
-			timing.access_online.stop();
+			timing.stopwatch[PID.access][TID.online].stop();
+			//timing.access_online.stop();
 			// sanityCheck();
 			PET pet = new PET(charlie, debbie);
-			timing.pet.start();
+			//timing.pet.start();
 			pet.executeEddie(charlie, debbie, b);
-			timing.pet.stop();
+			//timing.pet.stop();
 			// PET outputs j_1 for C
 		}
 
@@ -300,7 +312,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// party E
 		AOT aot = new AOT(charlie, debbie);
 		if (i > 0) {
-			timing.access_online.start();
+			//timing.access_online.start();
+			timing.stopwatch[PID.access][TID.online].start();
 			BigInteger[] e = new BigInteger[pathTuples];
 			BigInteger[] f = new BigInteger[pathTuples];
 			helper = BigInteger.ONE.shiftLeft(aBits).subtract(
@@ -311,13 +324,14 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				tmp = tmp.shiftRight(tupleBits);
 				f[o] = e[o].xor(y_all);
 			}
-			timing.access_online.stop();
+			timing.stopwatch[PID.access][TID.online].stop();
+			//timing.access_online.stop();
 
 			// sanityCheck();
 			// AOT(E, C, D)
-			timing.aot.start();
+			//timing.aot.start();
 			aot.executeE(charlie, debbie, f, aBits);
-			timing.aot.stop();
+			//timing.aot.stop();
 			// outputs fbar for C
 		}
 
@@ -325,9 +339,9 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i < h) {
 			// AOT(E, C, D)
 			// sanityCheck();
-			timing.aot.start();
+			//timing.aot.start();
 			aot.executeE(charlie, debbie, y, d_ip1);
-			timing.aot.stop();
+			//timing.aot.stop();
 			// outputs ybar_j2 for C
 		}
 

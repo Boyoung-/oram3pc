@@ -9,6 +9,7 @@ import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.PID;
 import sprout.oram.Party;
+import sprout.oram.TID;
 
 public class AOT extends Operation {
 	public AOT(Communication con1, Communication con2) {
@@ -30,9 +31,13 @@ public class AOT extends Operation {
 		// pre-computed input
 		// party E
 		byte[] k = new byte[16];
+		timing.stopwatch[PID.aot][TID.offline].start();
 		SR.rand.nextBytes(k);
+		timing.stopwatch[PID.aot][TID.offline].stop();
 		// E sends k to D
+		timing.stopwatch[PID.aot][TID.offline_write].start();
 		D.write(k);
+		timing.stopwatch[PID.aot][TID.offline_write].stop();
 
 		C.countBandwidth = true;
 		D.countBandwidth = true;
@@ -43,30 +48,40 @@ public class AOT extends Operation {
 
 		// step 1
 		// party E
-		timing.aot_online.start();
-		BigInteger alpha = BigInteger.valueOf(SR.rand.nextInt(N));
-		timing.aot_online.stop();
 		BigInteger[] m_p = new BigInteger[N];
+		timing.stopwatch[PID.aot][TID.offline].start();
+		AES_PRF f = null;
 		try {
-			AES_PRF f = new AES_PRF(l);
+			f = new AES_PRF(l);
 			f.init(k);
-			timing.aot_online.start();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		timing.stopwatch[PID.aot][TID.offline].stop();
+		
+		//timing.aot_online.start();
+		timing.stopwatch[PID.aot][TID.online].start();
+		BigInteger alpha = BigInteger.valueOf(SR.rand.nextInt(N));
+		try {
 			for (int t = 0; t < N; t++) {
-				m_p[t] = new BigInteger(1, f.compute(BigInteger.valueOf(t)
-						.add(alpha).mod(BigInteger.valueOf(N)).toByteArray()))
-						.xor(m[t]);
+					m_p[t] = new BigInteger(1, f.compute(BigInteger.valueOf(t)
+							.add(alpha).mod(BigInteger.valueOf(N)).toByteArray()))
+							.xor(m[t]);
 			}
-			timing.aot_online.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		timing.stopwatch[PID.aot][TID.online].stop();
+			//timing.aot_online.stop();
 
 		// sanityCheck(C);
 
-		timing.aot_write.start();
+		//timing.aot_write.start();
+		timing.stopwatch[PID.aot][TID.online_write].start();
 		C.write(m_p);
 		C.write(alpha);
-		timing.aot_write.stop();
+		timing.stopwatch[PID.aot][TID.online_write].stop();
+		//timing.aot_write.stop();
 		// E sends m_p and alpha to C
 
 		C.bandwidth[PID.aot].stop();
@@ -91,35 +106,45 @@ public class AOT extends Operation {
 		// sanityCheck(E);
 		// step 1
 		// E sends m_p and alpha to C
-		timing.aot_read.start();
+		//timing.aot_read.start();
+		timing.stopwatch[PID.aot][TID.online_read].start();
 		BigInteger[] m_p = E.readBigIntegerArray();
 		BigInteger alpha = E.readBigInteger();
-		timing.aot_read.stop();
+		timing.stopwatch[PID.aot][TID.online_read].stop();
+		//timing.aot_read.stop();
 
 		// step 2
 		// party C
-		timing.aot_online.start();
+		//timing.aot_online.start();
+		timing.stopwatch[PID.aot][TID.online].start();
 		BigInteger j_p = BigInteger.valueOf(j).add(alpha)
 				.mod(BigInteger.valueOf(N));
-		timing.aot_online.stop();
+		timing.stopwatch[PID.aot][TID.online].stop();
+		//timing.aot_online.stop();
 
 		// sanityCheck(D);
 
 		// C sends j_p to D
-		timing.aot_write.start();
+		//timing.aot_write.start();
+		timing.stopwatch[PID.aot][TID.online_write].start();
 		D.write(j_p);
-		timing.aot_write.stop();
+		timing.stopwatch[PID.aot][TID.online_write].stop();
+		//timing.aot_write.stop();
 
 		// step 3
 		// D sends c to C
 		// sanityCheck(D);
-		timing.aot_read.start();
+		//timing.aot_read.start();
+		timing.stopwatch[PID.aot][TID.online_read].start();
 		BigInteger c = D.readBigInteger();
-		timing.aot_read.stop();
+		timing.stopwatch[PID.aot][TID.online_read].stop();
+		//timing.aot_read.stop();
 
-		timing.aot_online.start();
+		//timing.aot_online.start();
+		timing.stopwatch[PID.aot][TID.online].start();
 		BigInteger output = c.xor(m_p[j]);
-		timing.aot_online.stop();
+		timing.stopwatch[PID.aot][TID.online].stop();
+		//timing.aot_online.stop();
 		// C outputs output
 
 		D.bandwidth[PID.aot].stop();
@@ -150,23 +175,32 @@ public class AOT extends Operation {
 		// sanityCheck(C);
 		// step 2
 		// C sends j_p to D
-		timing.aot_read.start();
+		//timing.aot_read.start();
+		timing.stopwatch[PID.aot][TID.online_read].start();
 		BigInteger j_p = C.readBigInteger();
-		timing.aot_read.stop();
+		timing.stopwatch[PID.aot][TID.online_read].stop();
+		//timing.aot_read.stop();
 
 		// step 3
 		// party D
 		try {
+			timing.stopwatch[PID.aot][TID.offline].start();
 			AES_PRF f = new AES_PRF(l);
 			f.init(k);
-			timing.aot_online.start();
+			timing.stopwatch[PID.aot][TID.offline].stop();
+			
+			//timing.aot_online.start();
+			timing.stopwatch[PID.aot][TID.online].start();
 			BigInteger c = new BigInteger(1, f.compute(j_p.toByteArray()));
-			timing.aot_online.stop();
+			timing.stopwatch[PID.aot][TID.online].stop();
+			//timing.aot_online.stop();
 			// D sends c to C
 			// sanityCheck(C);
-			timing.aot_write.start();
+			//timing.aot_write.start();
+			timing.stopwatch[PID.aot][TID.online_write].start();
 			C.write(c);
-			timing.aot_write.stop();
+			timing.stopwatch[PID.aot][TID.online_write].stop();
+			//timing.aot_write.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out
