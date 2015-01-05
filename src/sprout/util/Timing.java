@@ -549,9 +549,11 @@ public class Timing {
 				+ encrypt_read.toCSV();
 				*/
 		String csv = "";
-		for (int i=0; i<PID.size; i++)
+		for (int i=0; i<PID.size; i++) {
 			for (int j=0; j<TID.size; j++)
 				csv += stopwatch[i][j].toCSV() + "\n";
+			csv += "\n";
+		}
 		return "\n" + csv;
 	}
 }
