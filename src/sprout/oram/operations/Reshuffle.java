@@ -37,20 +37,16 @@ public class Reshuffle extends
 		}
 
 		// precomputation
-		// timing.reshuffle_offline.start();
 		timing.stopwatch[PID.reshuffle][TID.offline].start();
 		PRG G = new PRG(pathBuckets * bucketBits);
 		byte[] s1 = SR.rand.generateSeed(16);
 		byte[] p1 = G.compute(s1);
 		timing.stopwatch[PID.reshuffle][TID.offline].stop();
-		// timing.reshuffle_offline.stop();
 
-		// timing.reshuffle_offline_write.start();
 		// C sends s1 to D
 		timing.stopwatch[PID.reshuffle][TID.offline_write].start();
 		debbie.write(s1);
 		timing.stopwatch[PID.reshuffle][TID.offline_write].stop();
-		// timing.reshuffle_offline_write.stop();
 
 		debbie.countBandwidth = true;
 		eddie.countBandwidth = true;
@@ -62,37 +58,27 @@ public class Reshuffle extends
 		// protocol
 		// step 1
 		// party C
-		// timing.reshuffle_online.start();
 		timing.stopwatch[PID.reshuffle][TID.online].start();
 		BigInteger z = secretC_P.xor(new BigInteger(1, p1));
 		timing.stopwatch[PID.reshuffle][TID.online].stop();
-		// timing.reshuffle_online.stop();
 		// C sends z to E
-		// sanityCheck(eddie);
-		// timing.reshuffle_write.start();
 		timing.stopwatch[PID.reshuffle][TID.online_write].start();
 		eddie.write(z);
 		timing.stopwatch[PID.reshuffle][TID.online_write].stop();
-		// timing.reshuffle_write.stop();
 
 		// step 2 & 3
 		// D sends secretC_pi_P to C
 		// C outputs secretC_pi_P
-		// sanityCheck(debbie);
-		// timing.reshuffle_read.start();
 		timing.stopwatch[PID.reshuffle][TID.online_read].start();
 		BigInteger[] secretC_pi_P_arr = debbie.readBigIntegerArray();
 		timing.stopwatch[PID.reshuffle][TID.online_read].stop();
-		// timing.reshuffle_read.stop();
 
-		BigInteger secretC_pi_P = BigInteger.ZERO;
-		// timing.reshuffle_online.start();
 		timing.stopwatch[PID.reshuffle][TID.online].start();
+		BigInteger secretC_pi_P = BigInteger.ZERO;
 		for (int j = 0; j < pathBuckets; j++)
 			secretC_pi_P = secretC_pi_P.shiftLeft(bucketBits).xor(
 					secretC_pi_P_arr[j]);
 		timing.stopwatch[PID.reshuffle][TID.online].stop();
-		// timing.reshuffle_online.stop();
 
 		debbie.countBandwidth = false;
 		eddie.countBandwidth = false;
@@ -117,31 +103,23 @@ public class Reshuffle extends
 
 		byte[] p1 = null, p2 = null;
 		// precomputation
-		// timing.reshuffle_offline.start();
 		timing.stopwatch[PID.reshuffle][TID.offline].start();
 		PRG G = new PRG(pathBuckets * bucketBits);
 		byte[] s2 = SR.rand.generateSeed(16);
 		p2 = G.compute(s2);
 		timing.stopwatch[PID.reshuffle][TID.offline].stop();
-		// timing.reshuffle_offline.stop();
 
-		// timing.reshuffle_offline_write.start();
 		timing.stopwatch[PID.reshuffle][TID.offline_write].start();
 		eddie.write(s2);
 		timing.stopwatch[PID.reshuffle][TID.offline_write].stop();
-		// timing.reshuffle_offline_write.stop();
 
-		// timing.reshuffle_offline_read.start();
 		timing.stopwatch[PID.reshuffle][TID.offline_read].start();
 		byte[] s1 = charlie.read();
 		timing.stopwatch[PID.reshuffle][TID.offline_read].stop();
-		// timing.reshuffle_offline_read.stop();
 
-		// timing.reshuffle_offline.start();
 		timing.stopwatch[PID.reshuffle][TID.offline].start();
 		p1 = G.compute(s1);
 		timing.stopwatch[PID.reshuffle][TID.offline].stop();
-		// timing.reshuffle_offline.stop();
 
 		charlie.countBandwidth = true;
 		eddie.countBandwidth = true;
@@ -156,7 +134,6 @@ public class Reshuffle extends
 
 		// step 2
 		// party D
-		//timing.reshuffle_online.start();
 		timing.stopwatch[PID.reshuffle][TID.online].start();
 		BigInteger a_all = new BigInteger(1, p1).xor(new BigInteger(1, p2));
 		BigInteger[] a = new BigInteger[pathBuckets];
@@ -170,16 +147,12 @@ public class Reshuffle extends
 
 		BigInteger[] secretC_pi_P = Util.permute(a, pi);
 		timing.stopwatch[PID.reshuffle][TID.online].stop();
-		//timing.reshuffle_online.stop();
 
 		// D sends secretC_pi_P to C
 		// D sends s2 to E
-		// sanityCheck(charlie);
-		//timing.reshuffle_write.start();
 		timing.stopwatch[PID.reshuffle][TID.online_write].start();
 		charlie.write(secretC_pi_P);
 		timing.stopwatch[PID.reshuffle][TID.online_write].stop();
-		//timing.reshuffle_write.stop();
 
 		charlie.countBandwidth = false;
 		eddie.countBandwidth = false;
@@ -204,18 +177,14 @@ public class Reshuffle extends
 		}
 
 		// precomputation
-		//timing.reshuffle_offline_read.start();
 		timing.stopwatch[PID.reshuffle][TID.offline_read].start();
 		byte[] s2 = debbie.read();
 		timing.stopwatch[PID.reshuffle][TID.offline_read].stop();
-		//timing.reshuffle_offline_read.stop();
 
-		//timing.reshuffle_offline.start();
 		timing.stopwatch[PID.reshuffle][TID.offline].start();
 		PRG G = new PRG(pathBuckets * bucketBits);
 		byte[] p2 = G.compute(s2);
 		timing.stopwatch[PID.reshuffle][TID.offline].stop();
-		//timing.reshuffle_offline.stop();
 
 		charlie.countBandwidth = true;
 		debbie.countBandwidth = true;
@@ -227,19 +196,15 @@ public class Reshuffle extends
 		// protocol
 		// step 1
 		// C sends E z
-		// sanityCheck(charlie);
-		//timing.reshuffle_read.start();
-		timing.stopwatch[PID.reshuffle][TID.online].start();
+		timing.stopwatch[PID.reshuffle][TID.online_read].start();
 		BigInteger z = charlie.readBigInteger();
-		timing.stopwatch[PID.reshuffle][TID.online].stop();
-		//timing.reshuffle_read.stop();
+		timing.stopwatch[PID.reshuffle][TID.online_read].stop();
 
 		// step 2
 		// D sends s2 to E
 
 		// step 4
 		// party E
-		//timing.reshuffle_online.start();
 		timing.stopwatch[PID.reshuffle][TID.online].start();
 		BigInteger b_all = secretE_P.xor(z).xor(new BigInteger(1, p2));
 		BigInteger[] b = new BigInteger[pathBuckets];
@@ -256,7 +221,6 @@ public class Reshuffle extends
 			secretE_pi_P = secretE_pi_P.shiftLeft(bucketBits).xor(
 					secretE_pi_P_arr[j]);
 		timing.stopwatch[PID.reshuffle][TID.online].stop();
-		//timing.reshuffle_online.stop();
 
 		charlie.countBandwidth = false;
 		debbie.countBandwidth = false;

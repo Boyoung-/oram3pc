@@ -35,18 +35,14 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 		// step 1
 		// D sends s and x to E
 		// D sends c to C
-		// sanityCheck(debbie);
-		//timing.encrypt_read.start();
 		timing.stopwatch[PID.encrypt][TID.online_read].start();
 		BigInteger[] c = debbie.readBigIntegerArray();
 		timing.stopwatch[PID.encrypt][TID.online_read].stop();
-		//timing.encrypt_read.stop();
 
 		// step 2
 		// party C
 		BigInteger[] secretC_B = new BigInteger[pathBuckets];
 		BigInteger[] d = new BigInteger[pathBuckets];
-		//timing.encrypt_online.start();
 		timing.stopwatch[PID.encrypt][TID.online].start();
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
 				BigInteger.ONE);
@@ -57,14 +53,10 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 			d[j] = c[j].xor(secretC_B[j]);
 		}
 		timing.stopwatch[PID.encrypt][TID.online].stop();
-		//timing.encrypt_online.stop();
 		// C sends d to E
-		// sanityCheck(eddie);
-		//timing.encrypt_write.start();
 		timing.stopwatch[PID.encrypt][TID.online_write].start();
 		eddie.write(d);
 		timing.stopwatch[PID.encrypt][TID.online_write].stop();
-		//timing.encrypt_write.stop();
 
 		debbie.countBandwidth = false;
 		eddie.countBandwidth = false;
@@ -85,6 +77,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 		sanityCheck();
 
 		try {
+			timing.stopwatch[PID.encrypt][TID.offline].start();
 			OPRF oprf = OPRFHelper.getOPRF(false);
 			// protocol
 			// step 1
@@ -96,8 +89,8 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 			BigInteger[] a = new BigInteger[pathBuckets];
 			BigInteger[] b = new BigInteger[pathBuckets];
 			BigInteger[] c = new BigInteger[pathBuckets];
+			timing.stopwatch[PID.encrypt][TID.offline].stop();
 
-			//timing.encrypt_online.start();
 			timing.stopwatch[PID.encrypt][TID.online].start();
 			byte[] s = SR.rand.generateSeed(16);
 			for (int j = 0; j < pathBuckets; j++) {
@@ -123,18 +116,13 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 				c[j] = a[j].xor(b[j]);
 			}
 			timing.stopwatch[PID.encrypt][TID.online].stop();
-			//timing.encrypt_online.stop();
 			// D sends s and x to E
 			// D sends c to C
-			// sanityCheck(eddie);
-			// sanityCheck(charlie);
-			//timing.encrypt_write.start();
 			timing.stopwatch[PID.encrypt][TID.online_write].start();
 			eddie.write(s);
 			eddie.write(x);
 			charlie.write(c);
 			timing.stopwatch[PID.encrypt][TID.online_write].stop();
-			//timing.encrypt_write.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out
@@ -165,27 +153,20 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 			// step 1
 			// D sends s and x to E
 			// D sends c to C
-			// sanityCheck(debbie);
-			//timing.encrypt_read.start();
 			timing.stopwatch[PID.encrypt][TID.online_read].start();
 			byte[] s = debbie.read();
 			ECPoint[] x = debbie.readECPointArray();
-			//timing.encrypt_read.stop();
 
 			// Step 2
 			// C sends d to E
-			// sanityCheck(charlie);
-			//timing.encrypt_read.start();
 			BigInteger[] d = charlie.readBigIntegerArray();
 			timing.stopwatch[PID.encrypt][TID.online_read].stop();
-			//timing.encrypt_read.stop();
 
 			// step 3
 			// party E
 			// regeneration of a[]
 			PRG G1 = new PRG(bucketBits * pathBuckets);
 			BigInteger[] a = new BigInteger[pathBuckets];
-			//timing.encrypt_online.start();
 			timing.stopwatch[PID.encrypt][TID.online].start();
 			BigInteger a_all = new BigInteger(1, G1.compute(s));
 			BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
@@ -195,13 +176,10 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 				a[j] = tmp.and(helper);
 				tmp = tmp.shiftRight(bucketBits);
 			}
-			//timing.stopwatch[PID.encrypt][TID.online].stop();
-			//timing.encrypt_online.stop();
 			// end generation of a[]
 
 			BigInteger[] secretE_B = new BigInteger[pathBuckets];
 			BigInteger[] Bbar = new BigInteger[pathBuckets];
-			//timing.encrypt_online.start();
 			tmp = secretE_P;
 			for (int j = pathBuckets - 1; j >= 0; j--) {
 				secretE_B[j] = tmp.and(helper);
@@ -209,7 +187,6 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 				Bbar[j] = secretE_B[j].xor(a[j]).xor(d[j]);
 			}
 			timing.stopwatch[PID.encrypt][TID.online].stop();
-			//timing.encrypt_online.stop();
 
 			charlie.countBandwidth = false;
 			debbie.countBandwidth = false;

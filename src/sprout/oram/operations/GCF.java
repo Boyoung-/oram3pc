@@ -27,7 +27,6 @@ public class GCF extends Operation {
 		D.countBandwidth = false;
 
 		// precomputation
-		//timing.gcf_offline.start();
 		timing.stopwatch[PID.gcf][TID.offline].start();
 		// setup circuit
 		int w = n - 2;
@@ -64,7 +63,6 @@ public class GCF extends Operation {
 			lbs[i][1] = glb1;
 		}
 		timing.stopwatch[PID.gcf][TID.offline].stop();
-		//timing.gcf_offline.stop();
 
 		C.countBandwidth = true;
 		D.countBandwidth = true;
@@ -78,30 +76,26 @@ public class GCF extends Operation {
 		BigInteger[][] A = new BigInteger[n][2];
 		BigInteger[] K_E = new BigInteger[n];
 		for (int i = 0; i < n; i++) {
-			//timing.gcf_online.start();
 			timing.stopwatch[PID.gcf][TID.online].start();
 			int alpha = sE.testBit(n - i - 1) ? 1 : 0;
 			A[i][0] = lbs[i][alpha];
 			A[i][1] = lbs[i][1 - alpha];
 			timing.stopwatch[PID.gcf][TID.online].stop();
-			//timing.gcf_online.stop();
-			// sanityCheck(C);
-			//timing.gcf_write.start();
+
 			timing.stopwatch[PID.gcf][TID.online_write].start();
 			C.write(A[i]);
 			timing.stopwatch[PID.gcf][TID.online_write].stop();
-			//timing.gcf_write.stop();
+
 			K_E[i] = lbs[i][0];
 		}
 
 		// step 3
-		//timing.gcf_online.start(); // in the Retrieval GC write/read will be
-									// subtracted from this time
+		// in the Retrieval GC write/read will be
+		// subtracted from this time
 		timing.stopwatch[PID.gcf][TID.online].start();
 		State in_E = State.fromLabels(K_E);
 		gc_E.startExecuting(in_E);
 		timing.stopwatch[PID.gcf][TID.online].stop();
-		//timing.gcf_online.stop();
 
 		C.countBandwidth = false;
 		D.countBandwidth = false;
@@ -122,25 +116,19 @@ public class GCF extends Operation {
 		BigInteger[][] A = new BigInteger[n][2];
 		BigInteger[] K_C = new BigInteger[n];
 		for (int i = 0; i < n; i++) {
-			// sanityCheck(E);
-			//timing.gcf_read.start();
 			timing.stopwatch[PID.gcf][TID.online_read].start();
 			A[i] = E.readBigIntegerArray();
 			timing.stopwatch[PID.gcf][TID.online_read].stop();
-			//timing.gcf_read.stop();
-			//timing.gcf_online.start();
+
 			timing.stopwatch[PID.gcf][TID.online].start();
 			int beta = sC.testBit(n - i - 1) ? 1 : 0;
 			K_C[i] = A[i][beta];
 			timing.stopwatch[PID.gcf][TID.online].stop();
-			//timing.gcf_online.stop();
 		}
-		// sanityCheck(D);
-		//timing.gcf_write.start();
+
 		timing.stopwatch[PID.gcf][TID.online_write].start();
 		D.write(K_C);
 		timing.stopwatch[PID.gcf][TID.online_write].stop();
-		//timing.gcf_write.stop();
 
 		E.countBandwidth = false;
 		D.countBandwidth = false;
@@ -154,7 +142,6 @@ public class GCF extends Operation {
 		E.countBandwidth = false;
 
 		// precomputation
-		//timing.gcf_offline.start();
 		timing.stopwatch[PID.gcf][TID.offline].start();
 		// setup circuit
 		int w = n - 2;
@@ -178,7 +165,6 @@ public class GCF extends Operation {
 			// TODO: not a good way; should define a function
 			gc_D.outputWires[i].outBitEncPair = new BigInteger[2];
 		timing.stopwatch[PID.gcf][TID.offline].stop();
-		//timing.gcf_offline.stop();
 
 		C.countBandwidth = true;
 		E.countBandwidth = true;
@@ -189,15 +175,11 @@ public class GCF extends Operation {
 
 		// protocol
 		// step 2
-		// sanityCheck(C);
-		//timing.gcf_read.start();
 		timing.stopwatch[PID.gcf][TID.online_read].start();
 		BigInteger[] K_C = C.readBigIntegerArray();
 		timing.stopwatch[PID.gcf][TID.online_read].stop();
-		//timing.gcf_read.stop();
 
 		// step 3
-		//timing.gcf_online.start();
 		timing.stopwatch[PID.gcf][TID.online].start();
 		State in_D = State.fromLabels(K_C);
 		gc_D.startExecuting(in_D); // TODO: separate gcf write/read time out of
@@ -215,7 +197,6 @@ public class GCF extends Operation {
 				output = output.setBit(length - 1 - i);
 		}
 		timing.stopwatch[PID.gcf][TID.online].stop();
-		//timing.gcf_online.stop();
 
 		C.countBandwidth = false;
 		E.countBandwidth = false;

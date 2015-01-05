@@ -38,13 +38,11 @@ public class SSOT extends Operation {
 		// protocol
 		// step 2
 		// parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-		//timing.iot.start();
 		BigInteger[] a = iot.executeR(I, E);
 
 		// step 3
 		// parties run IOT(C, E, I) on inputs sC for C and i, delta for I
 		iot.executeS(E, I, sC, length);
-		//timing.iot.stop();
 
 		I.countBandwidth = false;
 		E.countBandwidth = false;
@@ -76,23 +74,19 @@ public class SSOT extends Operation {
 		// protocol
 		// step 1
 		// party I
-		//timing.ssot_online.start();
 		timing.stopwatch[PID.ssot][TID.online].start();
 		BigInteger[] delta = new BigInteger[k];
 		for (int o = 0; o < k; o++)
 			delta[o] = new BigInteger(l, SR.rand); // TODO: generate once?
 		timing.stopwatch[PID.ssot][TID.online].stop();
-		//timing.ssot_online.stop();
 
 		// step 2
 		// parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-		//timing.iot.start();
 		iot.executeI(C, E, i, delta);
 
 		// step 3
 		// parties run IOT(C, E, I) on inputs sC for C and i, delta for I
 		iot.executeI(E, C, i, delta);
-		//timing.iot.stop();
 
 		E.countBandwidth = false;
 		C.countBandwidth = false;
@@ -104,10 +98,6 @@ public class SSOT extends Operation {
 			BigInteger[] sE, int length) {
 		IOT iot = new IOT(C, I);
 
-		// TODO: remove useless ones
-		I.countBandwidth = false;
-		C.countBandwidth = false;
-
 		I.countBandwidth = true;
 		C.countBandwidth = true;
 		I.bandwidth[PID.ssot].start();
@@ -118,13 +108,11 @@ public class SSOT extends Operation {
 		// protocol
 		// step 2
 		// parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-		//timing.iot.start();
 		iot.executeS(C, I, sE, length);
 
 		// step 3
 		// parties run IOT(C, E, I) on inputs sC for C and i, delta for I
 		BigInteger[] b = iot.executeR(I, C);
-		//timing.iot.stop();
 
 		I.countBandwidth = false;
 		C.countBandwidth = false;

@@ -177,11 +177,9 @@ public class OPRF {
 		ECPoint w = y.multiply(t).negate();
 		timing.stopwatch[PID.oprf][TID.offline].stop();
 		
-		//timing.oprf_online.start();
 		timing.stopwatch[PID.oprf][TID.online].start();
 		ECPoint v = msg.add(gt);
 		timing.stopwatch[PID.oprf][TID.online].stop();
-		//timing.oprf_online.stop();
 		
 		return new Message(v, w);
 	}

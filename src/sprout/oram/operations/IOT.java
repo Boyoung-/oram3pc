@@ -52,20 +52,15 @@ public class IOT extends Operation {
 		// step 1
 		// party S
 		BigInteger[] a = new BigInteger[N];
-		//timing.iot_online.start();
 		timing.stopwatch[PID.iot][TID.online].start();
 		for (int o = 0; o < N; o++)
 			a[o] = m[pi[o]].xor(r[o]);
 		timing.stopwatch[PID.iot][TID.online].stop();
-		//timing.iot_online.stop();
 
 		// S sends a to R
-		// sanityCheck(R);
-		//timing.iot_write.start();
 		timing.stopwatch[PID.iot][TID.online_write].start();
 		R.write(a);
 		timing.stopwatch[PID.iot][TID.online_write].stop();
-		//timing.iot_write.stop();
 
 		I.countBandwidth = false;
 		R.countBandwidth = false;
@@ -90,30 +85,22 @@ public class IOT extends Operation {
 		// protocol
 		// step 1
 		// S sends a to R
-		// sanityCheck(S);
-		//timing.iot_read.start();
 		timing.stopwatch[PID.iot][TID.online_read].start();
 		BigInteger[] a = S.readBigIntegerArray();
-		//timing.iot_read.stop();
 
 		// step 2
 		// I sends j and p to R
-		// sanityCheck(I);
-		//timing.iot_read.start();
 		Integer[] j = I.readIntegerArray();
 		BigInteger[] p = I.readBigIntegerArray();
 		timing.stopwatch[PID.iot][TID.online_read].stop();
-		//timing.iot_read.stop();
 
 		// step 3
 		// party R
 		BigInteger[] z = new BigInteger[k];
-		//timing.iot_online.start();
 		timing.stopwatch[PID.iot][TID.online].start();
 		for (int o = 0; o < k; o++)
 			z[o] = a[j[o]].xor(p[o]);
 		timing.stopwatch[PID.iot][TID.online].stop();
-		//timing.iot_online.stop();
 
 		I.countBandwidth = false;
 		S.countBandwidth = false;
@@ -175,23 +162,18 @@ public class IOT extends Operation {
 		// party I
 		Integer[] j = new Integer[k];
 		BigInteger[] p = new BigInteger[k];
-		//timing.iot_online.start();
 		timing.stopwatch[PID.iot][TID.online].start();
 		for (int o = 0; o < k; o++) {
 			j[o] = pi_ivs.get(i[o]);
 			p[o] = r[j[o]].xor(delta[o]);
 		}
 		timing.stopwatch[PID.iot][TID.online].stop();
-		//timing.iot_online.stop();
 
 		// I sends j and p to R
-		// sanityCheck(R);
-		//timing.iot_write.start();
 		timing.stopwatch[PID.iot][TID.online_write].start();
 		R.write(j);
 		R.write(p);
 		timing.stopwatch[PID.iot][TID.online_write].stop();
-		//timing.iot_write.stop();
 
 		S.countBandwidth = false;
 		R.countBandwidth = false;
