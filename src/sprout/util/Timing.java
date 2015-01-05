@@ -551,7 +551,7 @@ public class Timing {
 		String csv = "";
 		for (int i=0; i<PID.size; i++)
 			for (int j=0; j<TID.size; j++)
-				csv += stopwatch[i][j] + "\n";
+				csv += stopwatch[i][j].toCSV() + "\n";
 		return "\n" + csv;
 	}
 }
