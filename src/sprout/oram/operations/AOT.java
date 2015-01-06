@@ -44,8 +44,6 @@ public class AOT extends Operation {
 		C.bandwidth[PID.aot].start();
 		D.bandwidth[PID.aot].start();
 
-		sanityCheck();
-
 		// step 1
 		// party E
 		BigInteger[] m_p = new BigInteger[N];
@@ -58,6 +56,8 @@ public class AOT extends Operation {
 			e1.printStackTrace();
 		}
 		timing.stopwatch[PID.aot][TID.offline].stop();
+
+		sanityCheck();
 		
 		timing.stopwatch[PID.aot][TID.online].start();
 		BigInteger alpha = BigInteger.valueOf(SR.rand.nextInt(N));
@@ -71,8 +71,6 @@ public class AOT extends Operation {
 			e.printStackTrace();
 		}
 		timing.stopwatch[PID.aot][TID.online].stop();
-
-		// sanityCheck(C);
 
 		timing.stopwatch[PID.aot][TID.online_write].start();
 		C.write(m_p);
@@ -99,7 +97,6 @@ public class AOT extends Operation {
 
 		sanityCheck();
 
-		// sanityCheck(E);
 		// step 1
 		// E sends m_p and alpha to C
 		timing.stopwatch[PID.aot][TID.online_read].start();
@@ -114,8 +111,6 @@ public class AOT extends Operation {
 				.mod(BigInteger.valueOf(N));
 		timing.stopwatch[PID.aot][TID.online].stop();
 
-		// sanityCheck(D);
-
 		// C sends j_p to D
 		timing.stopwatch[PID.aot][TID.online_write].start();
 		D.write(j_p);
@@ -123,7 +118,6 @@ public class AOT extends Operation {
 
 		// step 3
 		// D sends c to C
-		// sanityCheck(D);
 		timing.stopwatch[PID.aot][TID.online_read].start();
 		BigInteger c = D.readBigInteger();
 		timing.stopwatch[PID.aot][TID.online_read].stop();
@@ -160,7 +154,6 @@ public class AOT extends Operation {
 		sanityCheck();
 
 		// protocol
-		// sanityCheck(C);
 		// step 2
 		// C sends j_p to D
 		timing.stopwatch[PID.aot][TID.online_read].start();
@@ -179,7 +172,6 @@ public class AOT extends Operation {
 			BigInteger c = new BigInteger(1, f.compute(j_p.toByteArray()));
 			timing.stopwatch[PID.aot][TID.online].stop();
 			// D sends c to C
-			// sanityCheck(C);
 			timing.stopwatch[PID.aot][TID.online_write].start();
 			C.write(c);
 			timing.stopwatch[PID.aot][TID.online_write].stop();

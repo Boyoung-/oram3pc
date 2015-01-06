@@ -33,8 +33,6 @@ public class SSOT extends Operation {
 		I.bandwidth[PID.ssot].start();
 		E.bandwidth[PID.ssot].start();
 
-		sanityCheck();
-
 		// protocol
 		// step 2
 		// parties run IOT(E, C, I) on inputs sE for E and i, delta for I
@@ -69,8 +67,6 @@ public class SSOT extends Operation {
 		C.bandwidth[PID.ssot].start();
 		E.bandwidth[PID.ssot].start();
 
-		sanityCheck();
-
 		// protocol
 		// step 1
 		// party I
@@ -102,8 +98,6 @@ public class SSOT extends Operation {
 		C.countBandwidth = true;
 		I.bandwidth[PID.ssot].start();
 		C.bandwidth[PID.ssot].start();
-
-		sanityCheck();
 
 		// protocol
 		// step 2

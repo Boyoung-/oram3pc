@@ -74,8 +74,6 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 		charlie.bandwidth[PID.encrypt].start();
 		eddie.bandwidth[PID.encrypt].start();
 
-		sanityCheck();
-
 		try {
 			timing.stopwatch[PID.encrypt][TID.offline].start();
 			OPRF oprf = OPRFHelper.getOPRF(false);
@@ -90,6 +88,8 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 			BigInteger[] b = new BigInteger[pathBuckets];
 			BigInteger[] c = new BigInteger[pathBuckets];
 			timing.stopwatch[PID.encrypt][TID.offline].stop();
+
+			sanityCheck();
 
 			timing.stopwatch[PID.encrypt][TID.online].start();
 			byte[] s = SR.rand.generateSeed(16);

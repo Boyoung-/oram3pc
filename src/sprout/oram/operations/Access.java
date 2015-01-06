@@ -33,14 +33,14 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		debbie.bandwidth[PID.access].start();
 		eddie.bandwidth[PID.access].start();
 
-		sanityCheck();
-
 		// protocol
 		// step 1
 		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
 		DecryptPath dp = new DecryptPath(debbie, eddie);
 		dp.loadTreeSpecificParameters(i);
 		DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, Li);
+		
+		sanityCheck();
 
 		timing.stopwatch[PID.access][TID.online].start();
 		BigInteger secretC_P = DecOut.secretC_P[0];
@@ -65,7 +65,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				c[j] = Ni.setBit(nBits).xor(a[j]);
 			}
 			timing.stopwatch[PID.access][TID.online].stop();
-			// sanityCheck();
 			PET pet = new PET(debbie, eddie);
 			j_1 = pet.executeCharlie(debbie, eddie, c);
 			// PET outputs j_1 for C
@@ -85,7 +84,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i == 0)
 			fbar = BigInteger.ZERO;
 		else {
-			// sanityCheck();
 			fbar = aot.executeC(debbie, eddie, j_1);
 			// outputs fbar for C
 		}
@@ -95,7 +93,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		BigInteger ybar_j2 = null;
 		if (i < h) {
 			// AOT(E, C, D)
-			// sanityCheck();
 			j_2 = Nip1_pr.intValue();
 			ybar_j2 = aot.executeC(debbie, eddie, j_2);
 			// outputs ybar_j2 for C
@@ -150,7 +147,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		debbie.countBandwidth = false;
 		eddie.countBandwidth = false;
 
-		// sanityCheck();
 		// C outputs Lip1, secretC_Ti, secretC_P_p
 		return new AOutput(Lip1, null, secretC_Ti, null, secretC_P_p, null, d);
 	}
@@ -165,8 +161,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		charlie.bandwidth[PID.access].start();
 		eddie.bandwidth[PID.access].start();
 
-		sanityCheck();
-
 		// protocol
 		// step 1
 		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
@@ -174,16 +168,16 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		dp.loadTreeSpecificParameters(i);
 		dp.executeDebbieSubTree(charlie, eddie, k);
 		// DecryptPath outpus sigma and secretE_P for E and secretC_P for C
+		
+		sanityCheck();
 
 		AOT aot = new AOT(charlie, eddie);
 		if (i > 0) {
 			// step 3
-			// sanityCheck();
 			PET pet = new PET(charlie, eddie);
 			pet.executeDebbie(charlie, eddie, pathTuples);
 			// PET outputs j_1 for C
 
-			// sanityCheck();
 			// step 4
 			aot.executeD(charlie, eddie);
 		}
@@ -191,7 +185,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// step 5
 		if (i < h) {
 			// AOT(E, C, D)
-			// sanityCheck();
 			aot.executeD(charlie, eddie);
 			// outputs ybar_j2 for C
 		}
@@ -201,8 +194,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		charlie.countBandwidth = false;
 		eddie.countBandwidth = false;
 
-		// sanityCheck();
-		// return new AOutput();
 		return null;
 	}
 
@@ -214,14 +205,14 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		charlie.bandwidth[PID.access].start();
 		debbie.bandwidth[PID.access].start();
 
-		sanityCheck();
-
 		// protocol
 		// step 1
 		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
 		DecryptPath dp = new DecryptPath(charlie, debbie);
 		dp.loadTreeSpecificParameters(i);
 		DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, null);
+		
+		sanityCheck();
 
 		timing.stopwatch[PID.access][TID.online].start();
 		BigInteger secretE_P = DecOut.secretE_P[0];
@@ -267,7 +258,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				tmp = tmp.shiftRight(tupleBits);
 			}
 			timing.stopwatch[PID.access][TID.online].stop();
-			// sanityCheck();
 			PET pet = new PET(charlie, debbie);
 			pet.executeEddie(charlie, debbie, b);
 			// PET outputs j_1 for C
@@ -289,7 +279,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			}
 			timing.stopwatch[PID.access][TID.online].stop();
 
-			// sanityCheck();
 			// AOT(E, C, D)
 			aot.executeE(charlie, debbie, f, aBits);
 			// outputs fbar for C
@@ -298,7 +287,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// step 5
 		if (i < h) {
 			// AOT(E, C, D)
-			// sanityCheck();
 			aot.executeE(charlie, debbie, y, d_ip1);
 			// outputs ybar_j2 for C
 		}
@@ -308,7 +296,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		charlie.countBandwidth = false;
 		debbie.countBandwidth = false;
 
-		// sanityCheck();
 		// E outputs secretE_Ti and secretE_P_p
 		return new AOutput(null, DecOut.p, null, secretE_Ti, null, secretE_P_p,
 				null);

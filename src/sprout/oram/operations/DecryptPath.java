@@ -55,6 +55,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 
 		debbie.bandwidth[PID.oprf].start();
 		eddie.bandwidth[PID.oprf].start();
+		
 		// step 4
 		// party C and D run OPRF on C's input sigma_x and D's input k
 		timing.stopwatch[PID.oprf][TID.offline].start();
@@ -63,6 +64,8 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		oprf.timing = timing; // TODO: better way?
 		BigInteger[] secretC_P = new BigInteger[sigma_x.length];
 		timing.stopwatch[PID.oprf][TID.offline].stop();
+		
+		sanityCheck();
 		
 		for (int j = 0; j < sigma_x.length; j++) {
 			// This oprf should possibly be evaulated in as an Operation
@@ -117,6 +120,8 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		timing.stopwatch[PID.oprf][TID.offline].start();
 		OPRF oprf = OPRFHelper.getOPRF(false);
 		timing.stopwatch[PID.oprf][TID.offline].stop();
+		
+		sanityCheck();
 		
 		for (int j = 0; j < pathBuckets; j++) {
 			timing.stopwatch[PID.oprf][TID.online_read].start();
@@ -203,6 +208,8 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		timing.stopwatch[PID.decrypt][TID.online_write].start();
 		charlie.write(sigma_x);
 		timing.stopwatch[PID.decrypt][TID.online_write].stop();
+		
+		sanityCheck();
 
 		debbie.bandwidth[PID.decrypt].stop();
 		charlie.bandwidth[PID.decrypt].stop();

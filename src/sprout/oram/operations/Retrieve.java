@@ -191,7 +191,7 @@ public class Retrieve extends Operation {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		if (ifSanityCheck())
-			System.out.println("Sanity check enabled");
+			System.out.println("Sanity check enabled\n");
 
 		long numInsert = Math.min(ForestMetadata.getNumInsert(),
 				ForestMetadata.getAddressSpace());

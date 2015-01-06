@@ -206,7 +206,6 @@ public class PET extends Operation {
 
 		// step 1
 		// C sends u to E
-		//timing.pet_read.start();
 		timing.stopwatch[PID.pet][TID.online_read].start();
 		BigInteger[] u = charlie.readBigIntegerArray();
 		timing.stopwatch[PID.pet][TID.online_read].stop();

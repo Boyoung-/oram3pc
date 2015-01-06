@@ -66,7 +66,6 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// step 1
 		// E sends delta_C to C
-		sanityCheck();
 		timing.stopwatch[PID.ppt][TID.online_read].start();
 		BigInteger delta_C = eddie.readBigInteger();
 		timing.stopwatch[PID.ppt][TID.online_read].stop();
@@ -79,7 +78,6 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 				.mod(BigInteger.valueOf(twotaupow)).intValue();
 		timing.stopwatch[PID.ppt][TID.online].stop();
 
-		sanityCheck();
 		timing.stopwatch[PID.ppt][TID.online_write].start();
 		// C sends j_p to D
 		debbie.write(j_p);
@@ -89,7 +87,6 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// step 3
 		// D sends s to C
-		sanityCheck();
 		timing.stopwatch[PID.ppt][TID.online_read].start();
 		byte[] s = debbie.read();
 		timing.stopwatch[PID.ppt][TID.online_read].stop();
@@ -151,12 +148,10 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// step 1
 		// E sends delta_D to D
-		sanityCheck();
 		timing.stopwatch[PID.ppt][TID.online_read].start();
 		BigInteger delta_D = eddie.readBigInteger();
 
 		// step 2
-		//sanityCheck();
 		// C sends j_p to D
 		int j_p = charlie.readInt();
 		timing.stopwatch[PID.ppt][TID.online_read].stop();
@@ -183,7 +178,6 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		}
 		timing.stopwatch[PID.ppt][TID.online].stop();
 
-		sanityCheck();
 		timing.stopwatch[PID.ppt][TID.online_write].start();
 		//timing.post_write.start();
 		// D sends s to C
@@ -244,20 +238,17 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		BigInteger delta_C = delta_D.xor(secretE_Lip1_p);
 		timing.stopwatch[PID.ppt][TID.online].stop();
 		// E sends delta_C to C and delta_D to D
-		sanityCheck();
 		timing.stopwatch[PID.ppt][TID.online_write].start();
 		debbie.write(delta_D);
 		charlie.write(delta_C);
 		timing.stopwatch[PID.ppt][TID.online_write].stop();
 
 		// step 2
-		sanityCheck();
 		// C sends alpha to E
 		timing.stopwatch[PID.ppt][TID.online_read].start();
 		int alpha = charlie.readInt();
 
 		// step 3
-		//sanityCheck();
 		// D sends a_p to E
 		BigInteger[] a_p = debbie.readBigIntegerArray();
 		timing.stopwatch[PID.ppt][TID.online_read].stop();
