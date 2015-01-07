@@ -14,7 +14,7 @@ public class ForestTest
 		{
 			ForestMetadata.setup("config/newConfig.yaml");
 			// Create the tree so we can actually run some tests on it...
-			forest = new Forest();
+			forest = new Forest("init");
 			//forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

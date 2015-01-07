@@ -16,7 +16,7 @@ public class TreeTest
 		try
 		{
 			ForestMetadata.setup("config/newConfig.yaml");
-			forest = new Forest();
+			forest = new Forest("init");
 			//forest.buildFromFile("config/smallConfig.yaml", "config/smallData.txt", "db.bin");
 		}
 		catch (Exception e)
