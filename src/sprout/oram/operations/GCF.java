@@ -69,7 +69,7 @@ public class GCF extends Operation {
 		C.bandwidth[PID.gcf].start();
 		D.bandwidth[PID.gcf].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1
@@ -110,7 +110,7 @@ public class GCF extends Operation {
 		E.bandwidth[PID.gcf].start();
 		D.bandwidth[PID.gcf].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1
@@ -175,7 +175,7 @@ public class GCF extends Operation {
 		C.bandwidth[PID.gcf].start();
 		E.bandwidth[PID.gcf].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 2

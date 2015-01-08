@@ -34,7 +34,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		debbie.bandwidth[PID.decrypt].start();
 		eddie.bandwidth[PID.decrypt].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1
@@ -137,7 +137,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		charlie.bandwidth[PID.decrypt].start();
 		eddie.bandwidth[PID.decrypt].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 4
@@ -205,7 +205,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		charlie.bandwidth[PID.decrypt].start();
 		debbie.bandwidth[PID.decrypt].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1

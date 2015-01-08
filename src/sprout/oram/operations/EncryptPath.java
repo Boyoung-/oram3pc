@@ -29,7 +29,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 		debbie.bandwidth[PID.encrypt].start();
 		eddie.bandwidth[PID.encrypt].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1
@@ -89,7 +89,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 			BigInteger[] c = new BigInteger[pathBuckets];
 			timing.stopwatch[PID.encrypt][TID.offline].stop();
 
-			sanityCheck();
+			//sanityCheck();
 
 			timing.stopwatch[PID.encrypt][TID.online].start();
 			byte[] s = SR.rand.generateSeed(16);
@@ -145,7 +145,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 		charlie.bandwidth[PID.encrypt].start();
 		debbie.bandwidth[PID.encrypt].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// TODO: move unnecessary stuff out of try
 		try {

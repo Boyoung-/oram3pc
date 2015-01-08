@@ -57,7 +57,7 @@ public class AOT extends Operation {
 		}
 		timing.stopwatch[PID.aot][TID.offline].stop();
 
-		sanityCheck();
+		//sanityCheck();
 		
 		timing.stopwatch[PID.aot][TID.online].start();
 		BigInteger alpha = BigInteger.valueOf(SR.rand.nextInt(N));
@@ -95,7 +95,7 @@ public class AOT extends Operation {
 		E.bandwidth[PID.aot].start();
 		D.bandwidth[PID.aot].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// step 1
 		// E sends m_p and alpha to C
@@ -151,7 +151,7 @@ public class AOT extends Operation {
 		C.bandwidth[PID.aot].start();
 		E.bandwidth[PID.aot].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 2

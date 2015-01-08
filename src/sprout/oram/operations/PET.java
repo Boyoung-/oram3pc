@@ -84,7 +84,7 @@ public class PET extends Operation {
 		eddie.write(r);
 		timing.stopwatch[PID.pet][TID.offline_write].stop();
 
-		sanityCheck();
+		//sanityCheck();
 
 	}
 
@@ -119,7 +119,7 @@ public class PET extends Operation {
 		debbie.bandwidth[PID.pet].start();
 		eddie.bandwidth[PID.pet].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// Protocol
 		// step 1
@@ -202,7 +202,7 @@ public class PET extends Operation {
 		debbie.bandwidth[PID.pet].start();
 		charlie.bandwidth[PID.pet].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// step 1
 		// C sends u to E
