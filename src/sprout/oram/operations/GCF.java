@@ -75,19 +75,20 @@ public class GCF extends Operation {
 		// step 1
 		BigInteger[][] A = new BigInteger[n][2];
 		BigInteger[] K_E = new BigInteger[n];
+		timing.stopwatch[PID.gcf][TID.online].start();
 		for (int i = 0; i < n; i++) {
-			timing.stopwatch[PID.gcf][TID.online].start();
 			int alpha = sE.testBit(n - i - 1) ? 1 : 0;
 			A[i][0] = lbs[i][alpha];
 			A[i][1] = lbs[i][1 - alpha];
-			timing.stopwatch[PID.gcf][TID.online].stop();
-
-			timing.stopwatch[PID.gcf][TID.online_write].start();
-			C.write(A[i]);
-			timing.stopwatch[PID.gcf][TID.online_write].stop();
-
 			K_E[i] = lbs[i][0];
 		}
+		timing.stopwatch[PID.gcf][TID.online].stop();
+		
+		timing.stopwatch[PID.gcf][TID.online_write].start();
+		for (int i = 0; i < n; i++) {
+			C.write(A[i]);
+		}
+		timing.stopwatch[PID.gcf][TID.online_write].stop();
 
 		// step 3
 		// in the Retrieval GC write/read will be
@@ -112,20 +113,23 @@ public class GCF extends Operation {
 		sanityCheck();
 
 		// protocol
-		// step 1, 2
+		// step 1
 		BigInteger[][] A = new BigInteger[n][2];
 		BigInteger[] K_C = new BigInteger[n];
+		timing.stopwatch[PID.gcf][TID.online_read].start();
 		for (int i = 0; i < n; i++) {
-			timing.stopwatch[PID.gcf][TID.online_read].start();
 			A[i] = E.readBigIntegerArray();
-			timing.stopwatch[PID.gcf][TID.online_read].stop();
+		}
+		timing.stopwatch[PID.gcf][TID.online_read].stop();
 
-			timing.stopwatch[PID.gcf][TID.online].start();
+		timing.stopwatch[PID.gcf][TID.online].start();
+		for (int i = 0; i < n; i++) {
 			int beta = sC.testBit(n - i - 1) ? 1 : 0;
 			K_C[i] = A[i][beta];
-			timing.stopwatch[PID.gcf][TID.online].stop();
 		}
+		timing.stopwatch[PID.gcf][TID.online].stop();
 
+		// step 2
 		timing.stopwatch[PID.gcf][TID.online_write].start();
 		D.write(K_C);
 		timing.stopwatch[PID.gcf][TID.online_write].stop();
