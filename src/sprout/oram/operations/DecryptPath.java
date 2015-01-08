@@ -53,9 +53,6 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		ECPoint[] sigma_x = eddie.readECPointArray();
 		timing.stopwatch[PID.decrypt][TID.online_read].stop();
 
-		debbie.bandwidth[PID.oprf].start();
-		eddie.bandwidth[PID.oprf].start();
-		
 		// step 4
 		// party C and D run OPRF on C's input sigma_x and D's input k
 		timing.stopwatch[PID.oprf][TID.offline].start();
@@ -64,9 +61,38 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		oprf.timing = timing; // TODO: better way?
 		BigInteger[] secretC_P = new BigInteger[sigma_x.length];
 		timing.stopwatch[PID.oprf][TID.offline].stop();
-		
+
 		sanityCheck();
+
+		debbie.bandwidth[PID.oprf].start();
+		eddie.bandwidth[PID.oprf].start();
+
+		Message[] msg1 = new Message[sigma_x.length];
+		Message[] msg2 = new Message[sigma_x.length];
+
+		for (int j = 0; j < sigma_x.length; j++)
+			msg1[j] = oprf.prepare(sigma_x[j]);// contains pre-computation and
+												// online computation
 		
+		timing.stopwatch[PID.oprf][TID.online_write].start();
+		for (int j = 0; j < sigma_x.length; j++) 
+			debbie.write(new Message(msg1[j].getV()));
+		timing.stopwatch[PID.oprf][TID.online_write].stop();
+		
+		timing.stopwatch[PID.oprf][TID.online_read].start();
+		for (int j = 0; j < sigma_x.length; j++) 
+			msg2[j] = debbie.readMessage();
+		timing.stopwatch[PID.oprf][TID.online_read].stop();
+		
+		timing.stopwatch[PID.oprf][TID.online].start();
+		for (int j = 0; j < sigma_x.length; j++) {
+			msg2[j].setW(msg1[j].getW());
+			Message res = oprf.deblind(msg2[j]);
+			secretC_P[j] = new BigInteger(1, G.compute(res.getResult()));
+		}
+		timing.stopwatch[PID.oprf][TID.online].stop();
+
+		/*
 		for (int j = 0; j < sigma_x.length; j++) {
 			// This oprf should possibly be evaulated in as an Operation
 			// For an easier description of the flow look at OPRFTest.java
@@ -89,6 +115,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 			secretC_P[j] = new BigInteger(1, G.compute(res.getResult()));
 			timing.stopwatch[PID.oprf][TID.online].stop();
 		}
+		*/
 
 		debbie.bandwidth[PID.oprf].stop();
 		eddie.bandwidth[PID.oprf].stop();
@@ -110,9 +137,6 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		charlie.bandwidth[PID.decrypt].start();
 		eddie.bandwidth[PID.decrypt].start();
 
-		charlie.bandwidth[PID.oprf].start();
-		eddie.bandwidth[PID.oprf].start();
-
 		sanityCheck();
 
 		// protocol
@@ -120,9 +144,31 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		timing.stopwatch[PID.oprf][TID.offline].start();
 		OPRF oprf = OPRFHelper.getOPRF(false);
 		timing.stopwatch[PID.oprf][TID.offline].stop();
-		
+
 		sanityCheck();
+
+		charlie.bandwidth[PID.oprf].start();
+		eddie.bandwidth[PID.oprf].start();
 		
+		Message[] msg = new Message[pathBuckets];
+		
+		timing.stopwatch[PID.oprf][TID.online_read].start();
+		for (int j = 0; j < pathBuckets; j++) 
+			msg[j] = charlie.readMessage();
+		timing.stopwatch[PID.oprf][TID.online_read].stop();
+		
+		timing.stopwatch[PID.oprf][TID.online].start();
+		for (int j = 0; j < pathBuckets; j++) 
+			msg[j] = oprf.evaluate(msg[j]); // TODO: pass k as arg or just read from
+										// file?
+		timing.stopwatch[PID.oprf][TID.online].stop();
+		
+		timing.stopwatch[PID.oprf][TID.online_write].start();
+		for (int j = 0; j < pathBuckets; j++) 
+			charlie.write(msg[j]);
+		timing.stopwatch[PID.oprf][TID.online_write].stop();
+
+		/*
 		for (int j = 0; j < pathBuckets; j++) {
 			timing.stopwatch[PID.oprf][TID.online_read].start();
 			Message msg = charlie.readMessage();
@@ -137,6 +183,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 			charlie.write(msg);
 			timing.stopwatch[PID.oprf][TID.online_write].stop();
 		}
+		*/
 
 		charlie.bandwidth[PID.oprf].stop();
 		eddie.bandwidth[PID.oprf].stop();
@@ -208,7 +255,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		timing.stopwatch[PID.decrypt][TID.online_write].start();
 		charlie.write(sigma_x);
 		timing.stopwatch[PID.decrypt][TID.online_write].stop();
-		
+
 		sanityCheck();
 
 		debbie.bandwidth[PID.decrypt].stop();
