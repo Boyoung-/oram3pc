@@ -1,6 +1,5 @@
 package sprout.oram.operations;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 
 import sprout.communication.Communication;
@@ -41,6 +40,7 @@ public abstract class Operation {
 			con1.countBandwidth = false;
 			con2.countBandwidth = false;
 
+			/*
 			// System.out.println("Sanity check");
 			con1.write("sanity");
 			con2.write("sanity");
@@ -53,6 +53,15 @@ public abstract class Operation {
 			}
 
 			// System.out.println("Sanity check finished");
+			 */
+			
+			con1.write(-100);
+			con2.write(-100);
+			
+			if (con1.readInt() != -100)
+				System.out.println("Sanity check failed for con1");
+			if (con2.readInt() != -100)
+				System.out.println("Sanity check failed for con2");
 
 			con1.countBandwidth = true;
 			con2.countBandwidth = true;
