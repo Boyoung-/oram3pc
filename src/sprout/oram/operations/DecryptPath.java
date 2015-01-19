@@ -53,6 +53,10 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		ECPoint[] sigma_x = eddie.readECPointArray();
 		timing.stopwatch[PID.decrypt][TID.online_read].stop();
 
+
+		debbie.bandwidth[PID.oprf].start();
+		eddie.bandwidth[PID.oprf].start();
+
 		// step 4
 		// party C and D run OPRF on C's input sigma_x and D's input k
 		timing.stopwatch[PID.oprf][TID.offline].start();
@@ -60,20 +64,26 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		OPRF oprf = OPRFHelper.getOPRF();
 		oprf.timing = timing; // TODO: better way?
 		BigInteger[] secretC_P = new BigInteger[sigma_x.length];
-		timing.stopwatch[PID.oprf][TID.offline].stop();
-
-		sanityCheck();
-
-		debbie.bandwidth[PID.oprf].start();
-		eddie.bandwidth[PID.oprf].start();
 
 		Message[] msg1 = new Message[sigma_x.length];
 		Message[] msg2 = new Message[sigma_x.length];
 
+		/*
 		for (int j = 0; j < sigma_x.length; j++)
 			msg1[j] = oprf.prepare(sigma_x[j]);// contains pre-computation and
 												// online computation
+		*/
 		
+		ECPoint[][] gy = oprf.preparePairs(sigma_x.length);
+		timing.stopwatch[PID.oprf][TID.offline].stop();
+		
+		sanityCheck();
+		
+		timing.stopwatch[PID.oprf][TID.online].start();
+		for (int j=0; j<sigma_x.length; j++)
+			msg1[j] = new Message(sigma_x[j].add(gy[0][j]), gy[1][j]);
+		timing.stopwatch[PID.oprf][TID.online].stop();
+
 		timing.stopwatch[PID.oprf][TID.online_write].start();
 		for (int j = 0; j < sigma_x.length; j++) 
 			debbie.write(new Message(msg1[j].getV()));
