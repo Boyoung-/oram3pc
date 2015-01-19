@@ -28,7 +28,7 @@ public abstract class Operation {
 		this.con2 = con2;
 	}
 
-	private static final boolean ENSURE_SANITY = true;
+	private static final boolean ENSURE_SANITY = false;
 
 	public boolean ifSanityCheck() {
 		return ENSURE_SANITY;
@@ -40,7 +40,6 @@ public abstract class Operation {
 			con1.countBandwidth = false;
 			con2.countBandwidth = false;
 
-			/*
 			// System.out.println("Sanity check");
 			con1.write("sanity");
 			con2.write("sanity");
@@ -53,8 +52,8 @@ public abstract class Operation {
 			}
 
 			// System.out.println("Sanity check finished");
-			 */
 			
+			/*
 			con1.write(100);
 			con2.write(100);
 			
@@ -62,6 +61,7 @@ public abstract class Operation {
 				System.out.println("Sanity check failed for con1");
 			if (con2.readInt() != 100)
 				System.out.println("Sanity check failed for con2");
+				*/
 
 			con1.countBandwidth = true;
 			con2.countBandwidth = true;
