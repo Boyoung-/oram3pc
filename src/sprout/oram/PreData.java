@@ -1,5 +1,6 @@
 package sprout.oram;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import org.bouncycastle.math.ec.ECPoint;
@@ -13,4 +14,12 @@ public class PreData {
 	// OPRF
 	public static OPRF oprf_oprf;
 	public static ECPoint[][][] oprf_gy;
+	
+	// PET
+	public static BigInteger[][] pet_alpha;
+	public static BigInteger[][] pet_beta;
+	public static BigInteger[][] pet_tau;
+	public static BigInteger[][] pet_r;
+	public static BigInteger[][] pet_gamma;
+	public static BigInteger[][] pet_delta;
 }

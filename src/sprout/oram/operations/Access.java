@@ -66,7 +66,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			}
 			timing.stopwatch[PID.access][TID.online].stop();
 			PET pet = new PET(debbie, eddie);
-			j_1 = pet.executeCharlie(debbie, eddie, c);
+			j_1 = pet.executeCharlie(debbie, eddie, c, i);
 			// PET outputs j_1 for C
 		}
 
@@ -175,7 +175,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i > 0) {
 			// step 3
 			PET pet = new PET(charlie, eddie);
-			pet.executeDebbie(charlie, eddie, pathTuples);
+			pet.executeDebbie(charlie, eddie);
 			// PET outputs j_1 for C
 
 			// step 4
@@ -259,7 +259,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			}
 			timing.stopwatch[PID.access][TID.online].stop();
 			PET pet = new PET(charlie, debbie);
-			pet.executeEddie(charlie, debbie, b);
+			pet.executeEddie(charlie, debbie, b, i);
 			// PET outputs j_1 for C
 		}
 
