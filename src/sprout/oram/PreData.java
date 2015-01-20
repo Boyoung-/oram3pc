@@ -25,4 +25,16 @@ public class PreData {
 
 	// AOT
 	public static byte[][][] aot_k;
+
+	// PPT
+	public static BigInteger[] ppt_sC_Li_p;
+	public static BigInteger[] ppt_sE_Li_p;
+
+	// Reshuffle
+	public static byte[][] reshuffle_s1;
+	public static byte[][] reshuffle_s2;
+	public static byte[][] reshuffle_p1;
+	public static byte[][] reshuffle_p2;
+	public static BigInteger[][] reshuffle_a;
+	public static List<Integer>[] reshuffle_pi;
 }

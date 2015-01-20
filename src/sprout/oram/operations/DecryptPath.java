@@ -211,6 +211,6 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		debbie.countBandwidth = false;
 
 		// E outputs sigma and secretE_P
-		return new DPOutput(null, secretE_P, PreData.decrypt_sigma[i]);
+		return new DPOutput(null, secretE_P, null); // sigma is in precomputation now
 	}
 }

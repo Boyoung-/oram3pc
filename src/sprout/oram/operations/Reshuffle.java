@@ -4,9 +4,8 @@ import java.math.BigInteger;
 import java.util.List;
 
 import sprout.communication.Communication;
-import sprout.crypto.PRG;
-import sprout.crypto.SR;
 import sprout.oram.PID;
+import sprout.oram.PreData;
 import sprout.oram.TID;
 import sprout.util.Util;
 
@@ -26,27 +25,12 @@ public class Reshuffle extends
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
 			Communication eddie, Pair<BigInteger, List<Integer>> args) {
-		debbie.countBandwidth = false;
-		eddie.countBandwidth = false;
-
 		BigInteger secretC_P = args.getLeft();
 
 		// i = 0 case: no shuffle needed
 		if (i == 0) {
 			return secretC_P;
 		}
-
-		// precomputation
-		timing.stopwatch[PID.reshuffle][TID.offline].start();
-		PRG G = new PRG(pathBuckets * bucketBits);
-		byte[] s1 = SR.rand.generateSeed(16);
-		byte[] p1 = G.compute(s1);
-		timing.stopwatch[PID.reshuffle][TID.offline].stop();
-
-		// C sends s1 to D
-		timing.stopwatch[PID.reshuffle][TID.offline_write].start();
-		debbie.write(s1);
-		timing.stopwatch[PID.reshuffle][TID.offline_write].stop();
 
 		debbie.countBandwidth = true;
 		eddie.countBandwidth = true;
@@ -59,7 +43,8 @@ public class Reshuffle extends
 		// step 1
 		// party C
 		timing.stopwatch[PID.reshuffle][TID.online].start();
-		BigInteger z = secretC_P.xor(new BigInteger(1, p1));
+		BigInteger z = secretC_P
+				.xor(new BigInteger(1, PreData.reshuffle_p1[i]));
 		timing.stopwatch[PID.reshuffle][TID.online].stop();
 		// C sends z to E
 		timing.stopwatch[PID.reshuffle][TID.online_write].start();
@@ -90,36 +75,11 @@ public class Reshuffle extends
 
 	@Override
 	public BigInteger executeDebbieSubTree(Communication charlie,
-			Communication eddie, Pair<BigInteger, List<Integer>> args) {
-		charlie.countBandwidth = false;
-		eddie.countBandwidth = false;
-
-		List<Integer> pi = args.getRight();
-
+			Communication eddie, Pair<BigInteger, List<Integer>> args_unused) {
 		// i = 0 case: no shuffle needed
 		if (i == 0) {
 			return null;
 		}
-
-		byte[] p1 = null, p2 = null;
-		// precomputation
-		timing.stopwatch[PID.reshuffle][TID.offline].start();
-		PRG G = new PRG(pathBuckets * bucketBits);
-		byte[] s2 = SR.rand.generateSeed(16);
-		p2 = G.compute(s2);
-		timing.stopwatch[PID.reshuffle][TID.offline].stop();
-
-		timing.stopwatch[PID.reshuffle][TID.offline_write].start();
-		eddie.write(s2);
-		timing.stopwatch[PID.reshuffle][TID.offline_write].stop();
-
-		timing.stopwatch[PID.reshuffle][TID.offline_read].start();
-		byte[] s1 = charlie.read();
-		timing.stopwatch[PID.reshuffle][TID.offline_read].stop();
-
-		timing.stopwatch[PID.reshuffle][TID.offline].start();
-		p1 = G.compute(s1);
-		timing.stopwatch[PID.reshuffle][TID.offline].stop();
 
 		charlie.countBandwidth = true;
 		eddie.countBandwidth = true;
@@ -135,17 +95,8 @@ public class Reshuffle extends
 		// step 2
 		// party D
 		timing.stopwatch[PID.reshuffle][TID.online].start();
-		BigInteger a_all = new BigInteger(1, p1).xor(new BigInteger(1, p2));
-		BigInteger[] a = new BigInteger[pathBuckets];
-		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
-				BigInteger.ONE);
-		BigInteger tmp = a_all;
-		for (int j = pathBuckets - 1; j >= 0; j--) {
-			a[j] = tmp.and(helper);
-			tmp = tmp.shiftRight(bucketBits);
-		}
-
-		BigInteger[] secretC_pi_P = Util.permute(a, pi);
+		BigInteger[] secretC_pi_P = Util.permute(PreData.reshuffle_a[i],
+				PreData.reshuffle_pi[i]);
 		timing.stopwatch[PID.reshuffle][TID.online].stop();
 
 		// D sends secretC_pi_P to C
@@ -165,26 +116,12 @@ public class Reshuffle extends
 	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
 			Communication debbie, Pair<BigInteger, List<Integer>> args) {
-		charlie.countBandwidth = false;
-		debbie.countBandwidth = false;
-
 		BigInteger secretE_P = args.getLeft();
-		List<Integer> pi = args.getRight();
 
 		// i = 0 case: no shuffle needed
 		if (i == 0) {
 			return secretE_P;
 		}
-
-		// precomputation
-		timing.stopwatch[PID.reshuffle][TID.offline_read].start();
-		byte[] s2 = debbie.read();
-		timing.stopwatch[PID.reshuffle][TID.offline_read].stop();
-
-		timing.stopwatch[PID.reshuffle][TID.offline].start();
-		PRG G = new PRG(pathBuckets * bucketBits);
-		byte[] p2 = G.compute(s2);
-		timing.stopwatch[PID.reshuffle][TID.offline].stop();
 
 		charlie.countBandwidth = true;
 		debbie.countBandwidth = true;
@@ -206,7 +143,8 @@ public class Reshuffle extends
 		// step 4
 		// party E
 		timing.stopwatch[PID.reshuffle][TID.online].start();
-		BigInteger b_all = secretE_P.xor(z).xor(new BigInteger(1, p2));
+		BigInteger b_all = secretE_P.xor(z).xor(
+				new BigInteger(1, PreData.reshuffle_p2[i]));
 		BigInteger[] b = new BigInteger[pathBuckets];
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
 				BigInteger.ONE);
@@ -215,7 +153,8 @@ public class Reshuffle extends
 			b[j] = tmp.and(helper);
 			tmp = tmp.shiftRight(bucketBits);
 		}
-		BigInteger[] secretE_pi_P_arr = Util.permute(b, pi);
+		BigInteger[] secretE_pi_P_arr = Util
+				.permute(b, PreData.reshuffle_pi[i]);
 		BigInteger secretE_pi_P = BigInteger.ZERO;
 		for (int j = 0; j < pathBuckets; j++)
 			secretE_pi_P = secretE_pi_P.shiftLeft(bucketBits).xor(

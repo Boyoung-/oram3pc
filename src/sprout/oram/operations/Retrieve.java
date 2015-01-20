@@ -15,6 +15,7 @@ import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
 import sprout.oram.Party;
+import sprout.oram.PreData;
 import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
@@ -24,23 +25,9 @@ import sprout.util.Util;
 public class Retrieve extends Operation {
 
 	private int currTree;
-	private BigInteger[] sC_Li_p;
-	private BigInteger[] sE_Li_p;
 
 	public Retrieve(Communication con1, Communication con2) {
 		super(con1, con2);
-	}
-
-	// TODO: divide into parties
-	private void precomputation() {
-		int levels = ForestMetadata.getLevels();
-		sC_Li_p = new BigInteger[levels];
-		sE_Li_p = new BigInteger[levels];
-		for (int i = 0; i < levels; i++) {
-			int lBits = ForestMetadata.getLBits(i);
-			sC_Li_p[i] = new BigInteger(lBits, SR.rand);
-			sE_Li_p[i] = new BigInteger(lBits, SR.rand);
-		}
 	}
 
 	public BigInteger[] executeCharlie(Communication debbie,
@@ -54,10 +41,10 @@ public class Retrieve extends Operation {
 
 		// PostProcessT
 		BigInteger secretC_Ti = AOut.secretC_Ti;
-		BigInteger secretC_Li_p = sC_Li_p[currTree];
+		BigInteger secretC_Li_p = PreData.ppt_sC_Li_p[currTree];
 		BigInteger secretC_Lip1_p = null;
 		if (currTree < ForestMetadata.getLevels() - 1)
-			secretC_Lip1_p = sC_Li_p[currTree + 1];
+			secretC_Lip1_p = PreData.ppt_sC_Li_p[currTree + 1];
 		BigInteger Lip1 = AOut.Lip1;
 		int h = ForestMetadata.getLevels() - 1;
 		int tau = ForestMetadata.getTau();
@@ -112,11 +99,11 @@ public class Retrieve extends Operation {
 		ppt.executeDebbieSubTree(charlie, eddie, new BigInteger[] {});
 
 		// Reshuffle
-		List<Integer> pi = eddie.readListInt();
 		Reshuffle rs = new Reshuffle(charlie, eddie);
 		rs.loadTreeSpecificParameters(currTree);
 		BigInteger tmp = null;
-		rs.executeDebbieSubTree(charlie, eddie, Pair.of(tmp, pi));
+		List<Integer> tmp2 = null;
+		rs.executeDebbieSubTree(charlie, eddie, Pair.of(tmp, tmp2));
 
 		// Eviction
 		Eviction evict = new Eviction(charlie, eddie);
@@ -139,10 +126,10 @@ public class Retrieve extends Operation {
 
 		// PostProcessT
 		BigInteger secretE_Ti = AOut.secretE_Ti;
-		BigInteger secretE_Li_p = sE_Li_p[currTree];
+		BigInteger secretE_Li_p = PreData.ppt_sE_Li_p[currTree];
 		BigInteger secretE_Lip1_p = null;
 		if (currTree < ForestMetadata.getLevels() - 1)
-			secretE_Lip1_p = sE_Li_p[currTree + 1];
+			secretE_Lip1_p = PreData.ppt_sE_Li_p[currTree + 1];
 		PostProcessT ppt = new PostProcessT(charlie, debbie);
 		ppt.loadTreeSpecificParameters(currTree);
 		BigInteger secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie,
@@ -150,13 +137,11 @@ public class Retrieve extends Operation {
 
 		// Reshuffle
 		BigInteger secretE_P_p = AOut.secretE_P_p;
-		List<Integer> pi = Util.getInversePermutation(AOut.p);
-		debbie.write(pi); // make sure D gets this pi // TODO: move this send
-							// into Reshuffle pre-computation?
+		List<Integer> tmp = null;
 		Reshuffle rs = new Reshuffle(charlie, debbie);
 		rs.loadTreeSpecificParameters(currTree);
 		BigInteger secretE_pi_P = rs.executeEddieSubTree(charlie, debbie,
-				Pair.of(secretE_P_p, pi));
+				Pair.of(secretE_P_p, tmp));
 
 		// Eviction
 		Eviction evict = new Eviction(charlie, debbie);
@@ -247,9 +232,6 @@ public class Retrieve extends Operation {
 							+ N.longValue() + " (N="
 							+ Util.addZero(N.toString(2), lastNBits) + ")");
 				System.out.println("Execution cycle: " + exec);
-
-				precomputation(); // TODO: not every party needs to do all of
-									// them
 
 				for (int i = 0; i <= h; i++) {
 					currTree = i;
