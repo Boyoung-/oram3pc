@@ -190,13 +190,15 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		if (ifSanityCheck())
-			System.out.println("Sanity check enabled\n");
-
 		long numInsert = Math.min(ForestMetadata.getNumInsert(),
 				ForestMetadata.getAddressSpace());
-		if (numInsert == 0L)
+		if (numInsert == 0L) {
+			System.err.println("No record in the forest");
 			return;
+		}		
+		
+		if (ifSanityCheck())
+			System.out.println("Sanity check enabled\n");
 
 		timing = new Timing();
 		timing.init();
@@ -224,6 +226,20 @@ public class Retrieve extends Operation {
 			}
 
 			for (long exec = 0; exec < retrievals; exec++) {
+				// pre-computation
+				if (party == Party.Charlie)
+					new Precomputation(con1, con2).executeCharlieSubTree(con1, con2, null);
+				else if (party == Party.Debbie)
+					new Precomputation(con1, con2).executeDebbieSubTree(con1, con2, null);
+				else if (party == Party.Eddie)
+					new Precomputation(con1, con2).executeEddieSubTree(con1, con2, null);
+				else {
+					System.err.println("No such party");
+					return;
+				}
+				
+				
+				
 				BigInteger Li = null;
 				if (party == Party.Charlie)
 					System.out.println(test + ": stored record is: "

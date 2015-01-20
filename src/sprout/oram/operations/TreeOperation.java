@@ -12,6 +12,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 
 	int tau; // tau in the writeup
 	int twotaupow; // 2^tau
+	int levels; // # trees
 	int h; // # trees - 1
 	int w; // # tuples in each bucket
 	int expen; // # buckets in each leaf
@@ -26,7 +27,8 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 	private void initializeMetadata() {
 		tau = ForestMetadata.getTau();
 		twotaupow = ForestMetadata.getTwoTauPow();
-		h = ForestMetadata.getLevels() - 1;
+		levels = ForestMetadata.getLevels();
+		h = levels - 1;
 		w = ForestMetadata.getBucketDepth();
 		expen = ForestMetadata.getLeafExpansion();
 	}

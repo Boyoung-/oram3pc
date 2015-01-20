@@ -1,20 +1,17 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import org.bouncycastle.math.ec.ECPoint;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
-import sprout.crypto.SR;
 import sprout.crypto.oprf.Message;
 import sprout.crypto.oprf.OPRF;
 import sprout.oram.Bucket;
 import sprout.oram.BucketException;
 import sprout.oram.PID;
+import sprout.oram.PreData;
 import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
@@ -59,29 +56,16 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 
 		// step 4
 		// party C and D run OPRF on C's input sigma_x and D's input k
-		timing.stopwatch[PID.oprf][TID.offline].start();
 		PRG G = new PRG(bucketBits);
-		OPRF oprf = OPRFHelper.getOPRF();
-		oprf.timing = timing; // TODO: better way?
 		BigInteger[] secretC_P = new BigInteger[sigma_x.length];
-
 		Message[] msg1 = new Message[sigma_x.length];
 		Message[] msg2 = new Message[sigma_x.length];
-
-		/*
-		for (int j = 0; j < sigma_x.length; j++)
-			msg1[j] = oprf.prepare(sigma_x[j]);// contains pre-computation and
-												// online computation
-		*/
-		
-		ECPoint[][] gy = oprf.preparePairs(sigma_x.length);
-		timing.stopwatch[PID.oprf][TID.offline].stop();
 		
 		sanityCheck();
 		
 		timing.stopwatch[PID.oprf][TID.online].start();
 		for (int j=0; j<sigma_x.length; j++)
-			msg1[j] = new Message(sigma_x[j].add(gy[0][j]), gy[1][j]);
+			msg1[j] = new Message(sigma_x[j].add(PreData.oprf_gy[i][0][j]), PreData.oprf_gy[i][1][j]);
 		timing.stopwatch[PID.oprf][TID.online].stop();
 
 		timing.stopwatch[PID.oprf][TID.online_write].start();
@@ -97,35 +81,10 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		timing.stopwatch[PID.oprf][TID.online].start();
 		for (int j = 0; j < sigma_x.length; j++) {
 			msg2[j].setW(msg1[j].getW());
-			Message res = oprf.deblind(msg2[j]);
+			Message res = PreData.oprf_oprf.deblind(msg2[j]);
 			secretC_P[j] = new BigInteger(1, G.compute(res.getResult()));
 		}
 		timing.stopwatch[PID.oprf][TID.online].stop();
-
-		/*
-		for (int j = 0; j < sigma_x.length; j++) {
-			// This oprf should possibly be evaulated in as an Operation
-			// For an easier description of the flow look at OPRFTest.java
-			// TODO: May want a different encoding here we leave this until OPRF
-			// changes
-			Message msg1 = oprf.prepare(sigma_x[j]); // contains pre-computation
-														// and online
-														// computation
-			timing.stopwatch[PID.oprf][TID.online_write].start();
-			debbie.write(new Message(msg1.getV()));
-			timing.stopwatch[PID.oprf][TID.online_write].stop();
-
-			timing.stopwatch[PID.oprf][TID.online_read].start();
-			Message msg2 = debbie.readMessage();
-			timing.stopwatch[PID.oprf][TID.online_read].stop();
-
-			timing.stopwatch[PID.oprf][TID.online].start();
-			msg2.setW(msg1.getW());
-			Message res = oprf.deblind(msg2);
-			secretC_P[j] = new BigInteger(1, G.compute(res.getResult()));
-			timing.stopwatch[PID.oprf][TID.online].stop();
-		}
-		*/
 
 		debbie.bandwidth[PID.oprf].stop();
 		eddie.bandwidth[PID.oprf].stop();
@@ -177,23 +136,6 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		for (int j = 0; j < pathBuckets; j++) 
 			charlie.write(msg[j]);
 		timing.stopwatch[PID.oprf][TID.online_write].stop();
-
-		/*
-		for (int j = 0; j < pathBuckets; j++) {
-			timing.stopwatch[PID.oprf][TID.online_read].start();
-			Message msg = charlie.readMessage();
-			timing.stopwatch[PID.oprf][TID.online_read].stop();
-
-			timing.stopwatch[PID.oprf][TID.online].start();
-			msg = oprf.evaluate(msg); // TODO: pass k as arg or just read from
-										// file?
-			timing.stopwatch[PID.oprf][TID.online].stop();
-
-			timing.stopwatch[PID.oprf][TID.online_write].start();
-			charlie.write(msg);
-			timing.stopwatch[PID.oprf][TID.online_write].stop();
-		}
-		*/
 
 		charlie.bandwidth[PID.oprf].stop();
 		eddie.bandwidth[PID.oprf].stop();
@@ -247,19 +189,14 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		// party E
 		// E sends sigma_x to C
 		timing.stopwatch[PID.decrypt][TID.online].start();
-		List<Integer> sigma = new ArrayList<Integer>();
-		for (int j = 0; j < Pbar.length; j++)
-			sigma.add(j);
-		Collections.shuffle(sigma, SR.rand);
-
 		ECPoint[] x = new ECPoint[Pbar.length];
 		BigInteger[] Bbar = new BigInteger[Pbar.length];
 		for (int j = 0; j < Pbar.length; j++) {
 			x[j] = Util.byteArrayToECPoint(Pbar[j].getNonce());
 			Bbar[j] = new BigInteger(1, Pbar[j].getByteTuples());
 		}
-		ECPoint[] sigma_x = Util.permute(x, sigma);
-		BigInteger[] secretE_P = Util.permute(Bbar, sigma);
+		ECPoint[] sigma_x = Util.permute(x, PreData.decrypt_sigma[i]);
+		BigInteger[] secretE_P = Util.permute(Bbar, PreData.decrypt_sigma[i]);
 		timing.stopwatch[PID.decrypt][TID.online].stop();
 
 		timing.stopwatch[PID.decrypt][TID.online_write].start();
@@ -274,6 +211,6 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		debbie.countBandwidth = false;
 
 		// E outputs sigma and secretE_P
-		return new DPOutput(null, secretE_P, sigma);
+		return new DPOutput(null, secretE_P, PreData.decrypt_sigma[i]);
 	}
 }
