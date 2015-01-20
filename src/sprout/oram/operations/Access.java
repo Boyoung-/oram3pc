@@ -39,7 +39,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		DecryptPath dp = new DecryptPath(debbie, eddie);
 		dp.loadTreeSpecificParameters(i);
 		DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, Li);
-		
+
 		sanityCheck();
 
 		timing.stopwatch[PID.access][TID.online].start();
@@ -84,7 +84,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i == 0)
 			fbar = BigInteger.ZERO;
 		else {
-			fbar = aot.executeC(debbie, eddie, j_1);
+			fbar = aot.executeC(debbie, eddie, j_1, pathTuples);
 			// outputs fbar for C
 		}
 
@@ -94,7 +94,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i < h) {
 			// AOT(E, C, D)
 			j_2 = Nip1_pr.intValue();
-			ybar_j2 = aot.executeC(debbie, eddie, j_2);
+			ybar_j2 = aot.executeC(debbie, eddie, j_2, twotaupow);
 			// outputs ybar_j2 for C
 		}
 
@@ -168,7 +168,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		dp.loadTreeSpecificParameters(i);
 		dp.executeDebbieSubTree(charlie, eddie, k);
 		// DecryptPath outpus sigma and secretE_P for E and secretC_P for C
-		
+
 		sanityCheck();
 
 		AOT aot = new AOT(charlie, eddie);
@@ -179,13 +179,13 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			// PET outputs j_1 for C
 
 			// step 4
-			aot.executeD(charlie, eddie);
+			aot.executeD(charlie, eddie, aBits, i, 0);
 		}
 
 		// step 5
 		if (i < h) {
 			// AOT(E, C, D)
-			aot.executeD(charlie, eddie);
+			aot.executeD(charlie, eddie, d_ip1, i, 1);
 			// outputs ybar_j2 for C
 		}
 
@@ -211,7 +211,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		DecryptPath dp = new DecryptPath(charlie, debbie);
 		dp.loadTreeSpecificParameters(i);
 		DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, null);
-		
+
 		sanityCheck();
 
 		timing.stopwatch[PID.access][TID.online].start();
@@ -280,14 +280,14 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			timing.stopwatch[PID.access][TID.online].stop();
 
 			// AOT(E, C, D)
-			aot.executeE(charlie, debbie, f, aBits);
+			aot.executeE(charlie, debbie, f, aBits, i, 0);
 			// outputs fbar for C
 		}
 
 		// step 5
 		if (i < h) {
 			// AOT(E, C, D)
-			aot.executeE(charlie, debbie, y, d_ip1);
+			aot.executeE(charlie, debbie, y, d_ip1, i, 1);
 			// outputs ybar_j2 for C
 		}
 

@@ -27,13 +27,12 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		// OPRF
 		PreData.oprf_oprf = OPRFHelper.getOPRF();
 		PreData.oprf_gy = new ECPoint[levels][][];
-		
+
 		// PET
 		PreData.pet_alpha = new BigInteger[levels][];
 		PreData.pet_gamma = new BigInteger[levels][];
 		PreData.pet_delta = new BigInteger[levels][];
 
-		
 		// ///***** Precomputation *****/////
 		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
@@ -45,7 +44,6 @@ public class Precomputation extends TreeOperation<Object, Object> {
 
 		}
 
-		
 		// ///***** Communication *****/////
 		// PET
 		timing.stopwatch[PID.pet][TID.offline_read].start();
@@ -56,7 +54,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		}
 
 		timing.stopwatch[PID.pet][TID.offline_read].stop();
-		
+
 		return null;
 	}
 
@@ -72,7 +70,9 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		PreData.pet_gamma = new BigInteger[levels][];
 		PreData.pet_delta = new BigInteger[levels][];
 
-		
+		// AOT
+		PreData.aot_k = new byte[2][][];
+
 		// ///***** Precomputation *****/////
 		for (int index = 0; index <= h; index++) {
 			loadTreeSpecificParameters(index);
@@ -86,11 +86,13 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.pet_delta[i] = new BigInteger[pathTuples];
 			timing.stopwatch[PID.pet][TID.offline].start();
 			for (int j = 0; j < pathTuples; j++) {
-				PreData.pet_alpha[i][j] = Util.nextBigInteger(SR.p); // [0, p-1],
-																	// Z_p
+				PreData.pet_alpha[i][j] = Util.nextBigInteger(SR.p); // [0,
+																		// p-1],
+																		// Z_p
 				PreData.pet_beta[i][j] = Util.nextBigInteger(SR.p); // [0, p-1],
 																	// Z_p
-				PreData.pet_tau[i][j] = Util.nextBigInteger(SR.p); // [0, p-1], Z_p
+				PreData.pet_tau[i][j] = Util.nextBigInteger(SR.p); // [0, p-1],
+																	// Z_p
 				PreData.pet_r[i][j] = Util.nextBigInteger(
 						SR.p.subtract(BigInteger.ONE)).add(BigInteger.ONE); // [1,
 																			// p-1],
@@ -106,7 +108,6 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			timing.stopwatch[PID.pet][TID.offline].stop();
 		}
 
-		
 		// ///***** Communication *****/////
 		// PET
 		timing.stopwatch[PID.pet][TID.offline_write].start();
@@ -122,6 +123,12 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		}
 		timing.stopwatch[PID.pet][TID.offline_write].stop();
 
+		// AOT
+		timing.stopwatch[PID.aot][TID.offline_read].start();
+		for (int j = 0; j < 2; j++)
+			PreData.aot_k[j] = eddie.readDoubleByteArray();
+		timing.stopwatch[PID.aot][TID.offline_read].stop();
+
 		return null;
 	}
 
@@ -132,12 +139,14 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		// ///***** Declaration *****/////
 		// DecryptPath
 		PreData.decrypt_sigma = (List<Integer>[]) new List[levels];
-		
+
 		// PET
 		PreData.pet_beta = new BigInteger[levels][];
 		PreData.pet_tau = new BigInteger[levels][];
 		PreData.pet_r = new BigInteger[levels][];
-		
+
+		// AOT
+		PreData.aot_k = new byte[2][levels][16];
 
 		// ///***** Precomputation *****/////
 		for (int index = 0; index <= h; index++) {
@@ -151,9 +160,13 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			Collections.shuffle(PreData.decrypt_sigma[i], SR.rand);
 			timing.stopwatch[PID.decrypt][TID.offline].stop();
 
+			// AOT
+			timing.stopwatch[PID.aot][TID.offline].start();
+			for (int j = 0; j < 2; j++)
+				SR.rand.nextBytes(PreData.aot_k[j][i]);
+			timing.stopwatch[PID.aot][TID.offline].stop();
 		}
 
-		
 		// ///***** Communication *****/////
 		// PET
 		timing.stopwatch[PID.pet][TID.offline_read].start();
@@ -163,7 +176,13 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.pet_r[index] = debbie.readBigIntegerArray();
 		}
 		timing.stopwatch[PID.pet][TID.offline_read].stop();
-		
+
+		// AOT
+		timing.stopwatch[PID.aot][TID.offline_write].start();
+		for (int j = 0; j < 2; j++)
+			debbie.write(PreData.aot_k[j]);
+		timing.stopwatch[PID.aot][TID.offline_write].stop();
+
 		return null;
 	}
 }

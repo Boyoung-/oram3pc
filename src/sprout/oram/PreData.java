@@ -10,11 +10,11 @@ import sprout.crypto.oprf.OPRF;
 public class PreData {
 	// DecryptPath
 	public static List<Integer>[] decrypt_sigma;
-	
+
 	// OPRF
 	public static OPRF oprf_oprf;
 	public static ECPoint[][][] oprf_gy;
-	
+
 	// PET
 	public static BigInteger[][] pet_alpha;
 	public static BigInteger[][] pet_beta;
@@ -22,4 +22,7 @@ public class PreData {
 	public static BigInteger[][] pet_r;
 	public static BigInteger[][] pet_gamma;
 	public static BigInteger[][] pet_delta;
+
+	// AOT
+	public static byte[][][] aot_k;
 }

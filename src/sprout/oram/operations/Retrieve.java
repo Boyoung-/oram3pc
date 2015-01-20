@@ -195,8 +195,8 @@ public class Retrieve extends Operation {
 		if (numInsert == 0L) {
 			System.err.println("No record in the forest");
 			return;
-		}		
-		
+		}
+
 		if (ifSanityCheck())
 			System.out.println("Sanity check enabled\n");
 
@@ -228,18 +228,19 @@ public class Retrieve extends Operation {
 			for (long exec = 0; exec < retrievals; exec++) {
 				// pre-computation
 				if (party == Party.Charlie)
-					new Precomputation(con1, con2).executeCharlieSubTree(con1, con2, null);
+					new Precomputation(con1, con2).executeCharlieSubTree(con1,
+							con2, null);
 				else if (party == Party.Debbie)
-					new Precomputation(con1, con2).executeDebbieSubTree(con1, con2, null);
+					new Precomputation(con1, con2).executeDebbieSubTree(con1,
+							con2, null);
 				else if (party == Party.Eddie)
-					new Precomputation(con1, con2).executeEddieSubTree(con1, con2, null);
+					new Precomputation(con1, con2).executeEddieSubTree(con1,
+							con2, null);
 				else {
 					System.err.println("No such party");
 					return;
 				}
-				
-				
-				
+
 				BigInteger Li = null;
 				if (party == Party.Charlie)
 					System.out.println(test + ": stored record is: "
@@ -328,8 +329,8 @@ public class Retrieve extends Operation {
 						.subtract(timing.stopwatch[PID.gcf][TID.offline_read]);
 				break;
 			case Eddie:
-				//timing.gcf_online = timing.gcf_online
-				//		.subtract(timing.gcf_offline_write);
+				// timing.gcf_online = timing.gcf_online
+				// .subtract(timing.gcf_offline_write);
 				timing.stopwatch[PID.gcf][TID.online] = timing.stopwatch[PID.gcf][TID.online]
 						.subtract(timing.stopwatch[PID.gcf][TID.offline_write]);
 				break;
