@@ -100,7 +100,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// step 5
 		SSOT ssot = new SSOT(debbie, eddie);
-		BigInteger[] sC_P_pp = ssot.executeC(debbie, eddie, sC_a, tupleBits);
+		BigInteger[] sC_P_pp = ssot.executeC(debbie, eddie, sC_a, i);
 
 		timing.stopwatch[PID.eviction][TID.online].start();
 		BigInteger secretC_P_pp = BigInteger.ZERO;
@@ -203,7 +203,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		// step 5
 		try {
 			SSOT ssot = new SSOT(charlie, eddie);
-			ssot.executeI(charlie, eddie, I);
+			ssot.executeI(charlie, eddie, I, i);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
@@ -298,7 +298,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// step 5
 		SSOT ssot = new SSOT(charlie, debbie);
-		BigInteger[] sE_P_pp = ssot.executeE(charlie, debbie, sE_a, tupleBits);
+		BigInteger[] sE_P_pp = ssot.executeE(charlie, debbie, sE_a, i);
 
 		timing.stopwatch[PID.eviction][TID.online].start();
 		BigInteger secretE_P_pp = BigInteger.ZERO;

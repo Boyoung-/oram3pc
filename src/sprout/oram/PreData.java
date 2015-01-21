@@ -44,4 +44,9 @@ public class PreData {
 	public static Circuit[][] gcf_gc_E;
 	public static BigInteger[][][][] gcf_lbs;
 
+	// IOT
+	public static List<Integer>[][] iot_pi;
+	public static List<Integer>[][] iot_pi_ivs;
+	public static BigInteger[][][] iot_r;
+	public static byte[][][] iot_s;
 }

@@ -7,6 +7,7 @@ import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
+import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.TID;
@@ -19,14 +20,8 @@ public class SSOT extends Operation {
 	}
 
 	public BigInteger[] executeC(Communication I, Communication E,
-			BigInteger[] sC, int length) {
+			BigInteger[] sC, int index) {
 		IOT iot = new IOT(I, E);
-
-		I.countBandwidth = false;
-		E.countBandwidth = false;
-
-		int l = length; // TODO: remove this?
-		I.write(l);
 
 		I.countBandwidth = true;
 		E.countBandwidth = true;
@@ -36,11 +31,11 @@ public class SSOT extends Operation {
 		// protocol
 		// step 2
 		// parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-		BigInteger[] a = iot.executeR(I, E);
+		BigInteger[] a = iot.executeR(I, E, index);
 
 		// step 3
 		// parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-		iot.executeS(E, I, sC, length);
+		iot.executeS(E, I, sC, index);
 
 		I.countBandwidth = false;
 		E.countBandwidth = false;
@@ -51,8 +46,8 @@ public class SSOT extends Operation {
 		return a;
 	}
 
-	public void executeI(Communication C, Communication E, Integer[] i)
-			throws NoSuchAlgorithmException {
+	public void executeI(Communication C, Communication E, Integer[] i,
+			int index) throws NoSuchAlgorithmException {
 		IOT iot = new IOT(C, E);
 
 		E.countBandwidth = false;
@@ -60,7 +55,7 @@ public class SSOT extends Operation {
 
 		// parameters
 		int k = i.length;
-		int l = C.readInt(); // TODO: Can we make this an input
+		int l = ForestMetadata.getTupleBits(index);
 
 		C.countBandwidth = true;
 		E.countBandwidth = true;
@@ -78,11 +73,11 @@ public class SSOT extends Operation {
 
 		// step 2
 		// parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-		iot.executeI(C, E, i, delta);
+		iot.executeI(C, E, i, delta, index, 0);
 
 		// step 3
 		// parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-		iot.executeI(E, C, i, delta);
+		iot.executeI(E, C, i, delta, index, 1);
 
 		E.countBandwidth = false;
 		C.countBandwidth = false;
@@ -91,7 +86,7 @@ public class SSOT extends Operation {
 	}
 
 	public BigInteger[] executeE(Communication C, Communication I,
-			BigInteger[] sE, int length) {
+			BigInteger[] sE, int index) {
 		IOT iot = new IOT(C, I);
 
 		I.countBandwidth = true;
@@ -102,11 +97,11 @@ public class SSOT extends Operation {
 		// protocol
 		// step 2
 		// parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-		iot.executeS(C, I, sE, length);
+		iot.executeS(C, I, sE, index);
 
 		// step 3
 		// parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-		BigInteger[] b = iot.executeR(I, C);
+		BigInteger[] b = iot.executeR(I, C, index);
 
 		I.countBandwidth = false;
 		C.countBandwidth = false;

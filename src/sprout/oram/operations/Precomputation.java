@@ -25,6 +25,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		super(con1, con2);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeCharlieSubTree(Communication debbie,
 			Communication eddie, Object unused) {
@@ -79,6 +80,37 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.reshuffle_p1[i] = G.compute(PreData.reshuffle_s1[i]);
 		}
 		timing.stopwatch[PID.reshuffle][TID.offline].stop();
+
+		// IOT
+		PreData.iot_pi = (List<Integer>[][]) new List[1][levels];
+		PreData.iot_r = new BigInteger[1][levels][];
+		PreData.iot_s = new byte[1][][];
+
+		timing.stopwatch[PID.iot][TID.offline_read].start();
+		PreData.iot_s[0] = debbie.readDoubleByteArray();
+		for (int index = 0; index <= h; index++)
+			PreData.iot_pi[0][index] = debbie.readListInt();
+		timing.stopwatch[PID.iot][TID.offline_read].stop();
+
+		timing.stopwatch[PID.iot][TID.offline].start();
+		for (int index = 0; index <= h; index++) {
+			loadTreeSpecificParameters(index);
+
+			int l = tupleBits;
+			int k = w * pathBuckets;
+			int N = k + 2;
+			PRG G = new PRG(N * l);
+			BigInteger r_all = new BigInteger(1, G.compute(PreData.iot_s[0][i]));
+			PreData.iot_r[0][i] = new BigInteger[N];
+			BigInteger helper = BigInteger.ONE.shiftLeft(l).subtract(
+					BigInteger.ONE);
+			BigInteger tmp = r_all;
+			for (int o = N - 1; o >= 0; o--) {
+				PreData.iot_r[0][i][o] = tmp.and(helper);
+				tmp = tmp.shiftRight(l);
+			}
+		}
+		timing.stopwatch[PID.iot][TID.offline].stop();
 
 		return null;
 	}
@@ -234,6 +266,56 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		}
 		timing.stopwatch[PID.gcf][TID.offline].stop();
 
+		// IOT
+		PreData.iot_pi = (List<Integer>[][]) new List[2][levels];
+		PreData.iot_pi_ivs = (List<Integer>[][]) new List[2][levels];
+		PreData.iot_r = new BigInteger[2][levels][];
+		PreData.iot_s = new byte[2][levels][];
+
+		timing.stopwatch[PID.iot][TID.offline].start();
+		for (int index = 0; index <= h; index++) {
+			loadTreeSpecificParameters(index);
+
+			int l = tupleBits;
+			int k = w * pathBuckets;
+			int N = k + 2;
+			PRG G = new PRG(N * l);
+			for (int id = 0; id < 2; id++) {
+				PreData.iot_pi[id][i] = new ArrayList<Integer>(); // TODO: make
+																	// a util
+																	// function
+																	// (convert
+																	// to
+																	// Integer[])
+				for (int o = 0; o < N; o++)
+					PreData.iot_pi[id][i].add(o);
+				Collections.shuffle(PreData.iot_pi[id][i], SR.rand);
+				PreData.iot_pi_ivs[id][i] = Util
+						.getInversePermutation(PreData.iot_pi[id][i]);
+				PreData.iot_s[id][i] = SR.rand.generateSeed(16);
+				BigInteger r_all = new BigInteger(1,
+						G.compute(PreData.iot_s[id][i]));
+				PreData.iot_r[id][i] = new BigInteger[N];
+				BigInteger helper = BigInteger.ONE.shiftLeft(l).subtract(
+						BigInteger.ONE);
+				BigInteger tmp = r_all;
+				for (int o = N - 1; o >= 0; o--) {
+					PreData.iot_r[id][i][o] = tmp.and(helper);
+					tmp = tmp.shiftRight(l);
+				}
+			}
+		}
+		timing.stopwatch[PID.iot][TID.offline].stop();
+
+		timing.stopwatch[PID.iot][TID.offline_write].start();
+		eddie.write(PreData.iot_s[0]);
+		for (int index = 0; index <= h; index++)
+			eddie.write(PreData.iot_pi[0][index]);
+		charlie.write(PreData.iot_s[1]);
+		for (int index = 0; index <= h; index++)
+			charlie.write(PreData.iot_pi[1][index]);
+		timing.stopwatch[PID.iot][TID.offline_write].stop();
+
 		return null;
 	}
 
@@ -352,6 +434,37 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			}
 		}
 		timing.stopwatch[PID.gcf][TID.offline].stop();
+
+		// IOT
+		PreData.iot_pi = (List<Integer>[][]) new List[1][levels];
+		PreData.iot_r = new BigInteger[1][levels][];
+		PreData.iot_s = new byte[1][][];
+
+		timing.stopwatch[PID.iot][TID.offline_read].start();
+		PreData.iot_s[0] = debbie.readDoubleByteArray();
+		for (int index = 0; index <= h; index++)
+			PreData.iot_pi[0][index] = debbie.readListInt();
+		timing.stopwatch[PID.iot][TID.offline_read].stop();
+
+		timing.stopwatch[PID.iot][TID.offline].start();
+		for (int index = 0; index <= h; index++) {
+			loadTreeSpecificParameters(index);
+
+			int l = tupleBits;
+			int k = w * pathBuckets;
+			int N = k + 2;
+			PRG G = new PRG(N * l);
+			BigInteger r_all = new BigInteger(1, G.compute(PreData.iot_s[0][i]));
+			PreData.iot_r[0][i] = new BigInteger[N];
+			BigInteger helper = BigInteger.ONE.shiftLeft(l).subtract(
+					BigInteger.ONE);
+			BigInteger tmp = r_all;
+			for (int o = N - 1; o >= 0; o--) {
+				PreData.iot_r[0][i][o] = tmp.and(helper);
+				tmp = tmp.shiftRight(l);
+			}
+		}
+		timing.stopwatch[PID.iot][TID.offline].stop();
 
 		return null;
 	}
