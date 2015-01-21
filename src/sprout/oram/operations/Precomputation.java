@@ -7,6 +7,10 @@ import java.util.List;
 
 import org.bouncycastle.math.ec.ECPoint;
 
+import YaoGC.Circuit;
+import YaoGC.F2ET_Wplus2_Wplus2;
+import YaoGC.F2FT_2Wplus2_Wplus2;
+import YaoGC.Wire;
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
 import sprout.crypto.SR;
@@ -203,6 +207,33 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		eddie.write(PreData.reshuffle_s2);
 		timing.stopwatch[PID.reshuffle][TID.offline_write].stop();
 
+		// GCF
+		PreData.gcf_gc_D = new Circuit[levels][];
+
+		timing.stopwatch[PID.gcf][TID.offline].start();
+		for (int index = 0; index <= h; index++) {
+			loadTreeSpecificParameters(index);
+
+			PreData.gcf_gc_D[i] = new Circuit[d_i + 1];
+			for (int j = 0; j < d_i + 1; j++) {
+				int ww = (j != d_i) ? w : (w * expen);
+				Circuit.isForGarbling = false;
+				Circuit.timing = timing;
+				Circuit.setSender(eddie);
+				PreData.gcf_gc_D[i][j] = (j != d_i) ? new F2FT_2Wplus2_Wplus2(
+						ww, 1, 1) : new F2ET_Wplus2_Wplus2(ww, 1, 1);
+				try {
+					PreData.gcf_gc_D[i][j].build();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				for (int k = 0; k < PreData.gcf_gc_D[i][j].outputWires.length; k++)
+					// TODO: not a good way; should define a function
+					PreData.gcf_gc_D[i][j].outputWires[k].outBitEncPair = new BigInteger[2];
+			}
+		}
+		timing.stopwatch[PID.gcf][TID.offline].stop();
+
 		return null;
 	}
 
@@ -278,6 +309,49 @@ public class Precomputation extends TreeOperation<Object, Object> {
 					.getInversePermutation(PreData.decrypt_sigma[i]);
 		}
 		timing.stopwatch[PID.reshuffle][TID.offline].stop();
+
+		// GCF
+		PreData.gcf_gc_E = new Circuit[levels][];
+		PreData.gcf_lbs = new BigInteger[levels][][][];
+
+		timing.stopwatch[PID.gcf][TID.offline].start();
+		for (int index = 0; index <= h; index++) {
+			loadTreeSpecificParameters(index);
+
+			PreData.gcf_gc_E[i] = new Circuit[d_i + 1];
+			PreData.gcf_lbs[i] = new BigInteger[d_i + 1][][];
+			for (int j = 0; j < d_i + 1; j++) {
+				int ww = (j != d_i) ? w : (w * expen);
+				int tmp1 = SR.rand.nextInt(ww) + 1;
+				int tmp2 = SR.rand.nextInt(ww) + 1;
+				int s1 = Math.min(tmp1, tmp2);
+				int s2 = Math.max(tmp1, tmp2);
+				Circuit.isForGarbling = true;
+				Circuit.timing = timing;
+				Circuit.setReceiver(debbie);
+				PreData.gcf_gc_E[i][j] = (j != d_i) ? new F2FT_2Wplus2_Wplus2(
+						ww, s1, s2) : new F2ET_Wplus2_Wplus2(ww, s1, s2);
+				try {
+					PreData.gcf_gc_E[i][j].build();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				for (int k = 0; k < PreData.gcf_gc_E[i][j].outputWires.length; k++)
+					// TODO: not a good way; should define a function
+					PreData.gcf_gc_E[i][j].outputWires[k].outBitEncPair = new BigInteger[2];
+
+				int n = (j != d_i) ? (w * 2 + 2) : (w * expen + 2);
+				PreData.gcf_lbs[i][j] = new BigInteger[n][2];
+				for (int k = 0; k < n; k++) {
+					BigInteger glb0 = new BigInteger(Wire.labelBitLength,
+							SR.rand);
+					BigInteger glb1 = glb0.xor(Wire.R.shiftLeft(1).setBit(0));
+					PreData.gcf_lbs[i][j][k][0] = glb0;
+					PreData.gcf_lbs[i][j][k][1] = glb1;
+				}
+			}
+		}
+		timing.stopwatch[PID.gcf][TID.offline].stop();
 
 		return null;
 	}

@@ -136,8 +136,8 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		int[] alpha1_j = new int[d_i];
 		int[] alpha2_j = new int[d_i];
 		for (int j = 0; j < d_i; j++) {
-			BigInteger GCFOutput = gcf.executeD(charlie, eddie, "F2FT",
-					w * 2 + 2);
+			BigInteger GCFOutput = gcf
+					.executeD(charlie, eddie, i, j, w * 2 + 2);
 
 			timing.stopwatch[PID.eviction][TID.online].start();
 			for (alpha1_j[j] = 0; alpha1_j[j] < w; alpha1_j[j]++)
@@ -155,7 +155,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		}
 
 		// step 2
-		BigInteger GCFOutput = gcf.executeD(charlie, eddie, "F2ET", w * expen
+		BigInteger GCFOutput = gcf.executeD(charlie, eddie, i, d_i, w * expen
 				+ 2);
 
 		timing.stopwatch[PID.eviction][TID.online].start();
@@ -259,7 +259,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			BigInteger sE_input = sE_dir.shiftLeft(w).xor(sE_fb);
 			timing.stopwatch[PID.eviction][TID.online].stop();
 
-			gcf.executeE(charlie, debbie, "F2FT", w * 2 + 2, sE_input);
+			gcf.executeE(charlie, debbie, i, j, w * 2 + 2, sE_input);
 		}
 
 		// step 2
@@ -277,7 +277,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		}
 		timing.stopwatch[PID.eviction][TID.online].stop();
 
-		gcf.executeE(charlie, debbie, "F2ET", w * expen + 2, sE_fb);
+		gcf.executeE(charlie, debbie, i, d_i, w * expen + 2, sE_fb);
 
 		// step 3
 		timing.stopwatch[PID.eviction][TID.online].start();

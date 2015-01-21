@@ -3,105 +3,18 @@ package sprout.oram.operations;
 import java.math.BigInteger;
 
 import Cipher.Cipher;
-import YaoGC.Circuit;
-import YaoGC.F2ET_Wplus2_Wplus2;
-import YaoGC.F2FT_2Wplus2_Wplus2;
 import YaoGC.State;
-import YaoGC.Wire;
 import sprout.communication.Communication;
-import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.PID;
 import sprout.oram.Party;
+import sprout.oram.PreData;
 import sprout.oram.TID;
 
 public class GCF extends Operation {
 	public GCF(Communication con1, Communication con2) {
 		super(con1, con2);
-	}
-
-	public void executeE(Communication C, Communication D, String circuit,
-			int n, BigInteger sE) {
-		C.countBandwidth = false;
-		D.countBandwidth = false;
-
-		// precomputation
-		timing.stopwatch[PID.gcf][TID.offline].start();
-		// setup circuit
-		int w = n - 2;
-		if (circuit.equals("F2FT"))
-			w /= 2;
-		int tmp1 = SR.rand.nextInt(w) + 1;
-		int tmp2 = SR.rand.nextInt(w) + 1;
-		int s1 = Math.min(tmp1, tmp2);
-		int s2 = Math.max(tmp1, tmp2);
-
-		Circuit gc_E = null;
-		Circuit.isForGarbling = true;
-		Circuit.timing = timing;
-		if (circuit.equals("F2ET"))
-			gc_E = new F2ET_Wplus2_Wplus2(w, s1, s2);
-		else
-			gc_E = new F2FT_2Wplus2_Wplus2(w, s1, s2);
-		Circuit.setReceiver(D);
-		try {
-			gc_E.build();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		for (int i = 0; i < gc_E.outputWires.length; i++)
-			// TODO: not a good way; should define a function
-			gc_E.outputWires[i].outBitEncPair = new BigInteger[2];
-
-		// generate label pairs
-		BigInteger[][] lbs = new BigInteger[n][2];
-		for (int i = 0; i < n; i++) {
-			BigInteger glb0 = new BigInteger(Wire.labelBitLength, SR.rand);
-			BigInteger glb1 = glb0.xor(Wire.R.shiftLeft(1).setBit(0));
-			lbs[i][0] = glb0;
-			lbs[i][1] = glb1;
-		}
-		timing.stopwatch[PID.gcf][TID.offline].stop();
-
-		C.countBandwidth = true;
-		D.countBandwidth = true;
-		C.bandwidth[PID.gcf].start();
-		D.bandwidth[PID.gcf].start();
-
-		//sanityCheck();
-
-		// protocol
-		// step 1
-		BigInteger[][] A = new BigInteger[n][2];
-		BigInteger[] K_E = new BigInteger[n];
-		timing.stopwatch[PID.gcf][TID.online].start();
-		for (int i = 0; i < n; i++) {
-			int alpha = sE.testBit(n - i - 1) ? 1 : 0;
-			A[i][0] = lbs[i][alpha];
-			A[i][1] = lbs[i][1 - alpha];
-			K_E[i] = lbs[i][0];
-		}
-		timing.stopwatch[PID.gcf][TID.online].stop();
-		
-		timing.stopwatch[PID.gcf][TID.online_write].start();
-		for (int i = 0; i < n; i++) {
-			C.write(A[i]);
-		}
-		timing.stopwatch[PID.gcf][TID.online_write].stop();
-
-		// step 3
-		// in the Retrieval GC write/read will be
-		// subtracted from this time
-		timing.stopwatch[PID.gcf][TID.online].start();
-		State in_E = State.fromLabels(K_E);
-		gc_E.startExecuting(in_E);
-		timing.stopwatch[PID.gcf][TID.online].stop();
-
-		C.countBandwidth = false;
-		D.countBandwidth = false;
-		C.bandwidth[PID.gcf].stop();
-		D.bandwidth[PID.gcf].stop();
 	}
 
 	public void executeC(Communication D, Communication E, int n, BigInteger sC) {
@@ -110,7 +23,7 @@ public class GCF extends Operation {
 		E.bandwidth[PID.gcf].start();
 		D.bandwidth[PID.gcf].start();
 
-		//sanityCheck();
+		// sanityCheck();
 
 		// protocol
 		// step 1
@@ -141,41 +54,13 @@ public class GCF extends Operation {
 	}
 
 	public BigInteger executeD(Communication C, Communication E,
-			String circuit, int n) {
-		C.countBandwidth = false;
-		E.countBandwidth = false;
-
-		// precomputation
-		timing.stopwatch[PID.gcf][TID.offline].start();
-		// setup circuit
-		int w = n - 2;
-		if (circuit.equals("F2FT"))
-			w /= 2;
-
-		Circuit gc_D = null;
-		Circuit.isForGarbling = false;
-		Circuit.timing = timing;
-		if (circuit == "F2ET")
-			gc_D = new F2ET_Wplus2_Wplus2(w, 1, 1);
-		else
-			gc_D = new F2FT_2Wplus2_Wplus2(w, 1, 1);
-		Circuit.setSender(E);
-		try {
-			gc_D.build();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		for (int i = 0; i < gc_D.outputWires.length; i++)
-			// TODO: not a good way; should define a function
-			gc_D.outputWires[i].outBitEncPair = new BigInteger[2];
-		timing.stopwatch[PID.gcf][TID.offline].stop();
-
+			int tree_index, int level_index, int n) {
 		C.countBandwidth = true;
 		E.countBandwidth = true;
 		C.bandwidth[PID.gcf].start();
 		E.bandwidth[PID.gcf].start();
 
-		//sanityCheck();
+		// sanityCheck();
 
 		// protocol
 		// step 2
@@ -186,17 +71,26 @@ public class GCF extends Operation {
 		// step 3
 		timing.stopwatch[PID.gcf][TID.online].start();
 		State in_D = State.fromLabels(K_C);
-		gc_D.startExecuting(in_D); // TODO: separate gcf write/read time out of
-									// this!
+		PreData.gcf_gc_D[tree_index][level_index].startExecuting(in_D); // TODO:
+																		// separate
+																		// gcf
+																		// write/read
+																		// time
+																		// out
+																		// of
+																		// this!
 
 		BigInteger output = BigInteger.ZERO;
-		int length = gc_D.outputWires.length;
+		int length = PreData.gcf_gc_D[tree_index][level_index].outputWires.length;
 		for (int i = 0; i < length; i++) {
-			BigInteger lb = gc_D.outputWires[i].lbl;
+			BigInteger lb = PreData.gcf_gc_D[tree_index][level_index].outputWires[i].lbl;
 			int lsb = lb.testBit(0) ? 1 : 0;
-			int k = gc_D.outputWires[i].serialNum;
-			int outBit = Cipher.decrypt(k, lb,
-					gc_D.outputWires[i].outBitEncPair[lsb]);
+			int k = PreData.gcf_gc_D[tree_index][level_index].outputWires[i].serialNum;
+			int outBit = Cipher
+					.decrypt(
+							k,
+							lb,
+							PreData.gcf_gc_D[tree_index][level_index].outputWires[i].outBitEncPair[lsb]);
 			if (outBit == 1)
 				output = output.setBit(length - 1 - i);
 		}
@@ -208,6 +102,48 @@ public class GCF extends Operation {
 		E.bandwidth[PID.gcf].stop();
 
 		return output;
+	}
+
+	public void executeE(Communication C, Communication D, int tree_index,
+			int level_index, int n, BigInteger sE) {
+		C.countBandwidth = true;
+		D.countBandwidth = true;
+		C.bandwidth[PID.gcf].start();
+		D.bandwidth[PID.gcf].start();
+
+		// sanityCheck();
+
+		// protocol
+		// step 1
+		BigInteger[][] A = new BigInteger[n][2];
+		BigInteger[] K_E = new BigInteger[n];
+		timing.stopwatch[PID.gcf][TID.online].start();
+		for (int k = 0; k < n; k++) {
+			int alpha = sE.testBit(n - k - 1) ? 1 : 0;
+			A[k][0] = PreData.gcf_lbs[tree_index][level_index][k][alpha];
+			A[k][1] = PreData.gcf_lbs[tree_index][level_index][k][1 - alpha];
+			K_E[k] = PreData.gcf_lbs[tree_index][level_index][k][0];
+		}
+		timing.stopwatch[PID.gcf][TID.online].stop();
+
+		timing.stopwatch[PID.gcf][TID.online_write].start();
+		for (int i = 0; i < n; i++) {
+			C.write(A[i]);
+		}
+		timing.stopwatch[PID.gcf][TID.online_write].stop();
+
+		// step 3
+		// in the Retrieval GC write/read will be
+		// subtracted from this time
+		timing.stopwatch[PID.gcf][TID.online].start();
+		State in_E = State.fromLabels(K_E);
+		PreData.gcf_gc_E[tree_index][level_index].startExecuting(in_E);
+		timing.stopwatch[PID.gcf][TID.online].stop();
+
+		C.countBandwidth = false;
+		D.countBandwidth = false;
+		C.bandwidth[PID.gcf].stop();
+		D.bandwidth[PID.gcf].stop();
 	}
 
 	@Override

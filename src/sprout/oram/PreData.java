@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bouncycastle.math.ec.ECPoint;
 
+import YaoGC.Circuit;
 import sprout.crypto.oprf.OPRF;
 
 public class PreData {
@@ -37,4 +38,10 @@ public class PreData {
 	public static byte[][] reshuffle_p2;
 	public static BigInteger[][] reshuffle_a;
 	public static List<Integer>[] reshuffle_pi;
+
+	// GCF
+	public static Circuit[][] gcf_gc_D;
+	public static Circuit[][] gcf_gc_E;
+	public static BigInteger[][][][] gcf_lbs;
+
 }
