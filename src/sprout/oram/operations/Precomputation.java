@@ -14,6 +14,7 @@ import YaoGC.Wire;
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
 import sprout.crypto.SR;
+import sprout.crypto.oprf.OPRF;
 import sprout.oram.PID;
 import sprout.oram.PreData;
 import sprout.oram.TID;
@@ -111,6 +112,14 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			}
 		}
 		timing.stopwatch[PID.iot][TID.offline].stop();
+
+		// Encrypt
+		PreData.encrypt_c = new BigInteger[levels][];
+
+		timing.stopwatch[PID.iot][TID.offline_read].start();
+		for (int index = 0; index <= h; index++)
+			PreData.encrypt_c[index] = debbie.readBigIntegerArray();
+		timing.stopwatch[PID.iot][TID.offline_read].stop();
 
 		return null;
 	}
@@ -316,6 +325,53 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			charlie.write(PreData.iot_pi[1][index]);
 		timing.stopwatch[PID.iot][TID.offline_write].stop();
 
+		// Encrypt
+		PreData.encrypt_s = new byte[levels][];
+		PreData.encrypt_x = new ECPoint[levels][];
+		PreData.encrypt_c = new BigInteger[levels][];
+
+		timing.stopwatch[PID.iot][TID.offline].start();
+		OPRF oprf = OPRFHelper.getOPRF(false);
+		for (int index = 0; index <= h; index++) {
+			loadTreeSpecificParameters(index);
+
+			PRG G1 = new PRG(bucketBits * pathBuckets);
+			PRG G2 = new PRG(bucketBits);
+			PreData.encrypt_x[i] = new ECPoint[pathBuckets];
+			ECPoint[] v = new ECPoint[pathBuckets];
+			BigInteger r;
+			BigInteger[] a = new BigInteger[pathBuckets];
+			BigInteger[] b = new BigInteger[pathBuckets];
+			PreData.encrypt_c[i] = new BigInteger[pathBuckets];
+
+			PreData.encrypt_s[i] = SR.rand.generateSeed(16);
+			for (int j = 0; j < pathBuckets; j++) {
+				r = oprf.randomExponent();
+				PreData.encrypt_x[i][j] = oprf.getG().multiply(r);
+				v[j] = oprf.getY().multiply(r);
+			}
+			BigInteger a_all = new BigInteger(1,
+					G1.compute(PreData.encrypt_s[i]));
+			BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
+					BigInteger.ONE);
+			BigInteger tmp = a_all;
+			for (int j = pathBuckets - 1; j >= 0; j--) {
+				a[j] = tmp.and(helper);
+				tmp = tmp.shiftRight(bucketBits);
+				b[j] = new BigInteger(1, G2.compute(v[j].getEncoded()));
+				PreData.encrypt_c[i][j] = a[j].xor(b[j]);
+			}
+		}
+		timing.stopwatch[PID.iot][TID.offline].stop();
+
+		timing.stopwatch[PID.iot][TID.offline_write].start();
+		eddie.write(PreData.encrypt_s);
+		for (int index = 0; index <= h; index++)
+			eddie.write(PreData.encrypt_x[index]);
+		for (int index = 0; index <= h; index++)
+			charlie.write(PreData.encrypt_c[index]);
+		timing.stopwatch[PID.iot][TID.offline_write].stop();
+
 		return null;
 	}
 
@@ -462,6 +518,35 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			for (int o = N - 1; o >= 0; o--) {
 				PreData.iot_r[0][i][o] = tmp.and(helper);
 				tmp = tmp.shiftRight(l);
+			}
+		}
+		timing.stopwatch[PID.iot][TID.offline].stop();
+
+		// Encrypt
+		PreData.encrypt_s = new byte[levels][];
+		PreData.encrypt_x = new ECPoint[levels][];
+		PreData.encrypt_a = new BigInteger[levels][];
+
+		timing.stopwatch[PID.iot][TID.offline_read].start();
+		PreData.encrypt_s = debbie.readDoubleByteArray();
+		for (int index = 0; index <= h; index++)
+			PreData.encrypt_x[index] = debbie.readECPointArray();
+		timing.stopwatch[PID.iot][TID.offline_read].stop();
+
+		timing.stopwatch[PID.iot][TID.offline].start();
+		for (int index = 0; index <= h; index++) {
+			loadTreeSpecificParameters(index);
+
+			PreData.encrypt_a[i] = new BigInteger[pathBuckets];
+			PRG G1 = new PRG(bucketBits * pathBuckets);
+			BigInteger a_all = new BigInteger(1,
+					G1.compute(PreData.encrypt_s[i]));
+			BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
+					BigInteger.ONE);
+			BigInteger tmp = a_all;
+			for (int j = pathBuckets - 1; j >= 0; j--) {
+				PreData.encrypt_a[i][j] = tmp.and(helper);
+				tmp = tmp.shiftRight(bucketBits);
 			}
 		}
 		timing.stopwatch[PID.iot][TID.offline].stop();

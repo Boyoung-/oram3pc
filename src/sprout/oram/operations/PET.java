@@ -24,7 +24,7 @@ public class PET extends Operation {
 	public void executeDebbie(Communication charlie, Communication eddie) {
 		// Debbie does nothing online
 
-		//sanityCheck();
+		// sanityCheck();
 	}
 
 	public Integer executeCharlie(Communication debbie, Communication eddie,
@@ -34,7 +34,7 @@ public class PET extends Operation {
 		debbie.bandwidth[PID.pet].start();
 		eddie.bandwidth[PID.pet].start();
 
-		//sanityCheck();
+		// sanityCheck();
 
 		// Protocol
 		// step 1
@@ -64,7 +64,8 @@ public class PET extends Operation {
 		timing.stopwatch[PID.pet][TID.online].start();
 		for (int j = 0; j < n; j++) {
 			// v_j <- (c_j * delta_j + w_j - gama_j) mod p
-			v[j] = c[j].multiply(PreData.pet_delta[i][j]).add(w[j]).subtract(PreData.pet_gamma[i][j]).mod(SR.p);
+			v[j] = c[j].multiply(PreData.pet_delta[i][j]).add(w[j])
+					.subtract(PreData.pet_gamma[i][j]).mod(SR.p);
 
 			if (v[j].longValue() == 0L) {
 				timing.stopwatch[PID.pet][TID.online].stop();
@@ -94,7 +95,7 @@ public class PET extends Operation {
 		debbie.bandwidth[PID.pet].start();
 		charlie.bandwidth[PID.pet].start();
 
-		//sanityCheck();
+		// sanityCheck();
 
 		// step 1
 		// C sends u to E
@@ -109,7 +110,8 @@ public class PET extends Operation {
 		timing.stopwatch[PID.pet][TID.online].start();
 		for (int j = 0; j < n; j++) {
 			// w_j <- (beta_j * u_j - r_j * b_j - tau_j) mod p
-			w[j] = PreData.pet_beta[i][j].multiply(u[j]).subtract(PreData.pet_r[i][j].multiply(b[j]))
+			w[j] = PreData.pet_beta[i][j].multiply(u[j])
+					.subtract(PreData.pet_r[i][j].multiply(b[j]))
 					.subtract(PreData.pet_tau[i][j]).mod(SR.p);
 		}
 		timing.stopwatch[PID.pet][TID.online].stop();

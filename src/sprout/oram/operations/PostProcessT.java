@@ -161,7 +161,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		PRG G = new PRG(aBits);
 		timing.stopwatch[PID.ppt][TID.online].start();
 		byte[] s = SR.rand.generateSeed(16); // 128 bits
-		
+
 		BigInteger[] a = new BigInteger[twotaupow];
 		BigInteger[] a_p = new BigInteger[twotaupow];
 		BigInteger a_all = new BigInteger(1, G.compute(s));
@@ -179,13 +179,13 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		timing.stopwatch[PID.ppt][TID.online].stop();
 
 		timing.stopwatch[PID.ppt][TID.online_write].start();
-		//timing.post_write.start();
+		// timing.post_write.start();
 		// D sends s to C
 		charlie.write(s);
 		// D sends a_p to E
 		eddie.write(a_p);
 		timing.stopwatch[PID.ppt][TID.online_write].stop();
-		//timing.post_write.stop();
+		// timing.post_write.stop();
 
 		charlie.countBandwidth = false;
 		eddie.countBandwidth = false;

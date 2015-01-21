@@ -305,14 +305,10 @@ public class Retrieve extends Operation {
 			case Charlie:
 				break;
 			case Debbie:
-				// timing.gcf_online = timing.gcf_online
-				// .subtract(timing.gcf_offline_read);
 				timing.stopwatch[PID.gcf][TID.online] = timing.stopwatch[PID.gcf][TID.online]
 						.subtract(timing.stopwatch[PID.gcf][TID.offline_read]);
 				break;
 			case Eddie:
-				// timing.gcf_online = timing.gcf_online
-				// .subtract(timing.gcf_offline_write);
 				timing.stopwatch[PID.gcf][TID.online] = timing.stopwatch[PID.gcf][TID.online]
 						.subtract(timing.stopwatch[PID.gcf][TID.offline_write]);
 				break;

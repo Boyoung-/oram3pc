@@ -31,7 +31,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		debbie.bandwidth[PID.decrypt].start();
 		eddie.bandwidth[PID.decrypt].start();
 
-		//sanityCheck();
+		// sanityCheck();
 
 		// protocol
 		// step 1
@@ -50,7 +50,6 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		ECPoint[] sigma_x = eddie.readECPointArray();
 		timing.stopwatch[PID.decrypt][TID.online_read].stop();
 
-
 		debbie.bandwidth[PID.oprf].start();
 		eddie.bandwidth[PID.oprf].start();
 
@@ -60,24 +59,25 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		BigInteger[] secretC_P = new BigInteger[sigma_x.length];
 		Message[] msg1 = new Message[sigma_x.length];
 		Message[] msg2 = new Message[sigma_x.length];
-		
+
 		sanityCheck();
-		
+
 		timing.stopwatch[PID.oprf][TID.online].start();
-		for (int j=0; j<sigma_x.length; j++)
-			msg1[j] = new Message(sigma_x[j].add(PreData.oprf_gy[i][0][j]), PreData.oprf_gy[i][1][j]);
+		for (int j = 0; j < sigma_x.length; j++)
+			msg1[j] = new Message(sigma_x[j].add(PreData.oprf_gy[i][0][j]),
+					PreData.oprf_gy[i][1][j]);
 		timing.stopwatch[PID.oprf][TID.online].stop();
 
 		timing.stopwatch[PID.oprf][TID.online_write].start();
-		for (int j = 0; j < sigma_x.length; j++) 
+		for (int j = 0; j < sigma_x.length; j++)
 			debbie.write(new Message(msg1[j].getV()));
 		timing.stopwatch[PID.oprf][TID.online_write].stop();
-		
+
 		timing.stopwatch[PID.oprf][TID.online_read].start();
-		for (int j = 0; j < sigma_x.length; j++) 
+		for (int j = 0; j < sigma_x.length; j++)
 			msg2[j] = debbie.readMessage();
 		timing.stopwatch[PID.oprf][TID.online_read].stop();
-		
+
 		timing.stopwatch[PID.oprf][TID.online].start();
 		for (int j = 0; j < sigma_x.length; j++) {
 			msg2[j].setW(msg1[j].getW());
@@ -106,7 +106,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		charlie.bandwidth[PID.decrypt].start();
 		eddie.bandwidth[PID.decrypt].start();
 
-		//sanityCheck();
+		// sanityCheck();
 
 		// protocol
 		// step 4
@@ -118,22 +118,23 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 
 		charlie.bandwidth[PID.oprf].start();
 		eddie.bandwidth[PID.oprf].start();
-		
+
 		Message[] msg = new Message[pathBuckets];
-		
+
 		timing.stopwatch[PID.oprf][TID.online_read].start();
-		for (int j = 0; j < pathBuckets; j++) 
+		for (int j = 0; j < pathBuckets; j++)
 			msg[j] = charlie.readMessage();
 		timing.stopwatch[PID.oprf][TID.online_read].stop();
-		
+
 		timing.stopwatch[PID.oprf][TID.online].start();
-		for (int j = 0; j < pathBuckets; j++) 
-			msg[j] = oprf.evaluate(msg[j]); // TODO: pass k as arg or just read from
-										// file?
+		for (int j = 0; j < pathBuckets; j++)
+			msg[j] = oprf.evaluate(msg[j]); // TODO: pass k as arg or just read
+											// from
+		// file?
 		timing.stopwatch[PID.oprf][TID.online].stop();
-		
+
 		timing.stopwatch[PID.oprf][TID.online_write].start();
-		for (int j = 0; j < pathBuckets; j++) 
+		for (int j = 0; j < pathBuckets; j++)
 			charlie.write(msg[j]);
 		timing.stopwatch[PID.oprf][TID.online_write].stop();
 
@@ -157,7 +158,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		charlie.bandwidth[PID.decrypt].start();
 		debbie.bandwidth[PID.decrypt].start();
 
-		//sanityCheck();
+		// sanityCheck();
 
 		// protocol
 		// step 1
@@ -211,6 +212,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		debbie.countBandwidth = false;
 
 		// E outputs sigma and secretE_P
-		return new DPOutput(null, secretE_P, null); // sigma is in precomputation now
+		return new DPOutput(null, secretE_P, null); // sigma is in
+													// precomputation now
 	}
 }

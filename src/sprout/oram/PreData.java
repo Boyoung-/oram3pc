@@ -49,4 +49,10 @@ public class PreData {
 	public static List<Integer>[][] iot_pi_ivs;
 	public static BigInteger[][][] iot_r;
 	public static byte[][][] iot_s;
+
+	// Encrypt
+	public static byte[][] encrypt_s;
+	public static ECPoint[][] encrypt_x;
+	public static BigInteger[][] encrypt_c;
+	public static BigInteger[][] encrypt_a;
 }
