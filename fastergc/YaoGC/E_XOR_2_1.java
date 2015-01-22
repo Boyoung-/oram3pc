@@ -12,11 +12,9 @@ class E_XOR_2_1 extends XOR_2_1 {
 
     protected void sendOutBitEncPair() {
     	if (outputWires[0].outBitEncPair != null) {
-    		//timing.gcf_offline_read.start();
     		timing.stopwatch[PID.gcf][TID.offline_read].start();
 			outputWires[0].outBitEncPair = sender.readBigIntegerArray();
 			timing.stopwatch[PID.gcf][TID.offline_read].stop();
-			//timing.gcf_offline_read.stop();
     	}
     }
 }

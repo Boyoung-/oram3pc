@@ -15,6 +15,7 @@ class G_XOR_2_1 extends XOR_2_1 {
 
     protected void sendOutBitEncPair() {
     	if (outputWires[0].outBitEncPair != null) {
+    		//timing.stopwatch[PID.gcf][TID.online].start();
     		BigInteger[] lb = new BigInteger[2];
     		lb[0] = outputWires[0].lbl;
     		lb[1] = Wire.conjugate(lb[0]);
@@ -22,12 +23,11 @@ class G_XOR_2_1 extends XOR_2_1 {
     		int k = outputWires[0].serialNum;
     		outputWires[0].outBitEncPair[lsb] = Cipher.encrypt(k, lb[0], 0);
     		outputWires[0].outBitEncPair[1-lsb] = Cipher.encrypt(k, lb[1], 1);
+    		//timing.stopwatch[PID.gcf][TID.online].stop();
     		
-    		//timing.gcf_offline_write.start();
     		timing.stopwatch[PID.gcf][TID.offline_write].start();
     		receiver.write(outputWires[0].outBitEncPair);
     		timing.stopwatch[PID.gcf][TID.offline_write].stop();
-    		//timing.gcf_offline_write.stop();
     	}
     }
 }

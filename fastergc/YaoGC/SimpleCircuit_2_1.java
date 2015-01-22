@@ -33,12 +33,13 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 	outputWires[0] = new Wire();
     }
 
-    protected void execute() {
+    protected void execute(boolean evaluate) {
 
 	Wire inWireL = inputWires[0];
 	Wire inWireR = inputWires[1];
 	Wire outWire = outputWires[0];
 
+	if (evaluate) {
 	if (inWireL.value != Wire.UNKNOWN_SIG && inWireR.value != Wire.UNKNOWN_SIG) {
 	    compute();
 	}
@@ -71,11 +72,15 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 		execYao();
 	    }
 	}
+	}
+	else
+		passTruthTable();
 	
-	outWire.setReady();
+	outWire.setReady(evaluate);
     }
 
     protected abstract void execYao();
+    protected abstract void passTruthTable();
 
     protected abstract boolean shortCut();
     protected abstract boolean collapse();

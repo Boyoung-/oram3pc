@@ -32,5 +32,5 @@ public abstract class CompositeCircuit extends Circuit {
     protected void fixInternalWires() {}
 
     protected void compute() {}
-    protected void execute() {}
+    protected void execute(boolean evaluate) {}
 }

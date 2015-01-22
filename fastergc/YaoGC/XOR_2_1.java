@@ -23,11 +23,12 @@ public abstract class XOR_2_1 extends SimpleCircuit_2_1 {
 	outputWires[0].value = left ^ right;
     }
 
-    public void execute() {
+    public void execute(boolean evaluate) {
 	Wire inWireL = inputWires[0];
 	Wire inWireR = inputWires[1];
 	Wire outWire = outputWires[0];
 
+	if (evaluate) {
 	if (inWireL.value != Wire.UNKNOWN_SIG && inWireR.value != Wire.UNKNOWN_SIG) {
 	    compute();
 	}
@@ -64,10 +65,11 @@ public abstract class XOR_2_1 extends SimpleCircuit_2_1 {
 		outWire.setLabel(out);
 	    }
 	}
+	}
+	else
+		sendOutBitEncPair();
 	
-	sendOutBitEncPair();
-	
-	outWire.setReady();
+	outWire.setReady(evaluate);
     }
 
     protected boolean collapse() {
@@ -98,4 +100,5 @@ public abstract class XOR_2_1 extends SimpleCircuit_2_1 {
     // Never used for XOR gate.
     protected void fillTruthTable() {}
     protected void execYao() {}
+    protected void passTruthTable() {}
 }

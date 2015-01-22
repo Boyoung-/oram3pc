@@ -8,9 +8,17 @@ class G_AND_2_1 extends AND_2_1 {
     }
 
     protected void execYao() {
-	fillTruthTable();
-	encryptTruthTable();
-	sendGTT();
-	gtt = null;
+	//fillTruthTable();
+	//encryptTruthTable();
+	//sendGTT();
+	//gtt = null;
     }
+
+	@Override
+	protected void passTruthTable() {
+		fillTruthTable();
+		encryptTruthTable();
+		sendGTT();
+		gtt = null;
+	}
 }

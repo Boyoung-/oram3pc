@@ -143,8 +143,8 @@ public class TransitiveObservable {
      * <p>
      * Equivalent to calling {@code notifyObservers(null)}.
      */
-    public void notifyObservers() {
-	notifyObservers(null);
+    public void notifyObservers(boolean evaluate) {
+	notifyObservers(evaluate, null);
     }
    
     /**
@@ -155,7 +155,7 @@ public class TransitiveObservable {
      * @param data
      *            the argument passed to {@code update()}.
      */
-	public void notifyObservers(Object data) {
+	public void notifyObservers(boolean evaluate, Object data) {
 	int size = 0;
 	TransitiveObserver[] arrays = null;
 	synchronized (this) {
@@ -168,7 +168,7 @@ public class TransitiveObservable {
 	}
 	if (arrays != null) {
 	    for (TransitiveObserver observer : arrays) {
-		observer.update(this, data);
+		observer.update(evaluate, this, data);
 	    }
 	}
     }

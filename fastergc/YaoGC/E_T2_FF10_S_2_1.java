@@ -15,7 +15,7 @@ class E_T2_FF10_S_2_1 extends T2_FF10_S_2_1 {
 	Wire inWireR = inputWires[1];
 	Wire outWire = outputWires[0];
 
-	receiveGTT();
+	//receiveGTT();
 	
 	int i0 = Wire.getLSB(inWireL.lbl);
 	i0 = inWireL.invd ? (1 - i0) : i0;
@@ -27,4 +27,10 @@ class E_T2_FF10_S_2_1 extends T2_FF10_S_2_1 {
 	
 	outWire.setLabel(out);
     }
+
+	@Override
+	protected void passTruthTable() {
+		// TODO Auto-generated method stub
+		receiveGTT();
+	}
 }

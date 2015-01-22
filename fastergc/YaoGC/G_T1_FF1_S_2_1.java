@@ -8,9 +8,18 @@ class G_T1_FF1_S_2_1 extends T1_FF1_S_2_1 {
     }
 
     protected void execYao() {
-	fillTruthTable();
-	encryptTruthTable();
-	sendGTT();
-	gtt = null;
-    }
+    	//fillTruthTable();
+    	//encryptTruthTable();
+    	//sendGTT();
+    	//gtt = null;
+        }
+
+    	@Override
+    	protected void passTruthTable() {
+    		// TODO Auto-generated method stub
+    		fillTruthTable();
+    		encryptTruthTable();
+    		sendGTT();
+    		gtt = null;
+    	}
 }

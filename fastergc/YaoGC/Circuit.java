@@ -69,8 +69,13 @@ abstract public class Circuit implements TransitiveObserver {
 	    inputWires[i].value = vals[i];
 	    inputWires[i].invd = invd[i];
 	    inputWires[i].setLabel(glbs[i]);
-	    inputWires[i].setReady();
+	    inputWires[i].setReady(true);
 	}
+    }
+    
+    public void passTruthTables() {
+    	for (int i = 0; i < this.inDegree; i++) 
+    	    inputWires[i].setReady(false);
     }
 
     public State startExecuting(State s) {
@@ -85,7 +90,7 @@ abstract public class Circuit implements TransitiveObserver {
 	    inputWires[i].value = s.wires[i].value;
 	    inputWires[i].invd = s.wires[i].invd;
 	    inputWires[i].setLabel(s.wires[i].lbl);
-	    inputWires[i].setReady();
+	    inputWires[i].setReady(true);
 	}
 
 	return State.fromWires(this.outputWires);
@@ -118,14 +123,14 @@ abstract public class Circuit implements TransitiveObserver {
 	return output;
     }
 
-    public void update(TransitiveObservable o, Object arg) {
+    public void update(boolean evaluate, TransitiveObservable o, Object arg) {
 	inputWireCount++;
 	if (inputWireCount % inDegree == 0)
-	    execute();
+	    execute(evaluate);
     }
 
     abstract protected void compute();
-    abstract protected void execute();
+    abstract protected void execute(boolean evaluate);
     
     //abstract public void sendOutBitsLookup(boolean send);
 }

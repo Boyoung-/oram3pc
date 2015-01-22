@@ -47,9 +47,9 @@ public class Wire extends TransitiveObservable {
 	lbl = label;
     }
 
-    public void setReady() {
+    public void setReady(boolean evaluate) {
 	setChanged();
- 	notifyObservers();
+ 	notifyObservers(evaluate);
     }
 
     public void connectTo(Wire[] ws, int idx) {

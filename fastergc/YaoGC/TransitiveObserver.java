@@ -36,5 +36,5 @@ public interface TransitiveObserver {
      * @param data
      *            the data passed to {@link Observable#notifyObservers(Object)}.
      */
-    void update(TransitiveObservable observable, Object data);
+    void update(boolean evaluate, TransitiveObservable observable, Object data);
 }
