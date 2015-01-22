@@ -303,19 +303,6 @@ public class Retrieve extends Operation {
 			return;
 
 		try {
-			switch (party) {
-			case Charlie:
-				break;
-			case Debbie:
-				timing.stopwatch[PID.gcf][TID.online] = timing.stopwatch[PID.gcf][TID.online]
-						.subtract(timing.stopwatch[PID.gcf][TID.offline_read]);
-				break;
-			case Eddie:
-				timing.stopwatch[PID.gcf][TID.online] = timing.stopwatch[PID.gcf][TID.online]
-						.subtract(timing.stopwatch[PID.gcf][TID.offline_write]);
-				break;
-			}
-
 			int t = ForestMetadata.getTau();
 			int n = ForestMetadata.getLastNBits();
 			int w = ForestMetadata.getBucketDepth();
