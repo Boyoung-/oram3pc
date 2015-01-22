@@ -71,6 +71,7 @@ public class GCF extends Operation {
 		// step 3
 		timing.stopwatch[PID.gcf][TID.online].start();
 		State in_D = State.fromLabels(K_C);
+		PreData.gcf_gc_D[tree_index][level_index].passTruthTables();
 		PreData.gcf_gc_D[tree_index][level_index].startExecuting(in_D); // TODO:
 																		// separate
 																		// gcf
@@ -137,6 +138,7 @@ public class GCF extends Operation {
 		// subtracted from this time
 		timing.stopwatch[PID.gcf][TID.online].start();
 		State in_E = State.fromLabels(K_E);
+		PreData.gcf_gc_E[tree_index][level_index].passTruthTables();
 		PreData.gcf_gc_E[tree_index][level_index].startExecuting(in_E);
 		timing.stopwatch[PID.gcf][TID.online].stop();
 
