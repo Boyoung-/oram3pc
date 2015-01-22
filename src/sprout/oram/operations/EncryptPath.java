@@ -63,6 +63,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 	public EPath executeDebbieSubTree(Communication charlie,
 			Communication eddie, BigInteger k) {
 		// debbie does nothing online
+		// sanityCheck();
 		return null;
 	}
 

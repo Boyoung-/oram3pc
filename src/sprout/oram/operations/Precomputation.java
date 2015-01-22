@@ -271,6 +271,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				for (int k = 0; k < PreData.gcf_gc_D[i][j].outputWires.length; k++)
 					// TODO: not a good way; should define a function
 					PreData.gcf_gc_D[i][j].outputWires[k].outBitEncPair = new BigInteger[2];
+				PreData.gcf_gc_D[i][j].passTruthTables();
 			}
 		}
 		timing.stopwatch[PID.gcf][TID.offline].stop();
@@ -477,6 +478,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				for (int k = 0; k < PreData.gcf_gc_E[i][j].outputWires.length; k++)
 					// TODO: not a good way; should define a function
 					PreData.gcf_gc_E[i][j].outputWires[k].outBitEncPair = new BigInteger[2];
+				PreData.gcf_gc_E[i][j].passTruthTables();
 
 				int n = (j != d_i) ? (w * 2 + 2) : (w * expen + 2);
 				PreData.gcf_lbs[i][j] = new BigInteger[n][2];

@@ -86,21 +86,8 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
     protected abstract boolean collapse();
 
     protected void sendGTT() {
-    	/*
-    	try {
-	    Utils.writeBigInteger(gtt[0][1], 10, oos);
-	    Utils.writeBigInteger(gtt[1][0], 10, oos);
-	    Utils.writeBigInteger(gtt[1][1], 10, oos);
-    		    
-    	    oos.flush();
-    	}
-    	catch (Exception e) {
-    	    e.printStackTrace();
-    	    System.exit(1);
-    	}
-	    */
+    	timing.stopwatch[PID.gcf][TID.offline].stop();
     	
-    	//timing.gcf_offline_write.start();
     	timing.stopwatch[PID.gcf][TID.offline_write].start();
     	receiver.write(gtt[0][1]);
     	receiver.write(gtt[1][0]);
@@ -109,22 +96,17 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
     	if (outputWires[0].outBitEncPair != null) 
     		receiver.write(outputWires[0].outBitEncPair);
     	timing.stopwatch[PID.gcf][TID.offline_write].stop();
-    	//timing.gcf_offline_write.stop();
+    	
+    	timing.stopwatch[PID.gcf][TID.offline].start();
     }
     
     protected void receiveGTT() {
 	try {
-	    gtt = new BigInteger[2][2];
-	    
-	    /*
+	    gtt = new BigInteger[2][2];	    
 	    gtt[0][0] = BigInteger.ZERO;
-	    gtt[0][1] = Utils.readBigInteger(10, ois);
-	    gtt[1][0] = Utils.readBigInteger(10, ois);
-	    gtt[1][1] = Utils.readBigInteger(10, ois);
-	    */
 	    
-	    gtt[0][0] = BigInteger.ZERO;
-	    //timing.gcf_offline_read.start();
+	    timing.stopwatch[PID.gcf][TID.offline].stop();
+	    
 	    timing.stopwatch[PID.gcf][TID.offline_read].start();
 	    gtt[0][1] = sender.readBigInteger();
 	    gtt[1][0] = sender.readBigInteger();
@@ -133,7 +115,8 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 	    if (outputWires[0].outBitEncPair != null) 
 	    	outputWires[0].outBitEncPair = sender.readBigIntegerArray();
 	    timing.stopwatch[PID.gcf][TID.offline_read].stop();
-	    //timing.gcf_offline_read.stop();
+
+	    timing.stopwatch[PID.gcf][TID.offline].start();
 	}
 	catch (Exception e) {
 	    e.printStackTrace();

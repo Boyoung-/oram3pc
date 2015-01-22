@@ -26,7 +26,7 @@ public class IOT extends Operation {
 		I.bandwidth[PID.iot].start();
 		R.bandwidth[PID.iot].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1
@@ -57,7 +57,7 @@ public class IOT extends Operation {
 		I.bandwidth[PID.iot].start();
 		S.bandwidth[PID.iot].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1
@@ -98,7 +98,7 @@ public class IOT extends Operation {
 		S.bandwidth[PID.iot].start();
 		R.bandwidth[PID.iot].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 2

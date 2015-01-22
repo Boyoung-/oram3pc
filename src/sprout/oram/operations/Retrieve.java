@@ -225,6 +225,8 @@ public class Retrieve extends Operation {
 					System.err.println("No such party");
 					return;
 				}
+				
+				sanityCheck();
 
 				BigInteger Li = null;
 				if (party == Party.Charlie)

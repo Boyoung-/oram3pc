@@ -62,7 +62,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		debbie.bandwidth[PID.ppt].start();
 		eddie.bandwidth[PID.ppt].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// step 1
 		// E sends delta_C to C
@@ -144,7 +144,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		charlie.bandwidth[PID.ppt].start();
 		eddie.bandwidth[PID.ppt].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// step 1
 		// E sends delta_D to D
@@ -229,7 +229,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		charlie.bandwidth[PID.ppt].start();
 		debbie.bandwidth[PID.ppt].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// step 1
 		// party E

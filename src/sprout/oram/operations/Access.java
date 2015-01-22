@@ -40,7 +40,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		dp.loadTreeSpecificParameters(i);
 		DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, Li);
 
-		sanityCheck();
+		//sanityCheck();
 
 		timing.stopwatch[PID.access][TID.online].start();
 		BigInteger secretC_P = DecOut.secretC_P[0];
@@ -169,7 +169,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		dp.executeDebbieSubTree(charlie, eddie, k);
 		// DecryptPath outpus sigma and secretE_P for E and secretC_P for C
 
-		sanityCheck();
+		//sanityCheck();
 
 		AOT aot = new AOT(charlie, eddie);
 		if (i > 0) {
@@ -212,7 +212,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		dp.loadTreeSpecificParameters(i);
 		DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, null);
 
-		sanityCheck();
+		//sanityCheck();
 
 		timing.stopwatch[PID.access][TID.online].start();
 		BigInteger secretE_P = DecOut.secretE_P[0];

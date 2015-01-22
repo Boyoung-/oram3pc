@@ -28,7 +28,7 @@ public abstract class Operation {
 		this.con2 = con2;
 	}
 
-	private static final boolean ENSURE_SANITY = false;
+	private static final boolean ENSURE_SANITY = true;
 
 	public boolean ifSanityCheck() {
 		return ENSURE_SANITY;

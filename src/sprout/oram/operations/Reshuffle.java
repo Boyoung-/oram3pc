@@ -37,7 +37,7 @@ public class Reshuffle extends
 		debbie.bandwidth[PID.reshuffle].start();
 		eddie.bandwidth[PID.reshuffle].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1
@@ -86,7 +86,7 @@ public class Reshuffle extends
 		charlie.bandwidth[PID.reshuffle].start();
 		eddie.bandwidth[PID.reshuffle].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1
@@ -128,7 +128,7 @@ public class Reshuffle extends
 		charlie.bandwidth[PID.reshuffle].start();
 		debbie.bandwidth[PID.reshuffle].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1

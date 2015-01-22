@@ -32,7 +32,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		debbie.bandwidth[PID.eviction].start();
 		eddie.bandwidth[PID.eviction].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1
@@ -128,7 +128,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		charlie.bandwidth[PID.eviction].start();
 		eddie.bandwidth[PID.eviction].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1
@@ -228,7 +228,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		charlie.bandwidth[PID.eviction].start();
 		debbie.bandwidth[PID.eviction].start();
 
-		sanityCheck();
+		//sanityCheck();
 
 		// protocol
 		// step 1

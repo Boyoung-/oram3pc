@@ -60,7 +60,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		Message[] msg1 = new Message[sigma_x.length];
 		Message[] msg2 = new Message[sigma_x.length];
 
-		sanityCheck();
+		//sanityCheck();
 
 		timing.stopwatch[PID.oprf][TID.online].start();
 		for (int j = 0; j < sigma_x.length; j++)
@@ -114,7 +114,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		OPRF oprf = OPRFHelper.getOPRF(false);
 		timing.stopwatch[PID.oprf][TID.offline].stop();
 
-		sanityCheck();
+		//sanityCheck();
 
 		charlie.bandwidth[PID.oprf].start();
 		eddie.bandwidth[PID.oprf].start();
@@ -204,7 +204,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		charlie.write(sigma_x);
 		timing.stopwatch[PID.decrypt][TID.online_write].stop();
 
-		sanityCheck();
+		//sanityCheck();
 
 		debbie.bandwidth[PID.decrypt].stop();
 		charlie.bandwidth[PID.decrypt].stop();
