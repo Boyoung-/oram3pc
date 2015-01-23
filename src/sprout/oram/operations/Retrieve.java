@@ -58,6 +58,8 @@ public class Retrieve extends Operation {
 				Nip1Bits - ForestMetadata.getNBits(currTree));
 		PostProcessT ppt = new PostProcessT(debbie, eddie);
 		ppt.loadTreeSpecificParameters(currTree);
+		
+		sanityCheck();
 		BigInteger secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie,
 				new BigInteger[] { Li, secretC_Ti, secretC_Li_p,
 						secretC_Lip1_p, Lip1, Nip1_pr });
@@ -96,6 +98,8 @@ public class Retrieve extends Operation {
 		// PostProcessT
 		PostProcessT ppt = new PostProcessT(charlie, eddie);
 		ppt.loadTreeSpecificParameters(currTree);
+		
+		sanityCheck();
 		ppt.executeDebbieSubTree(charlie, eddie, new BigInteger[] {});
 
 		// Reshuffle
@@ -132,6 +136,8 @@ public class Retrieve extends Operation {
 			secretE_Lip1_p = PreData.ppt_sE_Li_p[currTree + 1];
 		PostProcessT ppt = new PostProcessT(charlie, debbie);
 		ppt.loadTreeSpecificParameters(currTree);
+		
+		sanityCheck();
 		BigInteger secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie,
 				new BigInteger[] { secretE_Ti, secretE_Li_p, secretE_Lip1_p });
 
