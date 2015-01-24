@@ -116,10 +116,10 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		// Encrypt
 		PreData.encrypt_c = new BigInteger[levels][];
 
-		timing.stopwatch[PID.iot][TID.offline_read].start();
+		timing.stopwatch[PID.encrypt][TID.offline_read].start();
 		for (int index = 0; index <= h; index++)
 			PreData.encrypt_c[index] = debbie.readBigIntegerArray();
-		timing.stopwatch[PID.iot][TID.offline_read].stop();
+		timing.stopwatch[PID.encrypt][TID.offline_read].stop();
 
 		return null;
 	}
@@ -331,7 +331,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		PreData.encrypt_x = new ECPoint[levels][];
 		PreData.encrypt_c = new BigInteger[levels][];
 
-		timing.stopwatch[PID.iot][TID.offline].start();
+		timing.stopwatch[PID.encrypt][TID.offline].start();
 		OPRF oprf = OPRFHelper.getOPRF(false);
 		for (int index = 0; index <= h; index++) {
 			loadTreeSpecificParameters(index);
@@ -363,15 +363,15 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				PreData.encrypt_c[i][j] = a[j].xor(b[j]);
 			}
 		}
-		timing.stopwatch[PID.iot][TID.offline].stop();
+		timing.stopwatch[PID.encrypt][TID.offline].stop();
 
-		timing.stopwatch[PID.iot][TID.offline_write].start();
+		timing.stopwatch[PID.encrypt][TID.offline_write].start();
 		eddie.write(PreData.encrypt_s);
 		for (int index = 0; index <= h; index++)
 			eddie.write(PreData.encrypt_x[index]);
 		for (int index = 0; index <= h; index++)
 			charlie.write(PreData.encrypt_c[index]);
-		timing.stopwatch[PID.iot][TID.offline_write].stop();
+		timing.stopwatch[PID.encrypt][TID.offline_write].stop();
 
 		return null;
 	}
@@ -529,13 +529,13 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		PreData.encrypt_x = new ECPoint[levels][];
 		PreData.encrypt_a = new BigInteger[levels][];
 
-		timing.stopwatch[PID.iot][TID.offline_read].start();
+		timing.stopwatch[PID.encrypt][TID.offline_read].start();
 		PreData.encrypt_s = debbie.readDoubleByteArray();
 		for (int index = 0; index <= h; index++)
 			PreData.encrypt_x[index] = debbie.readECPointArray();
-		timing.stopwatch[PID.iot][TID.offline_read].stop();
+		timing.stopwatch[PID.encrypt][TID.offline_read].stop();
 
-		timing.stopwatch[PID.iot][TID.offline].start();
+		timing.stopwatch[PID.encrypt][TID.offline].start();
 		for (int index = 0; index <= h; index++) {
 			loadTreeSpecificParameters(index);
 
@@ -551,7 +551,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				tmp = tmp.shiftRight(bucketBits);
 			}
 		}
-		timing.stopwatch[PID.iot][TID.offline].stop();
+		timing.stopwatch[PID.encrypt][TID.offline].stop();
 
 		return null;
 	}

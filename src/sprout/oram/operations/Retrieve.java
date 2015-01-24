@@ -13,10 +13,8 @@ import sprout.oram.BucketException;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
-import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
-import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
 import sprout.util.Timing;
@@ -204,7 +202,7 @@ public class Retrieve extends Operation {
 			shiftN = tau;
 
 		int records = 6; // how many random records we want to test retrieval
-		int retrievals = 5; // for each record, how many repeated retrievals we
+		int retrievals = 10; // for each record, how many repeated retrievals we
 							// want to do
 
 		for (int test = 0; test < records; test++) {
