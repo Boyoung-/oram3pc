@@ -16,6 +16,10 @@ public class ExtraTiming {
 
 		int iteration = 2000;
 		int convert = 1000000;
+		int n_start = 200;
+		int n_end = 1000;
+		int n_increment = 200;
+		
 		byte[] k = new byte[16];
 		BigInteger p2 = SR.p.multiply(SR.p);
 		byte[][] input = new byte[iteration][];
@@ -29,23 +33,13 @@ public class ExtraTiming {
 			SR.rand.nextBytes(input[i]);
 			SR.rand.nextBytes(seed[i]);
 		}
-
-		for (int n = 200; n <= 1000; n += 200) {
-			for (int i = 0; i < iteration; i++) {
-				System.out.println(n + "  " + i);
-				mult[i] = new BigInteger[4 * n];
-				for (int j = 0; j < 4 * n; j++) {
-					mult[i][j] = Util.nextBigInteger(p2);
-				}
-			}
-		}
-
+		
 		System.out.println("\nIterations," + iteration / 2
 				+ ",(below time is sum for each n)");
 		System.out.println("n,,AES,PRG,PET");
 
 		// start timing
-		for (int n = 100; n <= 1000; n += 100) {
+		for (int n = n_start; n <= n_end; n += n_increment) {
 			SR.rand.nextBytes(k);
 			AES_PRF prf = new AES_PRF(128 * n);
 			prf.init(k);
@@ -64,6 +58,15 @@ public class ExtraTiming {
 				prg.compute(seed[i]);
 			}
 			prg_sw.stop();
+			
+			// prepare input
+			for (int i = 0; i < iteration; i++) {
+				//System.out.println(n + "  " + i);
+				mult[i] = new BigInteger[4 * n];
+				for (int j = 0; j < 4 * n; j++) {
+					mult[i][j] = Util.nextBigInteger(p2);
+				}
+			}
 
 			for (int i = 0; i < iteration; i++) {
 				if (i == iteration / 2)
