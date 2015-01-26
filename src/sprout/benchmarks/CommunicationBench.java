@@ -24,7 +24,7 @@ public class CommunicationBench {
 		this.b = b;
 	}
 
-	public static int ignored_trials = 10000;
+	public static int ignored_trials = 1000;
 	public static int num_trials = 1000;
 	public static int N = 10;
 	public static int bytes_per_object = 10000000;
@@ -153,6 +153,7 @@ public class CommunicationBench {
 		// BigInteger obj = new BigInteger(bytes);
 
 		for (int i = 0; i < num_trials + ignored_trials; i++) {
+			System.out.println("i= " + i);
 			sync(B, B);
 			StopWatch sw = new StopWatch();
 			sw.start();
