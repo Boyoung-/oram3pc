@@ -22,9 +22,18 @@ public class CombineTiming {
 
 		// System.out.println(C.add(D).add(E).toCSV());
 
-		System.out.println(C.toCSV() + "\n\n");
-		System.out.println(D.toCSV() + "\n\n");
-		System.out.println(E.toCSV() + "\n\n");
+		if (args.length == 1) {
+			if (args[0].equals("eddie"))
+				System.out.println(E.toCSV() + "\n\n");
+			else if (args[0].equals("debbie"))
+				System.out.println(D.toCSV() + "\n\n");
+			else
+				System.out.println(C.toCSV() + "\n\n");
+		} else {
+			System.out.println(C.toCSV() + "\n\n");
+			System.out.println(D.toCSV() + "\n\n");
+			System.out.println(E.toCSV() + "\n\n");
+		}
 	}
 
 }
