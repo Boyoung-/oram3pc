@@ -16,24 +16,29 @@ public class CombineTiming {
 		Timing D = new Timing();
 		Timing E = new Timing();
 
-		C.readFromFile("stats/timing-charlie" + suffix);
-		D.readFromFile("stats/timing-debbie" + suffix);
-		E.readFromFile("stats/timing-eddie" + suffix);
-
-		// System.out.println(C.add(D).add(E).toCSV());
-
 		if (args.length == 1) {
-			if (args[0].equals("eddie"))
+			if (args[0].equals("eddie")) {
+				E.readFromFile("stats/timing-eddie" + suffix);
 				System.out.println(E.toCSV() + "\n\n");
-			else if (args[0].equals("debbie"))
+			}
+			else if (args[0].equals("debbie")) {
+				D.readFromFile("stats/timing-debbie" + suffix);
 				System.out.println(D.toCSV() + "\n\n");
-			else
+			}
+			else {
+				C.readFromFile("stats/timing-charlie" + suffix);
 				System.out.println(C.toCSV() + "\n\n");
+			}
 		} else {
+			C.readFromFile("stats/timing-charlie" + suffix);
+			D.readFromFile("stats/timing-debbie" + suffix);
+			E.readFromFile("stats/timing-eddie" + suffix);
 			System.out.println(C.toCSV() + "\n\n");
 			System.out.println(D.toCSV() + "\n\n");
 			System.out.println(E.toCSV() + "\n\n");
 		}
+
+		// System.out.println(C.add(D).add(E).toCSV());
 	}
 
 }
