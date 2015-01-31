@@ -191,8 +191,6 @@ public class Retrieve extends Operation {
 
 		timing = new Timing();
 		timing.init();
-		con1.bandWidthSwitch = true;
-		con2.bandWidthSwitch = true;
 
 		int h = ForestMetadata.getLevels() - 1;
 		int tau = ForestMetadata.getTau();
@@ -201,8 +199,8 @@ public class Retrieve extends Operation {
 		if (shiftN == 0)
 			shiftN = tau;
 
-		int records = 6; // how many random records we want to test retrieval
-		int retrievals = 10; // for each record, how many repeated retrievals we
+		int records = 2; // how many random records we want to test retrieval
+		int retrievals = 2; // for each record, how many repeated retrievals we
 							// want to do
 
 		for (int test = 0; test < records; test++) {
@@ -228,6 +226,11 @@ public class Retrieve extends Operation {
 				else {
 					System.err.println("No such party");
 					return;
+				}
+				
+				if (test == 0 && exec == 0) {
+					con1.bandWidthSwitch = true;
+					con2.bandWidthSwitch = true;
 				}
 				
 				sanityCheck();

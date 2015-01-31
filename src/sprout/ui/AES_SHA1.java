@@ -13,11 +13,11 @@ public class AES_SHA1 {
 		int iteration = 20000000;
 		int convert = 1000000;
 		
-		MessageDigest digest = SR.digest;
+		MessageDigest digest = MessageDigest.getInstance("SHA-1");
+		digest.reset();
 		byte[] key = new byte[16];
 		byte[][] input = new byte[iteration][16];
 		SR.rand.nextBytes(key);
-		//SR.rand.nextBytes(input);
 		Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
 		SecretKeySpec skey = new SecretKeySpec(key, "AES");
 		cipher.init(Cipher.ENCRYPT_MODE, skey);

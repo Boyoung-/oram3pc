@@ -37,33 +37,30 @@ public class CombineBandwidth {
 	}
 
 	/*
-	private static void print(Bandwidth[] a) {
-		for (int i = 0; i < a.length; i++)
-			System.out.println(a[i]);
-		System.out.println();
-	}
+	 * private static void print(Bandwidth[] a) { for (int i = 0; i < a.length;
+	 * i++) System.out.println(a[i]); System.out.println(); }
+	 * 
+	 * // horizontal private static void printCSV(Bandwidth[] a) {
+	 * System.out.println(a[PID.decrypt].bandwidth * 8 + "," +
+	 * a[PID.pet].bandwidth * 8 + "," + a[PID.aot].bandwidth * 8 + "," +
+	 * a[PID.access].bandwidth * 8 + "," + (a[PID.ppt].bandwidth +
+	 * a[PID.reshuffle].bandwidth) * 8 + "," + a[PID.gcf].bandwidth * 8 + "," +
+	 * a[PID.ssot].bandwidth * 8 + "," + a[PID.encrypt].bandwidth * 8 + "," +
+	 * a[PID.eviction].bandwidth * 8); }
+	 * 
+	 * // vertical private static void printCSV2(Bandwidth[] a) {
+	 * System.out.println(a[PID.decrypt].bandwidth * 8 + "\n" +
+	 * a[PID.pet].bandwidth * 8 + "\n" + a[PID.aot].bandwidth * 8 + "\n" +
+	 * a[PID.access].bandwidth * 8 + "\n" + (a[PID.ppt].bandwidth +
+	 * a[PID.reshuffle].bandwidth) * 8 + "\n" + a[PID.gcf].bandwidth * 8 + "\n"
+	 * + a[PID.ssot].bandwidth * 8 + "\n" + a[PID.encrypt].bandwidth 8 + "\n" +
+	 * a[PID.eviction].bandwidth * 8); }
+	 */
 
-	// horizontal
-	private static void printCSV(Bandwidth[] a) {
-		System.out.println(a[PID.decrypt].bandwidth * 8 + ","
-				+ a[PID.pet].bandwidth * 8 + "," + a[PID.aot].bandwidth * 8
-				+ "," + a[PID.access].bandwidth * 8 + ","
-				+ (a[PID.ppt].bandwidth + a[PID.reshuffle].bandwidth) * 8 + ","
-				+ a[PID.gcf].bandwidth * 8 + "," + a[PID.ssot].bandwidth * 8
-				+ "," + a[PID.encrypt].bandwidth * 8 + ","
-				+ a[PID.eviction].bandwidth * 8);
-	}
-	*/
-
-	// vertical
-	private static void printCSV2(Bandwidth[] a) {
-		System.out.println(a[PID.decrypt].bandwidth * 8 + "\n"
-				+ a[PID.pet].bandwidth * 8 + "\n" + a[PID.aot].bandwidth * 8
-				+ "\n" + a[PID.access].bandwidth * 8 + "\n"
-				+ (a[PID.ppt].bandwidth + a[PID.reshuffle].bandwidth) * 8
-				+ "\n" + a[PID.gcf].bandwidth * 8 + "\n"
-				+ a[PID.ssot].bandwidth * 8 + "\n" + a[PID.encrypt].bandwidth
-				* 8 + "\n" + a[PID.eviction].bandwidth * 8);
+	private static void printTSVFull(Bandwidth[] a) {
+		for (int i = 0; i < PID.size; i++) {
+			System.out.println(PID.names[i] + "\t" + a[i].bandwidth * 8);
+		}
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -74,19 +71,28 @@ public class CombineBandwidth {
 		int d = ForestMetadata.getDataSize();
 		String suffix = "-t" + t + "n" + n + "w" + w + "d" + d;
 
-		Bandwidth[] a = readFromFile("stats/charlie-bandwidth-1" + suffix);
-		Bandwidth[] b = readFromFile("stats/charlie-bandwidth-2" + suffix);
-		a = add(a, b);
-		b = readFromFile("stats/debbie-bandwidth-1" + suffix);
-		a = add(a, b);
-		b = readFromFile("stats/debbie-bandwidth-2" + suffix);
-		a = add(a, b);
-		b = readFromFile("stats/eddie-bandwidth-1" + suffix);
-		a = add(a, b);
-		b = readFromFile("stats/eddie-bandwidth-2" + suffix);
-		a = add(a, b);
+		Bandwidth[] a;
+		Bandwidth[] b;
 
-		printCSV2(a);
+		if (args.length == 1) {
+			a = readFromFile("stats/" + args[0] + "-bandwidth-1" + suffix);
+			b = readFromFile("stats/" + args[0] + "-bandwidth-2" + suffix);
+			a = add(a, b);
+			printTSVFull(a);
+		} else if (args.length == 0) {
+			a = readFromFile("stats/charlie-bandwidth-1" + suffix);
+			b = readFromFile("stats/charlie-bandwidth-2" + suffix);
+			a = add(a, b);
+			b = readFromFile("stats/debbie-bandwidth-1" + suffix);
+			a = add(a, b);
+			b = readFromFile("stats/debbie-bandwidth-2" + suffix);
+			a = add(a, b);
+			b = readFromFile("stats/eddie-bandwidth-1" + suffix);
+			a = add(a, b);
+			b = readFromFile("stats/eddie-bandwidth-2" + suffix);
+			a = add(a, b);
+			printTSVFull(a);
+		}
 	}
 
 }

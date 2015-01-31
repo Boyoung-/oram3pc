@@ -97,13 +97,14 @@ public class Communication {
 	}
 
 	public void addBandwidth(int bits) {
-		if (!bandWidthSwitch && sharedBandwidth.isActive()) {
+		if (sharedBandwidth.isActive()) {
 			sharedBandwidth.add(bits);
 			return;
-		}
-		for (int i = 0; i < bandwidth.length; i++) {
-			if (bandwidth[i].isActive())
-				bandwidth[i].add(bits);
+		} else if (bandWidthSwitch) {
+			for (int i = 0; i < bandwidth.length; i++) {
+				if (bandwidth[i].isActive())
+					bandwidth[i].add(bits);
+			}
 		}
 	}
 
@@ -367,9 +368,7 @@ public class Communication {
 		r.write(out);
 
 		if (countBandwidth)
-			addBandwidth(out.length + 4); // 4 accounts for the size of the
-											// integer length used in every
-											// transmission.
+			addBandwidth(out.length);
 	}
 
 	/**
