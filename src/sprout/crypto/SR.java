@@ -14,6 +14,7 @@ public class SR {
 		try {
 			rand = SecureRandom.getInstance("SHA1PRNG");
 			digest = MessageDigest.getInstance("SHA-1");
+			digest.reset();
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
