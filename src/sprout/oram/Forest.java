@@ -205,7 +205,6 @@ public class Forest {
 			NoSuchAlgorithmException, TreeException {
 		Util.disp("===== Encryption ===== ");
 		OPRF oprf = OPRFHelper.getOPRF(false);
-		System.out.println("RRRRRRRRRRRRRR: " + oprf.hasKey());
 		ECPoint g = oprf.getG();
 		ECPoint y = oprf.getY();
 
@@ -218,8 +217,7 @@ public class Forest {
 				BigInteger r = oprf.randomExponent();
 				ECPoint x = g.multiply(r);
 				ECPoint v = y.multiply(r);
-				BigInteger mask = new BigInteger(G.generateBitString(
-						bucketTupleBits, v), 2);
+				BigInteger mask = new BigInteger(1, G.compute(v));
 				BigInteger ctext = new BigInteger(1, bucket.getByteTuples())
 						.xor(mask);
 				bucket.setBucket(x.getEncoded(),

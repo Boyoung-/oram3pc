@@ -42,7 +42,7 @@ public class ExtraTiming {
 			SR.rand.nextBytes(k);
 			AES_PRF prf = new AES_PRF(128 * n);
 			prf.init(k);
-			PRG prg = new PRG(160 * n);
+			PRG prg = new PRG(128 * n);
 			mult = new BigInteger[n];
 
 			for (int i = 0; i < iteration; i++) {

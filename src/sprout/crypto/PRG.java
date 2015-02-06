@@ -1,24 +1,109 @@
 package sprout.crypto;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
-import java.security.MessageDigest;
+import java.util.Arrays;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.math.ec.ECPoint;
 
-import sprout.util.Util;
-
 public class PRG {
-	private MessageDigest digest = SR.digest;
+	//private MessageDigest digest = SR.digest;
+	private Cipher cipher = null;
+	private SecretKeySpec skey = SR.skey;
 	private int l; // output bit length
+	
 
 	public PRG(int l) {
+		try {
+			cipher = Cipher.getInstance("AES/CTR/NoPadding");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		this.l = l;
 	}
 
 	public byte[] compute(ECPoint ecp) {
-		return compute(ecp.getEncoded());
+		return compute(Arrays.copyOfRange(ecp.getEncoded(), 1, 17));
 	}
 
+	public byte[] compute(byte[] seed) {
+		if (seed.length != 16) {
+			try {
+				throw new Exception("Wrong seed length!");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+		
+		IvParameterSpec IV = new IvParameterSpec(seed);
+		byte[] msg = new byte[(l + 7) / 8];
+		byte[] output = null;
+		
+		try {
+			cipher.init(Cipher.ENCRYPT_MODE, skey, IV);
+			output = cipher.doFinal(msg);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+		return output;
+	}
+	
+	public static void generateKey() {
+		byte[] key = new byte[16];
+		SR.rand.nextBytes(key);
+		SecretKeySpec skey = new SecretKeySpec(key, "AES");
+		FileOutputStream fout = null;
+		ObjectOutputStream oos = null;
+		
+		try {
+			fout = new FileOutputStream("keys/aes_prg_key");
+			oos = new ObjectOutputStream(fout);
+			oos.writeObject(skey);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (oos != null)
+				try {
+					oos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+	}
+	
+	public static SecretKeySpec readKey() {
+		FileInputStream fin = null; 
+		ObjectInputStream ois = null;
+		SecretKeySpec skey = null;
+		try {
+			fin = new FileInputStream("keys/aes_prg_key");
+			ois = new ObjectInputStream(fin);
+			skey = (SecretKeySpec) ois.readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (ois != null)
+				try {
+					ois.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+		return skey;
+	}
+	
+	/*
 	public byte[] compute(byte[] seed) {
 		byte[] output = null;
 		if (l <= 160) {
@@ -82,43 +167,9 @@ public class PRG {
 
 		return output;
 	}
+	*/
 
 	/*
-	 * private SecureRandom rand; private int l; // TODO: delete this or remove
-	 * bits from args?
-	 * 
-	 * public PRG(int l) throws NoSuchAlgorithmException { this.rand =
-	 * SecureRandom.getInstance("SHA1PRNG"); this.l = l; }
-	 * 
-	 * public PRG(int l, byte[] seed) throws NoSuchAlgorithmException {
-	 * this.rand = SecureRandom.getInstance("SHA1PRNG");
-	 * this.rand.setSeed(seed); this.l = l; }
-	 * 
-	 * private byte[] generateBytes(int bits) { byte[] bytes = new byte[(bits +
-	 * 7) / 8]; this.rand.nextBytes(bytes); return bytes; }
-	 * 
-	 * public byte[] generateBytes(int bits, byte[] seed) {
-	 * this.rand.setSeed(seed); return generateBytes(bits); }
-	 * 
-	 * public byte[] generateBytes(int bits, BigInteger seed) { return
-	 * generateBytes(bits, seed.toByteArray()); }
-	 * 
-	 * public byte[] generateBytes(int bits, ECPoint seed) { return
-	 * generateBytes(bits, seed.getEncoded()); }
-	 * 
-	 * private String generateBitString(int bits) { return Util.addZero(new
-	 * BigInteger(bits, rand).toString(2), bits); }
-	 * 
-	 * public String generateBitString(int bits, byte[] seed) {
-	 * rand.setSeed(seed); return generateBitString(bits); }
-	 * 
-	 * public String generateBitString(int bits, ECPoint seed) { return
-	 * generateBitString(bits, seed.getEncoded()); }
-	 * 
-	 * public String generateBitString(int bits, BigInteger seed) { return
-	 * generateBitString(bits, seed.toByteArray()); }
-	 */
-
 	public String generateBitString(int bits, byte[] seed) {
 		return Util.addZero(new BigInteger(1, compute(seed)).toString(2), bits);
 	}
@@ -130,10 +181,14 @@ public class PRG {
 	public String generateBitString(int bits, BigInteger seed) {
 		return generateBitString(bits, seed.toByteArray());
 	}
+	*/
 
 	public static void main(String[] args) {
+		//generateKey();
+		
 		int n = 10;
 		int outBits = 1000;
+		int outBytes = (outBits + 7) / 8;
 		byte[][] input = new byte[n][16];
 		byte[][] output = new byte[n][];
 		PRG G = new PRG(outBits);
@@ -146,8 +201,9 @@ public class PRG {
 
 		for (int i = 0; i < n; i++) {
 			byte[] tmp = G.compute(input[i]);
-			System.out.println(new BigInteger(1, tmp).compareTo(new BigInteger(
-					1, output[i])) == 0);
+			System.out.println("deterministic:\t" + (new BigInteger(1, tmp).compareTo(new BigInteger(
+					1, output[i])) == 0));
+			System.out.println("right length:\t" + (output[i].length == outBytes));
 		}
 	}
 }

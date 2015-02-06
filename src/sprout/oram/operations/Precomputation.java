@@ -359,7 +359,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			for (int j = pathBuckets - 1; j >= 0; j--) {
 				a[j] = tmp.and(helper);
 				tmp = tmp.shiftRight(bucketBits);
-				b[j] = new BigInteger(1, G2.compute(v[j].getEncoded()));
+				b[j] = new BigInteger(1, G2.compute(v[j]));
 				PreData.encrypt_c[i][j] = a[j].xor(b[j]);
 			}
 		}

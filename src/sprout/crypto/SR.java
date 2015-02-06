@@ -5,10 +5,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
+import javax.crypto.spec.SecretKeySpec;
+
 public class SR {
 	public static SecureRandom rand;
 	public static MessageDigest digest;
 	public static BigInteger p;
+	public static SecretKeySpec skey;
 
 	static {
 		try {
@@ -23,5 +26,6 @@ public class SR {
 																			// 2^34
 																			// -
 																			// 41
+		skey = PRG.readKey();
 	}
 }
