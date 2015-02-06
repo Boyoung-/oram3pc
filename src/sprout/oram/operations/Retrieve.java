@@ -13,10 +13,13 @@ import sprout.oram.BucketException;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
+import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
+import sprout.util.StopWatch;
 import sprout.util.Timing;
 import sprout.util.Util;
 
@@ -57,7 +60,7 @@ public class Retrieve extends Operation {
 		PostProcessT ppt = new PostProcessT(debbie, eddie);
 		ppt.loadTreeSpecificParameters(currTree);
 		
-		sanityCheck();
+		//sanityCheck();
 		BigInteger secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie,
 				new BigInteger[] { Li, secretC_Ti, secretC_Li_p,
 						secretC_Lip1_p, Lip1, Nip1_pr });
@@ -97,7 +100,7 @@ public class Retrieve extends Operation {
 		PostProcessT ppt = new PostProcessT(charlie, eddie);
 		ppt.loadTreeSpecificParameters(currTree);
 		
-		sanityCheck();
+		//sanityCheck();
 		ppt.executeDebbieSubTree(charlie, eddie, new BigInteger[] {});
 
 		// Reshuffle
@@ -135,7 +138,7 @@ public class Retrieve extends Operation {
 		PostProcessT ppt = new PostProcessT(charlie, debbie);
 		ppt.loadTreeSpecificParameters(currTree);
 		
-		sanityCheck();
+		//sanityCheck();
 		BigInteger secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie,
 				new BigInteger[] { secretE_Ti, secretE_Li_p, secretE_Lip1_p });
 
@@ -162,6 +165,7 @@ public class Retrieve extends Operation {
 
 		// put encrypted path back to tree
 		Bucket[] buckets = new Bucket[EPOut.x.length];
+		timing.stopwatch[PID.encrypt][TID.online].start();
 		for (int j = 0; j < EPOut.x.length; j++) {
 			try {
 				buckets[j] = new Bucket(currTree, EPOut.x[j].getEncoded(),
@@ -175,6 +179,7 @@ public class Retrieve extends Operation {
 		} catch (TreeException e) {
 			e.printStackTrace();
 		}
+		timing.stopwatch[PID.encrypt][TID.online].stop();
 	}
 
 	@Override
@@ -202,6 +207,9 @@ public class Retrieve extends Operation {
 		int records = 6; // how many random records we want to test retrieval
 		int retrievals = 5; // for each record, how many repeated retrievals we
 							// want to do
+		
+		StopWatch wholeAccess = new StopWatch("Whole Execution");
+		//wholeAccess.start();
 
 		for (int test = 0; test < records; test++) {
 			BigInteger N = null;
@@ -295,10 +303,15 @@ public class Retrieve extends Operation {
 				con2.bandWidthSwitch = false;
 			}
 
-			if (test == 0 && records > 1)
+			if (test == 0 && records > 1) {
 				timing.init(); // abandon the timing of the first several
 								// retrievals
+				wholeAccess.start();
+			}
 		}
+		
+		wholeAccess.stop();
+		System.out.println(wholeAccess);
 
 		// average timing
 		int cycles = 0;
