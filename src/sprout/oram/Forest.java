@@ -222,7 +222,8 @@ public class Forest {
 						.xor(mask);
 				bucket.setBucket(x.getEncoded(),
 						Util.rmSignBit(ctext.toByteArray()));
-				Util.disp("Tree-" + i + " writing encrypted " + bucket);
+				//Util.disp("Tree-" + i + " writing encrypted " + bucket);
+				Util.disp("Tree-" + i + " writing encrypted bucket " + j);
 				t.setBucket(bucket, j);
 			}
 		}
