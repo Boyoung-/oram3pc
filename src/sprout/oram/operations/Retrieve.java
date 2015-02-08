@@ -184,8 +184,8 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 6; // how many random records we want to test retrieval
-		int retrievals = 5; // for each record, how many repeated retrievals we
+		int records = 2; // how many random records we want to test retrieval
+		int retrievals = 1; // for each record, how many repeated retrievals we
 							// want to do
 
 		// average timing
@@ -409,38 +409,22 @@ public class Retrieve extends Operation {
 		System.out.println();
 		
 		System.out.println("\n######### BANDWIDTH SECTION ###########\n");
-		int accessBW = 0;
 		int peBW = 0;
-		accessBW += con1.bandwidth[0].bandwidth;
-		accessBW += con1.bandwidth[1].bandwidth;
-		accessBW += con1.bandwidth[4].bandwidth;
-		accessBW += con1.bandwidth[7].bandwidth;
-		accessBW += con1.bandwidth[9].bandwidth;
-		accessBW += con2.bandwidth[0].bandwidth;
-		accessBW += con2.bandwidth[1].bandwidth;
-		accessBW += con2.bandwidth[4].bandwidth;
-		accessBW += con2.bandwidth[7].bandwidth;
-		accessBW += con2.bandwidth[9].bandwidth;
-		peBW += con1.bandwidth[2].bandwidth;
-		peBW += con1.bandwidth[3].bandwidth;
-		peBW += con1.bandwidth[5].bandwidth;
-		peBW += con1.bandwidth[6].bandwidth;
-		peBW += con1.bandwidth[8].bandwidth;
-		peBW += con1.bandwidth[10].bandwidth;
-		peBW += con1.bandwidth[11].bandwidth;
-		peBW += con2.bandwidth[2].bandwidth;
-		peBW += con2.bandwidth[3].bandwidth;
-		peBW += con2.bandwidth[5].bandwidth;
-		peBW += con2.bandwidth[6].bandwidth;
-		peBW += con2.bandwidth[8].bandwidth;
-		peBW += con2.bandwidth[10].bandwidth;
-		peBW += con2.bandwidth[11].bandwidth;
-		int gcfBW = con1.bandwidth[8].bandwidth + con2.bandwidth[8].bandwidth;
-		int precomputationBW = con1.bandwidth[12].bandwidth + con2.bandwidth[12].bandwidth;
-		System.out.println(precomputationBW);
-		System.out.println(accessBW);
-		System.out.println(peBW);
-		System.out.println(gcfBW);
+		peBW += con1.bandwidth[PID.ppt].bandwidth;
+		peBW += con1.bandwidth[PID.reshuffle].bandwidth;
+		peBW += con1.bandwidth[PID.eviction].bandwidth;
+		peBW += con1.bandwidth[PID.encrypt].bandwidth;
+		peBW += con2.bandwidth[PID.ppt].bandwidth;
+		peBW += con2.bandwidth[PID.reshuffle].bandwidth;
+		peBW += con2.bandwidth[PID.eviction].bandwidth;
+		peBW += con2.bandwidth[PID.encrypt].bandwidth;
+		int accessBW = con1.bandwidth[PID.access].bandwidth + con2.bandwidth[PID.access].bandwidth;
+		int gcfBW = con1.bandwidth[PID.gcf].bandwidth + con2.bandwidth[PID.gcf].bandwidth;
+		int precomputationBW = con1.bandwidth[PID.pre].bandwidth + con2.bandwidth[PID.pre].bandwidth;
+		System.out.println(precomputationBW * 8);
+		System.out.println(accessBW * 8);
+		System.out.println(peBW * 8);
+		System.out.println(gcfBW * 8);
 		System.out.println();
 		
 		System.out.println("\n######### WHOLE EXECUTION TIMING SECTION ###########\n");
