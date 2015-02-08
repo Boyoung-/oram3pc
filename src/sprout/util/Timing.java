@@ -191,6 +191,16 @@ public class Timing {
 		return out;
 	}
 	*/
+	
+	public String afterConversion() {
+		String csv = "";
+		for (int i=0; i<PID.size; i++) {
+			for (int j=0; j<TID.size; j++)
+				csv += stopwatch[i][j].afterConversion() + "\n";
+			csv += "\n";
+		}
+		return "\n" + csv;
+	}
 
 	public String toCSV() {
 		String csv = "";
