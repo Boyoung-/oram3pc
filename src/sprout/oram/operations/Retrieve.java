@@ -19,7 +19,6 @@ import sprout.oram.PreData;
 import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
-import sprout.util.Bandwidth;
 import sprout.util.StopWatch;
 import sprout.util.Timing;
 import sprout.util.Util;
