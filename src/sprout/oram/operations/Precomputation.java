@@ -30,6 +30,11 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@Override
 	public Object executeCharlieSubTree(Communication debbie,
 			Communication eddie, Object unused) {
+		debbie.countBandwidth = true;
+		eddie.countBandwidth = true;
+		debbie.bandwidth[PID.pre].start();
+		eddie.bandwidth[PID.pre].start();
+		
 		// OPRF
 		PreData.oprf_oprf = OPRFHelper.getOPRF();
 		PreData.oprf_gy = new ECPoint[levels][][];
@@ -120,6 +125,12 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		for (int index = 0; index <= h; index++)
 			PreData.encrypt_c[index] = debbie.readBigIntegerArray();
 		timing.stopwatch[PID.encrypt][TID.offline_read].stop();
+		
+
+		debbie.countBandwidth = false;
+		eddie.countBandwidth = false;
+		debbie.bandwidth[PID.pre].stop();
+		eddie.bandwidth[PID.pre].stop();
 
 		return null;
 	}
@@ -128,6 +139,13 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@Override
 	public Object executeDebbieSubTree(Communication charlie,
 			Communication eddie, Object unused) {
+
+		charlie.countBandwidth = true;
+		eddie.countBandwidth = true;
+		charlie.bandwidth[PID.pre].start();
+		eddie.bandwidth[PID.pre].start();
+		
+		
 		// DecryptPath
 		PreData.decrypt_sigma = (List<Integer>[]) new List[levels];
 
@@ -372,6 +390,12 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		for (int index = 0; index <= h; index++)
 			charlie.write(PreData.encrypt_c[index]);
 		timing.stopwatch[PID.encrypt][TID.offline_write].stop();
+		
+
+		charlie.countBandwidth = false;
+		eddie.countBandwidth = false;
+		charlie.bandwidth[PID.pre].stop();
+		eddie.bandwidth[PID.pre].stop();
 
 		return null;
 	}
@@ -380,6 +404,13 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@Override
 	public Object executeEddieSubTree(Communication charlie,
 			Communication debbie, Object unused) {
+		
+		debbie.countBandwidth = true;
+		charlie.countBandwidth = true;
+		debbie.bandwidth[PID.pre].start();
+		charlie.bandwidth[PID.pre].start();
+		
+		
 		// DecryptPath
 		PreData.decrypt_sigma = (List<Integer>[]) new List[levels];
 
@@ -552,6 +583,11 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			}
 		}
 		timing.stopwatch[PID.encrypt][TID.offline].stop();
+		
+		debbie.countBandwidth = false;
+		charlie.countBandwidth = false;
+		debbie.bandwidth[PID.pre].stop();
+		charlie.bandwidth[PID.pre].stop();
 
 		return null;
 	}

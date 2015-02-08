@@ -138,8 +138,8 @@ public class StopWatch implements Serializable {
 		return num;
 	}
 	
-	public String toVariance() {
-		String num = elapsedWallClockTime + "\n" + elapsedCPUTime;
+	public String afterConversion() {
+		String num = elapsedWallClockTime / convert+ "\n" + elapsedCPUTime / convert;
 		return num;
 	}
 

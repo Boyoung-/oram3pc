@@ -79,7 +79,10 @@ public class Communication {
 		mState = STATE_NONE;
 
 		bandwidth = new Bandwidth[PID.size];
+		for (int i=0; i<PID.size; i++) 
+			bandwidth[i] = new Bandwidth(PID.names[i]);
 
+		/*
 		bandwidth[PID.oprf] = new Bandwidth("oprf");
 		bandwidth[PID.decrypt] = new Bandwidth("decrypt");
 		bandwidth[PID.reshuffle] = new Bandwidth("reshuffle");
@@ -92,6 +95,7 @@ public class Communication {
 		bandwidth[PID.access] = new Bandwidth("access");
 		bandwidth[PID.ppt] = new Bandwidth("ppt");
 		bandwidth[PID.eviction] = new Bandwidth("eviction");
+		*/
 
 		sharedBandwidth = new Bandwidth("shared", false);
 	}

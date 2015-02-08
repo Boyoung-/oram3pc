@@ -19,6 +19,7 @@ import sprout.oram.PreData;
 import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
+import sprout.util.Bandwidth;
 import sprout.util.StopWatch;
 import sprout.util.Timing;
 import sprout.util.Util;
@@ -237,6 +238,11 @@ public class Retrieve extends Operation {
 			for (long exec = 0; exec < retrievals; exec++) {
 				timing.init();
 				
+				if (test == 0 && exec == 0) {
+					con1.bandWidthSwitch = true;
+					con2.bandWidthSwitch = true;
+				}
+				
 				// pre-computation
 				if (party == Party.Charlie)
 					new Precomputation(con1, con2).executeCharlieSubTree(con1,
@@ -250,11 +256,6 @@ public class Retrieve extends Operation {
 				else {
 					System.err.println("No such party");
 					return;
-				}
-				
-				if (test == 0 && exec == 0) {
-					con1.bandWidthSwitch = true;
-					con2.bandWidthSwitch = true;
 				}
 				
 				sanityCheck();
@@ -396,21 +397,58 @@ public class Retrieve extends Operation {
 		
 		
 		System.out.println("\n######### VARIANCE SECTION ###########\n");
-		System.out.println(varOffline.toVariance());
-		System.out.println(varOffline_write.toVariance());
-		System.out.println(varOffline_read.toVariance());
+		System.out.println(varOffline.toNumber());
+		System.out.println(varOffline_write.toNumber());
+		System.out.println(varOffline_read.toNumber());
 		System.out.println();
-		System.out.println(varAccess.toVariance());
-		System.out.println(varAccess_write.toVariance());
-		System.out.println(varAccess_read.toVariance());
+		System.out.println(varAccess.toNumber());
+		System.out.println(varAccess_write.toNumber());
+		System.out.println(varAccess_read.toNumber());
 		System.out.println();
-		System.out.println(varPE.toVariance());
-		System.out.println(varPE_write.toVariance());
-		System.out.println(varPE_read.toVariance());
+		System.out.println(varPE.toNumber());
+		System.out.println(varPE_write.toNumber());
+		System.out.println(varPE_read.toNumber());
 		System.out.println();
 		
+		System.out.println("\n######### WHOLE EXECUTION TIMING SECTION ###########\n");
+		System.out.println(wholeExecution.afterConversion());
+		System.out.println();
 		
-		System.out.println(wholeExecution);
+		System.out.println("\n######### BANDWIDTH SECTION ###########\n");
+		int accessBW = 0;
+		int peBW = 0;
+		accessBW += con1.bandwidth[0].bandwidth;
+		accessBW += con1.bandwidth[1].bandwidth;
+		accessBW += con1.bandwidth[4].bandwidth;
+		accessBW += con1.bandwidth[7].bandwidth;
+		accessBW += con1.bandwidth[9].bandwidth;
+		accessBW += con2.bandwidth[0].bandwidth;
+		accessBW += con2.bandwidth[1].bandwidth;
+		accessBW += con2.bandwidth[4].bandwidth;
+		accessBW += con2.bandwidth[7].bandwidth;
+		accessBW += con2.bandwidth[9].bandwidth;
+		peBW += con1.bandwidth[2].bandwidth;
+		peBW += con1.bandwidth[3].bandwidth;
+		peBW += con1.bandwidth[5].bandwidth;
+		peBW += con1.bandwidth[6].bandwidth;
+		peBW += con1.bandwidth[8].bandwidth;
+		peBW += con1.bandwidth[10].bandwidth;
+		peBW += con1.bandwidth[11].bandwidth;
+		peBW += con2.bandwidth[2].bandwidth;
+		peBW += con2.bandwidth[3].bandwidth;
+		peBW += con2.bandwidth[5].bandwidth;
+		peBW += con2.bandwidth[6].bandwidth;
+		peBW += con2.bandwidth[8].bandwidth;
+		peBW += con2.bandwidth[10].bandwidth;
+		peBW += con2.bandwidth[11].bandwidth;
+		int gcfBW = con1.bandwidth[8].bandwidth + con2.bandwidth[8].bandwidth;
+		int precomputationBW = con1.bandwidth[12].bandwidth + con2.bandwidth[12].bandwidth;
+		System.out.println(accessBW);
+		System.out.println(peBW);
+		System.out.println(gcfBW);
+		System.out.println(precomputationBW);
+		System.out.println();
+		
 
 		int t = ForestMetadata.getTau();
 		int n = ForestMetadata.getLastNBits();

@@ -90,7 +90,7 @@ public class Bandwidth implements Serializable {
 			System.err.println("Bandwidth.add2: " + b.task + " still in use");
 			return null;
 		}
-		if (!task.equals(b.task) && (b.strict || strict))
+		if (task != null && !task.equals(b.task) && (b.strict || strict))
 			System.err.println("Warning: adding bandwidth of " + task + " and "
 					+ b.task);
 
