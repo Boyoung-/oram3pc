@@ -184,8 +184,8 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 2; // how many random records we want to test retrieval
-		int retrievals = 1; // for each record, how many repeated retrievals we
+		int records = 6; // how many random records we want to test retrieval
+		int retrievals = 5; // for each record, how many repeated retrievals we
 							// want to do
 
 		// average timing
@@ -370,17 +370,17 @@ public class Retrieve extends Operation {
 			indPE_read[i] = individualTiming[i].groupPE_read();
 		}
 		
-		StopWatch varOffline = getVariance(avgOffline, indOffline);
-		StopWatch varOffline_write = getVariance(avgOffline_write, indOffline_write);
-		StopWatch varOffline_read = getVariance(avgOffline_read, indOffline_read);
-		StopWatch varAccess = getVariance(avgAccess, indAccess);
-		StopWatch varAccess_write = getVariance(avgAccess_write, indAccess_write);
-		StopWatch varAccess_read = getVariance(avgAccess_read, indAccess_read);
-		StopWatch varPE = getVariance(avgPE, indPE);
-		StopWatch varPE_write = getVariance(avgPE_write, indPE_write);
-		StopWatch varPE_read = getVariance(avgPE_read, indPE_read);
+		StopWatch varOffline = getSTD(avgOffline, indOffline);
+		StopWatch varOffline_write = getSTD(avgOffline_write, indOffline_write);
+		StopWatch varOffline_read = getSTD(avgOffline_read, indOffline_read);
+		StopWatch varAccess = getSTD(avgAccess, indAccess);
+		StopWatch varAccess_write = getSTD(avgAccess_write, indAccess_write);
+		StopWatch varAccess_read = getSTD(avgAccess_read, indAccess_read);
+		StopWatch varPE = getSTD(avgPE, indPE);
+		StopWatch varPE_write = getSTD(avgPE_write, indPE_write);
+		StopWatch varPE_read = getSTD(avgPE_read, indPE_read);
 		
-		System.out.println("\n######### AVERAGE AND VARIATION SECTION ###########\n");
+		System.out.println("\n######### AVERAGE AND STD DEVIATION SECTION ###########\n");
 		System.out.println(avgOffline.toNumber());
 		System.out.println(avgOffline_write.toNumber());
 		System.out.println(avgOffline_read.toNumber());
@@ -449,7 +449,7 @@ public class Retrieve extends Operation {
 		}
 	}
 	
-	public StopWatch getVariance(StopWatch avg, StopWatch[] ind) {
+	public StopWatch getSTD(StopWatch avg, StopWatch[] ind) {
 		int n = ind.length;
 		StopWatch var = new StopWatch();
 		long sumWall = 0L;
@@ -458,8 +458,8 @@ public class Retrieve extends Operation {
 			sumWall += (long) Math.pow(avg.elapsedWallClockTime-ind[i].elapsedWallClockTime, 2);
 			sumCPU += (long) Math.pow(avg.elapsedCPUTime-ind[i].elapsedCPUTime, 2);
 		}
-		var.elapsedWallClockTime = sumWall / n;
-		var.elapsedCPUTime = sumCPU / n;
+		var.elapsedWallClockTime = (long) Math.sqrt(sumWall / n);
+		var.elapsedCPUTime = (long) Math.sqrt(sumCPU / n);
 		return var;
 	}
 
