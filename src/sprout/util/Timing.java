@@ -13,6 +13,14 @@ public class Timing {
 	public StopWatch[][] stopwatch = null;
 
 	public Timing() {
+		init();
+	}
+	
+	public Timing(Timing t) {
+		stopwatch = new StopWatch[PID.size][TID.size];
+		for (int i=0; i<PID.size; i++)
+			for (int j=0; j<TID.size; j++)
+				stopwatch[i][j] = new StopWatch(t.stopwatch[i][j]);
 	}
 
 	public void init() {
@@ -57,6 +65,7 @@ public class Timing {
 
 	public Timing add(Timing t) {
 		Timing out = new Timing();
+		//out.init();
 		for (int i=0; i<PID.size; i++)
 			for (int j=0; j<TID.size; j++)
 				out.stopwatch[i][j] = stopwatch[i][j].add(t.stopwatch[i][j]);
@@ -67,6 +76,93 @@ public class Timing {
 		for (int i=0; i<PID.size; i++)
 			for (int j=0; j<TID.size; j++)
 				stopwatch[i][j].divide(n);
+	}
+	
+	public StopWatch groupOffline() {
+		StopWatch sw = new StopWatch();
+		for (int i=0; i<PID.size; i++)
+			sw = sw.add(stopwatch[i][3]);
+		return sw;
+	}
+	
+	public StopWatch groupOffline_write() {
+		StopWatch sw = new StopWatch();
+		for (int i=0; i<PID.size; i++)
+			sw = sw.add(stopwatch[i][4]);
+		return sw;
+	}
+	
+	public StopWatch groupOffline_read() {
+		StopWatch sw = new StopWatch();
+		for (int i=0; i<PID.size; i++)
+			sw = sw.add(stopwatch[i][5]);
+		return sw;
+	}
+	
+	public StopWatch groupAccess() {
+		StopWatch sw = new StopWatch();
+		sw = sw.add(stopwatch[0][0]);
+		sw = sw.add(stopwatch[1][0]);
+		sw = sw.add(stopwatch[4][0]);
+		sw = sw.add(stopwatch[7][0]);
+		sw = sw.add(stopwatch[9][0]);
+		return sw;
+	}
+	
+	public StopWatch groupAccess_write() {
+		StopWatch sw = new StopWatch();
+		sw = sw.add(stopwatch[0][1]);
+		sw = sw.add(stopwatch[1][1]);
+		sw = sw.add(stopwatch[4][1]);
+		sw = sw.add(stopwatch[7][1]);
+		sw = sw.add(stopwatch[9][1]);
+		return sw;
+	}
+	
+	public StopWatch groupAccess_read() {
+		StopWatch sw = new StopWatch();
+		sw = sw.add(stopwatch[0][2]);
+		sw = sw.add(stopwatch[1][2]);
+		sw = sw.add(stopwatch[4][2]);
+		sw = sw.add(stopwatch[7][2]);
+		sw = sw.add(stopwatch[9][2]);
+		return sw;
+	}
+	
+	public StopWatch groupPE() {
+		StopWatch sw = new StopWatch();
+		sw = sw.add(stopwatch[2][0]);
+		sw = sw.add(stopwatch[3][0]);
+		sw = sw.add(stopwatch[5][0]);
+		sw = sw.add(stopwatch[6][0]);
+		sw = sw.add(stopwatch[8][0]);
+		sw = sw.add(stopwatch[10][0]);
+		sw = sw.add(stopwatch[11][0]);
+		return sw;
+	}
+	
+	public StopWatch groupPE_write() {
+		StopWatch sw = new StopWatch();
+		sw = sw.add(stopwatch[2][1]);
+		sw = sw.add(stopwatch[3][1]);
+		sw = sw.add(stopwatch[5][1]);
+		sw = sw.add(stopwatch[6][1]);
+		sw = sw.add(stopwatch[8][1]);
+		sw = sw.add(stopwatch[10][1]);
+		sw = sw.add(stopwatch[11][1]);
+		return sw;
+	}
+	
+	public StopWatch groupPE_read() {
+		StopWatch sw = new StopWatch();
+		sw = sw.add(stopwatch[2][2]);
+		sw = sw.add(stopwatch[3][2]);
+		sw = sw.add(stopwatch[5][2]);
+		sw = sw.add(stopwatch[6][2]);
+		sw = sw.add(stopwatch[8][2]);
+		sw = sw.add(stopwatch[10][2]);
+		sw = sw.add(stopwatch[11][2]);
+		return sw;
 	}
 
 	/*

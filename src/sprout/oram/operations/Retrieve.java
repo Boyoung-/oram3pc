@@ -184,6 +184,21 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
+		int records = 2; // how many random records we want to test retrieval
+		int retrievals = 1; // for each record, how many repeated retrievals we
+							// want to do
+
+		// average timing
+		int cycles = 0;
+		if (records > 1)
+			cycles = (records - 1) * retrievals; // first round is abandoned
+		else if (records == 1)
+			cycles = retrievals;
+		else
+			return;
+		
+		
+		
 		long numInsert = Math.min(ForestMetadata.getNumInsert(),
 				ForestMetadata.getAddressSpace());
 		if (numInsert == 0L) {
@@ -195,7 +210,10 @@ public class Retrieve extends Operation {
 			System.out.println("Sanity check enabled\n");
 
 		timing = new Timing();
-		timing.init();
+		//timing.init();
+		
+		Timing[] individualTiming = new Timing[cycles];
+		Timing wholeTiming = new Timing();
 
 		int h = ForestMetadata.getLevels() - 1;
 		int tau = ForestMetadata.getTau();
@@ -203,12 +221,8 @@ public class Retrieve extends Operation {
 		int shiftN = lastNBits % tau;
 		if (shiftN == 0)
 			shiftN = tau;
-
-		int records = 6; // how many random records we want to test retrieval
-		int retrievals = 5; // for each record, how many repeated retrievals we
-							// want to do
 		
-		StopWatch wholeAccess = new StopWatch("Whole Execution");
+		StopWatch wholeExecution = new StopWatch("Whole Execution");
 		//wholeAccess.start();
 
 		for (int test = 0; test < records; test++) {
@@ -221,6 +235,8 @@ public class Retrieve extends Operation {
 			}
 
 			for (long exec = 0; exec < retrievals; exec++) {
+				timing.init();
+				
 				// pre-computation
 				if (party == Party.Charlie)
 					new Precomputation(con1, con2).executeCharlieSubTree(con1,
@@ -301,35 +317,108 @@ public class Retrieve extends Operation {
 				// only need to count bandwidth once
 				con1.bandWidthSwitch = false;
 				con2.bandWidthSwitch = false;
+				
+				// get individual timing
+				if (test > 0) {
+					individualTiming[(int) ((test-1)*retrievals+exec)] = new Timing(timing);
+					individualTiming[(int) ((test-1)*retrievals+exec)].divide(1000000);
+					wholeTiming = wholeTiming.add(timing);
+				}
 			}
 
 			if (test == 0 && records > 1) {
-				timing.init(); // abandon the timing of the first several
+				//timing.init(); // abandon the timing of the first several
 								// retrievals
-				wholeAccess.start();
+				wholeExecution.start();
 			}
 		}
 		
-		wholeAccess.stop();
-		System.out.println(wholeAccess);
+		wholeExecution.stop();
+		wholeTiming.divide(cycles);
+		Timing avgTiming = new Timing(wholeTiming);
+		avgTiming.divide(1000000);
+		
+		
+		StopWatch avgOffline = avgTiming.groupOffline();
+		StopWatch avgOffline_write = avgTiming.groupOffline_write();
+		StopWatch avgOffline_read = avgTiming.groupOffline_read();
+		StopWatch avgAccess = avgTiming.groupAccess();
+		StopWatch avgAccess_write = avgTiming.groupAccess_write();
+		StopWatch avgAccess_read = avgTiming.groupAccess_read();
+		StopWatch avgPE = avgTiming.groupPE();
+		StopWatch avgPE_write = avgTiming.groupPE_write();
+		StopWatch avgPE_read = avgTiming.groupPE_read();
+		
+		StopWatch[] indOffline = new StopWatch[cycles];
+		StopWatch[] indOffline_write = new StopWatch[cycles];
+		StopWatch[] indOffline_read = new StopWatch[cycles];
+		StopWatch[] indAccess = new StopWatch[cycles];
+		StopWatch[] indAccess_write = new StopWatch[cycles];
+		StopWatch[] indAccess_read = new StopWatch[cycles];
+		StopWatch[] indPE = new StopWatch[cycles];
+		StopWatch[] indPE_write = new StopWatch[cycles];
+		StopWatch[] indPE_read = new StopWatch[cycles];
+		for (int i=0; i<cycles; i++) {
+			indOffline[i] = individualTiming[i].groupOffline();
+			indOffline_write[i] = individualTiming[i].groupOffline_write();
+			indOffline_read[i] = individualTiming[i].groupOffline_read();
+			indAccess[i] = individualTiming[i].groupAccess();
+			indAccess_write[i] = individualTiming[i].groupAccess_write();
+			indAccess_read[i] = individualTiming[i].groupAccess_read();
+			indPE[i] = individualTiming[i].groupPE();
+			indPE_write[i] = individualTiming[i].groupPE_write();
+			indPE_read[i] = individualTiming[i].groupPE_read();
+		}
+		
+		StopWatch varOffline = getVariance(avgOffline, indOffline);
+		StopWatch varOffline_write = getVariance(avgOffline_write, indOffline_write);
+		StopWatch varOffline_read = getVariance(avgOffline_read, indOffline_read);
+		StopWatch varAccess = getVariance(avgAccess, indAccess);
+		StopWatch varAccess_write = getVariance(avgAccess_write, indAccess_write);
+		StopWatch varAccess_read = getVariance(avgAccess_read, indAccess_read);
+		StopWatch varPE = getVariance(avgPE, indPE);
+		StopWatch varPE_write = getVariance(avgPE_write, indPE_write);
+		StopWatch varPE_read = getVariance(avgPE_read, indPE_read);
+		
+		System.out.println("\n######### AVERAGE SECTION ###########\n");
+		System.out.println(avgOffline.toNumber());
+		System.out.println(avgOffline_write.toNumber());
+		System.out.println(avgOffline_read.toNumber());
+		System.out.println();
+		System.out.println(avgAccess.toNumber());
+		System.out.println(avgAccess_write.toNumber());
+		System.out.println(avgAccess_read.toNumber());
+		System.out.println();
+		System.out.println(avgPE.toNumber());
+		System.out.println(avgPE_write.toNumber());
+		System.out.println(avgPE_read.toNumber());
+		System.out.println();
+		
+		
+		System.out.println("\n######### VARIANCE SECTION ###########\n");
+		System.out.println(varOffline.toVariance());
+		System.out.println(varOffline_write.toVariance());
+		System.out.println(varOffline_read.toVariance());
+		System.out.println();
+		System.out.println(varAccess.toVariance());
+		System.out.println(varAccess_write.toVariance());
+		System.out.println(varAccess_read.toVariance());
+		System.out.println();
+		System.out.println(varPE.toVariance());
+		System.out.println(varPE_write.toVariance());
+		System.out.println(varPE_read.toVariance());
+		System.out.println();
+		
+		
+		System.out.println(wholeExecution);
 
-		// average timing
-		int cycles = 0;
-		if (records > 1)
-			cycles = (records - 1) * retrievals; // first round is abandoned
-		else if (records == 1)
-			cycles = retrievals;
-		else
-			return;
-
+		int t = ForestMetadata.getTau();
+		int n = ForestMetadata.getLastNBits();
+		int w = ForestMetadata.getBucketDepth();
+		int d = ForestMetadata.getDataSize();			
+			
 		try {
-			int t = ForestMetadata.getTau();
-			int n = ForestMetadata.getLastNBits();
-			int w = ForestMetadata.getBucketDepth();
-			int d = ForestMetadata.getDataSize();
-
-			timing.divide(cycles);
-			timing.writeToFile("stats/timing-" + party + "-t" + t + "n" + n
+			wholeTiming.writeToFile("stats/timing-" + party + "-t" + t + "n" + n
 					+ "w" + w + "d" + d);
 			con1.writeBandwidthToFile("stats/" + party + "-bandwidth-1" + "-t"
 					+ t + "n" + n + "w" + w + "d" + d);
@@ -338,6 +427,20 @@ public class Retrieve extends Operation {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public StopWatch getVariance(StopWatch avg, StopWatch[] ind) {
+		int n = ind.length;
+		StopWatch var = new StopWatch();
+		long sumWall = 0L;
+		long sumCPU = 0L;
+		for (int i=0; i<n; i++) {
+			sumWall += (long) Math.pow(avg.elapsedWallClockTime-ind[i].elapsedWallClockTime, 2);
+			sumCPU += (long) Math.pow(avg.elapsedCPUTime-ind[i].elapsedCPUTime, 2);
+		}
+		var.elapsedWallClockTime = sumWall / n;
+		var.elapsedCPUTime = sumCPU / n;
+		return var;
 	}
 
 }

@@ -85,7 +85,10 @@ public class StopWatch implements Serializable {
 	}
 
 	public StopWatch add_mut(StopWatch sw) {
-		if (!task.equals(sw.task) && (strict || sw.strict)) {
+		if (task == null) {
+			; //TODO: fix
+		}
+		else if (!task.equals(sw.task) && (strict || sw.strict)) {
 			System.out.println("Warning: addition between different task!");
 		}
 
@@ -128,6 +131,16 @@ public class StopWatch implements Serializable {
 		String csv = task + ",Wall clock(ms)," + elapsedWallClockTime / convert
 				+ "\n,CPU(ms)," + elapsedCPUTime / convert;
 		return csv;
+	}
+	
+	public String toNumber() {
+		String num = elapsedWallClockTime + "\n" + elapsedCPUTime;
+		return num;
+	}
+	
+	public String toVariance() {
+		String num = elapsedWallClockTime + "\n" + elapsedCPUTime;
+		return num;
 	}
 
 	private long getCPUTime() {
