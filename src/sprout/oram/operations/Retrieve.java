@@ -184,8 +184,8 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 2; // how many random records we want to test retrieval
-		int retrievals = 1; // for each record, how many repeated retrievals we
+		int records = 6; // how many random records we want to test retrieval
+		int retrievals = 5; // for each record, how many repeated retrievals we
 							// want to do
 
 		// average timing
@@ -380,37 +380,32 @@ public class Retrieve extends Operation {
 		StopWatch varPE_write = getVariance(avgPE_write, indPE_write);
 		StopWatch varPE_read = getVariance(avgPE_read, indPE_read);
 		
-		System.out.println("\n######### AVERAGE SECTION ###########\n");
+		System.out.println("\n######### AVERAGE AND VARIATION SECTION ###########\n");
 		System.out.println(avgOffline.toNumber());
 		System.out.println(avgOffline_write.toNumber());
 		System.out.println(avgOffline_read.toNumber());
 		System.out.println();
-		System.out.println(avgAccess.toNumber());
-		System.out.println(avgAccess_write.toNumber());
-		System.out.println(avgAccess_read.toNumber());
-		System.out.println();
-		System.out.println(avgPE.toNumber());
-		System.out.println(avgPE_write.toNumber());
-		System.out.println(avgPE_read.toNumber());
-		System.out.println();
-		
-		
-		System.out.println("\n######### VARIANCE SECTION ###########\n");
 		System.out.println(varOffline.toNumber());
 		System.out.println(varOffline_write.toNumber());
 		System.out.println(varOffline_read.toNumber());
+		System.out.println();
+		
+		System.out.println(avgAccess.toNumber());
+		System.out.println(avgAccess_write.toNumber());
+		System.out.println(avgAccess_read.toNumber());
 		System.out.println();
 		System.out.println(varAccess.toNumber());
 		System.out.println(varAccess_write.toNumber());
 		System.out.println(varAccess_read.toNumber());
 		System.out.println();
+		
+		System.out.println(avgPE.toNumber());
+		System.out.println(avgPE_write.toNumber());
+		System.out.println(avgPE_read.toNumber());
+		System.out.println();		
 		System.out.println(varPE.toNumber());
 		System.out.println(varPE_write.toNumber());
 		System.out.println(varPE_read.toNumber());
-		System.out.println();
-		
-		System.out.println("\n######### WHOLE EXECUTION TIMING SECTION ###########\n");
-		System.out.println(wholeExecution.afterConversion());
 		System.out.println();
 		
 		System.out.println("\n######### BANDWIDTH SECTION ###########\n");
@@ -442,10 +437,14 @@ public class Retrieve extends Operation {
 		peBW += con2.bandwidth[11].bandwidth;
 		int gcfBW = con1.bandwidth[8].bandwidth + con2.bandwidth[8].bandwidth;
 		int precomputationBW = con1.bandwidth[12].bandwidth + con2.bandwidth[12].bandwidth;
+		System.out.println(precomputationBW);
 		System.out.println(accessBW);
 		System.out.println(peBW);
 		System.out.println(gcfBW);
-		System.out.println(precomputationBW);
+		System.out.println();
+		
+		System.out.println("\n######### WHOLE EXECUTION TIMING SECTION ###########\n");
+		System.out.println(wholeExecution.afterConversion());
 		System.out.println();
 		
 
