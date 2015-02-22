@@ -57,34 +57,34 @@ public class Retrieve extends Operation {
 		}
 		BigInteger Nip1_pr = Util.getSubBits(Nip1, 0,
 				Nip1Bits - ForestMetadata.getNBits(currTree));
-		PostProcessT ppt = new PostProcessT(debbie, eddie);
+		PostProcessT ppt = new PostProcessT(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
 		ppt.loadTreeSpecificParameters(currTree);
 		
 		//sanityCheck();
-		BigInteger secretC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie,
+		BigInteger secretC_Ti_p = ppt.executeCharlieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
 				new BigInteger[] { Li, secretC_Ti, secretC_Li_p,
 						secretC_Lip1_p, Lip1, Nip1_pr });
 
 		// Reshuffle
 		BigInteger secretC_P_p = AOut.secretC_P_p;
-		Reshuffle rs = new Reshuffle(debbie, eddie);
+		Reshuffle rs = new Reshuffle(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
 		rs.loadTreeSpecificParameters(currTree);
 		List<Integer> tmp = null;
-		BigInteger secretC_pi_P = rs.executeCharlieSubTree(debbie, eddie,
+		BigInteger secretC_pi_P = rs.executeCharlieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
 				Pair.of(secretC_P_p, tmp));
 
 		// Eviction
-		Eviction evict = new Eviction(debbie, eddie);
+		Eviction evict = new Eviction(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
 		evict.loadTreeSpecificParameters(currTree);
-		BigInteger secretC_P_pp = evict.executeCharlieSubTree(debbie, eddie,
+		BigInteger secretC_P_pp = evict.executeCharlieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
 				new BigInteger[] { secretC_pi_P, secretC_Ti_p });
 		if (currTree == 0)
 			secretC_P_pp = secretC_Ti_p;
 
 		// EncryptPath
-		EncryptPath ep = new EncryptPath(debbie, eddie);
+		EncryptPath ep = new EncryptPath(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
 		ep.loadTreeSpecificParameters(currTree);
-		ep.executeCharlieSubTree(debbie, eddie, secretC_P_pp);
+		ep.executeCharlieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree], secretC_P_pp);
 
 		return output;
 	}
@@ -95,7 +95,13 @@ public class Retrieve extends Operation {
 		Access access = new Access(charlie, eddie);
 		access.loadTreeSpecificParameters(currTree);
 		access.executeDebbieSubTree(charlie, eddie, new BigInteger[] { k });
+		
+		//System.out.println("Debbie: cycle " + currTree + " finished!!!!!!!!!!");
+		
+		PPEvict thread = new PPEvict(Party.Debbie, null, null, new BigInteger[] { k }, currTree);
+		thread.start();
 
+		/*
 		// PostProcessT
 		PostProcessT ppt = new PostProcessT(charlie, eddie);
 		ppt.loadTreeSpecificParameters(currTree);
@@ -119,6 +125,7 @@ public class Retrieve extends Operation {
 		EncryptPath ep = new EncryptPath(charlie, eddie);
 		ep.loadTreeSpecificParameters(currTree);
 		ep.executeDebbieSubTree(charlie, eddie, k);
+		*/
 	}
 
 	public void executeEddie(Communication charlie, Communication debbie,
@@ -135,33 +142,33 @@ public class Retrieve extends Operation {
 		BigInteger secretE_Lip1_p = null;
 		if (currTree < ForestMetadata.getLevels() - 1)
 			secretE_Lip1_p = PreData.ppt_sE_Li_p[currTree + 1];
-		PostProcessT ppt = new PostProcessT(charlie, debbie);
+		PostProcessT ppt = new PostProcessT(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
 		ppt.loadTreeSpecificParameters(currTree);
 		
 		//sanityCheck();
-		BigInteger secretE_Ti_p = ppt.executeEddieSubTree(charlie, debbie,
+		BigInteger secretE_Ti_p = ppt.executeEddieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
 				new BigInteger[] { secretE_Ti, secretE_Li_p, secretE_Lip1_p });
 
 		// Reshuffle
 		BigInteger secretE_P_p = AOut.secretE_P_p;
 		List<Integer> tmp = null;
-		Reshuffle rs = new Reshuffle(charlie, debbie);
+		Reshuffle rs = new Reshuffle(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
 		rs.loadTreeSpecificParameters(currTree);
-		BigInteger secretE_pi_P = rs.executeEddieSubTree(charlie, debbie,
+		BigInteger secretE_pi_P = rs.executeEddieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
 				Pair.of(secretE_P_p, tmp));
 
 		// Eviction
-		Eviction evict = new Eviction(charlie, debbie);
+		Eviction evict = new Eviction(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
 		evict.loadTreeSpecificParameters(currTree);
-		BigInteger secretE_P_pp = evict.executeEddieSubTree(charlie, debbie,
+		BigInteger secretE_P_pp = evict.executeEddieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
 				new BigInteger[] { secretE_pi_P, secretE_Ti_p, Li });
 		if (currTree == 0)
 			secretE_P_pp = secretE_Ti_p;
 
 		// EncryptPath
-		EncryptPath ep = new EncryptPath(charlie, debbie);
+		EncryptPath ep = new EncryptPath(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
 		ep.loadTreeSpecificParameters(currTree);
-		EPath EPOut = ep.executeEddieSubTree(charlie, debbie, secretE_P_pp);
+		EPath EPOut = ep.executeEddieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree], secretE_P_pp);
 
 		// put encrypted path back to tree
 		Bucket[] buckets = new Bucket[EPOut.x.length];
@@ -184,8 +191,8 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 6; // how many random records we want to test retrieval
-		int retrievals = 5; // for each record, how many repeated retrievals we
+		int records = 4; // how many random records we want to test retrieval
+		int retrievals = 8; // for each record, how many repeated retrievals we
 							// want to do
 
 		// average timing

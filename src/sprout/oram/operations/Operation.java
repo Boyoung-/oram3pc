@@ -1,11 +1,8 @@
 package sprout.oram.operations;
 
-import java.io.FileNotFoundException;
-
 import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
-import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.util.Timing;
 
@@ -85,11 +82,11 @@ public abstract class Operation {
 		// + dbFile);
 		// }
 
-		try {
-			ForestMetadata.setup(configFile);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		//try {
+		//	ForestMetadata.setup(configFile);
+		//} catch (FileNotFoundException e) {
+		//	e.printStackTrace();
+		//}
 		Forest forest = null;
 		if (party == Party.Eddie) {
 			if (build)

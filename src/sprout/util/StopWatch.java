@@ -20,6 +20,8 @@ public class StopWatch implements Serializable {
 	private long startCPUTime;
 
 	static final int convert = 1000000; // from nanoseconds to milliseconds
+	
+	private boolean parallelTestSwitch = false;
 
 	public StopWatch() {
 		elapsedWallClockTime = 0;
@@ -52,6 +54,9 @@ public class StopWatch implements Serializable {
 	}
 
 	public void start() {
+		if (!parallelTestSwitch)
+			return;
+		
 		if (running) {
 			System.err.println(task + ": StopWatch is alrealdy running.");
 			return;
@@ -63,6 +68,9 @@ public class StopWatch implements Serializable {
 	}
 
 	public void stop() {
+		if (!parallelTestSwitch)
+			return;
+		
 		if (!running) {
 			System.err.println(task + ":StopWatch is not running.");
 			return;
@@ -74,6 +82,9 @@ public class StopWatch implements Serializable {
 	}
 
 	public void reset() {
+		if (!parallelTestSwitch)
+			return;
+		
 		if (running) {
 			System.err.println(task
 					+ ": StopWatch is still running. Please stop first.");

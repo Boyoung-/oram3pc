@@ -37,7 +37,7 @@ public class PRG {
 	public byte[] compute(byte[] seed) {
 		if (seed.length != 16) {
 			try {
-				throw new Exception("Wrong seed length!");
+				throw new Exception("Wrong seed length: " + seed.length);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
