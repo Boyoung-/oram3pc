@@ -19,7 +19,7 @@ public class StopWatch implements Serializable {
 	private long startWallClockTime;
 	private long startCPUTime;
 
-	static final int convert = 1000000; // from nanoseconds to milliseconds
+	public static final int convert = 1000000; // from nanoseconds to milliseconds
 	
 	private boolean parallelTestSwitch = true;
 
@@ -150,7 +150,7 @@ public class StopWatch implements Serializable {
 	}
 	
 	public String afterConversion() {
-		String num = elapsedWallClockTime / convert+ "\n" + elapsedCPUTime / convert;
+		String num = elapsedWallClockTime / convert + "\n" + elapsedCPUTime / convert;
 		return num;
 	}
 

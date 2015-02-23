@@ -20,6 +20,7 @@ import sprout.util.Util;
 public class Retrieve extends Operation {
 
 	private int currTree;
+	private StopWatch indParallelPE = new StopWatch("Individual Paralleled PP + Evict");
 
 	public Retrieve(Communication con1, Communication con2) {
 		super(con1, con2);
@@ -36,6 +37,8 @@ public class Retrieve extends Operation {
 		
 		// PP+Evict
 		Timing localTiming = new Timing();
+		if (currTree == 0)
+			indParallelPE.start();
 		PPEvict thread = new PPEvict(Party.Charlie, AOut, null, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
 		thread.start();
 		
@@ -101,6 +104,8 @@ public class Retrieve extends Operation {
 		
 		// PP+Evictv
 		Timing localTiming = new Timing();
+		if (currTree == 0)
+			indParallelPE.start();
 		PPEvict thread = new PPEvict(Party.Debbie, null, null, new BigInteger[] { k }, currTree, localTiming);
 		thread.start();
 		
@@ -143,6 +148,8 @@ public class Retrieve extends Operation {
 		
 		// PP+Evict
 		Timing localTiming = new Timing();
+		if (currTree == 0)
+			indParallelPE.start();
 		PPEvict thread = new PPEvict(Party.Eddie, AOut, OT, new BigInteger[] { Li }, currTree, localTiming);
 		thread.start();
 		
@@ -247,6 +254,7 @@ public class Retrieve extends Operation {
 		
 		StopWatch wholeExecution = new StopWatch("Whole Execution");
 		//wholeAccess.start();
+		StopWatch avgParallelPE = new StopWatch("Average Paralleled PP + Evict");
 		
 		PPEvict[] threads = new PPEvict[numTrees];
 
@@ -345,19 +353,24 @@ public class Retrieve extends Operation {
 				con1.bandWidthSwitch = false;
 				con2.bandWidthSwitch = false;
 				
+				for (int i = 0; i < numTrees; i++)
+					try {
+						threads[i].join();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				indParallelPE.stop();
+				
 				// get individual timing
 				if (test > 0) {
 					for (int i = 0; i < numTrees; i++)
-						try {
-							threads[i].join();
-							timing = timing.add(threads[i].getTiming());
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+						timing = timing.add(threads[i].getTiming());
 					individualTiming[(int) ((test-1)*retrievals+exec)] = new Timing(timing);
 					individualTiming[(int) ((test-1)*retrievals+exec)].divide(1000000);
 					wholeTiming = wholeTiming.add(timing);
+					avgParallelPE = avgParallelPE.add(indParallelPE);
 				}
+				indParallelPE.reset();
 			}
 
 			if (test == 0 && records > 1) {
@@ -371,6 +384,7 @@ public class Retrieve extends Operation {
 		wholeTiming.divide(cycles);
 		Timing avgTiming = new Timing(wholeTiming);
 		avgTiming.divide(1000000);
+		avgParallelPE.divide(cycles);
 		
 		
 		StopWatch avgOffline = avgTiming.groupOffline();
@@ -465,6 +479,9 @@ public class Retrieve extends Operation {
 		System.out.println(wholeExecution.afterConversion());
 		System.out.println();
 		
+		System.out.println("\n######### PARALLEL PP+EVICT TIMING SECTION ###########\n");
+		System.out.println(avgParallelPE.elapsedWallClockTime / StopWatch.convert);
+		System.out.println();
 
 		int t = ForestMetadata.getTau();
 		int n = ForestMetadata.getLastNBits();
