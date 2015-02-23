@@ -21,7 +21,7 @@ public class StopWatch implements Serializable {
 
 	static final int convert = 1000000; // from nanoseconds to milliseconds
 	
-	private boolean parallelTestSwitch = false;
+	private boolean parallelTestSwitch = true;
 
 	public StopWatch() {
 		elapsedWallClockTime = 0;

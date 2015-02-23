@@ -30,12 +30,13 @@ public class Retrieve extends Operation {
 		// Access
 		Access access = new Access(debbie, eddie);
 		access.loadTreeSpecificParameters(currTree);
-		AOutput AOut = access.executeCharlieSubTree(debbie, eddie,
+		AOutput AOut = access.executeCharlieSubTree(debbie, eddie, null,
 				new BigInteger[] { Li, Nip1 });
 		BigInteger[] output = new BigInteger[] { AOut.Lip1, AOut.secretC_Ti };
 		
 		// PP+Evict
-		PPEvict thread = new PPEvict(Party.Charlie, AOut, null, new BigInteger[] { Li, Nip1 }, currTree);
+		Timing localTiming = new Timing();
+		PPEvict thread = new PPEvict(Party.Charlie, AOut, null, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
 		thread.start();
 		
 		return Pair.of(output, thread);
@@ -96,10 +97,11 @@ public class Retrieve extends Operation {
 		// Access
 		Access access = new Access(charlie, eddie);
 		access.loadTreeSpecificParameters(currTree);
-		access.executeDebbieSubTree(charlie, eddie, new BigInteger[] { k });
+		access.executeDebbieSubTree(charlie, eddie, null, new BigInteger[] { k });
 		
-		// PP+Evict
-		PPEvict thread = new PPEvict(Party.Debbie, null, null, new BigInteger[] { k }, currTree);
+		// PP+Evictv
+		Timing localTiming = new Timing();
+		PPEvict thread = new PPEvict(Party.Debbie, null, null, new BigInteger[] { k }, currTree, localTiming);
 		thread.start();
 		
 		return thread;
@@ -136,11 +138,12 @@ public class Retrieve extends Operation {
 		// Access
 		Access access = new Access(charlie, debbie);
 		access.loadTreeSpecificParameters(currTree);
-		AOutput AOut = access.executeEddieSubTree(charlie, debbie,
+		AOutput AOut = access.executeEddieSubTree(charlie, debbie, null,
 				new BigInteger[] {});
 		
 		// PP+Evict
-		PPEvict thread = new PPEvict(Party.Eddie, AOut, OT, new BigInteger[] { Li }, currTree);
+		Timing localTiming = new Timing();
+		PPEvict thread = new PPEvict(Party.Eddie, AOut, OT, new BigInteger[] { Li }, currTree, localTiming);
 		thread.start();
 		
 		return thread;
@@ -203,8 +206,8 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 2; // how many random records we want to test retrieval
-		int retrievals = 2; // for each record, how many repeated retrievals we
+		int records = 6; // how many random records we want to test retrieval
+		int retrievals = 5; // for each record, how many repeated retrievals we
 							// want to do
 
 		// average timing
@@ -260,29 +263,20 @@ public class Retrieve extends Operation {
 				timing.init();
 				
 				if (test == 0 && exec == 0) {
-					con1.bandWidthSwitch = true;
-					con2.bandWidthSwitch = true;
-				}
-				else {
-					for (int i=0; i<numTrees; i++)
-						try {
-							threads[i].join();
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+					//con1.bandWidthSwitch = true;
+					//con2.bandWidthSwitch = true;
 				}
 				
 				// pre-computation
 				if (party == Party.Charlie)
 					new Precomputation(con1, con2).executeCharlieSubTree(con1,
-							con2, null);
+							con2, null, null);
 				else if (party == Party.Debbie)
 					new Precomputation(con1, con2).executeDebbieSubTree(con1,
-							con2, null);
+							con2, null, null);
 				else if (party == Party.Eddie)
 					new Precomputation(con1, con2).executeEddieSubTree(con1,
-							con2, null);
+							con2, null, null);
 				else {
 					System.err.println("No such party");
 					return;
@@ -353,6 +347,13 @@ public class Retrieve extends Operation {
 				
 				// get individual timing
 				if (test > 0) {
+					for (int i = 0; i < numTrees; i++)
+						try {
+							threads[i].join();
+							timing = timing.add(threads[i].getTiming());
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					individualTiming[(int) ((test-1)*retrievals+exec)] = new Timing(timing);
 					individualTiming[(int) ((test-1)*retrievals+exec)].divide(1000000);
 					wholeTiming = wholeTiming.add(timing);

@@ -9,10 +9,13 @@ import sprout.communication.Communication;
 import sprout.oram.Bucket;
 import sprout.oram.BucketException;
 import sprout.oram.ForestMetadata;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
+import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
+import sprout.util.Timing;
 import sprout.util.Util;
 
 public class PPEvict extends Thread {
@@ -24,20 +27,16 @@ public class PPEvict extends Thread {
 	private Tree OT;
 	private BigInteger[] extraArgs;
 	private int currTree;
+	private Timing localTiming;
 
 	public PPEvict(Party p, AOutput AOut, Tree OT, BigInteger[] extraArgs,
-			int currTree) {
+			int currTree, Timing localTiming) {
 		this.p = p;
 		this.AOut = AOut;
 		this.OT = OT;
 		this.extraArgs = extraArgs;
-		// this.con1 = con1;
-		// this.con2 = con2;
 		this.currTree = currTree;
-		// this.ppt = ppt;
-		// this.rs = rs;
-		// this.evict = evict;
-		// this.ep = ep;
+		this.localTiming = localTiming;
 	}
 
 	public void run() {
@@ -76,7 +75,7 @@ public class PPEvict extends Thread {
 
 		// sanityCheck();
 		BigInteger secretC_Ti_p = ppt.executeCharlieSubTree(
-				threadCon1[currTree], threadCon2[currTree],
+				threadCon1[currTree], threadCon2[currTree], localTiming,
 				new BigInteger[] { Li, secretC_Ti, secretC_Li_p,
 						secretC_Lip1_p, Lip1, Nip1_pr });
 
@@ -87,7 +86,7 @@ public class PPEvict extends Thread {
 		rs.loadTreeSpecificParameters(currTree);
 		List<Integer> tmp = null;
 		BigInteger secretC_pi_P = rs.executeCharlieSubTree(
-				threadCon1[currTree], threadCon2[currTree],
+				threadCon1[currTree], threadCon2[currTree], localTiming,
 				Pair.of(secretC_P_p, tmp));
 
 		// Eviction
@@ -95,7 +94,7 @@ public class PPEvict extends Thread {
 				threadCon2[currTree]);
 		evict.loadTreeSpecificParameters(currTree);
 		BigInteger secretC_P_pp = evict.executeCharlieSubTree(
-				threadCon1[currTree], threadCon2[currTree],
+				threadCon1[currTree], threadCon2[currTree], localTiming,
 				new BigInteger[] { secretC_pi_P, secretC_Ti_p });
 		if (currTree == 0)
 			secretC_P_pp = secretC_Ti_p;
@@ -105,7 +104,7 @@ public class PPEvict extends Thread {
 				threadCon2[currTree]);
 		ep.loadTreeSpecificParameters(currTree);
 		ep.executeCharlieSubTree(threadCon1[currTree],
-				threadCon2[currTree], secretC_P_pp);
+				threadCon2[currTree], localTiming, secretC_P_pp);
 	}
 
 	private void runDebbie() {
@@ -117,7 +116,7 @@ public class PPEvict extends Thread {
 		ppt.loadTreeSpecificParameters(currTree);
 
 		// sanityCheck();
-		ppt.executeDebbieSubTree(threadCon1[currTree], threadCon2[currTree],
+		ppt.executeDebbieSubTree(threadCon1[currTree], threadCon2[currTree], localTiming,
 				new BigInteger[] {});
 
 		// Reshuffle
@@ -125,21 +124,21 @@ public class PPEvict extends Thread {
 		rs.loadTreeSpecificParameters(currTree);
 		BigInteger tmp = null;
 		List<Integer> tmp2 = null;
-		rs.executeDebbieSubTree(threadCon1[currTree], threadCon2[currTree],
+		rs.executeDebbieSubTree(threadCon1[currTree], threadCon2[currTree], localTiming,
 				Pair.of(tmp, tmp2));
 
 		// Eviction
 		Eviction evict = new Eviction(threadCon1[currTree],
 				threadCon2[currTree]);
 		evict.loadTreeSpecificParameters(currTree);
-		evict.executeDebbieSubTree(threadCon1[currTree], threadCon2[currTree],
+		evict.executeDebbieSubTree(threadCon1[currTree], threadCon2[currTree], localTiming,
 				new BigInteger[] {});
 
 		// EncryptPath
 		EncryptPath ep = new EncryptPath(threadCon1[currTree],
 				threadCon2[currTree]);
 		ep.loadTreeSpecificParameters(currTree);
-		ep.executeDebbieSubTree(threadCon1[currTree], threadCon2[currTree],
+		ep.executeDebbieSubTree(threadCon1[currTree], threadCon2[currTree], localTiming,
 				k);
 	}
 
@@ -158,7 +157,7 @@ public class PPEvict extends Thread {
 
 		// sanityCheck();
 		BigInteger secretE_Ti_p = ppt.executeEddieSubTree(threadCon1[currTree],
-				threadCon2[currTree], new BigInteger[] { secretE_Ti,
+				threadCon2[currTree], localTiming, new BigInteger[] { secretE_Ti,
 						secretE_Li_p, secretE_Lip1_p });
 
 		// Reshuffle
@@ -167,14 +166,14 @@ public class PPEvict extends Thread {
 		Reshuffle rs = new Reshuffle(threadCon1[currTree], threadCon2[currTree]);
 		rs.loadTreeSpecificParameters(currTree);
 		BigInteger secretE_pi_P = rs.executeEddieSubTree(threadCon1[currTree],
-				threadCon2[currTree], Pair.of(secretE_P_p, tmp));
+				threadCon2[currTree], localTiming, Pair.of(secretE_P_p, tmp));
 
 		// Eviction
 		Eviction evict = new Eviction(threadCon1[currTree],
 				threadCon2[currTree]);
 		evict.loadTreeSpecificParameters(currTree);
 		BigInteger secretE_P_pp = evict.executeEddieSubTree(
-				threadCon1[currTree], threadCon2[currTree], new BigInteger[] {
+				threadCon1[currTree], threadCon2[currTree], localTiming, new BigInteger[] {
 						secretE_pi_P, secretE_Ti_p, Li });
 		if (currTree == 0)
 			secretE_P_pp = secretE_Ti_p;
@@ -184,11 +183,11 @@ public class PPEvict extends Thread {
 				threadCon2[currTree]);
 		ep.loadTreeSpecificParameters(currTree);
 		EPath EPOut = ep.executeEddieSubTree(threadCon1[currTree],
-				threadCon2[currTree], secretE_P_pp);
+				threadCon2[currTree], localTiming, secretE_P_pp);
 
 		// put encrypted path back to tree
 		Bucket[] buckets = new Bucket[EPOut.x.length];
-		// timing.stopwatch[PID.encrypt][TID.online].start();
+		localTiming.stopwatch[PID.encrypt][TID.online].start();
 		for (int j = 0; j < EPOut.x.length; j++) {
 			try {
 				buckets[j] = new Bucket(currTree, EPOut.x[j].getEncoded(),
@@ -202,7 +201,11 @@ public class PPEvict extends Thread {
 		} catch (TreeException e) {
 			e.printStackTrace();
 		}
-		// timing.stopwatch[PID.encrypt][TID.online].stop();
+		localTiming.stopwatch[PID.encrypt][TID.online].stop();
+	}
+	
+	public Timing getTiming() {
+		return localTiming;
 	}
 
 	public static void main(String args[]) {

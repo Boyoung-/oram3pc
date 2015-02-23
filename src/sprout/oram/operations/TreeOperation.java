@@ -7,6 +7,7 @@ import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
+import sprout.util.Timing;
 
 public abstract class TreeOperation<T extends Object, V> extends Operation {
 
@@ -78,7 +79,8 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 	 * executeDebbieSubTree(con1, con2, k, OT, extraArgs); case Eddie: return
 	 * executeEddieSubTree(con1, con2, OT, extraArgs); } return null; }
 	 */
-	public T execute(Party party, V args) {
+	/*
+	public T execut(Party party, V args) {
 		loadTreeSpecificParameters(i);
 
 		// TODO: remove unnecessary args
@@ -92,6 +94,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 		}
 		return null;
 	}
+	*/
 
 	/*
 	 * This is mostly just testing code and may need to change for the purpose
@@ -125,13 +128,13 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 	 * Communication debbie, Tree OT, V extraArgs);
 	 */
 	public abstract T executeCharlieSubTree(Communication debbie,
-			Communication eddie, V args);
+			Communication eddie, Timing localTiming, V args);
 
 	public abstract T executeDebbieSubTree(Communication charlie,
-			Communication eddie, V args);
+			Communication eddie, Timing localTiming, V args);
 
 	public abstract T executeEddieSubTree(Communication charlie,
-			Communication debbie, V args);
+			Communication debbie, Timing localTiming, V args);
 
 	public V prepareArgs() {
 		return prepareArgs(null);

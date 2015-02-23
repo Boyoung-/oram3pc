@@ -18,6 +18,7 @@ import sprout.crypto.oprf.OPRF;
 import sprout.oram.PID;
 import sprout.oram.PreData;
 import sprout.oram.TID;
+import sprout.util.Timing;
 import sprout.util.Util;
 
 public class Precomputation extends TreeOperation<Object, Object> {
@@ -29,7 +30,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeCharlieSubTree(Communication debbie,
-			Communication eddie, Object unused) {
+			Communication eddie, Timing localTiming, Object unused) {
 		debbie.countBandwidth = true;
 		eddie.countBandwidth = true;
 		debbie.bandwidth[PID.pre].start();
@@ -138,7 +139,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeDebbieSubTree(Communication charlie,
-			Communication eddie, Object unused) {
+			Communication eddie, Timing localTiming, Object unused) {
 
 		charlie.countBandwidth = true;
 		eddie.countBandwidth = true;
@@ -403,7 +404,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeEddieSubTree(Communication charlie,
-			Communication debbie, Object unused) {
+			Communication debbie, Timing localTiming, Object unused) {
 		
 		debbie.countBandwidth = true;
 		charlie.countBandwidth = true;

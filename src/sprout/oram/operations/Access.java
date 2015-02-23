@@ -7,6 +7,7 @@ import sprout.crypto.SR;
 import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
 import sprout.oram.TID;
+import sprout.util.Timing;
 import sprout.util.Util;
 
 public class Access extends TreeOperation<AOutput, BigInteger[]> {
@@ -17,7 +18,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 	@Override
 	public AOutput executeCharlieSubTree(Communication debbie,
-			Communication eddie, BigInteger[] args) {
+			Communication eddie, Timing localTiming, BigInteger[] args) {
 
 		// prepare
 		BigInteger Li = args[0];
@@ -38,7 +39,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
 		DecryptPath dp = new DecryptPath(debbie, eddie);
 		dp.loadTreeSpecificParameters(i);
-		DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, Li);
+		DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, localTiming, Li);
 
 		//sanityCheck();
 
@@ -153,7 +154,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 	@Override
 	public AOutput executeDebbieSubTree(Communication charlie,
-			Communication eddie, BigInteger[] args) {
+			Communication eddie, Timing localTiming, BigInteger[] args) {
 		BigInteger k = args[0];
 
 		charlie.countBandwidth = true;
@@ -166,7 +167,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
 		DecryptPath dp = new DecryptPath(charlie, eddie);
 		dp.loadTreeSpecificParameters(i);
-		dp.executeDebbieSubTree(charlie, eddie, k);
+		dp.executeDebbieSubTree(charlie, eddie, localTiming, k);
 		// DecryptPath outpus sigma and secretE_P for E and secretC_P for C
 
 		//sanityCheck();
@@ -199,7 +200,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 	@Override
 	public AOutput executeEddieSubTree(Communication charlie,
-			Communication debbie, BigInteger[] args_unused) {
+			Communication debbie, Timing localTiming, BigInteger[] args_unused) {
 		charlie.countBandwidth = true;
 		debbie.countBandwidth = true;
 		charlie.bandwidth[PID.access].start();
@@ -210,7 +211,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
 		DecryptPath dp = new DecryptPath(charlie, debbie);
 		dp.loadTreeSpecificParameters(i);
-		DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, null);
+		DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, localTiming, null);
 
 		//sanityCheck();
 

@@ -11,6 +11,7 @@ import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.TID;
+import sprout.util.Timing;
 
 // TODO: Possible parallelization opportunity in running each IOT
 public class SSOT extends Operation {
@@ -19,7 +20,7 @@ public class SSOT extends Operation {
 		super(con1, con2);
 	}
 
-	public BigInteger[] executeC(Communication I, Communication E,
+	public BigInteger[] executeC(Communication I, Communication E, Timing localTiming,
 			BigInteger[] sC, int index) {
 		IOT iot = new IOT(I, E);
 
@@ -31,11 +32,11 @@ public class SSOT extends Operation {
 		// protocol
 		// step 2
 		// parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-		BigInteger[] a = iot.executeR(I, E, index);
+		BigInteger[] a = iot.executeR(I, E, localTiming, index);
 
 		// step 3
 		// parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-		iot.executeS(E, I, sC, index);
+		iot.executeS(E, I, localTiming, sC, index);
 
 		I.countBandwidth = false;
 		E.countBandwidth = false;
@@ -46,7 +47,7 @@ public class SSOT extends Operation {
 		return a;
 	}
 
-	public void executeI(Communication C, Communication E, Integer[] i,
+	public void executeI(Communication C, Communication E, Timing localTiming, Integer[] i,
 			int index) throws NoSuchAlgorithmException {
 		IOT iot = new IOT(C, E);
 
@@ -65,19 +66,19 @@ public class SSOT extends Operation {
 		// protocol
 		// step 1
 		// party I
-		timing.stopwatch[PID.ssot][TID.online].start();
+		localTiming.stopwatch[PID.ssot][TID.online].start();
 		BigInteger[] delta = new BigInteger[k];
 		for (int o = 0; o < k; o++)
 			delta[o] = new BigInteger(l, SR.rand); // TODO: generate once?
-		timing.stopwatch[PID.ssot][TID.online].stop();
+		localTiming.stopwatch[PID.ssot][TID.online].stop();
 
 		// step 2
 		// parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-		iot.executeI(C, E, i, delta, index, 0);
+		iot.executeI(C, E, localTiming, i, delta, index, 0);
 
 		// step 3
 		// parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-		iot.executeI(E, C, i, delta, index, 1);
+		iot.executeI(E, C, localTiming, i, delta, index, 1);
 
 		E.countBandwidth = false;
 		C.countBandwidth = false;
@@ -85,7 +86,7 @@ public class SSOT extends Operation {
 		C.bandwidth[PID.ssot].stop();
 	}
 
-	public BigInteger[] executeE(Communication C, Communication I,
+	public BigInteger[] executeE(Communication C, Communication I, Timing localTiming,
 			BigInteger[] sE, int index) {
 		IOT iot = new IOT(C, I);
 
@@ -97,11 +98,11 @@ public class SSOT extends Operation {
 		// protocol
 		// step 2
 		// parties run IOT(E, C, I) on inputs sE for E and i, delta for I
-		iot.executeS(C, I, sE, index);
+		iot.executeS(C, I, localTiming, sE, index);
 
 		// step 3
 		// parties run IOT(C, E, I) on inputs sC for C and i, delta for I
-		BigInteger[] b = iot.executeR(I, C, index);
+		BigInteger[] b = iot.executeR(I, C, localTiming, index);
 
 		I.countBandwidth = false;
 		C.countBandwidth = false;

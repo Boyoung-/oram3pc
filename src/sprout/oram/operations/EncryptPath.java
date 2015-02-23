@@ -6,6 +6,7 @@ import sprout.communication.Communication;
 import sprout.oram.PID;
 import sprout.oram.PreData;
 import sprout.oram.TID;
+import sprout.util.Timing;
 
 public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
@@ -19,7 +20,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 	@Override
 	public EPath executeCharlieSubTree(Communication debbie,
-			Communication eddie, BigInteger secretC_P) {
+			Communication eddie, Timing localTiming, BigInteger secretC_P) {
 		debbie.countBandwidth = true;
 		eddie.countBandwidth = true;
 		debbie.bandwidth[PID.encrypt].start();
@@ -36,7 +37,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 		// party C
 		BigInteger[] secretC_B = new BigInteger[pathBuckets];
 		BigInteger[] d = new BigInteger[pathBuckets];
-		timing.stopwatch[PID.encrypt][TID.online].start();
+		localTiming.stopwatch[PID.encrypt][TID.online].start();
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
 				BigInteger.ONE);
 		BigInteger tmp = secretC_P;
@@ -45,11 +46,11 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 			tmp = tmp.shiftRight(bucketBits);
 			d[j] = PreData.encrypt_c[i][j].xor(secretC_B[j]);
 		}
-		timing.stopwatch[PID.encrypt][TID.online].stop();
+		localTiming.stopwatch[PID.encrypt][TID.online].stop();
 		// C sends d to E
-		timing.stopwatch[PID.encrypt][TID.online_write].start();
+		localTiming.stopwatch[PID.encrypt][TID.online_write].start();
 		eddie.write(d);
-		timing.stopwatch[PID.encrypt][TID.online_write].stop();
+		localTiming.stopwatch[PID.encrypt][TID.online_write].stop();
 
 		debbie.countBandwidth = false;
 		eddie.countBandwidth = false;
@@ -61,7 +62,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 	@Override
 	public EPath executeDebbieSubTree(Communication charlie,
-			Communication eddie, BigInteger k) {
+			Communication eddie, Timing localTiming, BigInteger k) {
 		// debbie does nothing online
 		// sanityCheck();
 		return null;
@@ -69,7 +70,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 	@Override
 	public EPath executeEddieSubTree(Communication charlie,
-			Communication debbie, BigInteger secretE_P) {
+			Communication debbie, Timing localTiming, BigInteger secretE_P) {
 		charlie.countBandwidth = true;
 		debbie.countBandwidth = true;
 		charlie.bandwidth[PID.encrypt].start();
@@ -84,13 +85,13 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 		// Step 2
 		// C sends d to E
-		timing.stopwatch[PID.encrypt][TID.online_read].start();
+		localTiming.stopwatch[PID.encrypt][TID.online_read].start();
 		BigInteger[] d = charlie.readBigIntegerArray();
-		timing.stopwatch[PID.encrypt][TID.online_read].stop();
+		localTiming.stopwatch[PID.encrypt][TID.online_read].stop();
 
 		// step 3
 		// party E
-		timing.stopwatch[PID.encrypt][TID.online].start();
+		localTiming.stopwatch[PID.encrypt][TID.online].start();
 		BigInteger[] secretE_B = new BigInteger[pathBuckets];
 		BigInteger[] Bbar = new BigInteger[pathBuckets];
 		BigInteger tmp = secretE_P;
@@ -101,7 +102,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 			tmp = tmp.shiftRight(bucketBits);
 			Bbar[j] = secretE_B[j].xor(PreData.encrypt_a[i][j]).xor(d[j]);
 		}
-		timing.stopwatch[PID.encrypt][TID.online].stop();
+		localTiming.stopwatch[PID.encrypt][TID.online].stop();
 
 		charlie.countBandwidth = false;
 		debbie.countBandwidth = false;

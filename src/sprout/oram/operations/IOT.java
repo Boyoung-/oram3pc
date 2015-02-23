@@ -10,6 +10,7 @@ import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
 import sprout.oram.TID;
+import sprout.util.Timing;
 
 public class IOT extends Operation {
 
@@ -17,7 +18,7 @@ public class IOT extends Operation {
 		super(con1, con2);
 	}
 
-	public void executeS(Communication R, Communication I, BigInteger[] m,
+	public void executeS(Communication R, Communication I, Timing localTiming, BigInteger[] m,
 			int index) {
 		int N = m.length;
 
@@ -32,16 +33,16 @@ public class IOT extends Operation {
 		// step 1
 		// party S
 		BigInteger[] a = new BigInteger[N];
-		timing.stopwatch[PID.iot][TID.online].start();
+		localTiming.stopwatch[PID.iot][TID.online].start();
 		for (int o = 0; o < N; o++)
 			a[o] = m[PreData.iot_pi[0][index].get(o)]
 					.xor(PreData.iot_r[0][index][o]);
-		timing.stopwatch[PID.iot][TID.online].stop();
+		localTiming.stopwatch[PID.iot][TID.online].stop();
 
 		// S sends a to R
-		timing.stopwatch[PID.iot][TID.online_write].start();
+		localTiming.stopwatch[PID.iot][TID.online_write].start();
 		R.write(a);
-		timing.stopwatch[PID.iot][TID.online_write].stop();
+		localTiming.stopwatch[PID.iot][TID.online_write].stop();
 
 		I.countBandwidth = false;
 		R.countBandwidth = false;
@@ -49,7 +50,7 @@ public class IOT extends Operation {
 		R.bandwidth[PID.iot].stop();
 	}
 
-	public BigInteger[] executeR(Communication I, Communication S, int index) {
+	public BigInteger[] executeR(Communication I, Communication S, Timing localTiming, int index) {
 		int k = PreData.iot_r[0][index].length - 2;
 
 		I.countBandwidth = true;
@@ -62,22 +63,22 @@ public class IOT extends Operation {
 		// protocol
 		// step 1
 		// S sends a to R
-		timing.stopwatch[PID.iot][TID.online_read].start();
+		localTiming.stopwatch[PID.iot][TID.online_read].start();
 		BigInteger[] a = S.readBigIntegerArray();
 
 		// step 2
 		// I sends j and p to R
 		Integer[] j = I.readIntegerArray();
 		BigInteger[] p = I.readBigIntegerArray();
-		timing.stopwatch[PID.iot][TID.online_read].stop();
+		localTiming.stopwatch[PID.iot][TID.online_read].stop();
 
 		// step 3
 		// party R
 		BigInteger[] z = new BigInteger[k];
-		timing.stopwatch[PID.iot][TID.online].start();
+		localTiming.stopwatch[PID.iot][TID.online].start();
 		for (int o = 0; o < k; o++)
 			z[o] = a[j[o]].xor(p[o]);
-		timing.stopwatch[PID.iot][TID.online].stop();
+		localTiming.stopwatch[PID.iot][TID.online].stop();
 
 		I.countBandwidth = false;
 		S.countBandwidth = false;
@@ -88,7 +89,7 @@ public class IOT extends Operation {
 		return z;
 	}
 
-	public void executeI(Communication R, Communication S, Integer[] i,
+	public void executeI(Communication R, Communication S, Timing localTiming, Integer[] i,
 			BigInteger[] delta, int index, int id)
 			throws NoSuchAlgorithmException {
 		int k = PreData.iot_r[0][index].length - 2;
@@ -105,18 +106,18 @@ public class IOT extends Operation {
 		// party I
 		Integer[] j = new Integer[k];
 		BigInteger[] p = new BigInteger[k];
-		timing.stopwatch[PID.iot][TID.online].start();
+		localTiming.stopwatch[PID.iot][TID.online].start();
 		for (int o = 0; o < k; o++) {
 			j[o] = PreData.iot_pi_ivs[id][index].get(i[o]);
 			p[o] = PreData.iot_r[id][index][j[o]].xor(delta[o]);
 		}
-		timing.stopwatch[PID.iot][TID.online].stop();
+		localTiming.stopwatch[PID.iot][TID.online].stop();
 
 		// I sends j and p to R
-		timing.stopwatch[PID.iot][TID.online_write].start();
+		localTiming.stopwatch[PID.iot][TID.online_write].start();
 		R.write(j);
 		R.write(p);
-		timing.stopwatch[PID.iot][TID.online_write].stop();
+		localTiming.stopwatch[PID.iot][TID.online_write].stop();
 
 		S.countBandwidth = false;
 		R.countBandwidth = false;

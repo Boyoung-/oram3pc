@@ -15,6 +15,7 @@ import sprout.oram.PreData;
 import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
+import sprout.util.Timing;
 import sprout.util.Util;
 
 public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
@@ -25,7 +26,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 
 	@Override
 	public DPOutput executeCharlieSubTree(Communication debbie,
-			Communication eddie, BigInteger Li) {
+			Communication eddie, Timing localTiming, BigInteger Li) {
 		debbie.countBandwidth = true;
 		eddie.countBandwidth = true;
 		debbie.bandwidth[PID.decrypt].start();
@@ -100,7 +101,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 
 	@Override
 	public DPOutput executeDebbieSubTree(Communication charlie,
-			Communication eddie, BigInteger k) {
+			Communication eddie, Timing localTiming, BigInteger k) {
 		charlie.countBandwidth = true;
 		eddie.countBandwidth = true;
 		charlie.bandwidth[PID.decrypt].start();
@@ -152,7 +153,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 
 	@Override
 	public DPOutput executeEddieSubTree(Communication charlie,
-			Communication debbie, BigInteger arg_unused) {
+			Communication debbie, Timing localTiming, BigInteger arg_unused) {
 		charlie.countBandwidth = true;
 		debbie.countBandwidth = true;
 		charlie.bandwidth[PID.decrypt].start();
