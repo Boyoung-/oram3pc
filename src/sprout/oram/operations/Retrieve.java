@@ -37,9 +37,9 @@ public class Retrieve extends Operation {
 		
 		// PP+Evict
 		Timing localTiming = new Timing();
+		PPEvict thread = new PPEvict(Party.Charlie, AOut, null, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
 		if (currTree == 0)
 			indParallelPE.start();
-		PPEvict thread = new PPEvict(Party.Charlie, AOut, null, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
 		thread.start();
 		
 		return Pair.of(output, thread);
@@ -104,9 +104,9 @@ public class Retrieve extends Operation {
 		
 		// PP+Evictv
 		Timing localTiming = new Timing();
+		PPEvict thread = new PPEvict(Party.Debbie, null, null, new BigInteger[] { k }, currTree, localTiming);
 		if (currTree == 0)
 			indParallelPE.start();
-		PPEvict thread = new PPEvict(Party.Debbie, null, null, new BigInteger[] { k }, currTree, localTiming);
 		thread.start();
 		
 		return thread;
@@ -148,9 +148,9 @@ public class Retrieve extends Operation {
 		
 		// PP+Evict
 		Timing localTiming = new Timing();
+		PPEvict thread = new PPEvict(Party.Eddie, AOut, OT, new BigInteger[] { Li }, currTree, localTiming);
 		if (currTree == 0)
 			indParallelPE.start();
-		PPEvict thread = new PPEvict(Party.Eddie, AOut, OT, new BigInteger[] { Li }, currTree, localTiming);
 		thread.start();
 		
 		return thread;
