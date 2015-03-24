@@ -10,17 +10,33 @@ import sprout.crypto.SR;
 public class EPath {
 	ECPoint[] x;
 	BigInteger[] Bbar;
+	BigInteger[] Bbar2;
 
 	EPath(ECPoint[] xx, BigInteger[] bb) {
-		if (xx.length != bb.length)
+		if (xx != null && xx.length != bb.length)
 			try {
 				throw new Exception("Lengths not equal");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		x = xx.clone();
+		if (xx != null)
+			x = xx.clone();
 		Bbar = bb.clone();
 	}
+	
+	/*
+	EPath(BigInteger[] bb, BigInteger[] bb2) {
+		if (bb2.length != bb.length)
+			try {
+				throw new Exception("Lengths not equal");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		
+		Bbar = bb.clone();
+		Bbar2 = bb2.clone();
+	}
+	*/
 
 	// random generation for testing purpose
 	EPath(int n, int l) {

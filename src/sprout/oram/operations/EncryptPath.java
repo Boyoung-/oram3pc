@@ -35,6 +35,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 		// step 2
 		// party C
+		
 		BigInteger[] secretC_B = new BigInteger[pathBuckets];
 		BigInteger[] d = new BigInteger[pathBuckets];
 		localTiming.stopwatch[PID.encrypt][TID.online].start();
@@ -44,20 +45,23 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 		for (int j = pathBuckets - 1; j >= 0; j--) {
 			secretC_B[j] = tmp.and(helper);
 			tmp = tmp.shiftRight(bucketBits);
-			d[j] = PreData.encrypt_c[i][j].xor(secretC_B[j]);
+			//d[j] = PreData.encrypt_c[i][j].xor(secretC_B[j]);
+			d[j] = secretC_B[j];
 		}
 		localTiming.stopwatch[PID.encrypt][TID.online].stop();
+		
 		// C sends d to E
-		localTiming.stopwatch[PID.encrypt][TID.online_write].start();
-		eddie.write(d);
-		localTiming.stopwatch[PID.encrypt][TID.online_write].stop();
+		//localTiming.stopwatch[PID.encrypt][TID.online_write].start();
+		//eddie.write(d);
+		//localTiming.stopwatch[PID.encrypt][TID.online_write].stop();
 
 		debbie.countBandwidth = false;
 		eddie.countBandwidth = false;
 		debbie.bandwidth[PID.encrypt].stop();
 		eddie.bandwidth[PID.encrypt].stop();
 
-		return null;
+		//return null;
+		return new EPath(null, d);
 	}
 
 	@Override
@@ -85,9 +89,9 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 		// Step 2
 		// C sends d to E
-		localTiming.stopwatch[PID.encrypt][TID.online_read].start();
-		BigInteger[] d = charlie.readBigIntegerArray();
-		localTiming.stopwatch[PID.encrypt][TID.online_read].stop();
+		//localTiming.stopwatch[PID.encrypt][TID.online_read].start();
+		//BigInteger[] d = charlie.readBigIntegerArray();
+		//localTiming.stopwatch[PID.encrypt][TID.online_read].stop();
 
 		// step 3
 		// party E
@@ -100,7 +104,8 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 		for (int j = pathBuckets - 1; j >= 0; j--) {
 			secretE_B[j] = tmp.and(helper);
 			tmp = tmp.shiftRight(bucketBits);
-			Bbar[j] = secretE_B[j].xor(PreData.encrypt_a[i][j]).xor(d[j]);
+			//Bbar[j] = secretE_B[j].xor(PreData.encrypt_a[i][j]).xor(d[j]);
+			Bbar[j] = secretE_B[j];
 		}
 		localTiming.stopwatch[PID.encrypt][TID.online].stop();
 
@@ -110,6 +115,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 		debbie.bandwidth[PID.encrypt].stop();
 
 		// E outputs encrypted path
-		return new EPath(PreData.encrypt_x[i], Bbar);
+		//return new EPath(PreData.encrypt_x[i], Bbar);
+		return new EPath(null, Bbar);
 	}
 }

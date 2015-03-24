@@ -1,17 +1,15 @@
 package sprout.oram;
 
 import java.math.BigInteger;
-import java.util.Arrays;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 import sprout.util.Util;
 
 public class Bucket {
 	private int treeIndex;
-	private byte[] nonce;
+	//private byte[] nonce;
 	private byte[] tuples;
 
+	/*
 	public Bucket(int treeIndex, byte[] nonce, byte[] tuples)
 			throws BucketException {
 		this.treeIndex = treeIndex;
@@ -28,11 +26,25 @@ public class Bucket {
 		this.treeIndex = treeIndex;
 		setBucket(nonce, tuples);
 	}
+	*/
+	
+	public Bucket(int treeIndex, byte[] tuples)
+			throws BucketException {
+		this.treeIndex = treeIndex;
+		setTuples(tuples);
+	}
+	
+	public Bucket(int treeIndex, Tuple[] tuples)
+			throws BucketException {
+		this.treeIndex = treeIndex;
+		setTuples(tuples);
+	}
 
 	public void setIndex(int treeIndex) {
 		this.treeIndex = treeIndex;
 	}
 
+	/*
 	public void setBucket(byte[] nonce, byte[] tuples) throws BucketException {
 		setNonce(nonce);
 		setTuples(tuples);
@@ -69,6 +81,7 @@ public class Bucket {
 					nonce.length);
 		}
 	}
+	*/
 
 	public void setTuples(byte[] tuples) throws BucketException {
 		int bucketTupleBytes = ForestMetadata.getBucketTupleBytes(treeIndex);
@@ -138,9 +151,11 @@ public class Bucket {
 		return treeIndex;
 	}
 
+	/*
 	public byte[] getNonce() {
 		return nonce;
 	}
+	*/
 
 	public byte[] getByteTuples() {
 		return tuples;
@@ -180,7 +195,8 @@ public class Bucket {
 	}
 
 	public byte[] toByteArray() {
-		return ArrayUtils.addAll(nonce, tuples);
+		//return ArrayUtils.addAll(nonce, tuples);
+		return tuples;
 	}
 
 	@Override
@@ -189,11 +205,13 @@ public class Bucket {
 
 		builder.append("Bucket-" + treeIndex + ": ");
 
+		/*
 		builder.append("Nonce(16)=");
 		if (nonce == null)
 			builder.append("null, ");
 		else
 			builder.append(new BigInteger(1, nonce).toString(16) + ", ");
+		*/
 
 		builder.append("Tuples(16)=" + new BigInteger(1, tuples).toString(16));
 		// builder.append("Tuples(2)=" + Util.addZero(new BigInteger(1,

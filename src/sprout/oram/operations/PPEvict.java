@@ -103,8 +103,27 @@ public class PPEvict extends Thread {
 		EncryptPath ep = new EncryptPath(threadCon1[currTree],
 				threadCon2[currTree]);
 		ep.loadTreeSpecificParameters(currTree);
-		ep.executeCharlieSubTree(threadCon1[currTree],
+		EPath EPOut = ep.executeCharlieSubTree(threadCon1[currTree],
 				threadCon2[currTree], localTiming, secretC_P_pp);
+		
+		
+		// put encrypted path back to tree
+				Bucket[] buckets = new Bucket[EPOut.Bbar.length];
+				localTiming.stopwatch[PID.encrypt][TID.online].start();
+				for (int j = 0; j < EPOut.Bbar.length; j++) {
+					try {
+						//buckets[j] = new Bucket(currTree, EPOut.x[j].getEncoded(), Util.rmSignBit(EPOut.Bbar[j].toByteArray()));
+						buckets[j] = new Bucket(currTree, Util.rmSignBit(EPOut.Bbar[j].toByteArray()));
+					} catch (BucketException e) {
+						e.printStackTrace();
+					}
+				}
+				try {
+					OT.setBucketsOnPath(buckets, Li);
+				} catch (TreeException e) {
+					e.printStackTrace();
+				}
+				localTiming.stopwatch[PID.encrypt][TID.online].stop();
 	}
 
 	private void runDebbie() {
@@ -186,12 +205,12 @@ public class PPEvict extends Thread {
 				threadCon2[currTree], localTiming, secretE_P_pp);
 
 		// put encrypted path back to tree
-		Bucket[] buckets = new Bucket[EPOut.x.length];
+		Bucket[] buckets = new Bucket[EPOut.Bbar.length];
 		localTiming.stopwatch[PID.encrypt][TID.online].start();
-		for (int j = 0; j < EPOut.x.length; j++) {
+		for (int j = 0; j < EPOut.Bbar.length; j++) {
 			try {
-				buckets[j] = new Bucket(currTree, EPOut.x[j].getEncoded(),
-						Util.rmSignBit(EPOut.Bbar[j].toByteArray()));
+				//buckets[j] = new Bucket(currTree, EPOut.x[j].getEncoded(), Util.rmSignBit(EPOut.Bbar[j].toByteArray()));
+				buckets[j] = new Bucket(currTree, Util.rmSignBit(EPOut.Bbar[j].toByteArray()));
 			} catch (BucketException e) {
 				e.printStackTrace();
 			}

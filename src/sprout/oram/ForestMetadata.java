@@ -15,17 +15,19 @@ import org.yaml.snakeyaml.Yaml;
 import sprout.util.Util;
 
 public class ForestMetadata implements Serializable {
-	public static final String CONFIG_FILE = "forest.cfg";
+	public static final String CONFIG_FILE = "newConfig.yaml";
 	public static final String TAU_NAME = "tau";
 	public static final String NBITS_NAME = "nBits";
 	public static final String W_NAME = "w";
 	public static final String E_NAME = "e";
 	// public static final String LEVELS_NAME = "levels";
 	public static final String DBYTES_NAME = "dBytes";
-	public static final String NONCEBITS_NAME = "nonceBits";
+	//public static final String NONCEBITS_NAME = "nonceBits";
 	public static final String INSERT_NAME = "insert";
 
 	private static final long serialVersionUID = 1L;
+	
+	private static String[] defaultForestNames;
 
 	// Whether ForestMetadata is configured
 	private static boolean status = false;
@@ -56,7 +58,7 @@ public class ForestMetadata implements Serializable {
 	private static int[] tupleBits;
 
 	// Bucket info
-	private static int nonceBits;
+	//private static int nonceBits;
 
 	// Tree info
 	private static long[] offset;
@@ -74,25 +76,9 @@ public class ForestMetadata implements Serializable {
 	private static long numInsert;
 
 	public static void setup(String filename) throws FileNotFoundException {
-		Yaml yaml = new Yaml();
-		InputStream input = new FileInputStream(new File(filename));
-		@SuppressWarnings("unchecked")
-		Map<String, Object> configMap = (Map<String, Object>) yaml.load(input);
-
-		// Retrieve all of the required parameters
-		tau = Integer.parseInt(configMap.get(TAU_NAME).toString());
-		lastNBits = Integer.parseInt(configMap.get(NBITS_NAME).toString());
-		w = Integer.parseInt(configMap.get(W_NAME).toString());
-		e = Integer.parseInt(configMap.get(E_NAME).toString());
-		// levels = Integer.parseInt(configMap.get(LEVELS_NAME).toString());
-		dBytes = Integer.parseInt(configMap.get(DBYTES_NAME).toString());
-		nonceBits = Integer.parseInt(configMap.get(NONCEBITS_NAME).toString());
-		numInsert = Long.parseLong(configMap.get(INSERT_NAME).toString(), 10);
-
-		init(true);
+		setup(filename, true);
 	}
 
-	// TODO: remove duplicate code
 	public static void setup(String filename, boolean ifPrint)
 			throws FileNotFoundException {
 		Yaml yaml = new Yaml();
@@ -107,10 +93,22 @@ public class ForestMetadata implements Serializable {
 		e = Integer.parseInt(configMap.get(E_NAME).toString());
 		// levels = Integer.parseInt(configMap.get(LEVELS_NAME).toString());
 		dBytes = Integer.parseInt(configMap.get(DBYTES_NAME).toString());
-		nonceBits = Integer.parseInt(configMap.get(NONCEBITS_NAME).toString());
+		//nonceBits = Integer.parseInt(configMap.get(NONCEBITS_NAME).toString());
 		numInsert = Long.parseLong(configMap.get(INSERT_NAME).toString(), 10);
 
 		init(ifPrint);
+		setDefaultForestNames();
+	}
+	
+	private static void setDefaultForestNames() {
+		defaultForestNames = new String[2];
+		int t = tau;
+		int n = lastNBits;
+		//int w = ForestMetadata.getBucketDepth();
+		int d = dBytes;
+		long r = numInsert;
+		defaultForestNames[0] = "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r + "_share1.bin";
+		defaultForestNames[1] = "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r + "_share2.bin";
 	}
 
 	private static void init(boolean ifPrint) {
@@ -185,7 +183,7 @@ public class ForestMetadata implements Serializable {
 		Util.disp("e:\t" + e);
 		Util.disp("trees:\t" + levels);
 		Util.disp("D bytes:\t" + dBytes);
-		Util.disp("nonce bits:\t" + nonceBits);
+		//Util.disp("nonce bits:\t" + nonceBits);
 		Util.disp("max # records:\t" + addressSpace);
 		Util.disp("forest bytes:\t" + forestBytes);
 		Util.disp("");
@@ -224,7 +222,7 @@ public class ForestMetadata implements Serializable {
 		configMap.put(E_NAME, "" + e);
 		// configMap.put(LEVELS_NAME, "" + levels);
 		configMap.put(DBYTES_NAME, "" + dBytes);
-		configMap.put(NONCEBITS_NAME, "" + nonceBits);
+		//configMap.put(NONCEBITS_NAME, "" + nonceBits);
 		configMap.put(INSERT_NAME, "" + numInsert);
 
 		yaml.dump(configMap, writer);
@@ -329,6 +327,7 @@ public class ForestMetadata implements Serializable {
 		return addressSpace;
 	}
 
+	/*
 	public static int getNonceBits() {
 		return nonceBits;
 	}
@@ -336,6 +335,7 @@ public class ForestMetadata implements Serializable {
 	public static int getNonceBytes() {
 		return (nonceBits + 7) / 8;
 	}
+	*/
 
 	public static long getNumInsert() {
 		return numInsert;
@@ -353,7 +353,8 @@ public class ForestMetadata implements Serializable {
 	}
 
 	public static int getBucketBytes(int level) {
-		return getNonceBytes() + getBucketTupleBytes(level);
+		//return getNonceBytes() + getBucketTupleBytes(level);
+		return getBucketTupleBytes(level);
 	}
 
 	public static long getNumLeafTuples(int level) {
@@ -361,5 +362,9 @@ public class ForestMetadata implements Serializable {
 			return (long) twoTauPow;
 		else
 			return numLeaves[level] * w * e;
+	}
+	
+	public static String[] getDefaultForestNames() {
+		return defaultForestNames;
 	}
 }

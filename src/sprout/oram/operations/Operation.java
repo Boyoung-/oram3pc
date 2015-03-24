@@ -3,6 +3,7 @@ package sprout.oram.operations;
 import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
+import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.util.Timing;
 
@@ -98,6 +99,21 @@ public abstract class Operation {
 			else {
 				try {
 					forest = new Forest("restore");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		else if (party == Party.Charlie) {
+			if (build)
+				try {
+					forest = new Forest("init");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			else {
+				try {
+					forest = new Forest("restore", ForestMetadata.getDefaultForestNames()[1], null);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

@@ -2,23 +2,16 @@ package sprout.oram;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.bouncycastle.math.ec.ECPoint;
-
-import sprout.crypto.PRG;
-import sprout.crypto.oprf.OPRF;
-import sprout.oram.operations.OPRFHelper;
 import sprout.util.Util;
 
 public class Forest {
 	private static ArrayList<Tree> trees;
 	// TODO: write large data to disk
-	private static ByteArray64 data;
-
-	private String defaultFile = null;
+	private static ByteArray64 data1;
+	private static ByteArray64 data2;
 
 	private void initTrees() {
 		int levels = ForestMetadata.getLevels();
@@ -27,37 +20,41 @@ public class Forest {
 			trees.add(new Tree(i));
 	}
 	
-	private String getDefaultFileName () {
+	/*
+	public static String[] getDefaultFileNames() {
 		int t = ForestMetadata.getTau();
 		int n = ForestMetadata.getLastNBits();
 		int w = ForestMetadata.getBucketDepth();
 		int d = ForestMetadata.getDataSize();
 		long r = ForestMetadata.getNumInsert();
-		return "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r + ".bin";
+		defaultFile1 = "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r + "_share1.bin";
+		defaultFile2 = "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r + "_share2.bin";
+		return new String[]{defaultFile1, defaultFile2};
 	}
+	*/
 	
 	public Forest(String mode) throws Exception {
 		if (!ForestMetadata.getStatus())
 			throw new ForestException("ForestMetadata is not setup");
-		defaultFile = getDefaultFileName();
+		
+		String[] defaultFilenames = ForestMetadata.getDefaultForestNames();
 		
 		if (mode.equals("init"))
-			initForest(defaultFile);
+			initForest(defaultFilenames[0], defaultFilenames[1]);
 		else if (mode.equals("restore"))
-			restoreForest(defaultFile);
+			restoreForest(defaultFilenames[0]);
 		else
 			throw new ForestException("Unrecognized forest mode");
 	}
 	
-	public Forest(String mode, String filename) throws Exception {
+	public Forest(String mode, String filename1, String filename2) throws Exception {
 		if (!ForestMetadata.getStatus())
 			throw new ForestException("ForestMetadata is not setup");
-		defaultFile = getDefaultFileName();
-		
+				
 		if (mode.equals("init"))
-			initForest(filename);
+			initForest(filename1, filename2);
 		else if (mode.equals("restore"))
-			restoreForest(filename);
+			restoreForest(filename1);
 		else
 			throw new ForestException("Unrecognized forest mode");
 	}
@@ -65,11 +62,12 @@ public class Forest {
 	private void restoreForest(String filename) throws IOException {
 		initTrees();
 		readFromFile(filename);
+		//System.out.println("data1:  " + Util.addZero(new BigInteger(1, data1.getBytes(0, 2)).toString(2), 16));
 	}
 
 	@SuppressWarnings("unchecked")
-	private void initForest(String filename) throws Exception {
-		data = new ByteArray64(ForestMetadata.getForestBytes());
+	private void initForest(String filename1, String filename2) throws Exception {
+		data1 = new ByteArray64(ForestMetadata.getForestBytes());
 
 		int levels = ForestMetadata.getLevels();
 		int h = levels - 1;
@@ -180,27 +178,31 @@ public class Forest {
 
 		Util.disp("");
 
-		encryptForest();
+		//encryptForest();
+		//System.out.println("data1:  " + Util.addZero(new BigInteger(1, data1.getBytes(0, 2)).toString(2), 16));
+		data2 = new ByteArray64(ForestMetadata.getForestBytes(), "random");
+		data1.setXOR(data2);
+		//System.out.println("data2:  " + Util.addZero(new BigInteger(1, data2.getBytes(0, 2)).toString(2), 16));
+		//System.out.println("data1:  " + Util.addZero(new BigInteger(1, data1.getBytes(0, 2)).toString(2), 16));
 
-		writeToFile(filename);
+		writeToFile(filename1, filename2);
 	}
 
-	public void writeToFile() throws IOException {
-		writeToFile(defaultFile);
-	}
-
-	public void writeToFile(String filename) throws IOException {
+	public void writeToFile(String filename1, String filename2) throws IOException {
 		// File file = new File(filename);
 		// FileUtils.writeByteArrayToFile(file, data);
-		data.writeToFile(filename);
+		data1.writeToFile(filename1);
+		if (filename2 != null)
+			data2.writeToFile(filename2);
 	}
 
 	private void readFromFile(String filename) throws IOException {
 		// File file = new File(filename);
 		// data = FileUtils.readFileToByteArray(file);
-		data = new ByteArray64(filename);
+		data1 = new ByteArray64(filename);
 	}
 
+	/*
 	private void encryptForest() throws BucketException,
 			NoSuchAlgorithmException, TreeException {
 		Util.disp("===== Encryption ===== ");
@@ -229,6 +231,7 @@ public class Forest {
 		}
 		Util.disp("");
 	}
+	*/
 
 	public Tree getTree(int index) throws ForestException {
 		if (index < 0 || index >= trees.size()) {
@@ -239,18 +242,18 @@ public class Forest {
 
 	// TODO: make the following non-static
 	public static ByteArray64 getForestData() {
-		return data;
+		return data1;
 	}
 
 	public static byte[] getForestData(long offset, int length) {
 		// byte[] tmp = new byte[length];
 		// System.arraycopy(data, (int) offset, tmp, 0, length);
 		// return tmp;
-		return data.getBytes(offset, length);
+		return data1.getBytes(offset, length);
 	}
 
 	public static void setForestData(long offset, byte[] newData) {
 		// System.arraycopy(newData, 0, data, (int) offset, newData.length);
-		data.setBytes(offset, newData);
+		data1.setBytes(offset, newData);
 	}
 }

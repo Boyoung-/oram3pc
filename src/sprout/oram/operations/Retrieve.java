@@ -27,7 +27,7 @@ public class Retrieve extends Operation {
 	}
 
 	public Pair<BigInteger[], PPEvict> executeCharlie(Communication debbie,
-			Communication eddie, BigInteger Li, BigInteger Nip1) {
+			Communication eddie, BigInteger Li, BigInteger Nip1, Tree OT) {
 		// Access
 		Access access = new Access(debbie, eddie);
 		access.loadTreeSpecificParameters(currTree);
@@ -37,7 +37,7 @@ public class Retrieve extends Operation {
 		
 		// PP+Evict
 		Timing localTiming = new Timing();
-		PPEvict thread = new PPEvict(Party.Charlie, AOut, null, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
+		PPEvict thread = new PPEvict(Party.Charlie, AOut, OT, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
 		if (currTree == 0)
 			indParallelPE.start();
 		thread.start();
@@ -213,8 +213,8 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 6; // how many random records we want to test retrieval
-		int retrievals = 5; // for each record, how many repeated retrievals we
+		int records = 2; // how many random records we want to test retrieval
+		int retrievals = 2; // for each record, how many repeated retrievals we
 							// want to do
 
 		// average timing
@@ -320,7 +320,7 @@ public class Retrieve extends Operation {
 										Li.toString(2),
 										ForestMetadata.getLBits(i))));
 						con2.write(Li);
-						Pair<BigInteger[], PPEvict> outPair = executeCharlie(con1, con2, Li, Ni);
+						Pair<BigInteger[], PPEvict> outPair = executeCharlie(con1, con2, Li, Ni, forest.getTree(currTree));
 						BigInteger[] outC = outPair.getLeft();
 						Li = outC[0];
 						if (i == h) {
