@@ -20,7 +20,7 @@ import sprout.util.Util;
 public class Retrieve extends Operation {
 
 	private int currTree;
-	private StopWatch indParallelPE = new StopWatch("Individual Paralleled PP + Evict");
+	//private StopWatch indParallelPE = new StopWatch("Individual Paralleled PP + Evict");
 
 	public Retrieve(Communication con1, Communication con2) {
 		super(con1, con2);
@@ -38,61 +38,11 @@ public class Retrieve extends Operation {
 		// PP+Evict
 		Timing localTiming = new Timing();
 		PPEvict thread = new PPEvict(Party.Charlie, AOut, OT, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
-		if (currTree == 0)
-			indParallelPE.start();
+		//if (currTree == 0)
+			//indParallelPE.start();
 		thread.start();
 		
 		return Pair.of(output, thread);
-
-		/*
-		// PostProcessT
-		BigInteger secretC_Ti = AOut.secretC_Ti;
-		BigInteger secretC_Li_p = PreData.ppt_sC_Li_p[currTree];
-		BigInteger secretC_Lip1_p = null;
-		if (currTree < ForestMetadata.getLevels() - 1)
-			secretC_Lip1_p = PreData.ppt_sC_Li_p[currTree + 1];
-		BigInteger Lip1 = AOut.Lip1;
-		int h = ForestMetadata.getLevels() - 1;
-		int tau = ForestMetadata.getTau();
-		int Nip1Bits;
-		if (currTree < h - 1) {
-			Nip1Bits = (currTree + 1) * tau;
-		} else {
-			Nip1Bits = ForestMetadata.getLastNBits();
-		}
-		BigInteger Nip1_pr = Util.getSubBits(Nip1, 0,
-				Nip1Bits - ForestMetadata.getNBits(currTree));
-		PostProcessT ppt = new PostProcessT(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
-		ppt.loadTreeSpecificParameters(currTree);
-		
-		//sanityCheck();
-		BigInteger secretC_Ti_p = ppt.executeCharlieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
-				new BigInteger[] { Li, secretC_Ti, secretC_Li_p,
-						secretC_Lip1_p, Lip1, Nip1_pr });
-
-		// Reshuffle
-		BigInteger secretC_P_p = AOut.secretC_P_p;
-		Reshuffle rs = new Reshuffle(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
-		rs.loadTreeSpecificParameters(currTree);
-		List<Integer> tmp = null;
-		BigInteger secretC_pi_P = rs.executeCharlieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
-				Pair.of(secretC_P_p, tmp));
-
-		// Eviction
-		Eviction evict = new Eviction(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
-		evict.loadTreeSpecificParameters(currTree);
-		BigInteger secretC_P_pp = evict.executeCharlieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
-				new BigInteger[] { secretC_pi_P, secretC_Ti_p });
-		if (currTree == 0)
-			secretC_P_pp = secretC_Ti_p;
-
-		// EncryptPath
-		EncryptPath ep = new EncryptPath(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
-		ep.loadTreeSpecificParameters(currTree);
-		ep.executeCharlieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree], secretC_P_pp);
-		*/
-
-		//return output;
 	}
 
 	public PPEvict executeDebbie(Communication charlie, Communication eddie,
@@ -105,37 +55,11 @@ public class Retrieve extends Operation {
 		// PP+Evictv
 		Timing localTiming = new Timing();
 		PPEvict thread = new PPEvict(Party.Debbie, null, null, new BigInteger[] { k }, currTree, localTiming);
-		if (currTree == 0)
-			indParallelPE.start();
+		//if (currTree == 0)
+			//indParallelPE.start();
 		thread.start();
 		
 		return thread;
-
-		/*
-		// PostProcessT
-		PostProcessT ppt = new PostProcessT(charlie, eddie);
-		ppt.loadTreeSpecificParameters(currTree);
-		
-		//sanityCheck();
-		ppt.executeDebbieSubTree(charlie, eddie, new BigInteger[] {});
-
-		// Reshuffle
-		Reshuffle rs = new Reshuffle(charlie, eddie);
-		rs.loadTreeSpecificParameters(currTree);
-		BigInteger tmp = null;
-		List<Integer> tmp2 = null;
-		rs.executeDebbieSubTree(charlie, eddie, Pair.of(tmp, tmp2));
-
-		// Eviction
-		Eviction evict = new Eviction(charlie, eddie);
-		evict.loadTreeSpecificParameters(currTree);
-		evict.executeDebbieSubTree(charlie, eddie, new BigInteger[] {});
-
-		// EncryptPath
-		EncryptPath ep = new EncryptPath(charlie, eddie);
-		ep.loadTreeSpecificParameters(currTree);
-		ep.executeDebbieSubTree(charlie, eddie, k);
-		*/
 	}
 
 	public PPEvict executeEddie(Communication charlie, Communication debbie,
@@ -149,84 +73,26 @@ public class Retrieve extends Operation {
 		// PP+Evict
 		Timing localTiming = new Timing();
 		PPEvict thread = new PPEvict(Party.Eddie, AOut, OT, new BigInteger[] { Li }, currTree, localTiming);
-		if (currTree == 0)
-			indParallelPE.start();
+		//if (currTree == 0)
+			//indParallelPE.start();
 		thread.start();
 		
 		return thread;
-
-		/*
-		// PostProcessT
-		BigInteger secretE_Ti = AOut.secretE_Ti;
-		BigInteger secretE_Li_p = PreData.ppt_sE_Li_p[currTree];
-		BigInteger secretE_Lip1_p = null;
-		if (currTree < ForestMetadata.getLevels() - 1)
-			secretE_Lip1_p = PreData.ppt_sE_Li_p[currTree + 1];
-		PostProcessT ppt = new PostProcessT(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
-		ppt.loadTreeSpecificParameters(currTree);
-		
-		//sanityCheck();
-		BigInteger secretE_Ti_p = ppt.executeEddieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
-				new BigInteger[] { secretE_Ti, secretE_Li_p, secretE_Lip1_p });
-
-		// Reshuffle
-		BigInteger secretE_P_p = AOut.secretE_P_p;
-		List<Integer> tmp = null;
-		Reshuffle rs = new Reshuffle(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
-		rs.loadTreeSpecificParameters(currTree);
-		BigInteger secretE_pi_P = rs.executeEddieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
-				Pair.of(secretE_P_p, tmp));
-
-		// Eviction
-		Eviction evict = new Eviction(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
-		evict.loadTreeSpecificParameters(currTree);
-		BigInteger secretE_P_pp = evict.executeEddieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree],
-				new BigInteger[] { secretE_pi_P, secretE_Ti_p, Li });
-		if (currTree == 0)
-			secretE_P_pp = secretE_Ti_p;
-
-		// EncryptPath
-		EncryptPath ep = new EncryptPath(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree]);
-		ep.loadTreeSpecificParameters(currTree);
-		EPath EPOut = ep.executeEddieSubTree(PPEvict.threadCon1[currTree], PPEvict.threadCon2[currTree], secretE_P_pp);
-
-		// put encrypted path back to tree
-		Bucket[] buckets = new Bucket[EPOut.x.length];
-		timing.stopwatch[PID.encrypt][TID.online].start();
-		for (int j = 0; j < EPOut.x.length; j++) {
-			try {
-				buckets[j] = new Bucket(currTree, EPOut.x[j].getEncoded(),
-						Util.rmSignBit(EPOut.Bbar[j].toByteArray()));
-			} catch (BucketException e) {
-				e.printStackTrace();
-			}
-		}
-		try {
-			OT.setBucketsOnPath(buckets, Li);
-		} catch (TreeException e) {
-			e.printStackTrace();
-		}
-		timing.stopwatch[PID.encrypt][TID.online].stop();
-		
-		*/
 	}
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 2; // how many random records we want to test retrieval
-		int retrievals = 2; // for each record, how many repeated retrievals we
+		int records = 4; // how many random records we want to test retrieval
+		int retrievals = 8; // for each record, how many repeated retrievals we
 							// want to do
-
-		// average timing
-		int cycles = 0;
-		if (records > 1)
-			cycles = (records - 1) * retrievals; // first round is abandoned
-		else if (records == 1)
-			cycles = retrievals;
-		else
+		if (records < 2) {
+			System.err.println("Number of records must be at least 2 for average timing");
 			return;
-		
-		
+		}
+		else if (retrievals < 1) {
+			System.err.println("Number of retrievals must be at least 1");
+			return;
+		}
 		
 		long numInsert = Math.min(ForestMetadata.getNumInsert(),
 				ForestMetadata.getAddressSpace());
@@ -234,31 +100,46 @@ public class Retrieve extends Operation {
 			System.err.println("No record in the forest");
 			return;
 		}
-
-		if (ifSanityCheck())
-			System.out.println("Sanity check enabled\n");
-
-		timing = new Timing();
-		//timing.init();
 		
-		Timing[] individualTiming = new Timing[cycles];
-		Timing wholeTiming = new Timing();
-
+		int cycles = (records - 1) * retrievals; // first round timing is abandoned	
 		int numTrees = ForestMetadata.getLevels();
 		int h = numTrees - 1;
 		int tau = ForestMetadata.getTau();
 		int lastNBits = ForestMetadata.getLastNBits();
 		int shiftN = lastNBits % tau;
 		if (shiftN == 0)
-			shiftN = tau;
+			shiftN = tau;	
+
+		// timing stuff
+		timing = new Timing();
+		
+		/*
+		Timing[] individualTiming = new Timing[cycles];
+		Timing wholeTiming = new Timing();
 		
 		StopWatch wholeExecution = new StopWatch("Whole Execution");
-		//wholeAccess.start();
 		StopWatch avgParallelPE = new StopWatch("Average Paralleled PP + Evict");
+		*/
 		
+		// threads init
 		PPEvict[] threads = new PPEvict[numTrees];
+		
+		// turn on bandwidth measurement
+		//con1.bandWidthSwitch = true;
+		//con2.bandWidthSwitch = true;
 
-		for (int test = 0; test < records; test++) {
+		// sync TODO: check where?
+		if (ifSanityCheck())
+			System.out.println("Sanity check enabled\n");
+
+		
+		
+		////////////////////////////////////////////
+		////////   main execution starts   /////////
+		////////////////////////////////////////////
+		
+		for (int rec = 0; rec < records; rec++) {
+			// retrieve a record by picking a random N
 			BigInteger N = null;
 			if (party == Party.Charlie) {
 				if (numInsert == -1)
@@ -267,14 +148,7 @@ public class Retrieve extends Operation {
 					N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
 			}
 
-			for (long exec = 0; exec < retrievals; exec++) {
-				timing.init();
-				
-				if (test == 0 && exec == 0) {
-					//con1.bandWidthSwitch = true;
-					//con2.bandWidthSwitch = true;
-				}
-				
+			for (long retri = 0; retri < retrievals; retri++) {				
 				// pre-computation
 				if (party == Party.Charlie)
 					new Precomputation(con1, con2).executeCharlieSubTree(con1,
@@ -286,25 +160,25 @@ public class Retrieve extends Operation {
 					new Precomputation(con1, con2).executeEddieSubTree(con1,
 							con2, null, null);
 				else {
-					System.err.println("No such party");
+					System.err.println("No such party: " + party);
 					return;
 				}
+
+				System.out.println("Record " + rec + ": retrieval " + retri);
+				if (party == Party.Charlie)
+					System.out.println("N=" + N.longValue() + " ("
+							+ Util.addZero(N.toString(2), lastNBits) + ")");
 				
+				// sync so online protocols for all parties start at the same time
 				sanityCheck();
 
+				// for each retrieval, execute protocols on each tree
 				BigInteger Li = null;
-				if (party == Party.Charlie)
-					System.out.println(test + ": stored record is: "
-							+ N.longValue() + " (N="
-							+ Util.addZero(N.toString(2), lastNBits) + ")");
-				System.out.println("Execution cycle: " + exec);
-
-				for (int i = 0; i <= h; i++) {
+				for (int i = 0; i < numTrees; i++) {
 					currTree = i;
 
 					switch (party) {
 					case Charlie:
-						// String Ni = N;
 						BigInteger Ni;
 						if (i < h - 1) {
 							Ni = Util.getSubBits(N, lastNBits - (i + 1) * tau,
@@ -348,38 +222,43 @@ public class Retrieve extends Operation {
 						break;
 					}
 				}
-
-				// only need to count bandwidth once
-				con1.bandWidthSwitch = false;
-				con2.bandWidthSwitch = false;
 				
+				// wait for all threads to terminate
+				// so timing data can be gathered
 				for (int i = 0; i < numTrees; i++)
 					try {
 						threads[i].join();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-				indParallelPE.stop();
+				//indParallelPE.stop();
 				
 				// get individual timing
-				if (test > 0) {
+				/*
+				if (rec > 0) {
 					for (int i = 0; i < numTrees; i++)
 						timing = timing.add(threads[i].getTiming());
-					individualTiming[(int) ((test-1)*retrievals+exec)] = new Timing(timing);
-					individualTiming[(int) ((test-1)*retrievals+exec)].divide(1000000);
+					individualTiming[(int) ((rec-1)*retrievals+retri)] = new Timing(timing);
+					individualTiming[(int) ((rec-1)*retrievals+retri)].divide(1000000);
 					wholeTiming = wholeTiming.add(timing);
 					avgParallelPE = avgParallelPE.add(indParallelPE);
 				}
-				indParallelPE.reset();
+				*/
+				//indParallelPE.reset();
+
+				// only need to count bandwidth once
+				con1.bandWidthSwitch = false;
+				con2.bandWidthSwitch = false;
 			}
 
-			if (test == 0 && records > 1) {
-				//timing.init(); // abandon the timing of the first several
-								// retrievals
-				wholeExecution.start();
+			// abandon the timing of the first several retrievals
+			// assert records > 1
+			if (rec == 0) {
+				;//wholeExecution.start();
 			}
 		}
 		
+		/*
 		wholeExecution.stop();
 		wholeTiming.divide(cycles);
 		Timing avgTiming = new Timing(wholeTiming);
@@ -498,8 +377,10 @@ public class Retrieve extends Operation {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		*/
 	}
 	
+	/*
 	public StopWatch getSTD(StopWatch avg, StopWatch[] ind) {
 		int n = ind.length;
 		StopWatch var = new StopWatch();
@@ -513,5 +394,5 @@ public class Retrieve extends Operation {
 		var.elapsedCPUTime = (long) Math.sqrt(sumCPU / n);
 		return var;
 	}
-
+	 */
 }

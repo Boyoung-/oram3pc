@@ -13,7 +13,7 @@ public class Timing {
 	public StopWatch[][] stopwatch = null;
 
 	public Timing() {
-		init();
+		reset();
 	}
 	
 	public Timing(Timing t) {
@@ -23,7 +23,7 @@ public class Timing {
 				stopwatch[i][j] = new StopWatch(t.stopwatch[i][j]);
 	}
 
-	public void init() {
+	public void reset() {
 		stopwatch = new StopWatch[PID.size][TID.size];
 		for (int i=0; i<PID.size; i++)
 			for (int j=0; j<TID.size; j++)
@@ -63,6 +63,7 @@ public class Timing {
 		}
 	}
 
+	// TODO: change return types to be the same
 	public Timing add(Timing t) {
 		Timing out = new Timing();
 		//out.init();
