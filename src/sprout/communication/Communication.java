@@ -82,25 +82,11 @@ public class Communication {
 		for (int i=0; i<PID.size; i++) 
 			bandwidth[i] = new Bandwidth(PID.names[i]);
 
-		/*
-		bandwidth[PID.oprf] = new Bandwidth("oprf");
-		bandwidth[PID.decrypt] = new Bandwidth("decrypt");
-		bandwidth[PID.reshuffle] = new Bandwidth("reshuffle");
-		bandwidth[PID.encrypt] = new Bandwidth("encrypt");
-		bandwidth[PID.aot] = new Bandwidth("aot");
-		bandwidth[PID.iot] = new Bandwidth("iot");
-		bandwidth[PID.ssot] = new Bandwidth("ssot");
-		bandwidth[PID.pet] = new Bandwidth("pet");
-		bandwidth[PID.gcf] = new Bandwidth("gcf");
-		bandwidth[PID.access] = new Bandwidth("access");
-		bandwidth[PID.ppt] = new Bandwidth("ppt");
-		bandwidth[PID.eviction] = new Bandwidth("eviction");
-		*/
-
 		sharedBandwidth = new Bandwidth("shared", false);
 	}
 
 	public void addBandwidth(int bits) {
+		// TODO: re-arrange this?
 		if (sharedBandwidth.isActive()) {
 			sharedBandwidth.add(bits);
 			return;

@@ -9,12 +9,12 @@ import YaoGC.Circuit;
 import sprout.crypto.oprf.OPRF;
 
 public class PreData {
-	// DecryptPath
-	public static List<Integer>[] decrypt_sigma;
+	// Access
+	public static List<Integer>[] access_sigma;
 
 	// OPRF
-	public static OPRF oprf_oprf;
-	public static ECPoint[][][] oprf_gy;
+	//public static OPRF oprf_oprf;
+	//public static ECPoint[][][] oprf_gy;
 
 	// PET
 	public static BigInteger[][] pet_alpha;

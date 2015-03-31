@@ -78,6 +78,7 @@ public abstract class Operation {
 
 	public void run(Party party, String configFile, String dbFile, boolean build)
 			throws ForestException {
+		// TODO: clean here
 		// if (!build && !(new File(dbFile)).exists()) {
 		// throw new IllegalArgumentException("DB file does not exist "
 		// + dbFile);
@@ -104,7 +105,7 @@ public abstract class Operation {
 				}
 			}
 		}
-		else if (party == Party.Charlie) {
+		else if (party == Party.Debbie) {
 			if (build)
 				try {
 					forest = new Forest("init");

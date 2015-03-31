@@ -4,9 +4,14 @@ import java.math.BigInteger;
 
 import sprout.communication.Communication;
 import sprout.crypto.SR;
+import sprout.oram.Bucket;
+import sprout.oram.BucketException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
+import sprout.oram.PreData;
 import sprout.oram.TID;
+import sprout.oram.Tree;
+import sprout.oram.TreeException;
 import sprout.util.Timing;
 import sprout.util.Util;
 
@@ -18,31 +23,42 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 	@Override
 	public AOutput executeCharlieSubTree(Communication debbie,
-			Communication eddie, Timing localTiming, BigInteger[] args) {
+			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
+		//BigInteger sC_Nip1 = args[1];
 
-		// prepare
-		BigInteger Li = args[0];
-		BigInteger Nip1 = args[1];
+		//int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata
+		//		.getLastNBits();
+		//BigInteger Ni = Util.getSubBits(Nip1, Nip1Bits - nBits, Nip1Bits);
+		//BigInteger Nip1_pr = Util.getSubBits(Nip1, 0, Nip1Bits - nBits);
 
-		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata
-				.getLastNBits();
-		BigInteger Ni = Util.getSubBits(Nip1, Nip1Bits - nBits, Nip1Bits);
-		BigInteger Nip1_pr = Util.getSubBits(Nip1, 0, Nip1Bits - nBits);
-
-		debbie.countBandwidth = true;
-		eddie.countBandwidth = true;
-		debbie.bandwidth[PID.access].start();
-		eddie.bandwidth[PID.access].start();
+		//debbie.countBandwidth = true;
+		//eddie.countBandwidth = true;
+		//debbie.bandwidth[PID.access].start();
+		//eddie.bandwidth[PID.access].start();
 
 		// protocol
 		// step 1
-		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
-		DecryptPath dp = new DecryptPath(debbie, eddie);
-		dp.loadTreeSpecificParameters(i);
-		DPOutput DecOut = dp.executeCharlieSubTree(debbie, eddie, localTiming, Li);
+		timing.stopwatch[PID.access][TID.online_write].start();
+		BigInteger Li = args[0];
+		debbie.write(Li);
+		eddie.write(Li);
+		timing.stopwatch[PID.access][TID.online_write].stop();
+		
+		timing.stopwatch[PID.access][TID.online_read].start();
+		BigInteger[] sC_sig_P = debbie.readBigIntegerArray();
+		timing.stopwatch[PID.access][TID.online_read].stop();
+		
 
-		//sanityCheck();
-
+		// step 3
+		BigInteger sC_Nip1 = args[1];
+		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata.getLastNBits();
+		BigInteger sC_Ni = Util.getSubBits(sC_Nip1, Nip1Bits - nBits, Nip1Bits);
+		
+		debbie.write(sC_Ni);
+		
+		
+		
+		// step 3
 		timing.stopwatch[PID.access][TID.online].start();
 		BigInteger secretC_P = DecOut.secretC_P[0];
 		for (int j = 1; j < DecOut.secretC_P.length; j++)
@@ -53,24 +69,12 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// step 3
 		// party C and E
 		int j_1 = 0; // i = 0 case; as the j_1 = 1 in the write up
-		BigInteger[] a = new BigInteger[pathTuples];
-		BigInteger[] c = new BigInteger[pathTuples];
+		//BigInteger[] a = new BigInteger[pathTuples];
+		//BigInteger[] c = new BigInteger[pathTuples];
 		if (i > 0) {
-			timing.stopwatch[PID.access][TID.online].start();
-			BigInteger helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
-					BigInteger.ONE);
-			BigInteger tmp = secretC_P.shiftRight(lBits + aBits);
-			for (int j = pathTuples - 1; j >= 0; j--) {
-				a[j] = tmp.and(helper);
-				tmp = tmp.shiftRight(tupleBits);
-				c[j] = Ni.setBit(nBits).xor(a[j]);
-			}
-			timing.stopwatch[PID.access][TID.online].stop();
 			PET pet = new PET(debbie, eddie);
-			j_1 = pet.executeCharlie(debbie, eddie, c, i);
-			// PET outputs j_1 for C
+			j_1 = pet.executeCharlie(debbie, eddie);
 		}
-
 		if (j_1 < 0) {
 			try {
 				throw new Exception("PET error!");
@@ -78,6 +82,9 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				e.printStackTrace();
 			}
 		}
+		
+		
+		
 
 		// step 4
 		AOT aot = new AOT(debbie, eddie);
@@ -154,24 +161,64 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 	@Override
 	public AOutput executeDebbieSubTree(Communication charlie,
-			Communication eddie, Timing localTiming, BigInteger[] args) {
-		BigInteger k = args[0];
-
-		charlie.countBandwidth = true;
-		eddie.countBandwidth = true;
-		charlie.bandwidth[PID.access].start();
-		eddie.bandwidth[PID.access].start();
+			Communication eddie, Tree sD_OT, BigInteger[] unused, Timing localTiming) {
+		//charlie.countBandwidth = true;
+		//eddie.countBandwidth = true;
+		//charlie.bandwidth[PID.access].start();
+		//eddie.bandwidth[PID.access].start();
 
 		// protocol
 		// step 1
-		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
-		DecryptPath dp = new DecryptPath(charlie, eddie);
-		dp.loadTreeSpecificParameters(i);
-		dp.executeDebbieSubTree(charlie, eddie, localTiming, k);
-		// DecryptPath outpus sigma and secretE_P for E and secretC_P for C
+		timing.stopwatch[PID.access][TID.online_read].start();
+		BigInteger Li = charlie.readBigInteger();
+		timing.stopwatch[PID.access][TID.online_read].stop();
+		
+		timing.stopwatch[PID.access][TID.online].start();
+		Bucket[] sD_buckets = null;
+		try {
+			sD_buckets = sD_OT.getBucketsOnPath(Li);
+		} catch (TreeException | BucketException e) {
+			e.printStackTrace();
+		}
+		BigInteger[] sD_P = new BigInteger[sD_buckets.length];
+		for (int j = 0; j < sD_buckets.length; j++) {
+			sD_P[j] = new BigInteger(1, sD_buckets[j].getByteTuples());
+		}
+		BigInteger[] sD_sig_P = Util.permute(sD_P, PreData.access_sigma[i]);
+		timing.stopwatch[PID.access][TID.online].stop();
+		
+		timing.stopwatch[PID.access][TID.online_write].start();
+		charlie.write(sD_sig_P);
+		timing.stopwatch[PID.access][TID.online_write].stop();
+		
 
-		//sanityCheck();
-
+		// step 3
+		BigInteger sD_Ni = charlie.readBigInteger();	
+		
+		BigInteger sD_sig_P_all = sD_sig_P[0];
+		for (int j = 1; j < sD_sig_P.length; j++)
+			sD_sig_P_all = sD_sig_P_all.shiftLeft(bucketBits).xor(sD_sig_P[j]);
+		BigInteger[] a = new BigInteger[pathTuples];
+		BigInteger[] c = new BigInteger[pathTuples];
+		BigInteger helper;
+		BigInteger tmp;
+		if (i > 0) {
+			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(BigInteger.ONE);
+			tmp = sD_sig_P_all.shiftRight(lBits + aBits);
+			for (int j = pathTuples - 1; j >= 0; j--) {
+				a[j] = tmp.and(helper);
+				c[j] = a[j].xor(sD_Ni.setBit(nBits));
+				tmp = tmp.shiftRight(tupleBits);
+			}
+			PET pet = new PET(charlie, eddie);
+			pet.executeDebbie(charlie, eddie, c, i);
+		}
+		
+		
+		
+		
+		
+		// step 2
 		AOT aot = new AOT(charlie, eddie);
 		if (i > 0) {
 			// step 3
@@ -190,80 +237,88 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			// outputs ybar_j2 for C
 		}
 
-		charlie.bandwidth[PID.access].stop();
-		eddie.bandwidth[PID.access].stop();
-		charlie.countBandwidth = false;
-		eddie.countBandwidth = false;
+		//charlie.bandwidth[PID.access].stop();
+		//eddie.bandwidth[PID.access].stop();
+		//charlie.countBandwidth = false;
+		//eddie.countBandwidth = false;
 
 		return null;
 	}
 
 	@Override
 	public AOutput executeEddieSubTree(Communication charlie,
-			Communication debbie, Timing localTiming, BigInteger[] args_unused) {
-		charlie.countBandwidth = true;
-		debbie.countBandwidth = true;
-		charlie.bandwidth[PID.access].start();
-		debbie.bandwidth[PID.access].start();
+			Communication debbie, Tree sE_OT, BigInteger[] args, Timing localTiming) {
+		//charlie.countBandwidth = true;
+		//debbie.countBandwidth = true;
+		//charlie.bandwidth[PID.access].start();
+		//debbie.bandwidth[PID.access].start();
+		//BigInteger sE_Nip1 = args[0];
 
 		// protocol
 		// step 1
-		// run DecryptPath on C's input Li, E's input OT_i, and D's input k
-		DecryptPath dp = new DecryptPath(charlie, debbie);
-		dp.loadTreeSpecificParameters(i);
-		DPOutput DecOut = dp.executeEddieSubTree(charlie, debbie, localTiming, null);
-
-		//sanityCheck();
-
+		timing.stopwatch[PID.access][TID.online_read].start();
+		BigInteger Li = charlie.readBigInteger();
+		timing.stopwatch[PID.access][TID.online_read].stop();
+		
 		timing.stopwatch[PID.access][TID.online].start();
-		BigInteger secretE_P = DecOut.secretE_P[0];
-		for (int j = 1; j < DecOut.secretE_P.length; j++)
-			secretE_P = secretE_P.shiftLeft(bucketBits)
-					.xor(DecOut.secretE_P[j]);
-		// DecryptPath outpus sigma and secretE_P for E and secretC_P for C
+		Bucket[] sE_buckets = sE_OT.getBucketsOnPath(Li);
+		BigInteger[] sE_P = new BigInteger[sE_buckets.length];
+		for (int j = 0; j < sE_buckets.length; j++) {
+			sE_P[j] = new BigInteger(1, sE_buckets[j].getByteTuples());
+		}
+		BigInteger[] sE_sig_P = Util.permute(sE_P, PreData.access_sigma[i]);
+		timing.stopwatch[PID.access][TID.online].stop();
+		
 
 		// step 2
-		// party E
+		timing.stopwatch[PID.access][TID.online].start();
+		BigInteger sE_sig_P_all = sE_sig_P[0];
+		for (int j = 1; j < sE_sig_P.length; j++)
+			sE_sig_P_all = sE_sig_P_all.shiftLeft(bucketBits).xor(sE_sig_P[j]);
 		BigInteger[] y = new BigInteger[twotaupow];
 		BigInteger y_all;
 		if (i == 0)
-			y_all = secretE_P;
+			y_all = sE_sig_P_all;
 		else if (i < h)
 			y_all = new BigInteger(aBits, SR.rand);
 		else
 			y_all = BigInteger.ZERO;
-		BigInteger helper = BigInteger.ONE.shiftLeft(d_ip1).subtract(
-				BigInteger.ONE);
+		BigInteger helper = BigInteger.ONE.shiftLeft(d_ip1).subtract(BigInteger.ONE);
 		BigInteger tmp = y_all;
 		for (int o = twotaupow - 1; o >= 0; o--) {
 			y[o] = tmp.and(helper);
 			tmp = tmp.shiftRight(d_ip1);
 		}
-
-		BigInteger secretE_Ti = y_all;
-		BigInteger secretE_P_p = null;
-		if (i > 0)
-			secretE_P_p = secretE_P;
 		timing.stopwatch[PID.access][TID.online].stop();
-
+		
+		
 		// step 3
-		// party C and E
+		BigInteger sE_Nip1 = args[0];
+		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata.getLastNBits();
+		BigInteger sE_Ni = Util.getSubBits(sE_Nip1, Nip1Bits - nBits, Nip1Bits);
+
+		BigInteger[] e = new BigInteger[pathTuples];
 		BigInteger[] b = new BigInteger[pathTuples];
 		if (i > 0) {
-			timing.stopwatch[PID.access][TID.online].start();
-			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
-					BigInteger.ONE);
-			tmp = secretE_P.shiftRight(lBits + aBits);
+			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(BigInteger.ONE);
+			tmp = sE_sig_P_all.shiftRight(lBits + aBits);
 			for (int j = pathTuples - 1; j >= 0; j--) {
-				b[j] = tmp.and(helper);
+				e[j] = tmp.and(helper);
+				b[j] = e[j].xor(sE_Ni);
 				tmp = tmp.shiftRight(tupleBits);
 			}
-			timing.stopwatch[PID.access][TID.online].stop();
 			PET pet = new PET(charlie, debbie);
 			pet.executeEddie(charlie, debbie, b, i);
-			// PET outputs j_1 for C
 		}
+		
+		
 
+
+		//BigInteger secretE_Ti = y_all;
+		//BigInteger secretE_P_p = null;
+		//if (i > 0)
+		//	secretE_P_p = secretE_P;
+		
 		// step 4
 		// party E
 		AOT aot = new AOT(charlie, debbie);

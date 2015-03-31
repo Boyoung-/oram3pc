@@ -186,7 +186,6 @@ public class Util {
 	}
 
 	public static List<Integer> getInversePermutation(List<Integer> p) {
-		// p;
 		List<Integer> p_new = new ArrayList<Integer>(p);
 		for (int i = 0; i < p.size(); i++)
 			p_new.set(p.get(i), i);
@@ -194,7 +193,6 @@ public class Util {
 	}
 
 	public static <T> T[] permute(T[] arr, List<Integer> p) {
-		// return arr;
 		T[] arr_new = arr.clone();
 		for (int i = 0; i < arr.length; i++) {
 			arr_new[p.get(i)] = arr[i];
@@ -203,6 +201,7 @@ public class Util {
 	}
 
 	// should be abandoned
+	/*
 	public static <T> T[] reversePermutation(T[] arr, List<Integer> p) {
 		T[] arr_new = arr.clone();
 		for (int i = 0; i < arr.length; i++) {
@@ -210,6 +209,7 @@ public class Util {
 		}
 		return arr_new;
 	}
+	*/
 
 	public static <T> void printArrV(T[] arr) {
 		for (int i = 0; i < arr.length; i++)

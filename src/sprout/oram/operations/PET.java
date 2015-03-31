@@ -21,7 +21,7 @@ public class PET extends Operation {
 		super(con1, con2);
 	}
 
-	public void executeDebbie(Communication charlie, Communication eddie) {
+	public void executeDebbie(Communication charlie, Communication eddie, BigInteger[] c, int i) {
 		// Debbie does nothing online
 
 		// sanityCheck();

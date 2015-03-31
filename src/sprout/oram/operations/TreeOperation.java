@@ -7,6 +7,7 @@ import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
+import sprout.oram.Tree;
 import sprout.util.Timing;
 
 public abstract class TreeOperation<T extends Object, V> extends Operation {
@@ -128,13 +129,13 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 	 * Communication debbie, Tree OT, V extraArgs);
 	 */
 	public abstract T executeCharlieSubTree(Communication debbie,
-			Communication eddie, Timing localTiming, V args);
+			Communication eddie, Tree OT, V args, Timing localTiming);
 
 	public abstract T executeDebbieSubTree(Communication charlie,
-			Communication eddie, Timing localTiming, V args);
+			Communication eddie, Tree OT, V args, Timing localTiming);
 
 	public abstract T executeEddieSubTree(Communication charlie,
-			Communication debbie, Timing localTiming, V args);
+			Communication debbie, Tree OT, V args, Timing localTiming);
 
 	public V prepareArgs() {
 		return prepareArgs(null);

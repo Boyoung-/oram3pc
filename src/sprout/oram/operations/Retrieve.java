@@ -27,17 +27,17 @@ public class Retrieve extends Operation {
 	}
 
 	public Pair<BigInteger[], PPEvict> executeCharlie(Communication debbie,
-			Communication eddie, BigInteger Li, BigInteger Nip1, Tree OT) {
+			Communication eddie, BigInteger Li, BigInteger sC_Nip1) {
 		// Access
 		Access access = new Access(debbie, eddie);
 		access.loadTreeSpecificParameters(currTree);
 		AOutput AOut = access.executeCharlieSubTree(debbie, eddie, null,
-				new BigInteger[] { Li, Nip1 });
+				new BigInteger[] { Li, sC_Nip1 }, null);
 		BigInteger[] output = new BigInteger[] { AOut.Lip1, AOut.secretC_Ti };
 		
 		// PP+Evict
 		Timing localTiming = new Timing();
-		PPEvict thread = new PPEvict(Party.Charlie, AOut, OT, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
+		PPEvict thread = new PPEvict(Party.Charlie, AOut, null, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
 		//if (currTree == 0)
 			//indParallelPE.start();
 		thread.start();
@@ -45,12 +45,11 @@ public class Retrieve extends Operation {
 		return Pair.of(output, thread);
 	}
 
-	public PPEvict executeDebbie(Communication charlie, Communication eddie,
-			BigInteger k) {
+	public PPEvict executeDebbie(Communication charlie, Communication eddie, Tree sD_OT) {
 		// Access
 		Access access = new Access(charlie, eddie);
 		access.loadTreeSpecificParameters(currTree);
-		access.executeDebbieSubTree(charlie, eddie, null, new BigInteger[] { k });
+		access.executeDebbieSubTree(charlie, eddie, sD_OT, null, null);
 		
 		// PP+Evictv
 		Timing localTiming = new Timing();
@@ -62,13 +61,13 @@ public class Retrieve extends Operation {
 		return thread;
 	}
 
-	public PPEvict executeEddie(Communication charlie, Communication debbie,
-			Tree OT, BigInteger Li) {
+	public PPEvict executeEddie(Communication charlie, Communication debbie, BigInteger sE_Nip1,
+			Tree sE_OT) {
 		// Access
 		Access access = new Access(charlie, debbie);
 		access.loadTreeSpecificParameters(currTree);
-		AOutput AOut = access.executeEddieSubTree(charlie, debbie, null,
-				new BigInteger[] {});
+		AOutput AOut = access.executeEddieSubTree(charlie, debbie, sE_OT,
+				new BigInteger[] {sE_Nip1}, null);
 		
 		// PP+Evict
 		Timing localTiming = new Timing();
@@ -82,8 +81,8 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 4; // how many random records we want to test retrieval
-		int retrievals = 8; // for each record, how many repeated retrievals we
+		int records = 2; // how many random records we want to test retrieval
+		int retrievals = 1; // for each record, how many repeated retrievals we
 							// want to do
 		if (records < 2) {
 			System.err.println("Number of records must be at least 2 for average timing");
@@ -141,12 +140,23 @@ public class Retrieve extends Operation {
 		for (int rec = 0; rec < records; rec++) {
 			// retrieve a record by picking a random N
 			BigInteger N = null;
+			BigInteger sC_N = null;
+			BigInteger sE_N = null;
 			if (party == Party.Charlie) {
-				if (numInsert == -1)
+				if (numInsert == -1) {
 					N = new BigInteger(lastNBits, SR.rand);
-				else
+					sC_N = new BigInteger(lastNBits, SR.rand);
+				}
+				else {
 					N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
+					sC_N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
+				}
+				sE_N = N.xor(sC_N);
+				con2.write(sE_N);
 			}
+			else if (party == Party.Eddie)
+				sE_N = con1.readBigInteger();
+			
 
 			for (long retri = 0; retri < retrievals; retri++) {				
 				// pre-computation
@@ -179,13 +189,12 @@ public class Retrieve extends Operation {
 
 					switch (party) {
 					case Charlie:
-						BigInteger Ni;
+						BigInteger sC_Ni;
 						if (i < h - 1) {
-							Ni = Util.getSubBits(N, lastNBits - (i + 1) * tau,
+							sC_Ni = Util.getSubBits(sC_N, lastNBits - (i + 1) * tau,
 									lastNBits);
-						} else {
-							Ni = N;
-						}
+						} else 
+							sC_Ni = sC_N;
 
 						System.out.println("i="
 								+ i
@@ -193,8 +202,8 @@ public class Retrieve extends Operation {
 								+ (Li == null ? "" : Util.addZero(
 										Li.toString(2),
 										ForestMetadata.getLBits(i))));
-						con2.write(Li);
-						Pair<BigInteger[], PPEvict> outPair = executeCharlie(con1, con2, Li, Ni, forest.getTree(currTree));
+						//con2.write(Li);
+						Pair<BigInteger[], PPEvict> outPair = executeCharlie(con1, con2, Li, sC_Ni);
 						BigInteger[] outC = outPair.getLeft();
 						Li = outC[0];
 						if (i == h) {
@@ -202,7 +211,7 @@ public class Retrieve extends Operation {
 									ForestMetadata.getDataSize() * 8);
 							System.out.println("Retrieved record is: " + D);
 							System.out.println("Is record correct: "
-									+ (D.compareTo(D) == 0 ? "YES" : "NO!!")
+									+ (D.compareTo(N) == 0 ? "YES" : "NO!!")
 									+ "\n");
 							if (D.compareTo(N) != 0)
 								try {
@@ -214,11 +223,16 @@ public class Retrieve extends Operation {
 						threads[i] = outPair.getRight();
 						break;
 					case Debbie:
-						threads[i] = executeDebbie(con1, con2, null);
+						threads[i] = executeDebbie(con1, con2, forest.getTree(currTree));
 						break;
 					case Eddie:
-						Li = con1.readBigInteger();
-						threads[i] = executeEddie(con1, con2, forest.getTree(currTree), (Li));
+						//Li = con1.readBigInteger();
+						BigInteger sE_Ni;
+						if (i < h - 1) {
+							sE_Ni = Util.getSubBits(sE_N, lastNBits - (i + 1) * tau, lastNBits);
+						} else 
+							sE_Ni = sE_N;
+						threads[i] = executeEddie(con1, con2, sE_Ni, forest.getTree(currTree));
 						break;
 					}
 				}

@@ -18,6 +18,7 @@ import sprout.crypto.oprf.OPRF;
 import sprout.oram.PID;
 import sprout.oram.PreData;
 import sprout.oram.TID;
+import sprout.oram.Tree;
 import sprout.util.Timing;
 import sprout.util.Util;
 
@@ -30,12 +31,13 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeCharlieSubTree(Communication debbie,
-			Communication eddie, Timing localTiming, Object unused) {
-		debbie.countBandwidth = true;
-		eddie.countBandwidth = true;
-		debbie.bandwidth[PID.pre].start();
-		eddie.bandwidth[PID.pre].start();
+			Communication eddie, Tree OT, Object unused, Timing localTiming) {
+		//debbie.countBandwidth = true;
+		//eddie.countBandwidth = true;
+		//debbie.bandwidth[PID.pre].start();
+		//eddie.bandwidth[PID.pre].start();
 		
+		/*
 		// OPRF
 		PreData.oprf_oprf = OPRFHelper.getOPRF();
 		PreData.oprf_gy = new ECPoint[levels][][];
@@ -47,6 +49,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.oprf_gy[i] = PreData.oprf_oprf.preparePairs(pathBuckets);
 		}
 		timing.stopwatch[PID.oprf][TID.offline].stop();
+		*/
 
 		// PET
 		PreData.pet_alpha = new BigInteger[levels][];
@@ -128,10 +131,10 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		timing.stopwatch[PID.encrypt][TID.offline_read].stop();
 		
 
-		debbie.countBandwidth = false;
-		eddie.countBandwidth = false;
-		debbie.bandwidth[PID.pre].stop();
-		eddie.bandwidth[PID.pre].stop();
+		//debbie.countBandwidth = false;
+		//eddie.countBandwidth = false;
+		//debbie.bandwidth[PID.pre].stop();
+		//eddie.bandwidth[PID.pre].stop();
 
 		return null;
 	}
@@ -139,33 +142,33 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeDebbieSubTree(Communication charlie,
-			Communication eddie, Timing localTiming, Object unused) {
+			Communication eddie, Tree OT, Object unused, Timing localTiming) {
 
-		charlie.countBandwidth = true;
-		eddie.countBandwidth = true;
-		charlie.bandwidth[PID.pre].start();
-		eddie.bandwidth[PID.pre].start();
+		//charlie.countBandwidth = true;
+		//eddie.countBandwidth = true;
+		//charlie.bandwidth[PID.pre].start();
+		//eddie.bandwidth[PID.pre].start();
 		
 		
-		// DecryptPath
-		PreData.decrypt_sigma = (List<Integer>[]) new List[levels];
+		// Access
+		PreData.access_sigma = (List<Integer>[]) new List[levels];
 
-		timing.stopwatch[PID.decrypt][TID.offline].start();
+		timing.stopwatch[PID.access][TID.offline].start();
 		for (int index = 0; index <= h; index++) {
 			loadTreeSpecificParameters(index);
 
-			PreData.decrypt_sigma[i] = new ArrayList<Integer>();
+			PreData.access_sigma[i] = new ArrayList<Integer>();
 			for (int j = 0; j < pathBuckets; j++)
-				PreData.decrypt_sigma[i].add(j);
-			Collections.shuffle(PreData.decrypt_sigma[i], SR.rand);
+				PreData.access_sigma[i].add(j);
+			Collections.shuffle(PreData.access_sigma[i], SR.rand);
 		}
-		timing.stopwatch[PID.decrypt][TID.offline].stop();
+		timing.stopwatch[PID.access][TID.offline].stop();
 
-		timing.stopwatch[PID.decrypt][TID.offline_write].start();
+		timing.stopwatch[PID.access][TID.offline_write].start();
 		for (int index = 0; index <= h; index++) {
-			eddie.write(PreData.decrypt_sigma[index]);
+			eddie.write(PreData.access_sigma[index]);
 		}
-		timing.stopwatch[PID.decrypt][TID.offline_write].stop();
+		timing.stopwatch[PID.access][TID.offline_write].stop();
 
 		// PET
 		PreData.pet_alpha = new BigInteger[levels][];
@@ -258,7 +261,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				tmp = tmp.shiftRight(bucketBits);
 			}
 			PreData.reshuffle_pi[i] = Util
-					.getInversePermutation(PreData.decrypt_sigma[i]);
+					.getInversePermutation(PreData.access_sigma[i]);
 		}
 		timing.stopwatch[PID.reshuffle][TID.offline].stop();
 
@@ -393,10 +396,10 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		timing.stopwatch[PID.encrypt][TID.offline_write].stop();
 		
 
-		charlie.countBandwidth = false;
-		eddie.countBandwidth = false;
-		charlie.bandwidth[PID.pre].stop();
-		eddie.bandwidth[PID.pre].stop();
+		//charlie.countBandwidth = false;
+		//eddie.countBandwidth = false;
+		//charlie.bandwidth[PID.pre].stop();
+		//eddie.bandwidth[PID.pre].stop();
 
 		return null;
 	}
@@ -404,22 +407,22 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeEddieSubTree(Communication charlie,
-			Communication debbie, Timing localTiming, Object unused) {
+			Communication debbie, Tree OT, Object unused, Timing localTiming) {
 		
-		debbie.countBandwidth = true;
-		charlie.countBandwidth = true;
-		debbie.bandwidth[PID.pre].start();
-		charlie.bandwidth[PID.pre].start();
+		//debbie.countBandwidth = true;
+		//charlie.countBandwidth = true;
+		//debbie.bandwidth[PID.pre].start();
+		//charlie.bandwidth[PID.pre].start();
 		
 		
-		// DecryptPath
-		PreData.decrypt_sigma = (List<Integer>[]) new List[levels];
+		// Access
+		PreData.access_sigma = (List<Integer>[]) new List[levels];
 
-		timing.stopwatch[PID.decrypt][TID.offline_read].start();
+		timing.stopwatch[PID.access][TID.offline_read].start();
 		for (int index = 0; index <= h; index++) {
-			PreData.decrypt_sigma[index] = debbie.readListInt();
+			PreData.access_sigma[index] = debbie.readListInt();
 		}
-		timing.stopwatch[PID.decrypt][TID.offline_read].stop();
+		timing.stopwatch[PID.access][TID.offline_read].stop();
 
 		// PET
 		PreData.pet_beta = new BigInteger[levels][];
@@ -477,7 +480,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PRG G = new PRG(pathBuckets * bucketBits);
 			PreData.reshuffle_p2[i] = G.compute(PreData.reshuffle_s2[i]);
 			PreData.reshuffle_pi[i] = Util
-					.getInversePermutation(PreData.decrypt_sigma[i]);
+					.getInversePermutation(PreData.access_sigma[i]);
 		}
 		timing.stopwatch[PID.reshuffle][TID.offline].stop();
 
@@ -585,10 +588,10 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		}
 		timing.stopwatch[PID.encrypt][TID.offline].stop();
 		
-		debbie.countBandwidth = false;
-		charlie.countBandwidth = false;
-		debbie.bandwidth[PID.pre].stop();
-		charlie.bandwidth[PID.pre].stop();
+		//debbie.countBandwidth = false;
+		//charlie.countBandwidth = false;
+		//debbie.bandwidth[PID.pre].stop();
+		//charlie.bandwidth[PID.pre].stop();
 
 		return null;
 	}
