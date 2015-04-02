@@ -420,7 +420,7 @@ public class Communication {
 
 		if (msg.length == 0)
 			return null;
-		return new BigInteger(1, msg);
+		return new BigInteger(msg);
 	}
 
 	public ECPoint readECPoint() {

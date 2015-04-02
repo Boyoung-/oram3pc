@@ -22,14 +22,12 @@ public class PET extends Operation {
 		// step 3
 		BigInteger[] v = eddie.readBigIntegerArray();
 		BigInteger[] w = debbie.readBigIntegerArray();
-
-		System.out.println("charlie v: " + v[0]);
-		System.out.println("charlie w: " + w[0]);
 		
 		int j;
-		for (j = 0; j < v.length; j++)
+		for (j = 0; j < v.length; j++) {
 			if (v[j].compareTo(w[j]) == 0)
 				break;
+		}
 
 		if (j == v.length)
 			return -1; // error
@@ -38,8 +36,6 @@ public class PET extends Operation {
 
 	public void executeDebbie(Communication charlie, Communication eddie,
 			int i, BigInteger[] c) {
-		System.out.println("debbie c: " + c[0]);
-		
 		// protocol
 		// step 2
 		int m = 1 + ForestMetadata.getNBits(i);
@@ -54,22 +50,16 @@ public class PET extends Operation {
 		BigInteger[] w = new BigInteger[c.length];
 		for (int j = 0; j < c.length; j++)
 			try {
-				w[j] = new BigInteger(1, prf.compute(PreData.pet_alpha[i][j]
-						.xor(c[j]).toByteArray()));
-				System.out.println("debbie alpha: " + PreData.pet_alpha[i][j]);
+				w[j] = new BigInteger(1, prf.compute(PreData.pet_alpha[i][j].xor(c[j]).toByteArray()));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
 		charlie.write(w);
-		System.out.println("debbie w: " + w[0]);
 	}
 
 	public void executeEddie(Communication charlie, Communication debbie,
 			int i, BigInteger[] b) {
-		System.out.println("eddie b: " + b[0]);
-		
-		
 		// protocol
 		// step 1
 		int m = 1 + ForestMetadata.getNBits(i);
@@ -84,15 +74,12 @@ public class PET extends Operation {
 		BigInteger[] v = new BigInteger[b.length];
 		for (int j = 0; j < b.length; j++)
 			try {
-				v[j] = new BigInteger(1, prf.compute(PreData.pet_alpha[i][j]
-						.xor(b[j]).toByteArray()));
-				System.out.println("eddie alpha: " + PreData.pet_alpha[i][j]);
+				v[j] = new BigInteger(1, prf.compute(PreData.pet_alpha[i][j].xor(b[j]).toByteArray()));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
 		charlie.write(v);
-		System.out.println("eddie v: " + v[0]);
 	}
 
 	// for testing correctness
@@ -104,23 +91,26 @@ public class PET extends Operation {
 			int levels = ForestMetadata.getLevels();
 			int i = SR.rand.nextInt(levels - 1) + 1;
 			int m = 1 + ForestMetadata.getNBits(i);
-			//int n = SR.rand.nextInt(50) + 50; // 50-99
-			int n = 1;
+			int n = SR.rand.nextInt(50) + 50; // 50-99
 			int j = SR.rand.nextInt(n);
 			PreData.pet_k = new byte[levels][16];
 			PreData.pet_alpha = new BigInteger[levels][n];
 			BigInteger[] b = new BigInteger[n];
+			BigInteger[] c = new BigInteger[n];
 			SR.rand.nextBytes(PreData.pet_k[i]);
 			for (int o = 0; o < n; o++) {
 				PreData.pet_alpha[i][o] = new BigInteger(m, SR.rand);
 				b[o] = new BigInteger(m, SR.rand);
+				c[o] = new BigInteger(m, SR.rand);
+				while(c[o].compareTo(b[o]) == 0)
+					c[o] = new BigInteger(m, SR.rand);
 			}
+			c[j] = b[j];
 			
-			con2.write(n);
-			con2.write(j);
-			con2.write(PreData.pet_k);
+			con2.write(i);
+			con2.write(PreData.pet_k[i]);
 			con2.write(PreData.pet_alpha[i]);
-			con2.write(b[j]);
+			con2.write(c);
 			
 			executeEddie(con1, con2, i, b);
 			
@@ -132,17 +122,12 @@ public class PET extends Operation {
 		}
 		else if (party == Party.Debbie) {
 			int levels = ForestMetadata.getLevels();
-			int i = SR.rand.nextInt(levels - 1) + 1;
-			int m = 1 + ForestMetadata.getNBits(i);
-			int n = con2.readInt();
-			int j = con2.readInt();
-			PreData.pet_k = con2.readDoubleByteArray();
+			int i = con2.readInt();
+			PreData.pet_k = new byte[levels][];
+			PreData.pet_k[i] = con2.read();
 			PreData.pet_alpha = new BigInteger[levels][];
 			PreData.pet_alpha[i] = con2.readBigIntegerArray();
-			BigInteger[] c = new BigInteger[n];
-			for (int o = 0; o < n; o++)
-				c[o] = new BigInteger(m, SR.rand);
-			c[j] = con2.readBigInteger();
+			BigInteger[] c = con2.readBigIntegerArray();
 			
 			executeDebbie(con1, con2, i, c);
 		}
