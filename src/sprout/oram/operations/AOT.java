@@ -7,6 +7,7 @@ import sprout.crypto.AES_PRF;
 import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
+import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
@@ -63,11 +64,13 @@ public class AOT extends Operation {
 		return output;
 	}
 
-	public void executeD(Communication C, Communication E, int l, int i, int id) {
+	public void executeD(Communication C, Communication E, int i) {
 		C.countBandwidth = true;
 		E.countBandwidth = true;
 		C.bandwidth[PID.aot].start();
 		E.bandwidth[PID.aot].start();
+		
+		int l = ForestMetadata.getABits(i);
 
 		// sanityCheck();
 
@@ -102,12 +105,12 @@ public class AOT extends Operation {
 		E.countBandwidth = false;
 	}
 
-	public void executeE(Communication C, Communication D, BigInteger[] m,
-			int l, int i, int id) {
-		C.countBandwidth = true;
-		D.countBandwidth = true;
-		C.bandwidth[PID.aot].start();
-		D.bandwidth[PID.aot].start();
+	public void executeE(Communication C, Communication D, BigInteger[] m, int i) {
+		//C.countBandwidth = true;
+		//D.countBandwidth = true;
+		//C.bandwidth[PID.aot].start();
+		//D.bandwidth[PID.aot].start();
+		int l = ForestMetadata.getABits(i);
 
 		// sanityCheck();
 

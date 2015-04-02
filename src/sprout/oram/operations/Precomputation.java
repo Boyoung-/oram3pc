@@ -52,10 +52,11 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		*/
 
 		// PET
-		PreData.pet_alpha = new BigInteger[levels][];
-		PreData.pet_gamma = new BigInteger[levels][];
-		PreData.pet_delta = new BigInteger[levels][];
+		//PreData.pet_alpha = new BigInteger[levels][];
+		//PreData.pet_gamma = new BigInteger[levels][];
+		//PreData.pet_delta = new BigInteger[levels][];
 
+		/*
 		timing.stopwatch[PID.pet][TID.offline_read].start();
 		for (int index = 0; index <= h; index++) {
 			PreData.pet_alpha[index] = debbie.readBigIntegerArray();
@@ -63,6 +64,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.pet_delta[index] = debbie.readBigIntegerArray();
 		}
 		timing.stopwatch[PID.pet][TID.offline_read].stop();
+		*/
 
 		// PPT
 		PreData.ppt_sC_Li_p = new BigInteger[levels];
@@ -172,24 +174,27 @@ public class Precomputation extends TreeOperation<Object, Object> {
 
 		// PET
 		PreData.pet_alpha = new BigInteger[levels][];
-		PreData.pet_beta = new BigInteger[levels][];
-		PreData.pet_tau = new BigInteger[levels][];
-		PreData.pet_r = new BigInteger[levels][];
-		PreData.pet_gamma = new BigInteger[levels][];
-		PreData.pet_delta = new BigInteger[levels][];
+		PreData.pet_k = new byte[16];
+		//PreData.pet_beta = new BigInteger[levels][];
+		//PreData.pet_tau = new BigInteger[levels][];
+		//PreData.pet_r = new BigInteger[levels][];
+		//PreData.pet_gamma = new BigInteger[levels][];
+		//PreData.pet_delta = new BigInteger[levels][];
 
 		timing.stopwatch[PID.pet][TID.offline].start();
 		for (int index = 0; index <= h; index++) {
 			loadTreeSpecificParameters(index);
 
 			PreData.pet_alpha[i] = new BigInteger[pathTuples];
-			PreData.pet_beta[i] = new BigInteger[pathTuples];
-			PreData.pet_tau[i] = new BigInteger[pathTuples];
-			PreData.pet_r[i] = new BigInteger[pathTuples];
-			PreData.pet_gamma[i] = new BigInteger[pathTuples];
-			PreData.pet_delta[i] = new BigInteger[pathTuples];
+			//PreData.pet_beta[i] = new BigInteger[pathTuples];
+			//PreData.pet_tau[i] = new BigInteger[pathTuples];
+			//PreData.pet_r[i] = new BigInteger[pathTuples];
+			//PreData.pet_gamma[i] = new BigInteger[pathTuples];
+			//PreData.pet_delta[i] = new BigInteger[pathTuples];
 
 			for (int j = 0; j < pathTuples; j++) {
+				PreData.pet_alpha[i][j] = new BigInteger(1+nBits, SR.rand);
+				/*
 				PreData.pet_alpha[i][j] = Util.nextBigInteger(SR.p); // [0,
 																		// p-1],
 																		// Z_p
@@ -208,21 +213,28 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				// delta_j <- (beta_j + r_j) mod p
 				PreData.pet_delta[i][j] = PreData.pet_beta[i][j].add(
 						PreData.pet_r[i][j]).mod(SR.p);
+						*/
 			}
+			
+			SR.rand.nextBytes(PreData.pet_k);
 		}
 		timing.stopwatch[PID.pet][TID.offline].stop();
 
 		timing.stopwatch[PID.pet][TID.offline_write].start();
 		for (int index = 0; index <= h; index++) {
-			charlie.write(PreData.pet_alpha[index]);
-			charlie.write(PreData.pet_gamma[index]);
-			charlie.write(PreData.pet_delta[index]);
+			eddie.write(PreData.pet_alpha[index]);
+			//charlie.write(PreData.pet_alpha[index]);
+			//charlie.write(PreData.pet_gamma[index]);
+			//charlie.write(PreData.pet_delta[index]);
 		}
+		eddie.write(PreData.pet_k);
+		/*
 		for (int index = 0; index <= h; index++) {
-			eddie.write(PreData.pet_beta[index]);
-			eddie.write(PreData.pet_tau[index]);
-			eddie.write(PreData.pet_r[index]);
+			//eddie.write(PreData.pet_beta[index]);
+			//eddie.write(PreData.pet_tau[index]);
+			//eddie.write(PreData.pet_r[index]);
 		}
+		*/
 		timing.stopwatch[PID.pet][TID.offline_write].stop();
 
 		// AOT
@@ -425,16 +437,19 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		timing.stopwatch[PID.access][TID.offline_read].stop();
 
 		// PET
-		PreData.pet_beta = new BigInteger[levels][];
-		PreData.pet_tau = new BigInteger[levels][];
-		PreData.pet_r = new BigInteger[levels][];
+		PreData.pet_alpha = new BigInteger[levels][];
+		//PreData.pet_beta = new BigInteger[levels][];
+		//PreData.pet_tau = new BigInteger[levels][];
+		//PreData.pet_r = new BigInteger[levels][];
 
 		timing.stopwatch[PID.pet][TID.offline_read].start();
 		for (int index = 0; index <= h; index++) {
-			PreData.pet_beta[index] = debbie.readBigIntegerArray();
-			PreData.pet_tau[index] = debbie.readBigIntegerArray();
-			PreData.pet_r[index] = debbie.readBigIntegerArray();
+			PreData.pet_alpha[index] = debbie.readBigIntegerArray();
+			//PreData.pet_beta[index] = debbie.readBigIntegerArray();
+			//PreData.pet_tau[index] = debbie.readBigIntegerArray();
+			//PreData.pet_r[index] = debbie.readBigIntegerArray();
 		}
+		PreData.pet_k = debbie.read();
 		timing.stopwatch[PID.pet][TID.offline_read].stop();
 
 		// AOT

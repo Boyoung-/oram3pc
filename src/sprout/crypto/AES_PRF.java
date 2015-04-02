@@ -26,7 +26,7 @@ public class AES_PRF {
 
 	public byte[] compute(byte[] input) throws Exception {
 		if (input.length > 8)
-			throw new Exception("input length error");
+			throw new Exception("input length error: " + input.length + " > 8");
 
 		byte[] output = null;
 		if (l <= 128) {

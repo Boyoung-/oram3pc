@@ -6,7 +6,6 @@ import java.util.List;
 import org.bouncycastle.math.ec.ECPoint;
 
 import YaoGC.Circuit;
-import sprout.crypto.oprf.OPRF;
 
 public class PreData {
 	// Access
@@ -18,11 +17,12 @@ public class PreData {
 
 	// PET
 	public static BigInteger[][] pet_alpha;
-	public static BigInteger[][] pet_beta;
-	public static BigInteger[][] pet_tau;
-	public static BigInteger[][] pet_r;
-	public static BigInteger[][] pet_gamma;
-	public static BigInteger[][] pet_delta;
+	public static byte[][] pet_k;
+	//public static BigInteger[][] pet_beta;
+	//public static BigInteger[][] pet_tau;
+	//public static BigInteger[][] pet_r;
+	//public static BigInteger[][] pet_gamma;
+	//public static BigInteger[][] pet_delta;
 
 	// AOT
 	public static byte[][][] aot_k;

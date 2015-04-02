@@ -3,132 +3,154 @@ package sprout.oram.operations;
 import java.math.BigInteger;
 
 import sprout.communication.Communication;
+import sprout.crypto.AES_PRF;
 import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
-import sprout.oram.PID;
+import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.PreData;
-import sprout.oram.TID;
 
-import org.apache.commons.lang3.NotImplementedException;
-
-// TODO: PET doesn't need all of the paramaters that the other operations have, can we make it more generic?
-// TODO: optimize pre-computation by just sending seeds
 public class PET extends Operation {
 
 	public PET(Communication con1, Communication con2) {
 		super(con1, con2);
 	}
 
-	public void executeDebbie(Communication charlie, Communication eddie, BigInteger[] c, int i) {
-		// Debbie does nothing online
+	public int executeCharlie(Communication debbie, Communication eddie) {
+		// Protocol
+		// step 3
+		BigInteger[] v = eddie.readBigIntegerArray();
+		BigInteger[] w = debbie.readBigIntegerArray();
 
-		// sanityCheck();
+		System.out.println("charlie v: " + v[0]);
+		System.out.println("charlie w: " + w[0]);
+		
+		int j;
+		for (j = 0; j < v.length; j++)
+			if (v[j].compareTo(w[j]) == 0)
+				break;
+
+		if (j == v.length)
+			return -1; // error
+		return j;
 	}
 
-	public Integer executeCharlie(Communication debbie, Communication eddie,
-			BigInteger[] c, int i) {
-		debbie.countBandwidth = true;
-		eddie.countBandwidth = true;
-		debbie.bandwidth[PID.pet].start();
-		eddie.bandwidth[PID.pet].start();
-
-		// sanityCheck();
-
-		// Protocol
-		// step 1
-		// party C
-		int n = PreData.pet_alpha[i].length;
-		BigInteger[] u = new BigInteger[n];
-		timing.stopwatch[PID.pet][TID.online].start();
-		for (int j = 0; j < n; j++) {
-			// u_j <- (alpha_j - c_j) mod p
-			u[j] = PreData.pet_alpha[i][j].subtract(c[j]).mod(SR.p);
-		}
-		timing.stopwatch[PID.pet][TID.online].stop();
-		// C sends u to E
-		timing.stopwatch[PID.pet][TID.online_write].start();
-		eddie.write(u);
-		timing.stopwatch[PID.pet][TID.online_write].stop();
-
+	public void executeDebbie(Communication charlie, Communication eddie,
+			int i, BigInteger[] c) {
+		System.out.println("debbie c: " + c[0]);
+		
+		// protocol
 		// step 2
-		// E sends w to C
-		timing.stopwatch[PID.pet][TID.online_read].start();
-		BigInteger[] w = eddie.readBigIntegerArray();
-		timing.stopwatch[PID.pet][TID.online_read].stop();
-
-		// step 3
-		// party C
-		BigInteger[] v = new BigInteger[n];
-		timing.stopwatch[PID.pet][TID.online].start();
-		for (int j = 0; j < n; j++) {
-			// v_j <- (c_j * delta_j + w_j - gama_j) mod p
-			v[j] = c[j].multiply(PreData.pet_delta[i][j]).add(w[j])
-					.subtract(PreData.pet_gamma[i][j]).mod(SR.p);
-
-			if (v[j].longValue() == 0L) {
-				timing.stopwatch[PID.pet][TID.online].stop();
-				debbie.bandwidth[PID.pet].stop();
-				eddie.bandwidth[PID.pet].stop();
-				debbie.countBandwidth = false;
-				eddie.countBandwidth = false;
-				// C outputs j s.t. v[j] = 0
-				return j;
-			}
+		int m = 1 + ForestMetadata.getNBits(i);
+		AES_PRF prf = null;
+		try {
+			prf = new AES_PRF(m);
+			prf.init(PreData.pet_k[i]);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		timing.stopwatch[PID.pet][TID.online].stop();
 
-		debbie.bandwidth[PID.pet].stop();
-		eddie.bandwidth[PID.pet].stop();
-		debbie.countBandwidth = false;
-		eddie.countBandwidth = false;
+		BigInteger[] w = new BigInteger[c.length];
+		for (int j = 0; j < c.length; j++)
+			try {
+				w[j] = new BigInteger(1, prf.compute(PreData.pet_alpha[i][j]
+						.xor(c[j]).toByteArray()));
+				System.out.println("debbie alpha: " + PreData.pet_alpha[i][j]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-		// this means error
-		return -1;
+		charlie.write(w);
+		System.out.println("debbie w: " + w[0]);
 	}
 
 	public void executeEddie(Communication charlie, Communication debbie,
-			BigInteger[] b, int i) {
-		charlie.countBandwidth = true;
-		debbie.countBandwidth = true;
-		debbie.bandwidth[PID.pet].start();
-		charlie.bandwidth[PID.pet].start();
-
-		// sanityCheck();
-
+			int i, BigInteger[] b) {
+		System.out.println("eddie b: " + b[0]);
+		
+		
+		// protocol
 		// step 1
-		// C sends u to E
-		timing.stopwatch[PID.pet][TID.online_read].start();
-		BigInteger[] u = charlie.readBigIntegerArray();
-		timing.stopwatch[PID.pet][TID.online_read].stop();
-
-		// step 2
-		// party E
-		int n = PreData.pet_beta[i].length;
-		BigInteger[] w = new BigInteger[n];
-		timing.stopwatch[PID.pet][TID.online].start();
-		for (int j = 0; j < n; j++) {
-			// w_j <- (beta_j * u_j - r_j * b_j - tau_j) mod p
-			w[j] = PreData.pet_beta[i][j].multiply(u[j])
-					.subtract(PreData.pet_r[i][j].multiply(b[j]))
-					.subtract(PreData.pet_tau[i][j]).mod(SR.p);
+		int m = 1 + ForestMetadata.getNBits(i);
+		AES_PRF prf = null;
+		try {
+			prf = new AES_PRF(m);
+			prf.init(PreData.pet_k[i]);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		timing.stopwatch[PID.pet][TID.online].stop();
 
-		// E sends w to C
-		timing.stopwatch[PID.pet][TID.online_write].start();
-		charlie.write(w);
-		timing.stopwatch[PID.pet][TID.online_write].stop();
+		BigInteger[] v = new BigInteger[b.length];
+		for (int j = 0; j < b.length; j++)
+			try {
+				v[j] = new BigInteger(1, prf.compute(PreData.pet_alpha[i][j]
+						.xor(b[j]).toByteArray()));
+				System.out.println("eddie alpha: " + PreData.pet_alpha[i][j]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-		debbie.bandwidth[PID.pet].stop();
-		charlie.bandwidth[PID.pet].stop();
-		charlie.countBandwidth = false;
-		debbie.countBandwidth = false;
+		charlie.write(v);
+		System.out.println("eddie v: " + v[0]);
 	}
 
+	// for testing correctness
 	@Override
 	public void run(Party party, Forest unused) throws ForestException {
-		throw new NotImplementedException("No testing for PET yet");
+		System.out.println("#####  Testing PET  #####");
+		
+		if (party == Party.Eddie) {
+			int levels = ForestMetadata.getLevels();
+			int i = SR.rand.nextInt(levels - 1) + 1;
+			int m = 1 + ForestMetadata.getNBits(i);
+			//int n = SR.rand.nextInt(50) + 50; // 50-99
+			int n = 1;
+			int j = SR.rand.nextInt(n);
+			PreData.pet_k = new byte[levels][16];
+			PreData.pet_alpha = new BigInteger[levels][n];
+			BigInteger[] b = new BigInteger[n];
+			SR.rand.nextBytes(PreData.pet_k[i]);
+			for (int o = 0; o < n; o++) {
+				PreData.pet_alpha[i][o] = new BigInteger(m, SR.rand);
+				b[o] = new BigInteger(m, SR.rand);
+			}
+			
+			con2.write(n);
+			con2.write(j);
+			con2.write(PreData.pet_k);
+			con2.write(PreData.pet_alpha[i]);
+			con2.write(b[j]);
+			
+			executeEddie(con1, con2, i, b);
+			
+			int out_j = con1.readInt();
+			if (j == out_j)
+				System.out.println("PET test passed: j=" + j); 
+			else
+				System.out.println("PET test failed: j=" + j + ", out_j=" + out_j);
+		}
+		else if (party == Party.Debbie) {
+			int levels = ForestMetadata.getLevels();
+			int i = SR.rand.nextInt(levels - 1) + 1;
+			int m = 1 + ForestMetadata.getNBits(i);
+			int n = con2.readInt();
+			int j = con2.readInt();
+			PreData.pet_k = con2.readDoubleByteArray();
+			PreData.pet_alpha = new BigInteger[levels][];
+			PreData.pet_alpha[i] = con2.readBigIntegerArray();
+			BigInteger[] c = new BigInteger[n];
+			for (int o = 0; o < n; o++)
+				c[o] = new BigInteger(m, SR.rand);
+			c[j] = con2.readBigInteger();
+			
+			executeDebbie(con1, con2, i, c);
+		}
+		else if (party == Party.Charlie) {
+			int out_j = executeCharlie(con1, con2);
+			con2.write(out_j);
+		}
+		
+		System.out.println("#####  Testing PET Finished  #####");
 	}
 }
