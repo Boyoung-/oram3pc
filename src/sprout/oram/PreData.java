@@ -11,21 +11,15 @@ public class PreData {
 	// Access
 	public static List<Integer>[] access_sigma;
 
-	// OPRF
-	//public static OPRF oprf_oprf;
-	//public static ECPoint[][][] oprf_gy;
-
 	// PET
 	public static BigInteger[][] pet_alpha;
 	public static byte[][] pet_k;
-	//public static BigInteger[][] pet_beta;
-	//public static BigInteger[][] pet_tau;
-	//public static BigInteger[][] pet_r;
-	//public static BigInteger[][] pet_gamma;
-	//public static BigInteger[][] pet_delta;
 
 	// AOT
-	public static byte[][][] aot_k;
+	public static byte[][] aot_k;
+	
+	// AOTSS
+	public static byte[][] aotss_k;
 
 	// PPT
 	public static BigInteger[] ppt_sC_Li_p;

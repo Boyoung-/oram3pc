@@ -99,6 +99,8 @@ public class TestCLI {
 				operation = DecryptPath.class;
 			} else if (alg.equals("aot")) {
 				operation = sprout.oram.operations.AOT.class;
+			} else if (alg.equals("aotss")) {
+				operation = sprout.oram.operations.AOTSS.class;
 			} else if (alg.equals("pet")) {
 				operation = sprout.oram.operations.PET.class;
 			} else if (alg.equals("iot")) {

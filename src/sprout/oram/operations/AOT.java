@@ -8,150 +8,117 @@ import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
-import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
-import sprout.oram.TID;
 
 public class AOT extends Operation {
 	public AOT(Communication con1, Communication con2) {
 		super(con1, con2);
 	}
 
-	public BigInteger executeC(Communication D, Communication E, int j, int N) {
-		D.countBandwidth = true;
-		E.countBandwidth = true;
-		E.bandwidth[PID.aot].start();
-		D.bandwidth[PID.aot].start();
-
-		// sanityCheck();
-
+	public BigInteger executeCharlie(Communication D, Communication E, int j) {
+		// protocol
 		// step 1
-		// E sends m_p and alpha to C
-		timing.stopwatch[PID.aot][TID.online_read].start();
+		int alpha = E.readInt();
 		BigInteger[] m_p = E.readBigIntegerArray();
-		BigInteger alpha = E.readBigInteger();
-		timing.stopwatch[PID.aot][TID.online_read].stop();
 
 		// step 2
-		// party C
-		timing.stopwatch[PID.aot][TID.online].start();
-		BigInteger j_p = BigInteger.valueOf(j).add(alpha)
-				.mod(BigInteger.valueOf(N));
-		timing.stopwatch[PID.aot][TID.online].stop();
-
-		// C sends j_p to D
-		timing.stopwatch[PID.aot][TID.online_write].start();
+		int N = m_p.length;
+		int j_p = (j + alpha) / N;
 		D.write(j_p);
-		timing.stopwatch[PID.aot][TID.online_write].stop();
 
 		// step 3
-		// D sends c to C
-		timing.stopwatch[PID.aot][TID.online_read].start();
 		BigInteger c = D.readBigInteger();
-		timing.stopwatch[PID.aot][TID.online_read].stop();
+		BigInteger m_j = c.xor(m_p[j]);
 
-		timing.stopwatch[PID.aot][TID.online].start();
-		BigInteger output = c.xor(m_p[j]);
-		timing.stopwatch[PID.aot][TID.online].stop();
-		// C outputs output
-
-		D.bandwidth[PID.aot].stop();
-		E.bandwidth[PID.aot].stop();
-		D.countBandwidth = false;
-		E.countBandwidth = false;
-
-		return output;
+		return m_j;
 	}
 
-	public void executeD(Communication C, Communication E, int i) {
-		C.countBandwidth = true;
-		E.countBandwidth = true;
-		C.bandwidth[PID.aot].start();
-		E.bandwidth[PID.aot].start();
-		
-		int l = ForestMetadata.getABits(i);
-
-		// sanityCheck();
-
+	public void executeDebbie(Communication C, Communication E, int i) {
 		// protocol
 		// step 2
-		// C sends j_p to D
-		timing.stopwatch[PID.aot][TID.online_read].start();
-		BigInteger j_p = C.readBigInteger();
-		timing.stopwatch[PID.aot][TID.online_read].stop();
+		int j_p = C.readInt();
 
 		// step 3
-		// party D
+		int l = ForestMetadata.getABits(i);
+		BigInteger c = null;
 		try {
-			timing.stopwatch[PID.aot][TID.online].start();
-			AES_PRF f = new AES_PRF(l);
-			f.init(PreData.aot_k[id][i]);
-			BigInteger c = new BigInteger(1, f.compute(j_p.toByteArray()));
-			timing.stopwatch[PID.aot][TID.online].stop();
-			// D sends c to C
-			timing.stopwatch[PID.aot][TID.online_write].start();
-			C.write(c);
-			timing.stopwatch[PID.aot][TID.online_write].stop();
+			AES_PRF F = new AES_PRF(l);
+			F.init(PreData.aot_k[i]);
+			c = new BigInteger(1, F.compute(BigInteger.valueOf(j_p)
+					.toByteArray()));
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out
-					.println("Error occured, not completing AOT, C will block");
 		}
 
-		C.bandwidth[PID.aot].stop();
-		E.bandwidth[PID.aot].stop();
-		C.countBandwidth = false;
-		E.countBandwidth = false;
+		C.write(c);
 	}
 
-	public void executeE(Communication C, Communication D, BigInteger[] m, int i) {
-		//C.countBandwidth = true;
-		//D.countBandwidth = true;
-		//C.bandwidth[PID.aot].start();
-		//D.bandwidth[PID.aot].start();
-		int l = ForestMetadata.getABits(i);
-
-		// sanityCheck();
-
+	public void executeEddie(Communication C, Communication D, int i, BigInteger[] m) {
+		// protocol
 		// step 1
-		// party E
+		int l = ForestMetadata.getABits(i);
 		int N = m.length;
 		BigInteger[] m_p = new BigInteger[N];
-		timing.stopwatch[PID.aot][TID.online].start();
-		AES_PRF f = null;
-		try {
-			f = new AES_PRF(l);
-			f.init(PreData.aot_k[id][i]);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+		int alpha = SR.rand.nextInt(N);
 
-		BigInteger alpha = BigInteger.valueOf(SR.rand.nextInt(N));
 		try {
+			AES_PRF F = new AES_PRF(l);
+			F.init(PreData.aot_k[i]);
 			for (int t = 0; t < N; t++) {
-				m_p[t] = new BigInteger(1, f.compute(BigInteger.valueOf(t)
-						.add(alpha).mod(BigInteger.valueOf(N)).toByteArray()))
-						.xor(m[t]);
+				m_p[t] = new BigInteger(1, F.compute(BigInteger.valueOf(
+						(t + alpha) / N).toByteArray())).xor(m[t]);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		timing.stopwatch[PID.aot][TID.online].stop();
 
-		timing.stopwatch[PID.aot][TID.online_write].start();
-		C.write(m_p);
 		C.write(alpha);
-		timing.stopwatch[PID.aot][TID.online_write].stop();
-		// E sends m_p and alpha to C
-
-		C.bandwidth[PID.aot].stop();
-		D.bandwidth[PID.aot].stop();
-		C.countBandwidth = false;
-		D.countBandwidth = false;
+		C.write(m_p);
 	}
 
+	// for testing correctness
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
+		System.out.println("#####  Testing AOT  #####");
+
+		if (party == Party.Eddie) {
+			int levels = ForestMetadata.getLevels();
+			int i = SR.rand.nextInt(levels - 1) + 1;
+			int l = ForestMetadata.getABits(i);
+			int N = SR.rand.nextInt(50) + 50; // 50-99
+			int j = SR.rand.nextInt(N);
+			PreData.aot_k = new byte[levels][16];
+			BigInteger[] m = new BigInteger[N];
+			SR.rand.nextBytes(PreData.aot_k[i]);
+			for (int o = 0; o < N; o++)
+				m[o] = new BigInteger(l, SR.rand);
+
+			con2.write(i);
+			con2.write(PreData.aot_k[i]);
+			con1.write(j);
+
+			executeEddie(con1, con2, i, m);
+
+			BigInteger m_j = con1.readBigInteger();
+			if (m[j].compareTo(m_j) == 0)
+				System.out.println("AOT test passed: m[j]=" + m[j]);
+			else
+				System.out.println("AOT test failed: m[j]=" + m[j] + ", m_j=" + m_j);
+		} else if (party == Party.Debbie) {
+			int levels = ForestMetadata.getLevels();
+			int i = con2.readInt();
+			PreData.aot_k = new byte[levels][];
+			PreData.aot_k[i] = con2.read();
+
+			executeDebbie(con1, con2, i);
+		} else if (party == Party.Charlie) {
+			int j = con2.readInt();
+					
+			BigInteger m_j = executeCharlie(con1, con2, j);
+			con2.write(m_j);
+		}
+
+		System.out.println("#####  Testing AOT Finished  #####");
 	}
 }

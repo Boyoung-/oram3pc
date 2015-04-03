@@ -19,10 +19,12 @@ public class PET extends Operation {
 
 	public int executeCharlie(Communication debbie, Communication eddie) {
 		// Protocol
-		// step 3
+		// step 1
 		BigInteger[] v = eddie.readBigIntegerArray();
+		// step 2
 		BigInteger[] w = debbie.readBigIntegerArray();
 		
+		// step 3
 		int j;
 		for (j = 0; j < v.length; j++) {
 			if (v[j].compareTo(w[j]) == 0)
@@ -84,7 +86,7 @@ public class PET extends Operation {
 
 	// for testing correctness
 	@Override
-	public void run(Party party, Forest unused) throws ForestException {
+	public void run(Party party, Forest forest) throws ForestException {
 		System.out.println("#####  Testing PET  #####");
 		
 		if (party == Party.Eddie) {
