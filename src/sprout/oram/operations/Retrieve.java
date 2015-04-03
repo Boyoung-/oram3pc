@@ -33,16 +33,17 @@ public class Retrieve extends Operation {
 		access.loadTreeSpecificParameters(currTree);
 		AOutput AOut = access.executeCharlieSubTree(debbie, eddie, null,
 				new BigInteger[] { Li, sC_Nip1 }, null);
-		BigInteger[] output = new BigInteger[] { AOut.Lip1, AOut.secretC_Ti };
+		BigInteger[] output = new BigInteger[] { AOut.Lip1, AOut.sC_Ti };
 		
 		// PP+Evict
-		Timing localTiming = new Timing();
-		PPEvict thread = new PPEvict(Party.Charlie, AOut, null, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
+		//Timing localTiming = new Timing();
+		//PPEvict thread = new PPEvict(Party.Charlie, AOut, null, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
 		//if (currTree == 0)
 			//indParallelPE.start();
-		thread.start();
+		//thread.start();
 		
-		return Pair.of(output, thread);
+		//return Pair.of(output, thread);
+		return Pair.of(output, null);
 	}
 
 	public PPEvict executeDebbie(Communication charlie, Communication eddie, Tree sD_OT) {
@@ -52,17 +53,17 @@ public class Retrieve extends Operation {
 		access.executeDebbieSubTree(charlie, eddie, sD_OT, null, null);
 		
 		// PP+Evictv
-		Timing localTiming = new Timing();
-		PPEvict thread = new PPEvict(Party.Debbie, null, null, new BigInteger[] { k }, currTree, localTiming);
+		//Timing localTiming = new Timing();
+		//PPEvict thread = new PPEvict(Party.Debbie, null, null, new BigInteger[] { k }, currTree, localTiming);
 		//if (currTree == 0)
 			//indParallelPE.start();
-		thread.start();
+		//thread.start();
 		
-		return thread;
+		//return thread;
+		return null;
 	}
 
-	public PPEvict executeEddie(Communication charlie, Communication debbie, BigInteger sE_Nip1,
-			Tree sE_OT) {
+	public PPEvict executeEddie(Communication charlie, Communication debbie, Tree sE_OT, BigInteger sE_Nip1) {
 		// Access
 		Access access = new Access(charlie, debbie);
 		access.loadTreeSpecificParameters(currTree);
@@ -70,13 +71,14 @@ public class Retrieve extends Operation {
 				new BigInteger[] {sE_Nip1}, null);
 		
 		// PP+Evict
-		Timing localTiming = new Timing();
-		PPEvict thread = new PPEvict(Party.Eddie, AOut, OT, new BigInteger[] { Li }, currTree, localTiming);
+		//Timing localTiming = new Timing();
+		//PPEvict thread = new PPEvict(Party.Eddie, AOut, OT, new BigInteger[] { Li }, currTree, localTiming);
 		//if (currTree == 0)
 			//indParallelPE.start();
-		thread.start();
+		//thread.start();
 		
-		return thread;
+		//return thread;
+		return null;
 	}
 
 	@Override
@@ -162,13 +164,13 @@ public class Retrieve extends Operation {
 				// pre-computation
 				if (party == Party.Charlie)
 					new Precomputation(con1, con2).executeCharlieSubTree(con1,
-							con2, null, null);
+							con2, null, null, null);
 				else if (party == Party.Debbie)
 					new Precomputation(con1, con2).executeDebbieSubTree(con1,
-							con2, null, null);
+							con2, null, null, null);
 				else if (party == Party.Eddie)
 					new Precomputation(con1, con2).executeEddieSubTree(con1,
-							con2, null, null);
+							con2, null, null, null);
 				else {
 					System.err.println("No such party: " + party);
 					return;
@@ -232,19 +234,21 @@ public class Retrieve extends Operation {
 							sE_Ni = Util.getSubBits(sE_N, lastNBits - (i + 1) * tau, lastNBits);
 						} else 
 							sE_Ni = sE_N;
-						threads[i] = executeEddie(con1, con2, sE_Ni, forest.getTree(currTree));
+						threads[i] = executeEddie(con1, con2, forest.getTree(currTree), sE_Ni);
 						break;
 					}
 				}
 				
 				// wait for all threads to terminate
 				// so timing data can be gathered
+				/*
 				for (int i = 0; i < numTrees; i++)
 					try {
 						threads[i].join();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+					*/
 				//indParallelPE.stop();
 				
 				// get individual timing

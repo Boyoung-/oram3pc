@@ -32,40 +32,8 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@Override
 	public Object executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree OT, Object unused, Timing localTiming) {
-		//debbie.countBandwidth = true;
-		//eddie.countBandwidth = true;
-		//debbie.bandwidth[PID.pre].start();
-		//eddie.bandwidth[PID.pre].start();
-		
-		/*
-		// OPRF
-		PreData.oprf_oprf = OPRFHelper.getOPRF();
-		PreData.oprf_gy = new ECPoint[levels][][];
-
-		timing.stopwatch[PID.oprf][TID.offline].start();
-		for (int index = 0; index < levels; index++) {
-			loadTreeSpecificParameters(index);
-
-			PreData.oprf_gy[i] = PreData.oprf_oprf.preparePairs(pathBuckets);
-		}
-		timing.stopwatch[PID.oprf][TID.offline].stop();
-		*/
-
-		// PET
-		//PreData.pet_alpha = new BigInteger[levels][];
-		//PreData.pet_gamma = new BigInteger[levels][];
-		//PreData.pet_delta = new BigInteger[levels][];
 
 		/*
-		timing.stopwatch[PID.pet][TID.offline_read].start();
-		for (int index = 0; index <= h; index++) {
-			PreData.pet_alpha[index] = debbie.readBigIntegerArray();
-			PreData.pet_gamma[index] = debbie.readBigIntegerArray();
-			PreData.pet_delta[index] = debbie.readBigIntegerArray();
-		}
-		timing.stopwatch[PID.pet][TID.offline_read].stop();
-		*/
-
 		// PPT
 		PreData.ppt_sC_Li_p = new BigInteger[levels];
 
@@ -137,6 +105,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		//eddie.countBandwidth = false;
 		//debbie.bandwidth[PID.pre].stop();
 		//eddie.bandwidth[PID.pre].stop();
+		 */
 
 		return null;
 	}
@@ -145,17 +114,11 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@Override
 	public Object executeDebbieSubTree(Communication charlie,
 			Communication eddie, Tree OT, Object unused, Timing localTiming) {
-
-		//charlie.countBandwidth = true;
-		//eddie.countBandwidth = true;
-		//charlie.bandwidth[PID.pre].start();
-		//eddie.bandwidth[PID.pre].start();
-		
 		
 		// Access
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
 
-		timing.stopwatch[PID.access][TID.offline].start();
+		//timing.stopwatch[PID.access][TID.offline].start();
 		for (int index = 0; index <= h; index++) {
 			loadTreeSpecificParameters(index);
 
@@ -164,87 +127,55 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				PreData.access_sigma[i].add(j);
 			Collections.shuffle(PreData.access_sigma[i], SR.rand);
 		}
-		timing.stopwatch[PID.access][TID.offline].stop();
+		//timing.stopwatch[PID.access][TID.offline].stop();
 
-		timing.stopwatch[PID.access][TID.offline_write].start();
+		//timing.stopwatch[PID.access][TID.offline_write].start();
 		for (int index = 0; index <= h; index++) {
 			eddie.write(PreData.access_sigma[index]);
 		}
-		timing.stopwatch[PID.access][TID.offline_write].stop();
+		//timing.stopwatch[PID.access][TID.offline_write].stop();
 
 		// PET
 		PreData.pet_alpha = new BigInteger[levels][];
-		PreData.pet_k = new byte[16];
-		//PreData.pet_beta = new BigInteger[levels][];
-		//PreData.pet_tau = new BigInteger[levels][];
-		//PreData.pet_r = new BigInteger[levels][];
-		//PreData.pet_gamma = new BigInteger[levels][];
-		//PreData.pet_delta = new BigInteger[levels][];
+		PreData.pet_k = new byte[levels][16];
 
-		timing.stopwatch[PID.pet][TID.offline].start();
+		//timing.stopwatch[PID.pet][TID.offline].start();
 		for (int index = 0; index <= h; index++) {
 			loadTreeSpecificParameters(index);
 
 			PreData.pet_alpha[i] = new BigInteger[pathTuples];
-			//PreData.pet_beta[i] = new BigInteger[pathTuples];
-			//PreData.pet_tau[i] = new BigInteger[pathTuples];
-			//PreData.pet_r[i] = new BigInteger[pathTuples];
-			//PreData.pet_gamma[i] = new BigInteger[pathTuples];
-			//PreData.pet_delta[i] = new BigInteger[pathTuples];
 
 			for (int j = 0; j < pathTuples; j++) {
 				PreData.pet_alpha[i][j] = new BigInteger(1+nBits, SR.rand);
-				/*
-				PreData.pet_alpha[i][j] = Util.nextBigInteger(SR.p); // [0,
-																		// p-1],
-																		// Z_p
-				PreData.pet_beta[i][j] = Util.nextBigInteger(SR.p); // [0, p-1],
-																	// Z_p
-				PreData.pet_tau[i][j] = Util.nextBigInteger(SR.p); // [0, p-1],
-																	// Z_p
-				PreData.pet_r[i][j] = Util.nextBigInteger(
-						SR.p.subtract(BigInteger.ONE)).add(BigInteger.ONE); // [1,
-																			// p-1],
-																			// Z_p*
-				// gama_j <- (alpha_j * beta_j - tau_j) mod p
-				PreData.pet_gamma[i][j] = PreData.pet_alpha[i][j]
-						.multiply(PreData.pet_beta[i][j])
-						.subtract(PreData.pet_tau[i][j]).mod(SR.p);
-				// delta_j <- (beta_j + r_j) mod p
-				PreData.pet_delta[i][j] = PreData.pet_beta[i][j].add(
-						PreData.pet_r[i][j]).mod(SR.p);
-						*/
 			}
 			
-			SR.rand.nextBytes(PreData.pet_k);
+			SR.rand.nextBytes(PreData.pet_k[i]);
 		}
-		timing.stopwatch[PID.pet][TID.offline].stop();
+		//timing.stopwatch[PID.pet][TID.offline].stop();
 
-		timing.stopwatch[PID.pet][TID.offline_write].start();
+		//timing.stopwatch[PID.pet][TID.offline_write].start();
 		for (int index = 0; index <= h; index++) {
 			eddie.write(PreData.pet_alpha[index]);
-			//charlie.write(PreData.pet_alpha[index]);
-			//charlie.write(PreData.pet_gamma[index]);
-			//charlie.write(PreData.pet_delta[index]);
 		}
 		eddie.write(PreData.pet_k);
-		/*
-		for (int index = 0; index <= h; index++) {
-			//eddie.write(PreData.pet_beta[index]);
-			//eddie.write(PreData.pet_tau[index]);
-			//eddie.write(PreData.pet_r[index]);
-		}
-		*/
-		timing.stopwatch[PID.pet][TID.offline_write].stop();
 
 		// AOT
-		PreData.aot_k = new byte[2][][];
-
-		timing.stopwatch[PID.aot][TID.offline_read].start();
-		for (int j = 0; j < 2; j++)
-			PreData.aot_k[j] = eddie.readDoubleByteArray();
-		timing.stopwatch[PID.aot][TID.offline_read].stop();
-
+		PreData.aot_k = new byte[levels][16];
+		for (int index = 0; index <= h; index++) {
+			SR.rand.nextBytes(PreData.aot_k[index]);
+		}
+		eddie.write(PreData.aot_k);
+		
+		// AOTSS
+		PreData.aotss_k = new byte[levels][16];
+		for (int index = 0; index <= h; index++) {
+			SR.rand.nextBytes(PreData.aotss_k[index]);
+		}
+		eddie.write(PreData.aotss_k);
+		
+		
+		
+		/*
 		// Reshuffle
 		PreData.reshuffle_s1 = new byte[levels][];
 		PreData.reshuffle_s2 = new byte[levels][];
@@ -412,6 +343,8 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		//eddie.countBandwidth = false;
 		//charlie.bandwidth[PID.pre].stop();
 		//eddie.bandwidth[PID.pre].stop();
+		 * 
+		 */
 
 		return null;
 	}
@@ -421,54 +354,34 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	public Object executeEddieSubTree(Communication charlie,
 			Communication debbie, Tree OT, Object unused, Timing localTiming) {
 		
-		//debbie.countBandwidth = true;
-		//charlie.countBandwidth = true;
-		//debbie.bandwidth[PID.pre].start();
-		//charlie.bandwidth[PID.pre].start();
-		
-		
 		// Access
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
 
-		timing.stopwatch[PID.access][TID.offline_read].start();
+		//timing.stopwatch[PID.access][TID.offline_read].start();
 		for (int index = 0; index <= h; index++) {
 			PreData.access_sigma[index] = debbie.readListInt();
 		}
-		timing.stopwatch[PID.access][TID.offline_read].stop();
+		//timing.stopwatch[PID.access][TID.offline_read].stop();
 
 		// PET
 		PreData.pet_alpha = new BigInteger[levels][];
-		//PreData.pet_beta = new BigInteger[levels][];
-		//PreData.pet_tau = new BigInteger[levels][];
-		//PreData.pet_r = new BigInteger[levels][];
 
-		timing.stopwatch[PID.pet][TID.offline_read].start();
+		//timing.stopwatch[PID.pet][TID.offline_read].start();
 		for (int index = 0; index <= h; index++) {
 			PreData.pet_alpha[index] = debbie.readBigIntegerArray();
-			//PreData.pet_beta[index] = debbie.readBigIntegerArray();
-			//PreData.pet_tau[index] = debbie.readBigIntegerArray();
-			//PreData.pet_r[index] = debbie.readBigIntegerArray();
 		}
-		PreData.pet_k = debbie.read();
-		timing.stopwatch[PID.pet][TID.offline_read].stop();
+		PreData.pet_k = debbie.readDoubleByteArray();
+		//timing.stopwatch[PID.pet][TID.offline_read].stop();
 
 		// AOT
-		PreData.aot_k = new byte[2][levels][16];
+		PreData.aot_k = debbie.readDoubleByteArray();
+		
+		// AOTSS
+		PreData.aotss_k = debbie.readDoubleByteArray();
+		
 
-		timing.stopwatch[PID.aot][TID.offline].start();
-		for (int index = 0; index <= h; index++) {
-			loadTreeSpecificParameters(index);
-
-			for (int j = 0; j < 2; j++)
-				SR.rand.nextBytes(PreData.aot_k[j][i]);
-		}
-		timing.stopwatch[PID.aot][TID.offline].stop();
-
-		timing.stopwatch[PID.aot][TID.offline_write].start();
-		for (int j = 0; j < 2; j++)
-			debbie.write(PreData.aot_k[j]);
-		timing.stopwatch[PID.aot][TID.offline_write].stop();
-
+		
+		/*
 		// PPT
 		PreData.ppt_sE_Li_p = new BigInteger[levels];
 
@@ -607,6 +520,8 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		//charlie.countBandwidth = false;
 		//debbie.bandwidth[PID.pre].stop();
 		//charlie.bandwidth[PID.pre].stop();
+		 * 
+		 */
 
 		return null;
 	}

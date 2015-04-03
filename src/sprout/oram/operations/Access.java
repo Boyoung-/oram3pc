@@ -6,10 +6,11 @@ import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.Bucket;
 import sprout.oram.BucketException;
+import sprout.oram.Forest;
+import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
-import sprout.oram.PID;
+import sprout.oram.Party;
 import sprout.oram.PreData;
-import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.oram.TreeException;
 import sprout.util.Timing;
@@ -24,29 +25,13 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 	@Override
 	public AOutput executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
-		//BigInteger sC_Nip1 = args[1];
-
-		//int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata
-		//		.getLastNBits();
-		//BigInteger Ni = Util.getSubBits(Nip1, Nip1Bits - nBits, Nip1Bits);
-		//BigInteger Nip1_pr = Util.getSubBits(Nip1, 0, Nip1Bits - nBits);
-
-		//debbie.countBandwidth = true;
-		//eddie.countBandwidth = true;
-		//debbie.bandwidth[PID.access].start();
-		//eddie.bandwidth[PID.access].start();
-
 		// protocol
 		// step 1
-		timing.stopwatch[PID.access][TID.online_write].start();
 		BigInteger Li = args[0];
 		debbie.write(Li);
 		eddie.write(Li);
-		timing.stopwatch[PID.access][TID.online_write].stop();
 		
-		timing.stopwatch[PID.access][TID.online_read].start();
 		BigInteger[] sC_sig_P = debbie.readBigIntegerArray();
-		timing.stopwatch[PID.access][TID.online_read].stop();
 		
 
 		// step 3
@@ -56,7 +41,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		
 		debbie.write(sC_Ni);
 		
-		int j_1 = 0; // i = 0 case; as the j_1 = 1 in the write up
+		int j_1 = 0; // i = 0 case; as the j_1 = 1 in the write up notes
 		if (i > 0) {
 			PET pet = new PET(debbie, eddie);
 			j_1 = pet.executeCharlie(debbie, eddie);
@@ -71,51 +56,25 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		
 		
 		// step 4
-		BigInteger fbar;
-		if (i == 0)
-			fbar = BigInteger.ZERO;
-		else {
+		BigInteger fbar = BigInteger.ZERO;;
+		if (i > 0) {
 			AOT aot = new AOT(debbie, eddie);
-			fbar = aot.executeC(debbie, eddie, j_1, pathTuples);
-			// outputs fbar for C
+			fbar = aot.executeCharlie(debbie, eddie, j_1);
 		}
-		
-		
-		
-		// step 3
-		/*
-		timing.stopwatch[PID.access][TID.online].start();
-		BigInteger secretC_P = DecOut.secretC_P[0];
-		for (int j = 1; j < DecOut.secretC_P.length; j++)
-			secretC_P = secretC_P.shiftLeft(bucketBits)
-					.xor(DecOut.secretC_P[j]);
-		timing.stopwatch[PID.access][TID.online].stop();
-*/
-		
 
-		// step 4
-		AOT aot = new AOT(debbie, eddie);
-		BigInteger fbar;
-		if (i == 0)
-			fbar = BigInteger.ZERO;
-		else {
-			fbar = aot.executeC(debbie, eddie, j_1, pathTuples);
-			// outputs fbar for C
-		}
 
 		// step 5
 		int j_2 = 0;
 		BigInteger ybar_j2 = null;
 		if (i < h) {
-			// AOT(E, C, D)
-			j_2 = Nip1_pr.intValue();
-			ybar_j2 = aot.executeC(debbie, eddie, j_2, twotaupow);
-			// outputs ybar_j2 for C
+			BigInteger sC_Nip1_pr = Util.getSubBits(sC_Nip1, 0, Nip1Bits - nBits);
+			j_2 = sC_Nip1_pr.intValue();
+			AOTSS aotss = new AOTSS(debbie, eddie);
+			ybar_j2 = aotss.executeCharlie(debbie, eddie, sC_Nip1_pr);
 		}
 
+		
 		// step 6
-		// party C
-		timing.stopwatch[PID.access][TID.online].start();
 		BigInteger ybar = BigInteger.ZERO;
 		for (int o = 0; o < twotaupow; o++) {
 			ybar = ybar.shiftLeft(d_ip1);
@@ -123,13 +82,16 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				ybar = ybar.xor(ybar_j2);
 		}
 
-		BigInteger secretC_Aj1;
+		BigInteger sC_sig_P_all = sC_sig_P[0];
+		for (int j = 1; j < sC_sig_P.length; j++)
+			sC_sig_P_all = sC_sig_P_all.shiftLeft(bucketBits).xor(sC_sig_P[j]);
+		BigInteger sC_Aj1;
 		if (i == 0)
-			secretC_Aj1 = secretC_P;
+			sC_Aj1 = sC_sig_P_all;
 		else
-			secretC_Aj1 = Util.getSubBits(secretC_P, (pathTuples - j_1 - 1)
+			sC_Aj1 = Util.getSubBits(sC_sig_P_all, (pathTuples - j_1 - 1)
 					* tupleBits, (pathTuples - j_1 - 1) * tupleBits + aBits);
-		BigInteger Abar = secretC_Aj1.xor(fbar).xor(ybar);
+		BigInteger Abar = sC_Aj1.xor(fbar).xor(ybar);
 
 		BigInteger d = null;
 		BigInteger Lip1 = null;
@@ -140,47 +102,34 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			d = Abar;
 		}
 
-		BigInteger secretC_Ti = secretC_Aj1.xor(fbar);
+		BigInteger sC_Ti = sC_Aj1.xor(fbar);
 		if (i > 0)
-			secretC_Ti = Ni.shiftLeft(lBits + aBits).xor(Li.shiftLeft(aBits))
-					.xor(secretC_Ti).setBit(tupleBits - 1);
-		BigInteger secretC_P_p = null;
+			sC_Ti = sC_Ni.shiftLeft(lBits + aBits).xor(Li.shiftLeft(aBits))
+					.xor(sC_Ti).setBit(tupleBits - 1);
+		
+		BigInteger sC_sig_P_p = null;
 		if (i > 0) {
-			boolean flipBit = !secretC_P.testBit((pathTuples - j_1) * tupleBits
+			boolean flipBit = !sC_sig_P_all.testBit((pathTuples - j_1) * tupleBits
 					- 1);
 			BigInteger newTuple = new BigInteger(tupleBits - 1, SR.rand);
 			if (flipBit)
 				newTuple = newTuple.setBit(tupleBits - 1);
-			secretC_P_p = Util.setSubBits(secretC_P, newTuple, (pathTuples
+			sC_sig_P_p = Util.setSubBits(sC_sig_P_all, newTuple, (pathTuples
 					- j_1 - 1)
 					* tupleBits, (pathTuples - j_1) * tupleBits);
 		}
-		timing.stopwatch[PID.access][TID.online].stop();
+		
 
-		debbie.bandwidth[PID.access].stop();
-		eddie.bandwidth[PID.access].stop();
-		debbie.countBandwidth = false;
-		eddie.countBandwidth = false;
-
-		// C outputs Lip1, secretC_Ti, secretC_P_p
-		return new AOutput(Lip1, null, secretC_Ti, null, secretC_P_p, null, d);
+		return new AOutput(Lip1, sC_Ti, null, sC_sig_P_p, null, d);
 	}
 
 	@Override
 	public AOutput executeDebbieSubTree(Communication charlie,
 			Communication eddie, Tree sD_OT, BigInteger[] unused, Timing localTiming) {
-		//charlie.countBandwidth = true;
-		//eddie.countBandwidth = true;
-		//charlie.bandwidth[PID.access].start();
-		//eddie.bandwidth[PID.access].start();
-
 		// protocol
 		// step 1
-		timing.stopwatch[PID.access][TID.online_read].start();
 		BigInteger Li = charlie.readBigInteger();
-		timing.stopwatch[PID.access][TID.online_read].stop();
 		
-		timing.stopwatch[PID.access][TID.online].start();
 		Bucket[] sD_buckets = null;
 		try {
 			sD_buckets = sD_OT.getBucketsOnPath(Li);
@@ -192,11 +141,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			sD_P[j] = new BigInteger(1, sD_buckets[j].getByteTuples());
 		}
 		BigInteger[] sD_sig_P = Util.permute(sD_P, PreData.access_sigma[i]);
-		timing.stopwatch[PID.access][TID.online].stop();
 		
-		timing.stopwatch[PID.access][TID.online_write].start();
 		charlie.write(sD_sig_P);
-		timing.stopwatch[PID.access][TID.online_write].stop();
 		
 
 		// step 3
@@ -218,32 +164,23 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				tmp = tmp.shiftRight(tupleBits);
 			}
 			PET pet = new PET(charlie, eddie);
-			pet.executeDebbie(charlie, eddie, c, i);
+			pet.executeDebbie(charlie, eddie, i, c);
 		}
 		
 		
 		// step 4
 		if (i > 0) {
 			AOT aot = new AOT(charlie, eddie);
-			aot.executeD(charlie, eddie, i);
+			aot.executeDebbie(charlie, eddie, i);
 		}
-
-		
-		
-		
 		
 		
 		// step 5
 		if (i < h) {
-			// AOT(E, C, D)
-			aot.executeD(charlie, eddie, d_ip1, i, 1);
-			// outputs ybar_j2 for C
+			AOTSS aotss = new AOTSS(charlie, eddie);
+			aotss.executeDebbie(charlie, eddie, i, d_ip1);
 		}
-
-		//charlie.bandwidth[PID.access].stop();
-		//eddie.bandwidth[PID.access].stop();
-		//charlie.countBandwidth = false;
-		//eddie.countBandwidth = false;
+		
 
 		return null;
 	}
@@ -251,29 +188,24 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 	@Override
 	public AOutput executeEddieSubTree(Communication charlie,
 			Communication debbie, Tree sE_OT, BigInteger[] args, Timing localTiming) {
-		//charlie.countBandwidth = true;
-		//debbie.countBandwidth = true;
-		//charlie.bandwidth[PID.access].start();
-		//debbie.bandwidth[PID.access].start();
-
 		// protocol
 		// step 1
-		timing.stopwatch[PID.access][TID.online_read].start();
 		BigInteger Li = charlie.readBigInteger();
-		timing.stopwatch[PID.access][TID.online_read].stop();
 		
-		timing.stopwatch[PID.access][TID.online].start();
-		Bucket[] sE_buckets = sE_OT.getBucketsOnPath(Li);
+		Bucket[] sE_buckets = null;
+		try {
+			sE_buckets = sE_OT.getBucketsOnPath(Li);
+		} catch (TreeException | BucketException e1) {
+			e1.printStackTrace();
+		}
 		BigInteger[] sE_P = new BigInteger[sE_buckets.length];
 		for (int j = 0; j < sE_buckets.length; j++) {
 			sE_P[j] = new BigInteger(1, sE_buckets[j].getByteTuples());
 		}
 		BigInteger[] sE_sig_P = Util.permute(sE_P, PreData.access_sigma[i]);
-		timing.stopwatch[PID.access][TID.online].stop();
 		
 
 		// step 2
-		timing.stopwatch[PID.access][TID.online].start();
 		BigInteger sE_sig_P_all = sE_sig_P[0];
 		for (int j = 1; j < sE_sig_P.length; j++)
 			sE_sig_P_all = sE_sig_P_all.shiftLeft(bucketBits).xor(sE_sig_P[j]);
@@ -291,7 +223,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			y[o] = tmp.and(helper);
 			tmp = tmp.shiftRight(d_ip1);
 		}
-		timing.stopwatch[PID.access][TID.online].stop();
 		
 		
 		// step 3
@@ -310,7 +241,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				tmp = tmp.shiftRight(tupleBits);
 			}
 			PET pet = new PET(charlie, debbie);
-			pet.executeEddie(charlie, debbie, b, i);
+			pet.executeEddie(charlie, debbie, i, b);
 		}
 		
 		
@@ -327,34 +258,32 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			}
 			
 			AOT aot = new AOT(charlie, debbie);
-			aot.executeE(charlie, debbie, f, i);
+			aot.executeEddie(charlie, debbie, i, f);
 		}
 		
 		
-		
-		
-		
-		
-
-		//BigInteger secretE_Ti = y_all;
-		//BigInteger secretE_P_p = null;
-		//if (i > 0)
-		//	secretE_P_p = secretE_P;
-
 		// step 5
 		if (i < h) {
-			// AOT(E, C, D)
-			aot.executeE(charlie, debbie, y, d_ip1, i, 1);
-			// outputs ybar_j2 for C
+			BigInteger sE_Nip1_pr = Util.getSubBits(sE_Nip1, 0, Nip1Bits - nBits);
+			AOTSS aotss = new AOTSS(charlie, debbie);
+			aotss.executeEddie(charlie, debbie, i, d_ip1, y, sE_Nip1_pr);
 		}
+		
+		
+		// step 6
+		BigInteger sE_Ti = y_all;
+		BigInteger sE_sig_P_p = null;
+		if (i > 0) {
+			sE_Ti = sE_Ni.shiftLeft(lBits + aBits).xor(sE_Ti);
+			sE_sig_P_p = sE_sig_P_all;
+		}
+		
 
-		charlie.bandwidth[PID.access].stop();
-		debbie.bandwidth[PID.access].stop();
-		charlie.countBandwidth = false;
-		debbie.countBandwidth = false;
+		return new AOutput(null, null, sE_Ti, null, sE_sig_P_p, null);
+	}
 
-		// E outputs secretE_Ti and secretE_P_p
-		return new AOutput(null, DecOut.p, null, secretE_Ti, null, secretE_P_p,
-				null);
+	// for testing correctness
+	@Override
+	public void run(Party party, Forest forest) throws ForestException {
 	}
 }
