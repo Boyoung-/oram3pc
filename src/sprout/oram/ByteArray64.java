@@ -8,10 +8,12 @@ package sprout.oram;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 
 import org.apache.commons.io.FileUtils;
 
 import sprout.crypto.SR;
+import sprout.util.Util;
 
 public class ByteArray64 {
 
@@ -257,6 +259,14 @@ public class ByteArray64 {
 		output = t4.getBytes(0, 30);
 		for (int i = 0; i < output.length; i++)
 			System.out.println(output[i]);
+		
+		ByteArray64 t5 = new ByteArray64(1, "random");
+		ByteArray64 t6 = new ByteArray64(1, "random");
+		System.out.println(Util.addZero(new BigInteger(1, t5.getBytes(0, 1)).toString(2), 8));
+		System.out.println(Util.addZero(new BigInteger(1, t6.getBytes(0, 1)).toString(2), 8));
+		t5.setXOR(t6);
+		System.out.println(Util.addZero(new BigInteger(1, t5.getBytes(0, 1)).toString(2), 8));
+		System.out.println(Util.addZero(new BigInteger(1, t6.getBytes(0, 1)).toString(2), 8));
 	}
 
 }

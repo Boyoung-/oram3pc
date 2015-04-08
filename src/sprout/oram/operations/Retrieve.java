@@ -153,6 +153,10 @@ public class Retrieve extends Operation {
 					N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
 					sC_N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
 				}
+				
+				//debug
+				N = BigInteger.valueOf(3);
+				
 				sE_N = N.xor(sC_N);
 				con2.write(sE_N);
 			}

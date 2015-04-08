@@ -45,6 +45,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i > 0) {
 			PET pet = new PET(debbie, eddie);
 			j_1 = pet.executeCharlie(debbie, eddie);
+			System.out.println("Charlie: PET: j=" + j_1);
 		}
 		if (j_1 < 0) {
 			try {
@@ -72,6 +73,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			AOTSS aotss = new AOTSS(debbie, eddie);
 			ybar_j2 = aotss.executeCharlie(debbie, eddie, sC_Nip1_pr);
 		}
+		System.out.println("Charlie: i=" + i + ", j_2=" + j_2);
 
 		
 		// step 6
@@ -129,6 +131,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// protocol
 		// step 1
 		BigInteger Li = charlie.readBigInteger();
+		if (i > 0)
+			System.out.println("Debbie: i=" + i + ", Li=" + Util.addZero(Li.toString(2), lBits));
 		
 		Bucket[] sD_buckets = null;
 		try {
@@ -156,6 +160,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		BigInteger helper;
 		BigInteger tmp;
 		if (i > 0) {
+			System.out.println("Debbie: i=" + i + ", Ni=" + Util.addZero(sD_Ni.toString(2), nBits));
 			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(BigInteger.ONE);
 			tmp = sD_sig_P_all.shiftRight(lBits + aBits);
 			for (int j = pathTuples - 1; j >= 0; j--) {
@@ -163,7 +168,15 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				c[j] = a[j].xor(sD_Ni.setBit(nBits));
 				tmp = tmp.shiftRight(tupleBits);
 			}
+			
+			//debug
+			eddie.write(sD_sig_P_all);
+			eddie.write(a);
+			
 			PET pet = new PET(charlie, eddie);
+			System.out.println("--------------- " + i);
+			Util.printArrV(c);
+			System.out.println("--------------- " + i);
 			pet.executeDebbie(charlie, eddie, i, c);
 		}
 		
@@ -191,6 +204,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// protocol
 		// step 1
 		BigInteger Li = charlie.readBigInteger();
+		if (i > 0)
+			System.out.println("Eddie: i=" + i + ", Li=" + Util.addZero(Li.toString(2), lBits));
 		
 		Bucket[] sE_buckets = null;
 		try {
@@ -203,7 +218,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			sE_P[j] = new BigInteger(1, sE_buckets[j].getByteTuples());
 		}
 		BigInteger[] sE_sig_P = Util.permute(sE_P, PreData.access_sigma[i]);
-		
 
 		// step 2
 		BigInteger sE_sig_P_all = sE_sig_P[0];
@@ -233,6 +247,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		BigInteger[] d = new BigInteger[pathTuples];
 		BigInteger[] b = new BigInteger[pathTuples];
 		if (i > 0) {
+			System.out.println("Eddie: i=" + i + ", Ni=" + Util.addZero(sE_Ni.toString(2), nBits));
 			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(BigInteger.ONE);
 			tmp = sE_sig_P_all.shiftRight(lBits + aBits);
 			for (int j = pathTuples - 1; j >= 0; j--) {
@@ -240,7 +255,25 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				b[j] = d[j].xor(sE_Ni);
 				tmp = tmp.shiftRight(tupleBits);
 			}
+			
+			//debug
+			BigInteger sD_sig_P_all = debbie.readBigInteger();
+			BigInteger[] a = debbie.readBigIntegerArray();
+			for (int j = 0; j < a.length; j++) {
+				String aa = Util.addZero(
+						Util.getSubBits(a[j].xor(d[j]),
+								aBits + lBits, tupleBits).toString(2),
+						nBits + 1);
+				//System.out.println("Eddie: fb_N: " + aa);
+			}
+			//System.out.println("eddie's path: " + sE_sig_P_all.longValue());
+			//System.out.println("debbie's path: " + sD_sig_P_all.longValue());
+			
+			
 			PET pet = new PET(charlie, debbie);
+			System.out.println("--------------- " + i);
+			Util.printArrV(b);
+			System.out.println("--------------- " + i);
 			pet.executeEddie(charlie, debbie, i, b);
 		}
 		

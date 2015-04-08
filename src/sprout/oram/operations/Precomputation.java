@@ -125,7 +125,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.access_sigma[i] = new ArrayList<Integer>();
 			for (int j = 0; j < pathBuckets; j++)
 				PreData.access_sigma[i].add(j);
-			Collections.shuffle(PreData.access_sigma[i], SR.rand);
+			//Collections.shuffle(PreData.access_sigma[i], SR.rand);
 		}
 		//timing.stopwatch[PID.access][TID.offline].stop();
 

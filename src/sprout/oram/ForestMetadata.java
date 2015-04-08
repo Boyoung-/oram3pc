@@ -101,7 +101,7 @@ public class ForestMetadata implements Serializable {
 	}
 	
 	private static void setDefaultForestNames() {
-		defaultForestNames = new String[2];
+		defaultForestNames = new String[3];
 		int t = tau;
 		int n = lastNBits;
 		//int w = ForestMetadata.getBucketDepth();
@@ -109,6 +109,9 @@ public class ForestMetadata implements Serializable {
 		long r = numInsert;
 		defaultForestNames[0] = "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r + "_share1.bin";
 		defaultForestNames[1] = "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r + "_share2.bin";
+		// for testing
+		defaultForestNames[2] = "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r + "_testing.bin";
+		
 	}
 
 	private static void init(boolean ifPrint) {

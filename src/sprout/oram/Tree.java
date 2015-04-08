@@ -60,7 +60,7 @@ public class Tree {
 		}
 
 		if (L < 0 || L >= ForestMetadata.getNumLeaves(index))
-			throw new TreeException("Invalid path");
+			throw new TreeException("L=" + L + ": Invalid path");
 
 		int e = ForestMetadata.getLeafExpansion();
 		int lBits = ForestMetadata.getLBits(index);

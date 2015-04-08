@@ -1,6 +1,7 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import sprout.communication.Communication;
 import sprout.crypto.AES_PRF;
@@ -38,6 +39,11 @@ public class PET extends Operation {
 
 	public void executeDebbie(Communication charlie, Communication eddie,
 			int i, BigInteger[] c) {
+		System.out.println("cccccc");
+		for (int j=0; j<c.length; j++)
+			System.out.println(c[j]);
+		System.out.println("cccccc");
+		
 		// protocol
 		// step 2
 		int m = 1 + ForestMetadata.getNBits(i);
@@ -45,6 +51,11 @@ public class PET extends Operation {
 		try {
 			prf = new AES_PRF(m);
 			prf.init(PreData.pet_k[i]);
+			
+			// debug
+			System.out.println(m);
+			System.out.println("PET: key: " + new BigInteger(1, PreData.pet_k[i]).toString(16));
+			System.out.println("PET: key: " + Arrays.toString(PreData.pet_k[i]));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -53,15 +64,28 @@ public class PET extends Operation {
 		for (int j = 0; j < c.length; j++)
 			try {
 				w[j] = new BigInteger(1, prf.compute(PreData.pet_alpha[i][j].xor(c[j]).toByteArray()));
+				
+				// debug
+				System.out.println("PET: alpha: " + PreData.pet_alpha[i][j]);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
 		charlie.write(w);
+		
+		System.out.println("wwwwww");
+		for (int j=0; j<w.length; j++)
+			System.out.println(w[j]);
+		System.out.println("wwwwww");
 	}
 
 	public void executeEddie(Communication charlie, Communication debbie,
 			int i, BigInteger[] b) {
+		System.out.println("bbbbbb");
+		for (int j=0; j<b.length; j++)
+			System.out.println(b[j]);
+		System.out.println("bbbbbb");
+		
 		// protocol
 		// step 1
 		int m = 1 + ForestMetadata.getNBits(i);
@@ -69,6 +93,9 @@ public class PET extends Operation {
 		try {
 			prf = new AES_PRF(m);
 			prf.init(PreData.pet_k[i]);
+			
+			// debug
+			System.out.println("PET: key: " + new BigInteger(1, PreData.pet_k[i]).toString(16));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -77,11 +104,19 @@ public class PET extends Operation {
 		for (int j = 0; j < b.length; j++)
 			try {
 				v[j] = new BigInteger(1, prf.compute(PreData.pet_alpha[i][j].xor(b[j]).toByteArray()));
+				
+				// debug
+				System.out.println("PET: alpha: " + PreData.pet_alpha[i][j]);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
 		charlie.write(v);
+
+		System.out.println("vvvvvv");
+		for (int j=0; j<v.length; j++)
+			System.out.println(v[j]);
+		System.out.println("vvvvvv");
 	}
 
 	// for testing correctness

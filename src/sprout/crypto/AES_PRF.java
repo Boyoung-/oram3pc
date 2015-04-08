@@ -6,6 +6,7 @@ import javax.crypto.Cipher;
 import sprout.util.Util;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 public class AES_PRF {
 
@@ -45,7 +46,9 @@ public class AES_PRF {
 		if (input.length != 16)
 			throw new Exception("leq128 input length error");
 
+		System.out.println(Arrays.toString(input));
 		byte[] ctext = cipher.doFinal(input);
+		System.out.println(Arrays.toString(ctext));
 		if (np == 128)
 			return ctext;
 
@@ -62,6 +65,8 @@ public class AES_PRF {
 			output = tmp;
 		}
 
+
+		System.out.println(Arrays.toString(output));
 		return output;
 	}
 
@@ -106,7 +111,7 @@ public class AES_PRF {
 	// testing
 	public static void main(String[] args) {
 		try {
-			for (int l = 1; l < 5000; l++) {
+			for (int l = 1; l < 0; l++) {
 				System.out.println("Round: l=" + l);
 				AES_PRF f1 = new AES_PRF(l);
 				AES_PRF f2 = new AES_PRF(l);
@@ -130,6 +135,26 @@ public class AES_PRF {
 					break;
 				}
 			}
+			
+			
+			byte[] k = new byte[]{108, -85, -87, 12, -62, -52, -73, -19, -97, 114, 60, -115, -82, 74, -128, 39};
+			
+			AES_PRF f = new AES_PRF(7);
+			f.init(k);
+			BigInteger input1 = BigInteger.valueOf(10);
+			BigInteger input2 = BigInteger.valueOf(74);
+			BigInteger alpha = BigInteger.valueOf(64);
+			BigInteger in1 = input1.xor(alpha);
+			BigInteger in2 = input2.xor(alpha);			
+			System.out.println(Arrays.toString(in1.toByteArray()));
+			System.out.println(Arrays.toString(in2.toByteArray()));
+			BigInteger output1 = new BigInteger(1, f.compute(in1.toByteArray()));
+			BigInteger output2 = new BigInteger(1, f.compute(in2.toByteArray()));
+			System.out.println(output1);
+			System.out.println(output2);
+			
+			
+			
 			System.out.println("done");
 
 		} catch (Exception e) {

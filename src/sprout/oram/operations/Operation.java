@@ -1,11 +1,14 @@
 package sprout.oram.operations;
 
+import java.math.BigInteger;
+
 import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.util.Timing;
+import sprout.util.Util;
 
 public abstract class Operation {
 	Communication con1, con2;
@@ -100,24 +103,19 @@ public abstract class Operation {
 			else {
 				try {
 					forest = new Forest("restore");
+					//System.out.println("16 bits: " + Util.addZero(new BigInteger(1, Forest.getForestData(0, 2)).toString(2), 16));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		}
 		else if (party == Party.Debbie) {
-			if (build)
-				try {
-					forest = new Forest("init");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			else {
-				try {
-					forest = new Forest("restore", ForestMetadata.getDefaultForestNames()[1], null);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+			try {
+				forest = new Forest("restore",
+						ForestMetadata.getDefaultForestNames()[1], null);
+				//System.out.println("16 bits: " + Util.addZero(new BigInteger(1, Forest.getForestData(0, 2)).toString(2), 16));
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 

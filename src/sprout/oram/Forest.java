@@ -177,13 +177,16 @@ public class Forest {
 		}
 
 		Util.disp("");
+		
+		// TODO: for testing
+		data1.writeToFile(ForestMetadata.getDefaultForestNames()[2]);
 
 		//encryptForest();
 		//System.out.println("data1:  " + Util.addZero(new BigInteger(1, data1.getBytes(0, 2)).toString(2), 16));
 		data2 = new ByteArray64(ForestMetadata.getForestBytes(), "random");
 		data1.setXOR(data2);
-		//System.out.println("data2:  " + Util.addZero(new BigInteger(1, data2.getBytes(0, 2)).toString(2), 16));
-		//System.out.println("data1:  " + Util.addZero(new BigInteger(1, data1.getBytes(0, 2)).toString(2), 16));
+		System.out.println("data2:  " + Util.addZero(new BigInteger(1, data2.getBytes(0, 2)).toString(2), 16));
+		System.out.println("data1:  " + Util.addZero(new BigInteger(1, data1.getBytes(0, 2)).toString(2), 16));
 
 		writeToFile(filename1, filename2);
 	}
