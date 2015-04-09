@@ -53,8 +53,6 @@ public class PET extends Operation {
 			prf.init(PreData.pet_k[i]);
 			
 			// debug
-			System.out.println(m);
-			System.out.println("PET: key: " + new BigInteger(1, PreData.pet_k[i]).toString(16));
 			System.out.println("PET: key: " + Arrays.toString(PreData.pet_k[i]));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -95,7 +93,7 @@ public class PET extends Operation {
 			prf.init(PreData.pet_k[i]);
 			
 			// debug
-			System.out.println("PET: key: " + new BigInteger(1, PreData.pet_k[i]).toString(16));
+			System.out.println("PET: key: " + Arrays.toString(PreData.pet_k[i]));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

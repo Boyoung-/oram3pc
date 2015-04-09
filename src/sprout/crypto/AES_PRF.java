@@ -46,9 +46,9 @@ public class AES_PRF {
 		if (input.length != 16)
 			throw new Exception("leq128 input length error");
 
-		System.out.println(Arrays.toString(input));
+		//System.out.println(Arrays.toString(input));
 		byte[] ctext = cipher.doFinal(input);
-		System.out.println(Arrays.toString(ctext));
+		//System.out.println(Arrays.toString(ctext));
 		if (np == 128)
 			return ctext;
 
@@ -66,7 +66,7 @@ public class AES_PRF {
 		}
 
 
-		System.out.println(Arrays.toString(output));
+		//System.out.println(Arrays.toString(output));
 		return output;
 	}
 
