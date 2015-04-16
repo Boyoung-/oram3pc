@@ -19,7 +19,7 @@ import sprout.oram.TreeException;
 import sprout.util.Timing;
 import sprout.util.Util;
 
-public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
+public class DecryptPath extends TreeOperation<DPOutput, BigInteger[]> {
 
 	public DecryptPath(Communication con1, Communication con2) {
 		super(con1, con2);
@@ -27,7 +27,8 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 
 	@Override
 	public DPOutput executeCharlieSubTree(Communication debbie,
-			Communication eddie, Timing localTiming, BigInteger Li) {
+			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
+		/*
 		debbie.countBandwidth = true;
 		eddie.countBandwidth = true;
 		debbie.bandwidth[PID.decrypt].start();
@@ -77,7 +78,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		
 		
 
-		/*
+		
 		debbie.bandwidth[PID.oprf].start();
 		eddie.bandwidth[PID.oprf].start();
 
@@ -116,7 +117,7 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 
 		debbie.bandwidth[PID.oprf].stop();
 		eddie.bandwidth[PID.oprf].stop();
-		*/
+		
 
 		debbie.bandwidth[PID.decrypt].stop();
 		eddie.bandwidth[PID.decrypt].stop();
@@ -125,11 +126,13 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 
 		// C outputs secretC_P
 		return new DPOutput(secretC_P, null, null);
+		*/
+		return null;
 	}
 
 	@Override
-	public DPOutput executeDebbieSubTree(Communication charlie,
-			Communication eddie, Timing localTiming, BigInteger k) {
+	public DPOutput executeDebbieSubTree(Communication debbie,
+			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
 		/*
 		charlie.countBandwidth = true;
 		eddie.countBandwidth = true;
@@ -182,8 +185,9 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 	}
 
 	@Override
-	public DPOutput executeEddieSubTree(Communication charlie,
-			Communication debbie, Timing localTiming, BigInteger arg_unused) {
+	public DPOutput executeEddieSubTree(Communication debbie,
+			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
+		/*
 		charlie.countBandwidth = true;
 		debbie.countBandwidth = true;
 		charlie.bandwidth[PID.decrypt].start();
@@ -246,5 +250,8 @@ public class DecryptPath extends TreeOperation<DPOutput, BigInteger> {
 		// E outputs sigma and secretE_P
 		return new DPOutput(null, secretE_P, null); // sigma is in
 													// precomputation now
+													 * 
+													 */
+		return null;
 	}
 }

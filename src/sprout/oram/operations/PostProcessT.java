@@ -8,6 +8,7 @@ import sprout.crypto.SR;
 import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
 import sprout.oram.TID;
+import sprout.oram.Tree;
 import sprout.util.Timing;
 
 // TODO: This operation is unlike the other TreeOperations we may want to 
@@ -22,6 +23,28 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		super(con1, con2);
 	}
 
+	@Override
+	public BigInteger executeCharlieSubTree(Communication debbie,
+			Communication eddie, Tree OT, BigInteger[] args, Timing localTiming) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigInteger executeDebbieSubTree(Communication charlie,
+			Communication eddie, Tree OT, BigInteger[] args, Timing localTiming) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigInteger executeEddieSubTree(Communication charlie,
+			Communication debbie, Tree OT, BigInteger[] args, Timing localTiming) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
 			Communication eddie, Timing localTiming, BigInteger[] args) {
@@ -279,4 +302,5 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		// E outputs secretE_Ti_p
 		return secretE_Ti_p;
 	}
+	*/
 }

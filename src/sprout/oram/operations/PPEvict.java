@@ -38,7 +38,7 @@ public class PPEvict extends Thread {
 		this.currTree = currTree;
 		this.localTiming = localTiming;
 	}
-
+/*
 	public void run() {
 		if (p == Party.Charlie)
 			runCharlie();
@@ -48,6 +48,7 @@ public class PPEvict extends Thread {
 			runEddie();
 	}
 
+	
 	private void runCharlie() {
 		BigInteger Li = extraArgs[0];
 		BigInteger Nip1 = extraArgs[1];
@@ -228,12 +229,13 @@ public class PPEvict extends Thread {
 	}
 
 	public static void main(String args[]) {
-		/*
+		
 		 * PPEvict thread = new PPEvict(1); thread.start();
 		 * System.out.println("should print first"); try { Thread.sleep(2000);
 		 * thread.join(); } catch (InterruptedException e) { // TODO
 		 * Auto-generated catch block e.printStackTrace(); }
 		 * System.out.println("all done");
-		 */
+		 
 	}
+*/
 }

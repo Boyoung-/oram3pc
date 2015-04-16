@@ -6,9 +6,10 @@ import sprout.communication.Communication;
 import sprout.oram.PID;
 import sprout.oram.PreData;
 import sprout.oram.TID;
+import sprout.oram.Tree;
 import sprout.util.Timing;
 
-public class EncryptPath extends TreeOperation<EPath, BigInteger> {
+public class EncryptPath extends TreeOperation<EPath, BigInteger[]> {
 
 	public EncryptPath() {
 		super(null, null);
@@ -20,7 +21,8 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 	@Override
 	public EPath executeCharlieSubTree(Communication debbie,
-			Communication eddie, Timing localTiming, BigInteger secretC_P) {
+			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
+		/*
 		debbie.countBandwidth = true;
 		eddie.countBandwidth = true;
 		debbie.bandwidth[PID.encrypt].start();
@@ -62,19 +64,22 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 
 		//return null;
 		return new EPath(null, d);
+		*/
+		return null;
 	}
 
 	@Override
-	public EPath executeDebbieSubTree(Communication charlie,
-			Communication eddie, Timing localTiming, BigInteger k) {
+	public EPath executeDebbieSubTree(Communication debbie,
+			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
 		// debbie does nothing online
 		// sanityCheck();
 		return null;
 	}
 
 	@Override
-	public EPath executeEddieSubTree(Communication charlie,
-			Communication debbie, Timing localTiming, BigInteger secretE_P) {
+	public EPath executeEddieSubTree(Communication debbie,
+			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
+		/*
 		charlie.countBandwidth = true;
 		debbie.countBandwidth = true;
 		charlie.bandwidth[PID.encrypt].start();
@@ -117,5 +122,7 @@ public class EncryptPath extends TreeOperation<EPath, BigInteger> {
 		// E outputs encrypted path
 		//return new EPath(PreData.encrypt_x[i], Bbar);
 		return new EPath(null, Bbar);
+		*/
+		return null;
 	}
 }

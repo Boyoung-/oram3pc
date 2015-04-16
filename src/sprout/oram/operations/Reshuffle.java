@@ -7,6 +7,7 @@ import sprout.communication.Communication;
 import sprout.oram.PID;
 import sprout.oram.PreData;
 import sprout.oram.TID;
+import sprout.oram.Tree;
 import sprout.util.Timing;
 import sprout.util.Util;
 
@@ -23,6 +24,31 @@ public class Reshuffle extends
 		super(con1, con2);
 	}
 
+	@Override
+	public BigInteger executeCharlieSubTree(Communication debbie,
+			Communication eddie, Tree OT, Pair<BigInteger, List<Integer>> args,
+			Timing localTiming) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigInteger executeDebbieSubTree(Communication charlie,
+			Communication eddie, Tree OT, Pair<BigInteger, List<Integer>> args,
+			Timing localTiming) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigInteger executeEddieSubTree(Communication charlie,
+			Communication debbie, Tree OT,
+			Pair<BigInteger, List<Integer>> args, Timing localTiming) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
 			Communication eddie, Timing localTiming, Pair<BigInteger, List<Integer>> args) {
@@ -170,4 +196,5 @@ public class Reshuffle extends
 		// E outputs secretE_pi_P
 		return secretE_pi_P;
 	}
+	*/
 }

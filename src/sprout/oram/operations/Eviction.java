@@ -7,6 +7,7 @@ import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.PID;
 import sprout.oram.TID;
+import sprout.oram.Tree;
 import sprout.util.Timing;
 import sprout.util.Util;
 
@@ -22,7 +23,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
-			Communication eddie, Timing localTiming, BigInteger[] args) {
+			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
 		if (i == 0)
 			return null;
 
@@ -118,7 +119,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 	@Override
 	public BigInteger executeDebbieSubTree(Communication charlie,
-			Communication eddie, Timing localTiming, BigInteger[] args_unused) {
+			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
 		if (i == 0)
 			return null;
 
@@ -218,7 +219,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
-			Communication debbie, Timing localTiming, BigInteger[] args) {
+			Communication debbie, Tree unused, BigInteger[] args, Timing localTiming) {
 		if (i == 0)
 			return null;
 
