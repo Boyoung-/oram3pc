@@ -47,7 +47,7 @@ public class SSCOT extends Operation {
 		// protocol
 		// step 2
 		int diffBits = SR.kBits - l_p;
-		BigInteger[] y= new BigInteger[N];
+		BigInteger[] y = new BigInteger[N];
 		BigInteger[] p = new BigInteger[N];
 		BigInteger[] w = new BigInteger[N];
 		AES_PRF F_k = new AES_PRF(SR.kBits);

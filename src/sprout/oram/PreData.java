@@ -13,6 +13,11 @@ public class PreData {
 	public static byte[][] sscot_k_p;
 	public static BigInteger[][] sscot_r;
 	
+	// SSIOT
+	public static byte[][] ssiot_k;
+	public static byte[][] ssiot_k_p;
+	public static BigInteger[] ssiot_r;
+	
 	
 	
 	

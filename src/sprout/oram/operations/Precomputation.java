@@ -6,7 +6,6 @@ import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
-import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.PreData;
 import sprout.oram.Tree;
@@ -121,6 +120,24 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		
 		eddie.write(PreData.sscot_k);
 		eddie.write(PreData.sscot_k_p);
+		
+		
+		// SSIOT
+		PreData.ssiot_k = new byte[levels][16];
+		PreData.ssiot_k_p = new byte[levels][16];
+		PreData.ssiot_r = new BigInteger[levels];
+
+		for (int index = 0; index < levels; index++) {
+			SR.rand.nextBytes(PreData.ssiot_k[i]);
+			SR.rand.nextBytes(PreData.ssiot_k_p[i]);
+			PreData.ssiot_r[i] = new BigInteger(SR.kBits, SR.rand);
+		}
+
+		eddie.write(PreData.ssiot_k);
+		eddie.write(PreData.ssiot_k_p);
+		eddie.write(PreData.ssiot_r);
+		
+		
 		
 		
 		/*
@@ -370,6 +387,13 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		
 		PreData.sscot_k = debbie.readDoubleByteArray();
 		PreData.sscot_k_p = debbie.readDoubleByteArray();
+		
+		
+		// SSIOT
+		PreData.ssiot_k = debbie.readDoubleByteArray();
+		PreData.ssiot_k_p = debbie.readDoubleByteArray();
+		PreData.ssiot_r = debbie.readBigIntegerArray();
+		
 		
 		
 		/*

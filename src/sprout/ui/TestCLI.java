@@ -121,6 +121,8 @@ public class TestCLI {
 				operation = Precomputation.class;
 			} else if (alg.equals("sscot")) {
 				operation = SSCOT.class;
+			} else if (alg.equals("ssiot")) {
+				operation = SSIOT.class;
 			} else {
 				System.out.println("Method " + alg + " not supported");
 				System.exit(-1);
