@@ -8,6 +8,22 @@ import org.bouncycastle.math.ec.ECPoint;
 import YaoGC.Circuit;
 
 public class PreData {
+	// SSCOT
+	public static byte[][] sscot_k;
+	public static byte[][] sscot_k_p;
+	public static BigInteger[][] sscot_r;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	////// OLD STUFF /////////
+	
 	// Access
 	public static List<Integer>[] access_sigma;
 

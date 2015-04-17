@@ -7,11 +7,14 @@ import java.security.SecureRandom;
 
 import javax.crypto.spec.SecretKeySpec;
 
+// TODO: rm unused item
+
 public class SR {
 	public static SecureRandom rand;
 	public static MessageDigest digest;
 	public static BigInteger p;
 	public static SecretKeySpec skey;
+	public static int kBits;
 
 	static {
 		try {
@@ -27,5 +30,7 @@ public class SR {
 																			// -
 																			// 41
 		skey = PRG.readKey();
+		
+		kBits = 80;
 	}
 }

@@ -35,7 +35,8 @@ public class PRG {
 	}
 
 	public byte[] compute(byte[] seed) {
-		if (seed.length != 16) {
+		byte[] input;
+		if (seed.length > 16) {
 			try {
 				throw new Exception("Wrong seed length: " + seed.length);
 			} catch (Exception e) {
@@ -43,8 +44,15 @@ public class PRG {
 			}
 			return null;
 		}
+		else if (seed.length == 16) {
+			input = seed;
+		}
+		else {
+			input = new byte[16];
+			System.arraycopy(seed, 0, input, input.length - seed.length, seed.length);
+		}
 		
-		IvParameterSpec IV = new IvParameterSpec(seed);
+		IvParameterSpec IV = new IvParameterSpec(input);
 		byte[] msg = new byte[(l + 7) / 8];
 		byte[] output = null;
 		

@@ -1,26 +1,16 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-import org.bouncycastle.math.ec.ECPoint;
-
-import YaoGC.Circuit;
-import YaoGC.F2ET_Wplus2_Wplus2;
-import YaoGC.F2FT_2Wplus2_Wplus2;
-import YaoGC.Wire;
 import sprout.communication.Communication;
-import sprout.crypto.PRG;
 import sprout.crypto.SR;
-import sprout.crypto.oprf.OPRF;
-import sprout.oram.PID;
+import sprout.oram.Forest;
+import sprout.oram.ForestException;
+import sprout.oram.ForestMetadata;
+import sprout.oram.Party;
 import sprout.oram.PreData;
-import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.util.Timing;
-import sprout.util.Util;
 
 public class Precomputation extends TreeOperation<Object, Object> {
 
@@ -28,7 +18,6 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		super(con1, con2);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree OT, Object unused, Timing localTiming) {
@@ -110,11 +99,31 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeDebbieSubTree(Communication charlie,
 			Communication eddie, Tree OT, Object unused, Timing localTiming) {
+		// SSCOT
+		PreData.sscot_k = new byte[levels][16];
+		PreData.sscot_k_p = new byte[levels][16];
+		PreData.sscot_r = new BigInteger[levels][];
 		
+		for (int index = 0; index < levels; index++) {
+			loadTreeSpecificParameters(index);
+			SR.rand.nextBytes(PreData.sscot_k[i]);
+			SR.rand.nextBytes(PreData.sscot_k_p[i]);
+			PreData.sscot_r[i] = new BigInteger[pathTuples];
+			for (int j=0; j<pathTuples; j++) {
+				PreData.sscot_r[i][j] = new BigInteger(SR.kBits, SR.rand);
+			}
+			
+			eddie.write(PreData.sscot_r[i]);
+		}
+		
+		eddie.write(PreData.sscot_k);
+		eddie.write(PreData.sscot_k_p);
+		
+		
+		/*
 		// Access
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
 
@@ -172,7 +181,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			SR.rand.nextBytes(PreData.aotss_k[index]);
 		}
 		eddie.write(PreData.aotss_k);
-		
+		*/
 		
 		
 		/*
@@ -349,11 +358,21 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeEddieSubTree(Communication charlie,
 			Communication debbie, Tree OT, Object unused, Timing localTiming) {
+		// SSCOT
+		PreData.sscot_r = new BigInteger[levels][];
 		
+		for (int index = 0; index < levels; index++) {
+			PreData.sscot_r[i] = debbie.readBigIntegerArray();
+		}
+		
+		PreData.sscot_k = debbie.readDoubleByteArray();
+		PreData.sscot_k_p = debbie.readDoubleByteArray();
+		
+		
+		/*
 		// Access
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
 
@@ -378,7 +397,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		
 		// AOTSS
 		PreData.aotss_k = debbie.readDoubleByteArray();
-		
+		*/
 
 		
 		/*
@@ -524,5 +543,27 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		 */
 
 		return null;
+	}
+	
+	// for testing correctness
+	@Override
+	public void run(Party party, Forest forest) throws ForestException {
+		System.out.println("#####  Testing PreComputation  #####");
+
+		if (party == Party.Eddie) {
+			System.out.println("Eddie starts");
+			executeEddieSubTree(con1, con2, null, null, null);
+			System.out.println("Eddie ends");
+		} else if (party == Party.Debbie) {
+			System.out.println("Debbie starts");
+			executeDebbieSubTree(con1, con2, null, null, null);
+			System.out.println("Debbie ends");
+		} else if (party == Party.Charlie) {
+			System.out.println("Charlie starts");
+			executeCharlieSubTree(con1, con2, null, null, null);
+			System.out.println("Charlie ends");
+		}
+
+		System.out.println("#####  Testing PreComputation Finished  #####");
 	}
 }

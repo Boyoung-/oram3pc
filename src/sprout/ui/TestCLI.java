@@ -117,6 +117,10 @@ public class TestCLI {
 				operation = GCF.class;
 			} else if (alg.equals("retrieve")) {
 				operation = Retrieve.class;
+			} else if (alg.equals("precomp")) {
+				operation = Precomputation.class;
+			} else if (alg.equals("sscot")) {
+				operation = SSCOT.class;
 			} else {
 				System.out.println("Method " + alg + " not supported");
 				System.exit(-1);

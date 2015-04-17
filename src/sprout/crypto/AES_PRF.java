@@ -1,33 +1,60 @@
 package sprout.crypto;
 
 import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import sprout.util.Util;
 
 import java.math.BigInteger;
-import java.util.Arrays;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
+// TODO: change name to PRF
 public class AES_PRF {
 
 	private Cipher cipher = null;
 	private int l; // output bit length
+	
+	private int maxInputBytes = 12;
 
-	public AES_PRF(int l) throws Exception {
-		this.cipher = Cipher.getInstance("AES/ECB/NoPadding");
+	public AES_PRF(int l) {
+		try {
+			this.cipher = Cipher.getInstance("AES/ECB/NoPadding");
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		this.l = l;
 	}
 
-	public void init(byte[] key) throws Exception {
+	public void init(byte[] key) {
 		if (key.length != 16)
-			throw new Exception("key length error");
+			try {
+				throw new Exception("key length error");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		SecretKeySpec skey = new SecretKeySpec(key, "AES");
-		cipher.init(Cipher.ENCRYPT_MODE, skey);
+		try {
+			cipher.init(Cipher.ENCRYPT_MODE, skey);
+		} catch (InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	public byte[] compute(byte[] input) throws Exception {
-		if (input.length > 8)
-			throw new Exception("input length error: " + input.length + " > 8");
+	public byte[] compute(byte[] input) {
+		if (input.length > maxInputBytes)
+			try {
+				throw new Exception("input length error: " + input.length + " > " + maxInputBytes);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		byte[] output = null;
 		if (l <= 128) {
@@ -42,12 +69,26 @@ public class AES_PRF {
 		return output;
 	}
 
-	private byte[] leq128(byte[] input, int np) throws Exception {
+	private byte[] leq128(byte[] input, int np) {
 		if (input.length != 16)
-			throw new Exception("leq128 input length error");
+			try {
+				throw new Exception("leq128 input length error");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		//System.out.println(Arrays.toString(input));
-		byte[] ctext = cipher.doFinal(input);
+		byte[] ctext = null;
+		try {
+			ctext = cipher.doFinal(input);
+		} catch (IllegalBlockSizeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BadPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//System.out.println(Arrays.toString(ctext));
 		if (np == 128)
 			return ctext;
@@ -70,9 +111,14 @@ public class AES_PRF {
 		return output;
 	}
 
-	private byte[] greater128(byte[] input) throws Exception {
-		if (input.length > 8)
-			throw new Exception("greater128 input length error");
+	private byte[] greater128(byte[] input) {
+		if (input.length > maxInputBytes)
+			try {
+				throw new Exception("greater128 input length error");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		byte[] in = new byte[16];
 		System.arraycopy(input, 0, in, in.length - input.length, input.length);
@@ -80,7 +126,7 @@ public class AES_PRF {
 		byte[] front = new byte[n * 16];
 		for (int i = 0; i < n; i++) {
 			byte[] index = BigInteger.valueOf(i + 1).toByteArray();
-			System.arraycopy(index, 0, in, 8 - index.length, index.length);
+			System.arraycopy(index, 0, in, 16 - maxInputBytes - index.length, index.length);
 			byte[] seg = leq128(in, 128);
 			System.arraycopy(seg, 0, front, i * seg.length, seg.length);
 		}
@@ -90,7 +136,7 @@ public class AES_PRF {
 			return front;
 
 		byte[] index = BigInteger.valueOf(n + 1).toByteArray();
-		System.arraycopy(index, 0, in, 8 - index.length, index.length);
+		System.arraycopy(index, 0, in, 16 - maxInputBytes - index.length, index.length);
 		byte[] back = leq128(in, np);
 		byte[] output = new BigInteger(1, front).shiftLeft(np)
 				.or(new BigInteger(1, back)).toByteArray();
@@ -111,13 +157,13 @@ public class AES_PRF {
 	// testing
 	public static void main(String[] args) {
 		try {
-			for (int l = 1; l < 0; l++) {
+			for (int l = 1; l < 5000; l++) {
 				System.out.println("Round: l=" + l);
 				AES_PRF f1 = new AES_PRF(l);
 				AES_PRF f2 = new AES_PRF(l);
 				byte[] k = new byte[16];
 				SR.rand.nextBytes(k);
-				byte[] input = new byte[SR.rand.nextInt(8) + 1];
+				byte[] input = new byte[SR.rand.nextInt(12) + 1];
 				SR.rand.nextBytes(input);
 				f1.init(k);
 				f2.init(k);
@@ -135,25 +181,6 @@ public class AES_PRF {
 					break;
 				}
 			}
-			
-			
-			byte[] k = new byte[]{108, -85, -87, 12, -62, -52, -73, -19, -97, 114, 60, -115, -82, 74, -128, 39};
-			
-			AES_PRF f = new AES_PRF(7);
-			f.init(k);
-			BigInteger input1 = BigInteger.valueOf(10);
-			BigInteger input2 = BigInteger.valueOf(74);
-			BigInteger alpha = BigInteger.valueOf(64);
-			BigInteger in1 = input1.xor(alpha);
-			BigInteger in2 = input2.xor(alpha);			
-			System.out.println(Arrays.toString(in1.toByteArray()));
-			System.out.println(Arrays.toString(in2.toByteArray()));
-			BigInteger output1 = new BigInteger(1, f.compute(in1.toByteArray()));
-			BigInteger output2 = new BigInteger(1, f.compute(in2.toByteArray()));
-			System.out.println(output1);
-			System.out.println(output2);
-			
-			
 			
 			System.out.println("done");
 
