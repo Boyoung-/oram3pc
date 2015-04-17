@@ -18,7 +18,9 @@ public class PreData {
 	public static byte[][] ssiot_k_p;
 	public static BigInteger[] ssiot_r;
 	
-	
+	// Access
+	public static List<Integer>[] access_sigma;
+	public static BigInteger[] access_p;
 	
 	
 	
@@ -29,8 +31,7 @@ public class PreData {
 	
 	////// OLD STUFF /////////
 	
-	// Access
-	public static List<Integer>[] access_sigma;
+	
 
 	// PET
 	public static BigInteger[][] pet_alpha;

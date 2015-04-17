@@ -1,6 +1,9 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import sprout.communication.Communication;
 import sprout.crypto.SR;
@@ -98,6 +101,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeDebbieSubTree(Communication charlie,
 			Communication eddie, Tree OT, Object unused, Timing localTiming) {
@@ -138,28 +142,28 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		eddie.write(PreData.ssiot_r);
 		
 		
-		
-		
-		/*
 		// Access
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
+		PreData.access_p = new BigInteger[levels];
 
-		//timing.stopwatch[PID.access][TID.offline].start();
-		for (int index = 0; index <= h; index++) {
+		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
-
 			PreData.access_sigma[i] = new ArrayList<Integer>();
 			for (int j = 0; j < pathBuckets; j++)
 				PreData.access_sigma[i].add(j);
-			//Collections.shuffle(PreData.access_sigma[i], SR.rand);
+			Collections.shuffle(PreData.access_sigma[i], SR.rand);
+			PreData.access_p[i] = new BigInteger(pathTuples * tupleBits, SR.rand);
 		}
-		//timing.stopwatch[PID.access][TID.offline].stop();
 
-		//timing.stopwatch[PID.access][TID.offline_write].start();
-		for (int index = 0; index <= h; index++) {
+		for (int index = 0; index < levels; index++) {
 			eddie.write(PreData.access_sigma[index]);
 		}
-		//timing.stopwatch[PID.access][TID.offline_write].stop();
+		eddie.write(PreData.access_p);
+		
+		
+		
+		/*
+		
 
 		// PET
 		PreData.pet_alpha = new BigInteger[levels][];
@@ -375,6 +379,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeEddieSubTree(Communication charlie,
 			Communication debbie, Tree OT, Object unused, Timing localTiming) {
@@ -395,16 +400,18 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		PreData.ssiot_r = debbie.readBigIntegerArray();
 		
 		
-		
-		/*
 		// Access
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
 
-		//timing.stopwatch[PID.access][TID.offline_read].start();
 		for (int index = 0; index <= h; index++) {
 			PreData.access_sigma[index] = debbie.readListInt();
 		}
-		//timing.stopwatch[PID.access][TID.offline_read].stop();
+		PreData.access_p = debbie.readBigIntegerArray();
+		
+		
+		
+		/*
+		
 
 		// PET
 		PreData.pet_alpha = new BigInteger[levels][];

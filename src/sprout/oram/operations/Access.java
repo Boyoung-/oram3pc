@@ -2,6 +2,8 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.Bucket;
@@ -15,6 +17,8 @@ import sprout.oram.Tree;
 import sprout.oram.TreeException;
 import sprout.util.Timing;
 import sprout.util.Util;
+
+// TODO: rm all try catch
 
 public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
@@ -31,29 +35,52 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		debbie.write(Li);
 		eddie.write(Li);
 		
-		BigInteger[] sC_sig_P = debbie.readBigIntegerArray();
+		BigInteger sC_sig_P_all_p = debbie.readBigInteger();
 		
-
-		// step 3
+		
+		// step 2
 		BigInteger sC_Nip1 = args[1];
 		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata.getLastNBits();
 		BigInteger sC_Ni = Util.getSubBits(sC_Nip1, Nip1Bits - nBits, Nip1Bits);
 		
 		debbie.write(sC_Ni);
 		
-		int j_1 = 0; // i = 0 case; as the j_1 = 1 in the write up notes
+		int j_1 = 0;
+		BigInteger eBar = BigInteger.ZERO; // TODO: i=0 case???
+		BigInteger z = BigInteger.ZERO; // TODO: i=0 case???
 		if (i > 0) {
-			PET pet = new PET(debbie, eddie);
-			j_1 = pet.executeCharlie(debbie, eddie);
-			System.out.println("Charlie: PET: j=" + j_1);
-		}
-		if (j_1 < 0) {
-			try {
-				throw new Exception("PET error!");
-			} catch (Exception e) {
-				e.printStackTrace();
+			SSCOT sscot = new SSCOT(debbie, eddie);
+			Pair<Integer, BigInteger> je = sscot.executeCharlie(debbie, eddie, i, pathTuples, aBits, 1+nBits);
+			if (je == null) {
+				try {
+					throw new Exception("SSCOT error!");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
 			}
+			j_1 = je.getLeft();
+			eBar = je.getRight();
+			
+			BigInteger helper = BigInteger.ONE.shiftLeft(aBits).subtract(BigInteger.ONE);
+			BigInteger dBar = sC_sig_P_all_p.shiftRight((pathTuples-j_1-1)*tupleBits).add(helper);
+			z = eBar.xor(dBar);
 		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		BigInteger[] sC_sig_P = debbie.readBigIntegerArray();
+		
+
+		// step 3
+		
 		
 		
 		// step 4
@@ -146,39 +173,47 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		}
 		BigInteger[] sD_sig_P = Util.permute(sD_P, PreData.access_sigma[i]);
 		
+		BigInteger sD_sig_P_all = sD_sig_P[0];
+		for (int j = 1; j < sD_sig_P.length; j++)
+			sD_sig_P_all = sD_sig_P_all.shiftLeft(bucketBits).xor(sD_sig_P[j]);
+		BigInteger sD_sig_P_all_p = sD_sig_P_all.xor(PreData.access_p[i]);
+		
+		charlie.write(sD_sig_P_all_p);
+		
+		
+		// step 2
+		BigInteger sD_Ni = charlie.readBigInteger();
+
+		BigInteger[] a = new BigInteger[pathTuples];
+		BigInteger[] share1N = new BigInteger[pathTuples];
+		BigInteger helper;
+		BigInteger tmp;
+		if (i > 0) {
+			//System.out.println("Debbie: i=" + i + ", Ni="
+			//		+ Util.addZero(sD_Ni.toString(2), nBits));
+			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(BigInteger.ONE);
+			tmp = sD_sig_P_all_p.shiftRight(lBits + aBits);
+			for (int j = pathTuples - 1; j >= 0; j--) {
+				share1N[j] = tmp.and(helper);
+				tmp = tmp.shiftRight(tupleBits);
+				a[j] = share1N[j].xor(sD_Ni.setBit(nBits));
+			}
+			
+			SSCOT sscot = new SSCOT(charlie, eddie);
+			sscot.executeDebbie(charlie, eddie, i, pathTuples, aBits, 1+nBits, a);
+		}
+		
+		
+		
+		
+		
+		
+		
 		charlie.write(sD_sig_P);
 		
 
 		// step 3
-		BigInteger sD_Ni = charlie.readBigInteger();	
 		
-		BigInteger sD_sig_P_all = sD_sig_P[0];
-		for (int j = 1; j < sD_sig_P.length; j++)
-			sD_sig_P_all = sD_sig_P_all.shiftLeft(bucketBits).xor(sD_sig_P[j]);
-		BigInteger[] a = new BigInteger[pathTuples];
-		BigInteger[] c = new BigInteger[pathTuples];
-		BigInteger helper;
-		BigInteger tmp;
-		if (i > 0) {
-			System.out.println("Debbie: i=" + i + ", Ni=" + Util.addZero(sD_Ni.toString(2), nBits));
-			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(BigInteger.ONE);
-			tmp = sD_sig_P_all.shiftRight(lBits + aBits);
-			for (int j = pathTuples - 1; j >= 0; j--) {
-				a[j] = tmp.and(helper);
-				c[j] = a[j].xor(sD_Ni.setBit(nBits));
-				tmp = tmp.shiftRight(tupleBits);
-			}
-			
-			//debug
-			eddie.write(sD_sig_P_all);
-			eddie.write(a);
-			
-			PET pet = new PET(charlie, eddie);
-			System.out.println("--------------- " + i);
-			Util.printArrV(c);
-			System.out.println("--------------- " + i);
-			pet.executeDebbie(charlie, eddie, i, c);
-		}
 		
 		
 		// step 4
@@ -204,8 +239,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// protocol
 		// step 1
 		BigInteger Li = charlie.readBigInteger();
-		if (i > 0)
-			System.out.println("Eddie: i=" + i + ", Li=" + Util.addZero(Li.toString(2), lBits));
+		//if (i > 0)
+		//	System.out.println("Eddie: i=" + i + ", Li=" + Util.addZero(Li.toString(2), lBits));
 		
 		Bucket[] sE_buckets = null;
 		try {
@@ -218,15 +253,17 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			sE_P[j] = new BigInteger(1, sE_buckets[j].getByteTuples());
 		}
 		BigInteger[] sE_sig_P = Util.permute(sE_P, PreData.access_sigma[i]);
-
-		// step 2
+		
 		BigInteger sE_sig_P_all = sE_sig_P[0];
 		for (int j = 1; j < sE_sig_P.length; j++)
 			sE_sig_P_all = sE_sig_P_all.shiftLeft(bucketBits).xor(sE_sig_P[j]);
+		BigInteger sE_sig_P_all_p = sE_sig_P_all.xor(PreData.access_p[i]);
+		
+			
 		BigInteger[] y = new BigInteger[twotaupow];
 		BigInteger y_all;
 		if (i == 0)
-			y_all = sE_sig_P_all;
+			y_all = sE_sig_P_all_p;
 		else if (i < h)
 			y_all = new BigInteger(aBits, SR.rand);
 		else
@@ -239,43 +276,39 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		}
 		
 		
-		// step 3
+		// step 2
 		BigInteger sE_Nip1 = args[0];
 		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata.getLastNBits();
 		BigInteger sE_Ni = Util.getSubBits(sE_Nip1, Nip1Bits - nBits, Nip1Bits);
 
-		BigInteger[] d = new BigInteger[pathTuples];
+		BigInteger[] e = new BigInteger[pathTuples];
 		BigInteger[] b = new BigInteger[pathTuples];
+		BigInteger[] share1N = new BigInteger[pathTuples];
+		BigInteger[] shareA = new BigInteger[pathTuples];
+		BigInteger helper1N;
+		BigInteger helperA;
 		if (i > 0) {
-			System.out.println("Eddie: i=" + i + ", Ni=" + Util.addZero(sE_Ni.toString(2), nBits));
-			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(BigInteger.ONE);
-			tmp = sE_sig_P_all.shiftRight(lBits + aBits);
+			//System.out.println("Eddie: i=" + i + ", Ni=" + Util.addZero(sE_Ni.toString(2), nBits));
+			helper1N = BigInteger.ONE.shiftLeft(1 + nBits).subtract(BigInteger.ONE);
+			helperA = BigInteger.ONE.shiftLeft(aBits).subtract(BigInteger.ONE);
+			tmp = sE_sig_P_all_p;
 			for (int j = pathTuples - 1; j >= 0; j--) {
-				d[j] = tmp.and(helper);
-				b[j] = d[j].xor(sE_Ni);
-				tmp = tmp.shiftRight(tupleBits);
+				shareA[j] = tmp.and(helperA);
+				tmp = tmp.shiftRight(lBits + aBits);
+				share1N[j] = tmp.and(helper1N);
+				tmp = tmp.shiftRight(1 + nBits);
+				e[j] = shareA[j].xor(y_all);
+				b[j] = share1N[j].xor(sE_Ni);
 			}
 			
-			//debug
-			BigInteger sD_sig_P_all = debbie.readBigInteger();
-			BigInteger[] a = debbie.readBigIntegerArray();
-			for (int j = 0; j < a.length; j++) {
-				String aa = Util.addZero(
-						Util.getSubBits(a[j].xor(d[j]),
-								aBits + lBits, tupleBits).toString(2),
-						nBits + 1);
-				//System.out.println("Eddie: fb_N: " + aa);
-			}
-			//System.out.println("eddie's path: " + sE_sig_P_all.longValue());
-			//System.out.println("debbie's path: " + sD_sig_P_all.longValue());
-			
-			
-			PET pet = new PET(charlie, debbie);
-			System.out.println("--------------- " + i);
-			Util.printArrV(b);
-			System.out.println("--------------- " + i);
-			pet.executeEddie(charlie, debbie, i, b);
+			SSCOT sscot = new SSCOT(charlie, debbie);
+			sscot.executeEddie(charlie, debbie, i, pathTuples, aBits, 1+nBits, e, b);
 		}
+		
+		
+		
+		
+		
 		
 		
 		// step 4
