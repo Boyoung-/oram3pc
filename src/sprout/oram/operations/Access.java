@@ -21,7 +21,7 @@ import sprout.util.Util;
 // TODO: rm all try catch
 
 public class Access extends TreeOperation<AOutput, BigInteger[]> {
-
+	
 	public Access(Communication con1, Communication con2) {
 		super(con1, con2);
 	}
@@ -43,12 +43,14 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata.getLastNBits();
 		BigInteger sC_Ni = Util.getSubBits(sC_Nip1, Nip1Bits - nBits, Nip1Bits);
 		
-		debbie.write(sC_Ni);
+		debbie.write(sC_Nip1);
 		
 		int j_1 = 0;
-		BigInteger eBar = BigInteger.ZERO; // TODO: i=0 case???
-		BigInteger z = BigInteger.ZERO; // TODO: i=0 case???
-		if (i > 0) {
+		BigInteger z;
+		if (i == 0) {
+			z = sC_sig_P_all_p;
+		}
+		else {
 			SSCOT sscot = new SSCOT(debbie, eddie);
 			Pair<Integer, BigInteger> je = sscot.executeCharlie(debbie, eddie, i, pathTuples, aBits, 1+nBits);
 			if (je == null) {
@@ -60,90 +62,49 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				return null;
 			}
 			j_1 = je.getLeft();
-			eBar = je.getRight();
+			BigInteger eBar = je.getRight();
 			
 			BigInteger helper = BigInteger.ONE.shiftLeft(aBits).subtract(BigInteger.ONE);
-			BigInteger dBar = sC_sig_P_all_p.shiftRight((pathTuples-j_1-1)*tupleBits).add(helper);
+			BigInteger dBar = sC_sig_P_all_p.shiftRight((pathTuples-j_1-1)*tupleBits).and(helper);
 			z = eBar.xor(dBar);
 		}
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		BigInteger[] sC_sig_P = debbie.readBigIntegerArray();
-		
-
 		// step 3
-		
+		int j_2 = 0;
+		BigInteger y_j2 = null;
+		if (i < h) {
+			SSIOT ssiot = new SSIOT(debbie, eddie);
+			Pair<Integer, BigInteger> jy = ssiot.executeCharlie(debbie, eddie, i, twotaupow, aBits/twotaupow, tau);
+			j_2 = jy.getLeft();
+			y_j2 = jy.getRight();
+		}
 		
 		
 		// step 4
-		BigInteger fbar = BigInteger.ZERO;;
-		if (i > 0) {
-			AOT aot = new AOT(debbie, eddie);
-			fbar = aot.executeCharlie(debbie, eddie, j_1);
-		}
-
-
-		// step 5
-		int j_2 = 0;
-		BigInteger ybar_j2 = null;
-		if (i < h) {
-			BigInteger sC_Nip1_pr = Util.getSubBits(sC_Nip1, 0, Nip1Bits - nBits);
-			j_2 = sC_Nip1_pr.intValue();
-			AOTSS aotss = new AOTSS(debbie, eddie);
-			ybar_j2 = aotss.executeCharlie(debbie, eddie, sC_Nip1_pr);
-		}
-		System.out.println("Charlie: i=" + i + ", j_2=" + j_2);
-
-		
-		// step 6
-		BigInteger ybar = BigInteger.ZERO;
-		for (int o = 0; o < twotaupow; o++) {
-			ybar = ybar.shiftLeft(d_ip1);
-			if (i < h && o == j_2)
-				ybar = ybar.xor(ybar_j2);
-		}
-
-		BigInteger sC_sig_P_all = sC_sig_P[0];
-		for (int j = 1; j < sC_sig_P.length; j++)
-			sC_sig_P_all = sC_sig_P_all.shiftLeft(bucketBits).xor(sC_sig_P[j]);
-		BigInteger sC_Aj1;
-		if (i == 0)
-			sC_Aj1 = sC_sig_P_all;
-		else
-			sC_Aj1 = Util.getSubBits(sC_sig_P_all, (pathTuples - j_1 - 1)
-					* tupleBits, (pathTuples - j_1 - 1) * tupleBits + aBits);
-		BigInteger Abar = sC_Aj1.xor(fbar).xor(ybar);
-
 		BigInteger d = null;
 		BigInteger Lip1 = null;
 		if (i < h) {
-			Lip1 = Util.getSubBits(Abar, (twotaupow - j_2 - 1) * d_ip1,
-					(twotaupow - j_2) * d_ip1);
+			Lip1 = y_j2.xor(Util.getSubBits(z, (twotaupow - j_2 - 1) * d_ip1, (twotaupow - j_2) * d_ip1));
 		} else {
-			d = Abar;
+			d = z;
 		}
-
-		BigInteger sC_Ti = sC_Aj1.xor(fbar);
-		if (i > 0)
-			sC_Ti = sC_Ni.shiftLeft(lBits + aBits).xor(Li.shiftLeft(aBits))
-					.xor(sC_Ti).setBit(tupleBits - 1);
 		
-		BigInteger sC_sig_P_p = null;
-		if (i > 0) {
-			boolean flipBit = !sC_sig_P_all.testBit((pathTuples - j_1) * tupleBits
+		BigInteger sC_Ti;
+		BigInteger sC_sig_P_p;
+		if (i == 0) {
+			sC_Ti = z;
+			sC_sig_P_p = null;
+		}
+		else {
+			sC_Ti = sC_Ni.shiftLeft(lBits + aBits).xor(z).setBit(tupleBits - 1);
+			
+			boolean flipBit = !sC_sig_P_all_p.testBit((pathTuples - j_1) * tupleBits
 					- 1);
 			BigInteger newTuple = new BigInteger(tupleBits - 1, SR.rand);
 			if (flipBit)
 				newTuple = newTuple.setBit(tupleBits - 1);
-			sC_sig_P_p = Util.setSubBits(sC_sig_P_all, newTuple, (pathTuples
+			sC_sig_P_p = Util.setSubBits(sC_sig_P_all_p, newTuple, (pathTuples
 					- j_1 - 1)
 					* tupleBits, (pathTuples - j_1) * tupleBits);
 		}
@@ -158,8 +119,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// protocol
 		// step 1
 		BigInteger Li = charlie.readBigInteger();
-		if (i > 0)
-			System.out.println("Debbie: i=" + i + ", Li=" + Util.addZero(Li.toString(2), lBits));
 		
 		Bucket[] sD_buckets = null;
 		try {
@@ -182,15 +141,15 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		
 		
 		// step 2
-		BigInteger sD_Ni = charlie.readBigInteger();
+		BigInteger sD_Nip1 = charlie.readBigInteger();
+		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata.getLastNBits();
+		BigInteger sD_Ni = Util.getSubBits(sD_Nip1, Nip1Bits - nBits, Nip1Bits);
 
 		BigInteger[] a = new BigInteger[pathTuples];
 		BigInteger[] share1N = new BigInteger[pathTuples];
 		BigInteger helper;
 		BigInteger tmp;
 		if (i > 0) {
-			//System.out.println("Debbie: i=" + i + ", Ni="
-			//		+ Util.addZero(sD_Ni.toString(2), nBits));
 			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(BigInteger.ONE);
 			tmp = sD_sig_P_all_p.shiftRight(lBits + aBits);
 			for (int j = pathTuples - 1; j >= 0; j--) {
@@ -204,29 +163,11 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		}
 		
 		
-		
-		
-		
-		
-		
-		charlie.write(sD_sig_P);
-		
-
 		// step 3
-		
-		
-		
-		// step 4
-		if (i > 0) {
-			AOT aot = new AOT(charlie, eddie);
-			aot.executeDebbie(charlie, eddie, i);
-		}
-		
-		
-		// step 5
 		if (i < h) {
-			AOTSS aotss = new AOTSS(charlie, eddie);
-			aotss.executeDebbie(charlie, eddie, i, d_ip1);
+			BigInteger sD_Nip1_pr = Util.getSubBits(sD_Nip1, 0, Nip1Bits - nBits);
+			SSIOT ssiot = new SSIOT(charlie, eddie);
+			ssiot.executeDebbie(charlie, eddie, i, twotaupow, aBits/twotaupow, tau, sD_Nip1_pr);
 		}
 		
 
@@ -239,8 +180,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// protocol
 		// step 1
 		BigInteger Li = charlie.readBigInteger();
-		//if (i > 0)
-		//	System.out.println("Eddie: i=" + i + ", Li=" + Util.addZero(Li.toString(2), lBits));
 		
 		Bucket[] sE_buckets = null;
 		try {
@@ -288,7 +227,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		BigInteger helper1N;
 		BigInteger helperA;
 		if (i > 0) {
-			//System.out.println("Eddie: i=" + i + ", Ni=" + Util.addZero(sE_Ni.toString(2), nBits));
 			helper1N = BigInteger.ONE.shiftLeft(1 + nBits).subtract(BigInteger.ONE);
 			helperA = BigInteger.ONE.shiftLeft(aBits).subtract(BigInteger.ONE);
 			tmp = sE_sig_P_all_p;
@@ -306,50 +244,165 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		}
 		
 		
-		
-		
-		
+		// step 3
+		if (i < h) {
+			BigInteger sE_Nip1_pr = Util.getSubBits(sE_Nip1, 0, Nip1Bits - nBits);
+			SSIOT ssiot = new SSIOT(charlie, debbie);
+			ssiot.executeEddie(charlie, debbie, i, twotaupow, aBits/twotaupow, tau, y, sE_Nip1_pr);
+		}
 		
 		
 		// step 4
-		if (i > 0) {
-			BigInteger[] e = new BigInteger[pathTuples];
-			BigInteger[] f = new BigInteger[pathTuples];
-			helper = BigInteger.ONE.shiftLeft(aBits).subtract(BigInteger.ONE);
-			tmp = sE_sig_P_all;
-			for (int j=pathTuples-1; j>=0; j--) {
-				e[j] = tmp.and(helper);
-				f[j] = e[j].xor(y_all);
-				tmp = tmp.shiftRight(tupleBits);
-			}
-			
-			AOT aot = new AOT(charlie, debbie);
-			aot.executeEddie(charlie, debbie, i, f);
+		BigInteger sE_Ti;
+		BigInteger sE_sig_P_p;
+		if (i == 0) {
+			sE_Ti = y_all;
+			sE_sig_P_p = null;
+		}
+		else {
+			sE_Ti = sE_Ni.shiftLeft(lBits + aBits).xor(Li.shiftLeft(aBits)).xor(y_all);
+			sE_sig_P_p = sE_sig_P_all_p;
 		}
 		
 		
-		// step 5
-		if (i < h) {
-			BigInteger sE_Nip1_pr = Util.getSubBits(sE_Nip1, 0, Nip1Bits - nBits);
-			AOTSS aotss = new AOTSS(charlie, debbie);
-			aotss.executeEddie(charlie, debbie, i, d_ip1, y, sE_Nip1_pr);
-		}
-		
-		
-		// step 6
-		BigInteger sE_Ti = y_all;
-		BigInteger sE_sig_P_p = null;
-		if (i > 0) {
-			sE_Ti = sE_Ni.shiftLeft(lBits + aBits).xor(sE_Ti);
-			sE_sig_P_p = sE_sig_P_all;
-		}
-		
-
 		return new AOutput(null, null, sE_Ti, null, sE_sig_P_p, null);
 	}
 
 	// for testing correctness
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
+		int records = 6; // how many random records we want to test retrieval
+		int retrievals = 5; // for each record, how many repeated retrievals we
+							// want to do
+		if (records < 2) {
+			System.err.println("Number of records must be at least 2 for average timing");
+			return;
+		}
+		else if (retrievals < 1) {
+			System.err.println("Number of retrievals must be at least 1");
+			return;
+		}
+		
+		long numInsert = Math.min(ForestMetadata.getNumInsert(),
+				ForestMetadata.getAddressSpace());
+		if (numInsert == 0L) {
+			System.err.println("No record in the forest");
+			return;
+		}
+		
+		int numTrees = ForestMetadata.getLevels();
+		int h = numTrees - 1;
+		int tau = ForestMetadata.getTau();
+		int lastNBits = ForestMetadata.getLastNBits();
+		int shiftN = lastNBits % tau;
+		if (shiftN == 0)
+			shiftN = tau;	
+
+				
+		////////////////////////////////////////////
+		////////   main execution starts   /////////
+		////////////////////////////////////////////
+		
+		for (int rec = 0; rec < records; rec++) {
+			// retrieve a record by picking a random N
+			BigInteger N = null;
+			BigInteger sC_N = null;
+			BigInteger sE_N = null;
+			if (party == Party.Charlie) {
+				if (numInsert == -1) {
+					N = new BigInteger(lastNBits, SR.rand);
+					sC_N = new BigInteger(lastNBits, SR.rand);
+				}
+				else {
+					N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
+					sC_N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
+				}
+				
+				sE_N = N.xor(sC_N);
+				con2.write(sE_N);
+			}
+			else if (party == Party.Eddie)
+				sE_N = con1.readBigInteger();
+			
+
+			for (long retri = 0; retri < retrievals; retri++) {				
+				// pre-computation
+				if (party == Party.Charlie)
+					new Precomputation(con1, con2).executeCharlieSubTree(con1,
+							con2, null, null, null);
+				else if (party == Party.Debbie)
+					new Precomputation(con1, con2).executeDebbieSubTree(con1,
+							con2, null, null, null);
+				else if (party == Party.Eddie)
+					new Precomputation(con1, con2).executeEddieSubTree(con1,
+							con2, null, null, null);
+				else {
+					System.err.println("No such party: " + party);
+					return;
+				}
+
+				System.out.println("Record " + rec + ": retrieval " + retri);
+				if (party == Party.Charlie)
+					System.out.println("N=" + N.longValue() + " ("
+							+ Util.addZero(N.toString(2), lastNBits) + ")");
+				
+				// sync so online protocols for all parties start at the same time
+				sanityCheck();
+
+				// for each retrieval, execute protocols on each tree
+				BigInteger Li = null;
+				for (int i = 0; i < numTrees; i++) {
+					switch (party) {
+					case Charlie:
+						BigInteger sC_Ni;
+						if (i < h - 1) {
+							sC_Ni = Util.getSubBits(sC_N, lastNBits - (i + 1) * tau,
+									lastNBits);
+						} else 
+							sC_Ni = sC_N;
+
+						System.out.println("i="
+								+ i
+								+ ", Li="
+								+ (Li == null ? "" : Util.addZero(
+										Li.toString(2),
+										ForestMetadata.getLBits(i))));
+						loadTreeSpecificParameters(i);
+						AOutput AOut = executeCharlieSubTree(con1, con2, null,
+								new BigInteger[] { Li, sC_Ni }, null);
+						BigInteger[] outC = new BigInteger[] { AOut.Lip1, AOut.data };
+						Li = outC[0];
+						if (i == h) {
+							BigInteger D = Util.getSubBits(outC[1], 0,
+									ForestMetadata.getDataSize() * 8);
+							System.out.println("Retrieved record is: " + D);
+							System.out.println("Is record correct: "
+									+ (D.compareTo(N) == 0 ? "YES" : "NO!!")
+									+ "\n");
+							if (D.compareTo(N) != 0)
+								try {
+									throw new Exception("Retrieval error");
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+						}
+						break;
+					case Debbie:
+						loadTreeSpecificParameters(i);
+						executeDebbieSubTree(con1, con2, forest.getTree(i), null, null);
+						break;
+					case Eddie:
+						BigInteger sE_Ni;
+						if (i < h - 1) {
+							sE_Ni = Util.getSubBits(sE_N, lastNBits - (i + 1) * tau, lastNBits);
+						} else 
+							sE_Ni = sE_N;
+						loadTreeSpecificParameters(i);
+						executeEddieSubTree(con1, con2, forest.getTree(i), new BigInteger[] {sE_Ni}, null);
+						break;
+					}
+				}	
+			}
+		}
 	}
 }

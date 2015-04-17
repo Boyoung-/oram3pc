@@ -21,7 +21,7 @@ public class InitForest {
 		StopWatch sw = new StopWatch("Forest Setup");
 		sw.start();
 		
-		//new Forest("init");
+		new Forest("init");
 		//new Forest("restore", defaultFilenames[0], null);
 		//new Forest("restore", defaultFilenames[1], null);
 		//System.out.println("16 bits: " + Util.addZero(new BigInteger(1, Forest.getForestData(0, 2)).toString(2), 16));
@@ -29,6 +29,7 @@ public class InitForest {
 		sw.stop();
 		System.out.println(sw);
 		
+		/*
 		new Forest("restore", defaultFilenames[2], null);
 		BigInteger Li = BigInteger.ZERO;
 		//BigInteger Li = BigInteger.ONE;
@@ -46,6 +47,7 @@ public class InitForest {
 				System.out.println(j+"-"+k+": " + tuples[k]);
 			}
 		}
+		*/
 	}
 
 }

@@ -33,7 +33,7 @@ public class Retrieve extends Operation {
 		access.loadTreeSpecificParameters(currTree);
 		AOutput AOut = access.executeCharlieSubTree(debbie, eddie, null,
 				new BigInteger[] { Li, sC_Nip1 }, null);
-		BigInteger[] output = new BigInteger[] { AOut.Lip1, AOut.sC_Ti };
+		BigInteger[] output = new BigInteger[] { AOut.Lip1, AOut.data };
 		
 		// PP+Evict
 		//Timing localTiming = new Timing();
@@ -83,8 +83,8 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 2; // how many random records we want to test retrieval
-		int retrievals = 1; // for each record, how many repeated retrievals we
+		int records = 10; // how many random records we want to test retrieval
+		int retrievals = 10; // for each record, how many repeated retrievals we
 							// want to do
 		if (records < 2) {
 			System.err.println("Number of records must be at least 2 for average timing");
@@ -155,7 +155,7 @@ public class Retrieve extends Operation {
 				}
 				
 				//debug
-				N = BigInteger.valueOf(3);
+				//N = BigInteger.valueOf(3);
 				
 				sE_N = N.xor(sC_N);
 				con2.write(sE_N);

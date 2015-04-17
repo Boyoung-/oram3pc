@@ -132,9 +132,9 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		PreData.ssiot_r = new BigInteger[levels];
 
 		for (int index = 0; index < levels; index++) {
-			SR.rand.nextBytes(PreData.ssiot_k[i]);
-			SR.rand.nextBytes(PreData.ssiot_k_p[i]);
-			PreData.ssiot_r[i] = new BigInteger(SR.kBits, SR.rand);
+			SR.rand.nextBytes(PreData.ssiot_k[index]);
+			SR.rand.nextBytes(PreData.ssiot_k_p[index]);
+			PreData.ssiot_r[index] = new BigInteger(SR.kBits, SR.rand);
 		}
 
 		eddie.write(PreData.ssiot_k);
@@ -387,7 +387,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		PreData.sscot_r = new BigInteger[levels][];
 		
 		for (int index = 0; index < levels; index++) {
-			PreData.sscot_r[i] = debbie.readBigIntegerArray();
+			PreData.sscot_r[index] = debbie.readBigIntegerArray();
 		}
 		
 		PreData.sscot_k = debbie.readDoubleByteArray();
@@ -403,7 +403,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		// Access
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
 
-		for (int index = 0; index <= h; index++) {
+		for (int index = 0; index < levels; index++) {
 			PreData.access_sigma[index] = debbie.readListInt();
 		}
 		PreData.access_p = debbie.readBigIntegerArray();
