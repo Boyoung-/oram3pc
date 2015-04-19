@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import sprout.communication.Communication;
+import sprout.crypto.PRG;
 import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
@@ -13,6 +14,7 @@ import sprout.oram.Party;
 import sprout.oram.PreData;
 import sprout.oram.Tree;
 import sprout.util.Timing;
+import sprout.util.Util;
 
 public class Precomputation extends TreeOperation<Object, Object> {
 
@@ -23,6 +25,19 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@Override
 	public Object executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree OT, Object unused, Timing localTiming) {
+		// Reshuffle
+		byte[][] reshuffle_s1 = debbie.readDoubleByteArray();
+		PreData.reshuffle_p = new BigInteger[levels];
+		PreData.reshuffle_a_p = new BigInteger[levels][];
+
+		for (int index = 0; index < levels; index++) {
+			loadTreeSpecificParameters(index);
+			PRG G = new PRG(pathBuckets * bucketBits);
+			PreData.reshuffle_p[i] = new BigInteger(1, G.compute(reshuffle_s1[i]));
+			PreData.reshuffle_a_p[i] = debbie.readBigIntegerArray();
+		}
+				
+				
 
 		/*
 		// PPT
@@ -160,88 +175,46 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		}
 		eddie.write(PreData.access_p);
 		
-		
-		
-		/*
-		
 
-		// PET
-		PreData.pet_alpha = new BigInteger[levels][];
-		PreData.pet_k = new byte[levels][16];
-
-		//timing.stopwatch[PID.pet][TID.offline].start();
-		for (int index = 0; index <= h; index++) {
-			loadTreeSpecificParameters(index);
-
-			PreData.pet_alpha[i] = new BigInteger[pathTuples];
-
-			for (int j = 0; j < pathTuples; j++) {
-				PreData.pet_alpha[i][j] = new BigInteger(1+nBits, SR.rand);
-			}
-			
-			SR.rand.nextBytes(PreData.pet_k[i]);
-		}
-		//timing.stopwatch[PID.pet][TID.offline].stop();
-
-		//timing.stopwatch[PID.pet][TID.offline_write].start();
-		for (int index = 0; index <= h; index++) {
-			eddie.write(PreData.pet_alpha[index]);
-		}
-		eddie.write(PreData.pet_k);
-
-		// AOT
-		PreData.aot_k = new byte[levels][16];
-		for (int index = 0; index <= h; index++) {
-			SR.rand.nextBytes(PreData.aot_k[index]);
-		}
-		eddie.write(PreData.aot_k);
-		
-		// AOTSS
-		PreData.aotss_k = new byte[levels][16];
-		for (int index = 0; index <= h; index++) {
-			SR.rand.nextBytes(PreData.aotss_k[index]);
-		}
-		eddie.write(PreData.aotss_k);
-		*/
-		
-		
-		/*
 		// Reshuffle
-		PreData.reshuffle_s1 = new byte[levels][];
-		PreData.reshuffle_s2 = new byte[levels][];
-		PreData.reshuffle_p1 = new byte[levels][];
-		PreData.reshuffle_p2 = new byte[levels][];
-		PreData.reshuffle_a = new BigInteger[levels][];
+		byte[][] reshuffle_s1 = new byte[levels][16];
+		byte[][] reshuffle_s2 = new byte[levels][16];
+		PreData.reshuffle_p = new BigInteger[levels];
+		PreData.reshuffle_r = new BigInteger[levels];
+		PreData.reshuffle_a_p = new BigInteger[levels][];
 		PreData.reshuffle_pi = (List<Integer>[]) new List[levels];
 
-		timing.stopwatch[PID.reshuffle][TID.offline].start();
-		for (int index = 0; index <= h; index++) {
+		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
-
-			PreData.reshuffle_s1[i] = SR.rand.generateSeed(16);
-			PreData.reshuffle_s2[i] = SR.rand.generateSeed(16);
+			PreData.reshuffle_pi[i] = Util.getInversePermutation(PreData.access_sigma[i]);
+			SR.rand.nextBytes(reshuffle_s1[i]);
+			SR.rand.nextBytes(reshuffle_s2[i]);
 			PRG G = new PRG(pathBuckets * bucketBits);
-			PreData.reshuffle_p1[i] = G.compute(PreData.reshuffle_s1[i]);
-			PreData.reshuffle_p2[i] = G.compute(PreData.reshuffle_s2[i]);
-			BigInteger a_all = new BigInteger(1, PreData.reshuffle_p1[i])
-					.xor(new BigInteger(1, PreData.reshuffle_p2[i]));
-			PreData.reshuffle_a[i] = new BigInteger[pathBuckets];
+			PreData.reshuffle_p[i] = new BigInteger(1, G.compute(reshuffle_s1[i]));
+			PreData.reshuffle_r[i] = new BigInteger(1, G.compute(reshuffle_s2[i]));
+			BigInteger a_all = PreData.reshuffle_p[i].xor(PreData.reshuffle_r[i]);
+			PreData.reshuffle_a_p[i] = new BigInteger[pathBuckets];
 			BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
 					BigInteger.ONE);
 			BigInteger tmp = a_all;
 			for (int j = pathBuckets - 1; j >= 0; j--) {
-				PreData.reshuffle_a[i][j] = tmp.and(helper);
+				PreData.reshuffle_a_p[i][j] = tmp.and(helper);
 				tmp = tmp.shiftRight(bucketBits);
 			}
-			PreData.reshuffle_pi[i] = Util
-					.getInversePermutation(PreData.access_sigma[i]);
+			PreData.reshuffle_a_p[i] = Util.permute(PreData.reshuffle_a_p[i], PreData.reshuffle_pi[i]);
 		}
-		timing.stopwatch[PID.reshuffle][TID.offline].stop();
 
-		timing.stopwatch[PID.reshuffle][TID.offline_write].start();
-		charlie.write(PreData.reshuffle_s1);
-		eddie.write(PreData.reshuffle_s2);
-		timing.stopwatch[PID.reshuffle][TID.offline_write].stop();
+		eddie.write(reshuffle_s2);
+		charlie.write(reshuffle_s1);
+		for (int index = 0; index < levels; index++) {
+			charlie.write(PreData.reshuffle_a_p[index]);
+		}
+		
+		
+		
+		/*
+		
+		/*
 
 		// GCF
 		PreData.gcf_gc_D = new Circuit[levels][];
@@ -409,27 +382,23 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		PreData.access_p = debbie.readBigIntegerArray();
 		
 		
+		// Reshuffle
+		byte[][] reshuffle_s2 = debbie.readDoubleByteArray();
+		PreData.reshuffle_r = new BigInteger[levels];
+		PreData.reshuffle_pi = (List<Integer>[]) new List[levels];
+
+		for (int index = 0; index < levels; index++) {
+			loadTreeSpecificParameters(index);
+			PreData.reshuffle_pi[i] = Util
+					.getInversePermutation(PreData.access_sigma[i]);
+			PRG G = new PRG(pathBuckets * bucketBits);
+			PreData.reshuffle_r[i] = new BigInteger(1, G.compute(reshuffle_s2[i]));
+		}
+		
+		
 		
 		/*
 		
-
-		// PET
-		PreData.pet_alpha = new BigInteger[levels][];
-
-		//timing.stopwatch[PID.pet][TID.offline_read].start();
-		for (int index = 0; index <= h; index++) {
-			PreData.pet_alpha[index] = debbie.readBigIntegerArray();
-		}
-		PreData.pet_k = debbie.readDoubleByteArray();
-		//timing.stopwatch[PID.pet][TID.offline_read].stop();
-
-		// AOT
-		PreData.aot_k = debbie.readDoubleByteArray();
-		
-		// AOTSS
-		PreData.aotss_k = debbie.readDoubleByteArray();
-		*/
-
 		
 		/*
 		// PPT

@@ -7,6 +7,8 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import YaoGC.Circuit;
 
+// TODO: clean unused stuff
+
 public class PreData {
 	// SSCOT
 	public static byte[][] sscot_k;
@@ -22,7 +24,11 @@ public class PreData {
 	public static List<Integer>[] access_sigma;
 	public static BigInteger[] access_p;
 	
-	
+	// Reshuffle
+	public static BigInteger[] reshuffle_p;
+	public static BigInteger[] reshuffle_r;
+	public static BigInteger[][] reshuffle_a_p;
+	public static List<Integer>[] reshuffle_pi;
 	
 	
 	
@@ -46,14 +52,6 @@ public class PreData {
 	// PPT
 	public static BigInteger[] ppt_sC_Li_p;
 	public static BigInteger[] ppt_sE_Li_p;
-
-	// Reshuffle
-	public static byte[][] reshuffle_s1;
-	public static byte[][] reshuffle_s2;
-	public static byte[][] reshuffle_p1;
-	public static byte[][] reshuffle_p2;
-	public static BigInteger[][] reshuffle_a;
-	public static List<Integer>[] reshuffle_pi;
 
 	// GCF
 	public static Circuit[][] gcf_gc_D;

@@ -1,20 +1,26 @@
 package sprout.oram.operations;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import sprout.communication.Communication;
-import sprout.oram.PID;
+import sprout.crypto.SR;
+import sprout.oram.Forest;
+import sprout.oram.ForestException;
+import sprout.oram.ForestMetadata;
+import sprout.oram.Party;
 import sprout.oram.PreData;
-import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.util.Timing;
 import sprout.util.Util;
 
-import org.apache.commons.lang3.tuple.Pair;
+// TODO: make a util function to return a random permutation
+// TODO: make permutation array of int instead of list of int
 
 public class Reshuffle extends
-		TreeOperation<BigInteger, Pair<BigInteger, List<Integer>>> {
+		TreeOperation<BigInteger, BigInteger> {
 
 	public Reshuffle() {
 		super(null, null);
@@ -26,152 +32,48 @@ public class Reshuffle extends
 
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
-			Communication eddie, Tree OT, Pair<BigInteger, List<Integer>> args,
-			Timing localTiming) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public BigInteger executeDebbieSubTree(Communication charlie,
-			Communication eddie, Tree OT, Pair<BigInteger, List<Integer>> args,
-			Timing localTiming) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public BigInteger executeEddieSubTree(Communication charlie,
-			Communication debbie, Tree OT,
-			Pair<BigInteger, List<Integer>> args, Timing localTiming) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	@Override
-	public BigInteger executeCharlieSubTree(Communication debbie,
-			Communication eddie, Timing localTiming, Pair<BigInteger, List<Integer>> args) {
-		BigInteger secretC_P = args.getLeft();
-
-		// i = 0 case: no shuffle needed
+			Communication eddie, Tree unused, BigInteger sC_P, Timing localTiming) {
+		// i = 0 case: no reshuffle needed
 		if (i == 0) {
-			return secretC_P;
+			return sC_P;
 		}
-
-		debbie.countBandwidth = true;
-		eddie.countBandwidth = true;
-		debbie.bandwidth[PID.reshuffle].start();
-		eddie.bandwidth[PID.reshuffle].start();
-
-		//sanityCheck();
 
 		// protocol
 		// step 1
-		// party C
-		localTiming.stopwatch[PID.reshuffle][TID.online].start();
-		BigInteger z = secretC_P
-				.xor(new BigInteger(1, PreData.reshuffle_p1[i]));
-		localTiming.stopwatch[PID.reshuffle][TID.online].stop();
-		// C sends z to E
-		localTiming.stopwatch[PID.reshuffle][TID.online_write].start();
+		BigInteger z = sC_P.xor(PreData.reshuffle_p[i]);
+		
 		eddie.write(z);
-		localTiming.stopwatch[PID.reshuffle][TID.online_write].stop();
 
-		// step 2 & 3
-		// D sends secretC_pi_P to C
-		// C outputs secretC_pi_P
-		localTiming.stopwatch[PID.reshuffle][TID.online_read].start();
-		BigInteger[] secretC_pi_P_arr = debbie.readBigIntegerArray();
-		localTiming.stopwatch[PID.reshuffle][TID.online_read].stop();
-
-		localTiming.stopwatch[PID.reshuffle][TID.online].start();
-		BigInteger secretC_pi_P = BigInteger.ZERO;
+		BigInteger sC_pi_P = BigInteger.ZERO;
 		for (int j = 0; j < pathBuckets; j++)
-			secretC_pi_P = secretC_pi_P.shiftLeft(bucketBits).xor(
-					secretC_pi_P_arr[j]);
-		localTiming.stopwatch[PID.reshuffle][TID.online].stop();
+			sC_pi_P = sC_pi_P.shiftLeft(bucketBits).xor(
+					PreData.reshuffle_a_p[i][j]);
 
-		debbie.countBandwidth = false;
-		eddie.countBandwidth = false;
-		debbie.bandwidth[PID.reshuffle].stop();
-		eddie.bandwidth[PID.reshuffle].stop();
-
-		return secretC_pi_P;
+		return sC_pi_P;
 	}
 
 	@Override
 	public BigInteger executeDebbieSubTree(Communication charlie,
-			Communication eddie, Timing localTiming, Pair<BigInteger, List<Integer>> args_unused) {
-		// i = 0 case: no shuffle needed
-		if (i == 0) {
-			return null;
-		}
-
-		charlie.countBandwidth = true;
-		eddie.countBandwidth = true;
-		charlie.bandwidth[PID.reshuffle].start();
-		eddie.bandwidth[PID.reshuffle].start();
-
-		//sanityCheck();
-
+			Communication eddie, Tree unused, BigInteger unused2, Timing localTiming) {
 		// protocol
-		// step 1
-		// C sends D s1
-
-		// step 2
-		// party D
-		localTiming.stopwatch[PID.reshuffle][TID.online].start();
-		BigInteger[] secretC_pi_P = Util.permute(PreData.reshuffle_a[i],
-				PreData.reshuffle_pi[i]);
-		localTiming.stopwatch[PID.reshuffle][TID.online].stop();
-
-		// D sends secretC_pi_P to C
-		// D sends s2 to E
-		localTiming.stopwatch[PID.reshuffle][TID.online_write].start();
-		charlie.write(secretC_pi_P);
-		localTiming.stopwatch[PID.reshuffle][TID.online_write].stop();
-
-		charlie.countBandwidth = false;
-		eddie.countBandwidth = false;
-		charlie.bandwidth[PID.reshuffle].stop();
-		eddie.bandwidth[PID.reshuffle].stop();
-
+		// debbie does nothing online
 		return null;
 	}
 
 	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
-			Communication debbie, Timing localTiming, Pair<BigInteger, List<Integer>> args) {
-		BigInteger secretE_P = args.getLeft();
-
+			Communication debbie, Tree unused, BigInteger sE_P, Timing localTiming) {
 		// i = 0 case: no shuffle needed
 		if (i == 0) {
-			return secretE_P;
+			return sE_P;
 		}
-
-		charlie.countBandwidth = true;
-		debbie.countBandwidth = true;
-		charlie.bandwidth[PID.reshuffle].start();
-		debbie.bandwidth[PID.reshuffle].start();
-
-		//sanityCheck();
 
 		// protocol
 		// step 1
-		// C sends E z
-		localTiming.stopwatch[PID.reshuffle][TID.online_read].start();
 		BigInteger z = charlie.readBigInteger();
-		localTiming.stopwatch[PID.reshuffle][TID.online_read].stop();
 
 		// step 2
-		// D sends s2 to E
-
-		// step 4
-		// party E
-		localTiming.stopwatch[PID.reshuffle][TID.online].start();
-		BigInteger b_all = secretE_P.xor(z).xor(
-				new BigInteger(1, PreData.reshuffle_p2[i]));
+		BigInteger b_all = sE_P.xor(z).xor(PreData.reshuffle_r[i]);
 		BigInteger[] b = new BigInteger[pathBuckets];
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
 				BigInteger.ONE);
@@ -180,21 +82,97 @@ public class Reshuffle extends
 			b[j] = tmp.and(helper);
 			tmp = tmp.shiftRight(bucketBits);
 		}
-		BigInteger[] secretE_pi_P_arr = Util
-				.permute(b, PreData.reshuffle_pi[i]);
-		BigInteger secretE_pi_P = BigInteger.ZERO;
+		b = Util.permute(b, PreData.reshuffle_pi[i]);
+		BigInteger sE_pi_P = BigInteger.ZERO;
 		for (int j = 0; j < pathBuckets; j++)
-			secretE_pi_P = secretE_pi_P.shiftLeft(bucketBits).xor(
-					secretE_pi_P_arr[j]);
-		localTiming.stopwatch[PID.reshuffle][TID.online].stop();
+			sE_pi_P = sE_pi_P.shiftLeft(bucketBits).xor(b[j]);
 
-		charlie.countBandwidth = false;
-		debbie.countBandwidth = false;
-		charlie.bandwidth[PID.reshuffle].stop();
-		debbie.bandwidth[PID.reshuffle].stop();
-
-		// E outputs secretE_pi_P
-		return secretE_pi_P;
+		return sE_pi_P;
 	}
-	*/
+	
+	// for testing correctness
+	@SuppressWarnings("unchecked")
+	@Override
+	public void run(Party party, Forest forest) throws ForestException {
+		System.out.println("#####  Testing Reshuffle  #####");
+
+		if (party == Party.Eddie) {
+			int levels = ForestMetadata.getLevels();
+			int i = SR.rand.nextInt(levels - 1) + 1;
+			PreData.reshuffle_p = new BigInteger[levels];
+			PreData.reshuffle_r = new BigInteger[levels];
+			PreData.reshuffle_a_p = new BigInteger[levels][];
+			PreData.reshuffle_pi = (List<Integer>[]) new List[levels];
+			
+			loadTreeSpecificParameters(i);
+			PreData.reshuffle_pi[i] = new ArrayList<Integer>();
+			for (int j = 0; j < pathBuckets; j++)
+				PreData.reshuffle_pi[i].add(j);
+			Collections.shuffle(PreData.reshuffle_pi[i], SR.rand);
+			PreData.reshuffle_p[i] = new BigInteger(pathBuckets * bucketBits, SR.rand);
+			PreData.reshuffle_r[i] = new BigInteger(pathBuckets * bucketBits, SR.rand);
+			BigInteger a_all = PreData.reshuffle_p[i].xor(PreData.reshuffle_r[i]);
+			PreData.reshuffle_a_p[i] = new BigInteger[pathBuckets];
+			BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
+					BigInteger.ONE);
+			BigInteger tmp = a_all;
+			for (int j = pathBuckets - 1; j >= 0; j--) {
+				PreData.reshuffle_a_p[i][j] = tmp.and(helper);
+				tmp = tmp.shiftRight(bucketBits);
+			}
+			PreData.reshuffle_a_p[i] = Util.permute(PreData.reshuffle_a_p[i], PreData.reshuffle_pi[i]);
+			
+			BigInteger sC_P = new BigInteger(pathBuckets * bucketBits, SR.rand);
+			BigInteger sE_P = new BigInteger(pathBuckets * bucketBits, SR.rand);
+
+			con1.write(i);
+			con1.write(PreData.reshuffle_p[i]);
+			con1.write(PreData.reshuffle_a_p[i]);
+			con1.write(sC_P);
+			
+			con2.write(i);
+			
+			BigInteger sE_pi_P = executeEddieSubTree(con1, con2, null, sE_P, null);
+			
+			BigInteger sC_pi_P = con1.readBigInteger();
+			
+			tmp = sC_P.xor(sE_P);
+			BigInteger[] path = new BigInteger[pathBuckets];
+			for (int j = pathBuckets - 1; j >= 0; j--) {
+				path[j] = tmp.and(helper);
+				tmp = tmp.shiftRight(bucketBits);
+			}
+			path = Util.permute(path, PreData.reshuffle_pi[i]);
+			BigInteger pi_path = BigInteger.ZERO;
+			for (int j = 0; j < pathBuckets; j++)
+				pi_path = pi_path.shiftLeft(bucketBits).xor(path[j]);
+			
+			if (pi_path.compareTo(sE_pi_P.xor(sC_pi_P)) == 0) {
+				System.out.println("Reshuffle test passed");
+			} else {
+				System.out.println("Reshuffle test failed");
+			}
+		} else if (party == Party.Debbie) {
+			int i = con2.readInt();
+			
+			loadTreeSpecificParameters(i);
+			executeDebbieSubTree(con1, con2, null, null, null);
+		} else if (party == Party.Charlie) {
+			int levels = ForestMetadata.getLevels();
+			PreData.reshuffle_p = new BigInteger[levels];
+			PreData.reshuffle_a_p = new BigInteger[levels][];
+			
+			int i = con2.readInt();	
+			PreData.reshuffle_p[i] = con2.readBigInteger();
+			PreData.reshuffle_a_p[i] = con2.readBigIntegerArray();
+			BigInteger sC_P = con2.readBigInteger();
+
+			loadTreeSpecificParameters(i);
+			BigInteger sC_pi_P = executeCharlieSubTree(con1, con2, null, sC_P, null);
+			
+			con2.write(sC_pi_P);
+		}
+
+		System.out.println("#####  Testing Reshuffle Finished  #####");
+	}
 }
