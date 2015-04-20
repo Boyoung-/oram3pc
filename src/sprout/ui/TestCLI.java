@@ -109,7 +109,7 @@ public class TestCLI {
 				operation = sprout.oram.operations.SSOT.class;
 			} else if (alg.equals("reshuffle")) {
 				operation = Reshuffle.class;
-			} else if (alg.equals("post")) {
+			} else if (alg.equals("ppt")) {
 				operation = PostProcessT.class;
 			} else if (alg.equals("evict")) {
 				operation = Eviction.class;

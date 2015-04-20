@@ -216,7 +216,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				PreData.ppt_r[i][j] = new BigInteger(d_ip1, SR.rand);
 				PreData.ppt_r_p[i][j] = PreData.ppt_r[i][j];
 			}
-			PreData.ppt_alpha[i] = new BigInteger(tau, SR.rand).intValue();
+			PreData.ppt_alpha[i] = SR.rand.nextInt(twotaupow);
 			PreData.ppt_r_p[i][PreData.ppt_alpha[i]] = PreData.ppt_r[i][PreData.ppt_alpha[i]].xor(PreData.ppt_sE_Lip1_p[i]);
 		}
 		
