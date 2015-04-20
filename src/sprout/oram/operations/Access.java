@@ -110,7 +110,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		}
 		
 
-		return new AOutput(Lip1, sC_Ti, null, sC_sig_P_p, null, d);
+		return new AOutput(Lip1, sC_Ti, null, sC_sig_P_p, null, d, j_2);
 	}
 
 	@Override
@@ -265,7 +265,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		}
 		
 		
-		return new AOutput(null, null, sE_Ti, null, sE_sig_P_p, null);
+		return new AOutput(null, null, sE_Ti, null, sE_sig_P_p, null, -1);
 	}
 
 	// for testing correctness

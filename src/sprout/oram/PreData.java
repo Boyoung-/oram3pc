@@ -29,7 +29,15 @@ public class PreData {
 	public static BigInteger[] reshuffle_r;
 	public static BigInteger[][] reshuffle_a_p;
 	public static List<Integer>[] reshuffle_pi;
-	
+
+	// PPT
+	public static BigInteger[] ppt_sC_Li_p;
+	public static BigInteger[] ppt_sE_Li_p;
+	public static BigInteger[] ppt_sC_Lip1_p;
+	public static BigInteger[] ppt_sE_Lip1_p;
+	public static BigInteger[][] ppt_r;
+	public static BigInteger[][] ppt_r_p;
+	public static int[] ppt_alpha;
 	
 	
 	
@@ -48,10 +56,6 @@ public class PreData {
 	
 	// AOTSS
 	public static byte[][] aotss_k;
-
-	// PPT
-	public static BigInteger[] ppt_sC_Li_p;
-	public static BigInteger[] ppt_sE_Li_p;
 
 	// GCF
 	public static Circuit[][] gcf_gc_D;
