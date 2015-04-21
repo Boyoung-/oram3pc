@@ -42,16 +42,16 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// protocol
 		// step 1
-		int sigma = (PreData.ppt_alpha[i] - j_2 + twotaupow) % twotaupow;
+		int delta = (PreData.ppt_alpha[i] - j_2 + twotaupow) % twotaupow;
 		
-		eddie.write(sigma);
+		eddie.write(delta);
 		
 		
 		// step 2
 		BigInteger[] c = new BigInteger[twotaupow];
 		BigInteger c_all = BigInteger.ZERO;
 		for (int t=0; t<twotaupow; t++) {
-			c[t] = PreData.ppt_r[i][(t+sigma)%twotaupow];
+			c[t] = PreData.ppt_r[i][(t+delta)%twotaupow];
 			if (t == j_2) {
 				c[t] = c[t].xor(Lip1).xor(PreData.ppt_sC_Lip1_p[i]);
 			}
@@ -90,14 +90,14 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		
 		// protocol
 		// step 1
-		int sigma = charlie.readInt();
+		int delta = charlie.readInt();
 		
 		
 		// step 3
 		BigInteger[] e = new BigInteger[twotaupow];
 		BigInteger e_all = BigInteger.ZERO;
 		for (int t=0; t<twotaupow; t++) {
-			e[t] = PreData.ppt_r_p[i][(t+sigma)%twotaupow];
+			e[t] = PreData.ppt_r_p[i][(t+delta)%twotaupow];
 			e_all = e_all.shiftLeft(d_ip1).xor(e[t]);
  		}
 		

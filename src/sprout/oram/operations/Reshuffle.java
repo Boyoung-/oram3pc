@@ -147,6 +147,8 @@ public class Reshuffle extends
 			for (int j = 0; j < pathBuckets; j++)
 				pi_path = pi_path.shiftLeft(bucketBits).xor(path[j]);
 			
+			System.out.println("levels = " + levels);
+			System.out.println("i = " + i);
 			if (pi_path.compareTo(sE_pi_P.xor(sC_pi_P)) == 0) {
 				System.out.println("Reshuffle test passed");
 			} else {

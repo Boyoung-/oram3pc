@@ -103,10 +103,10 @@ public class TestCLI {
 				operation = sprout.oram.operations.AOTSS.class;
 			} else if (alg.equals("pet")) {
 				operation = sprout.oram.operations.PET.class;
-			} else if (alg.equals("iot")) {
-				operation = sprout.oram.operations.IOT.class;
-			} else if (alg.equals("ssot")) {
-				operation = sprout.oram.operations.SSOT.class;
+			} else if (alg.equals("xot")) {
+				operation = sprout.oram.operations.XOT.class;
+			} else if (alg.equals("ssxot")) {
+				operation = sprout.oram.operations.SSXOT.class;
 			} else if (alg.equals("reshuffle")) {
 				operation = Reshuffle.class;
 			} else if (alg.equals("ppt")) {

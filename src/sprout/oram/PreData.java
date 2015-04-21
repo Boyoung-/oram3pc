@@ -38,7 +38,14 @@ public class PreData {
 	public static BigInteger[][] ppt_r;
 	public static BigInteger[][] ppt_r_p;
 	public static int[] ppt_alpha;
-	
+
+	// XOT
+	public static List<Integer>[][] xot_pi;
+	public static List<Integer>[][] xot_pi_ivs;
+	public static BigInteger[][][] xot_r;
+
+	// SSXOT
+	public static BigInteger[][] ssxot_delta;
 	
 	
 	
@@ -61,12 +68,6 @@ public class PreData {
 	public static Circuit[][] gcf_gc_D;
 	public static Circuit[][] gcf_gc_E;
 	public static BigInteger[][][][] gcf_lbs;
-
-	// IOT
-	public static List<Integer>[][] iot_pi;
-	public static List<Integer>[][] iot_pi_ivs;
-	public static BigInteger[][][] iot_r;
-	public static byte[][][] iot_s;
 
 	// Encrypt
 	public static byte[][] encrypt_s;
