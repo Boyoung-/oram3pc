@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import YaoGC.Circuit;
+import YaoGC.F2ET_Wplus2_Wplus2;
+import YaoGC.F2FT_2Wplus2_Wplus2;
+import YaoGC.State;
+import YaoGC.Wire;
 import sprout.communication.Communication;
 import sprout.crypto.PRG;
 import sprout.crypto.SR;
@@ -232,23 +237,17 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			}
 		}
 		
-		
-		
-		/*
-		
 
 		// GCF
 		PreData.gcf_gc_D = new Circuit[levels][];
 
-		timing.stopwatch[PID.gcf][TID.offline].start();
-		for (int index = 0; index <= h; index++) {
+		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
-
 			PreData.gcf_gc_D[i] = new Circuit[d_i + 1];
 			for (int j = 0; j < d_i + 1; j++) {
 				int ww = (j != d_i) ? w : (w * expen);
 				Circuit.isForGarbling = false;
-				Circuit.timing = timing;
+				//Circuit.timing = timing;
 				Circuit.setSender(eddie);
 				PreData.gcf_gc_D[i][j] = (j != d_i) ? new F2FT_2Wplus2_Wplus2(
 						ww, 1, 1) : new F2ET_Wplus2_Wplus2(ww, 1, 1);
@@ -260,12 +259,10 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				for (int k = 0; k < PreData.gcf_gc_D[i][j].outputWires.length; k++)
 					// TODO: not a good way; should define a function
 					PreData.gcf_gc_D[i][j].outputWires[k].outBitEncPair = new BigInteger[2];
-				PreData.gcf_gc_D[i][j].passTruthTables();
+				
+				PreData.gcf_gc_D[i][j].receiveTruthTables();
 			}
 		}
-		timing.stopwatch[PID.gcf][TID.offline].stop();
-
-		 */
 
 		return null;
 	}
@@ -339,20 +336,14 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.xot_pi[0][index] = debbie.readListInt();
 			PreData.xot_r[0][index] = debbie.readBigIntegerArray();
 		}
-
-		
-		
-		/*
 		
 
 		// GCF
 		PreData.gcf_gc_E = new Circuit[levels][];
 		PreData.gcf_lbs = new BigInteger[levels][][][];
 
-		timing.stopwatch[PID.gcf][TID.offline].start();
-		for (int index = 0; index <= h; index++) {
+		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
-
 			PreData.gcf_gc_E[i] = new Circuit[d_i + 1];
 			PreData.gcf_lbs[i] = new BigInteger[d_i + 1][][];
 			for (int j = 0; j < d_i + 1; j++) {
@@ -362,7 +353,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				int s1 = Math.min(tmp1, tmp2);
 				int s2 = Math.max(tmp1, tmp2);
 				Circuit.isForGarbling = true;
-				Circuit.timing = timing;
+				//Circuit.timing = timing;
 				Circuit.setReceiver(debbie);
 				PreData.gcf_gc_E[i][j] = (j != d_i) ? new F2FT_2Wplus2_Wplus2(
 						ww, s1, s2) : new F2ET_Wplus2_Wplus2(ww, s1, s2);
@@ -374,22 +365,23 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				for (int k = 0; k < PreData.gcf_gc_E[i][j].outputWires.length; k++)
 					// TODO: not a good way; should define a function
 					PreData.gcf_gc_E[i][j].outputWires[k].outBitEncPair = new BigInteger[2];
-				PreData.gcf_gc_E[i][j].passTruthTables();
 
 				int n = (j != d_i) ? (w * 2 + 2) : (w * expen + 2);
 				PreData.gcf_lbs[i][j] = new BigInteger[n][2];
+				BigInteger[] K_E = new BigInteger[n];
 				for (int k = 0; k < n; k++) {
 					BigInteger glb0 = new BigInteger(Wire.labelBitLength,
 							SR.rand);
 					BigInteger glb1 = glb0.xor(Wire.R.shiftLeft(1).setBit(0));
 					PreData.gcf_lbs[i][j][k][0] = glb0;
 					PreData.gcf_lbs[i][j][k][1] = glb1;
+					K_E[k] = PreData.gcf_lbs[i][j][k][0];
 				}
+				
+				State in_E = State.fromLabels(K_E);
+				PreData.gcf_gc_E[i][j].sendTruthTables(in_E);
 			}
 		}
-		timing.stopwatch[PID.gcf][TID.offline].stop();
-
-		 */
 
 		return null;
 	}

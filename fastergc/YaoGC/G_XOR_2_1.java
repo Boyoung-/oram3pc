@@ -23,13 +23,13 @@ class G_XOR_2_1 extends XOR_2_1 {
     		outputWires[0].outBitEncPair[lsb] = Cipher.encrypt(k, lb[0], 0);
     		outputWires[0].outBitEncPair[1-lsb] = Cipher.encrypt(k, lb[1], 1);
     		
-    		timing.stopwatch[PID.gcf][TID.offline].stop();
+    		//timing.stopwatch[PID.gcf][TID.offline].stop();
     		
-    		timing.stopwatch[PID.gcf][TID.offline_write].start();
+    		//timing.stopwatch[PID.gcf][TID.offline_write].start();
     		receiver.write(outputWires[0].outBitEncPair);
-    		timing.stopwatch[PID.gcf][TID.offline_write].stop();
+    		//timing.stopwatch[PID.gcf][TID.offline_write].stop();
     		
-    		timing.stopwatch[PID.gcf][TID.offline].start();
+    		//timing.stopwatch[PID.gcf][TID.offline].start();
     	}
     }
 }

@@ -46,28 +46,16 @@ public class PreData {
 
 	// SSXOT
 	public static BigInteger[][] ssxot_delta;
-	
-	
-	
-	
-	////// OLD STUFF /////////
-	
-	
-
-	// PET
-	public static BigInteger[][] pet_alpha;
-	public static byte[][] pet_k;
-
-	// AOT
-	public static byte[][] aot_k;
-	
-	// AOTSS
-	public static byte[][] aotss_k;
 
 	// GCF
 	public static Circuit[][] gcf_gc_D;
 	public static Circuit[][] gcf_gc_E;
 	public static BigInteger[][][][] gcf_lbs;
+	
+	
+	
+	
+	////// OLD STUFF /////////
 
 	// Encrypt
 	public static byte[][] encrypt_s;
