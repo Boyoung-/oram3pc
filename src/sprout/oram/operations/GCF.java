@@ -96,7 +96,7 @@ public class GCF extends Operation {
 
 		int i = 0;
 		int j = 0;
-		int n = 10;
+		int n = 18;
 		int ww = 8;
 		
 		if (party == Party.Eddie) {
@@ -109,8 +109,8 @@ public class GCF extends Operation {
 			int s2 = Math.max(tmp1, tmp2);
 			Circuit.isForGarbling = true;
 			Circuit.setReceiver(con2);
-			PreData.gcf_gc_E[i][j] = new F2ET_Wplus2_Wplus2(ww, s1, s2);
-			// PreData.gcf_gc_E[i][level] = new F2FT_2Wplus2_Wplus2(ww, s1, s2);
+			//PreData.gcf_gc_E[i][j] = new F2ET_Wplus2_Wplus2(ww, s1, s2);
+			PreData.gcf_gc_E[i][j] = new F2FT_2Wplus2_Wplus2(ww, s1, s2);
 			try {
 				PreData.gcf_gc_E[i][j].build();
 			} catch (Exception e) {
@@ -139,14 +139,14 @@ public class GCF extends Operation {
 			
 			System.out.println("sigma: " + s1 + "  " + s2);
 			System.out.println(Util.addZero(sE_X.toString(2), n));
-			System.out.println(Util.addZero(output.toString(2), n));
+			System.out.println(Util.addZero(output.toString(2), ww+2));
 			
 		} else if (party == Party.Debbie) {
 			PreData.gcf_gc_D = new Circuit[1][1];
 			Circuit.isForGarbling = false;
 			Circuit.setSender(con2);
-			PreData.gcf_gc_D[i][j] = new F2ET_Wplus2_Wplus2(ww, 1, 1);
-			// PreData.gcf_gc_D[i][j] = new F2FT_2Wplus2_Wplus2(ww, 1, 1);
+			//PreData.gcf_gc_D[i][j] = new F2ET_Wplus2_Wplus2(ww, 1, 1);
+			PreData.gcf_gc_D[i][j] = new F2FT_2Wplus2_Wplus2(ww, 1, 1);
 			try {
 				PreData.gcf_gc_D[i][j].build();
 			} catch (Exception e) {

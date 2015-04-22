@@ -35,6 +35,18 @@ public class Retrieve extends Operation {
 				new BigInteger[] { Li, sC_Nip1 }, null);
 		BigInteger[] output = new BigInteger[] { AOut.Lip1, AOut.data };
 		
+		PostProcessT ppt = new PostProcessT(debbie, eddie);
+		ppt.loadTreeSpecificParameters(currTree);
+		BigInteger sC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{AOut.sC_Ti, Li, AOut.Lip1, BigInteger.valueOf(AOut.j_2)}, null);
+		
+		Reshuffle res = new Reshuffle(debbie, eddie);
+		res.loadTreeSpecificParameters(currTree);
+		BigInteger sC_pi_P = res.executeCharlieSubTree(debbie, eddie, null, AOut.sC_sig_P_p, null);
+		
+		Eviction evict = new Eviction(debbie, eddie);
+		evict.loadTreeSpecificParameters(currTree);
+		evict.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{sC_pi_P, sC_Ti_p}, null);
+		
 		// PP+Evict
 		//Timing localTiming = new Timing();
 		//PPEvict thread = new PPEvict(Party.Charlie, AOut, null, new BigInteger[] { Li, Nip1 }, currTree, localTiming);
@@ -52,6 +64,18 @@ public class Retrieve extends Operation {
 		access.loadTreeSpecificParameters(currTree);
 		access.executeDebbieSubTree(charlie, eddie, sD_OT, null, null);
 		
+		PostProcessT ppt = new PostProcessT(charlie, eddie);
+		ppt.loadTreeSpecificParameters(currTree);
+		ppt.executeDebbieSubTree(charlie, eddie, null, null, null);
+		
+		Reshuffle res = new Reshuffle(charlie, eddie);
+		res.loadTreeSpecificParameters(currTree);
+		res.executeDebbieSubTree(charlie, eddie, null, null, null);
+		
+		Eviction evict = new Eviction(charlie, eddie);
+		evict.loadTreeSpecificParameters(currTree);
+		evict.executeDebbieSubTree(charlie, eddie, null, null, null);
+		
 		// PP+Evictv
 		//Timing localTiming = new Timing();
 		//PPEvict thread = new PPEvict(Party.Debbie, null, null, new BigInteger[] { k }, currTree, localTiming);
@@ -67,8 +91,19 @@ public class Retrieve extends Operation {
 		// Access
 		Access access = new Access(charlie, debbie);
 		access.loadTreeSpecificParameters(currTree);
-		AOutput AOut = access.executeEddieSubTree(charlie, debbie, sE_OT,
-				new BigInteger[] {sE_Nip1}, null);
+		AOutput AOut = access.executeEddieSubTree(charlie, debbie, sE_OT, new BigInteger[] {sE_Nip1}, null);
+		
+		PostProcessT ppt = new PostProcessT(charlie, debbie);
+		ppt.loadTreeSpecificParameters(currTree);
+		BigInteger sE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{AOut.sE_Ti}, null);
+		
+		Reshuffle res = new Reshuffle(charlie, debbie);
+		res.loadTreeSpecificParameters(currTree);
+		BigInteger sE_pi_P = res.executeEddieSubTree(charlie, debbie, null, AOut.sE_sig_P_p, null);
+		
+		Eviction evict = new Eviction(charlie, debbie);
+		evict.loadTreeSpecificParameters(currTree);
+		evict.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{sE_pi_P, sE_Ti_p}, null);
 		
 		// PP+Evict
 		//Timing localTiming = new Timing();
@@ -83,7 +118,7 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 10; // how many random records we want to test retrieval
+		int records = 11; // how many random records we want to test retrieval
 		int retrievals = 10; // for each record, how many repeated retrievals we
 							// want to do
 		if (records < 2) {
@@ -133,7 +168,8 @@ public class Retrieve extends Operation {
 		if (ifSanityCheck())
 			System.out.println("Sanity check enabled\n");
 
-		
+		StopWatch bp_whole = new StopWatch("ballpark_whole");
+		StopWatch bp_online = new StopWatch("ballpark_online");
 		
 		////////////////////////////////////////////
 		////////   main execution starts   /////////
@@ -164,7 +200,9 @@ public class Retrieve extends Operation {
 				sE_N = con1.readBigInteger();
 			
 
-			for (long retri = 0; retri < retrievals; retri++) {				
+			for (long retri = 0; retri < retrievals; retri++) {		
+				bp_whole.start();
+				
 				// pre-computation
 				if (party == Party.Charlie)
 					new Precomputation(con1, con2).executeCharlieSubTree(con1,
@@ -187,6 +225,8 @@ public class Retrieve extends Operation {
 				
 				// sync so online protocols for all parties start at the same time
 				sanityCheck();
+				
+				bp_online.start();
 
 				// for each retrieval, execute protocols on each tree
 				BigInteger Li = null;
@@ -271,14 +311,22 @@ public class Retrieve extends Operation {
 				// only need to count bandwidth once
 				con1.bandWidthSwitch = false;
 				con2.bandWidthSwitch = false;
+				
+				bp_online.stop();
+				bp_whole.stop();
 			}
 
 			// abandon the timing of the first several retrievals
 			// assert records > 1
 			if (rec == 0) {
 				;//wholeExecution.start();
+				bp_online.reset();
+				bp_whole.reset();
 			}
 		}
+		
+		System.out.println(bp_whole.toString());
+		System.out.println(bp_online.toString());
 		
 		/*
 		wholeExecution.stop();

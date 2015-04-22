@@ -23,6 +23,7 @@ public class PreData {
 	// Access
 	public static List<Integer>[] access_sigma;
 	public static BigInteger[] access_p;
+	public static BigInteger[] access_Li;
 	
 	// Reshuffle
 	public static BigInteger[] reshuffle_p;

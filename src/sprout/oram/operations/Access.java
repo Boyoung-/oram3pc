@@ -179,11 +179,11 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			Communication debbie, Tree sE_OT, BigInteger[] args, Timing localTiming) {
 		// protocol
 		// step 1
-		BigInteger Li = charlie.readBigInteger();
+		PreData.access_Li[i] = charlie.readBigInteger();
 		
 		Bucket[] sE_buckets = null;
 		try {
-			sE_buckets = sE_OT.getBucketsOnPath(Li);
+			sE_buckets = sE_OT.getBucketsOnPath(PreData.access_Li[i]);
 		} catch (TreeException | BucketException e1) {
 			e1.printStackTrace();
 		}
@@ -260,7 +260,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			sE_sig_P_p = null;
 		}
 		else {
-			sE_Ti = sE_Ni.shiftLeft(lBits + aBits).xor(Li.shiftLeft(aBits)).xor(y_all);
+			sE_Ti = sE_Ni.shiftLeft(lBits + aBits).xor(PreData.access_Li[i].shiftLeft(aBits)).xor(y_all);
 			sE_sig_P_p = sE_sig_P_all_p;
 		}
 		
