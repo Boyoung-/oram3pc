@@ -3,6 +3,7 @@
 package YaoGC;
 
 import java.math.*;
+
 import Cipher.*;
 
 class E_T1_FF1_O_2_1 extends T1_FF1_O_2_1 {

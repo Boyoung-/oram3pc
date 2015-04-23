@@ -31,6 +31,9 @@ public class Precomputation extends TreeOperation<Object, Object> {
 	@Override
 	public Object executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree OT, Object unused, Timing localTiming) {
+		// Access
+		PreData.access_Li = new BigInteger[levels];
+		
 		// Reshuffle
 		byte[][] reshuffle_s1 = debbie.readDoubleByteArray();
 		PreData.reshuffle_p = new BigInteger[levels];

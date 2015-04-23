@@ -6,7 +6,10 @@ import Cipher.Cipher;
 import YaoGC.Circuit;
 import YaoGC.F2ET_Wplus2_Wplus2;
 import YaoGC.F2FT_2Wplus2_Wplus2;
+import YaoGC.FF10_2_2;
+import YaoGC.FF10_Wplus1_Wplus1;
 import YaoGC.State;
+import YaoGC.TestCircuit;
 import YaoGC.Wire;
 import sprout.communication.Communication;
 import sprout.crypto.SR;
@@ -61,6 +64,9 @@ public class GCF extends Operation {
 							PreData.gcf_gc_D[i][level].outputWires[j].outBitEncPair[lsb]);
 			if (outBit == 1)
 				output = output.setBit(length - 1 - j);
+			else if (outBit != 0) {
+				System.out.println("**** GCF output error! ****");
+			}
 		}
 
 		return output;
@@ -93,10 +99,13 @@ public class GCF extends Operation {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		System.out.println("#####  Testing GCF  #####");
+		
+		boolean F2FT = true; 
 
 		int i = 0;
 		int j = 0;
-		int n = 18;
+		int n = F2FT ? 18 : 10;
+		//int n = 9;
 		int ww = 8;
 		
 		if (party == Party.Eddie) {
@@ -107,10 +116,12 @@ public class GCF extends Operation {
 			int tmp2 = SR.rand.nextInt(ww) + 1;
 			int s1 = Math.min(tmp1, tmp2);
 			int s2 = Math.max(tmp1, tmp2);
+			s1 = 1;
+			s2 = 2;
 			Circuit.isForGarbling = true;
 			Circuit.setReceiver(con2);
-			//PreData.gcf_gc_E[i][j] = new F2ET_Wplus2_Wplus2(ww, s1, s2);
-			PreData.gcf_gc_E[i][j] = new F2FT_2Wplus2_Wplus2(ww, s1, s2);
+			PreData.gcf_gc_E[i][j] = F2FT ? new F2FT_2Wplus2_Wplus2(ww, s1, s2) : new F2ET_Wplus2_Wplus2(ww, s1, s2);
+			//PreData.gcf_gc_E[i][j] = new FF10_Wplus1_Wplus1(ww, false, 1);
 			try {
 				PreData.gcf_gc_E[i][j].build();
 			} catch (Exception e) {
@@ -131,7 +142,8 @@ public class GCF extends Operation {
 			State in_E = State.fromLabels(K_E);
 			PreData.gcf_gc_E[i][j].sendTruthTables(in_E);
 			
-			BigInteger sE_X = new BigInteger(n-2, SR.rand).setBit(n-1).setBit(n-2);
+			//BigInteger sE_X = new BigInteger(n-2, SR.rand);
+			BigInteger sE_X = new BigInteger("001111111111111111", 2);
 
 			executeEddie(con1, con2, i, j, n, sE_X);
 			
@@ -145,8 +157,8 @@ public class GCF extends Operation {
 			PreData.gcf_gc_D = new Circuit[1][1];
 			Circuit.isForGarbling = false;
 			Circuit.setSender(con2);
-			//PreData.gcf_gc_D[i][j] = new F2ET_Wplus2_Wplus2(ww, 1, 1);
-			PreData.gcf_gc_D[i][j] = new F2FT_2Wplus2_Wplus2(ww, 1, 1);
+			PreData.gcf_gc_D[i][j] = F2FT ? new F2FT_2Wplus2_Wplus2(ww, 1, 1) : new F2ET_Wplus2_Wplus2(ww, 1, 1);
+			//PreData.gcf_gc_D[i][j] = new FF10_Wplus1_Wplus1(ww, false, 1);
 			try {
 				PreData.gcf_gc_D[i][j].build();
 			} catch (Exception e) {

@@ -28,7 +28,6 @@ public abstract class XOR_2_1 extends SimpleCircuit_2_1 {
 	Wire inWireR = inputWires[1];
 	Wire outWire = outputWires[0];
 
-	if (evaluate) {
 	if (inWireL.value != Wire.UNKNOWN_SIG && inWireR.value != Wire.UNKNOWN_SIG) {
 	    compute();
 	}
@@ -65,8 +64,9 @@ public abstract class XOR_2_1 extends SimpleCircuit_2_1 {
 		outWire.setLabel(out);
 	    }
 	}
-	}
-	else
+	
+	// TODO: remove extra sending in non-output xor gates
+	if (!evaluate)
 		sendOutBitEncPair();
 	
 	outWire.setReady(evaluate);

@@ -3,6 +3,7 @@
 package YaoGC;
 
 import java.math.*;
+
 import Cipher.*;
 
 class E_OR_2_1 extends OR_2_1 {
@@ -26,6 +27,7 @@ class E_OR_2_1 extends OR_2_1 {
 					outWire.serialNum, gtt[i0][i1]);
 	
 	outWire.setLabel(out);
+
     }
 
 	@Override

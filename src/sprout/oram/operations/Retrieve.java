@@ -7,6 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import sprout.communication.Communication;
 import sprout.crypto.SR;
+import sprout.oram.Bucket;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
@@ -45,7 +46,7 @@ public class Retrieve extends Operation {
 		
 		Eviction evict = new Eviction(debbie, eddie);
 		evict.loadTreeSpecificParameters(currTree);
-		evict.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{sC_pi_P, sC_Ti_p}, null);
+		BigInteger sC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{sC_pi_P, sC_Ti_p}, null);
 		
 		// PP+Evict
 		//Timing localTiming = new Timing();
@@ -74,7 +75,7 @@ public class Retrieve extends Operation {
 		
 		Eviction evict = new Eviction(charlie, eddie);
 		evict.loadTreeSpecificParameters(currTree);
-		evict.executeDebbieSubTree(charlie, eddie, null, null, null);
+		evict.executeDebbieSubTree(charlie, eddie, sD_OT, null, null);
 		
 		// PP+Evictv
 		//Timing localTiming = new Timing();
@@ -103,8 +104,9 @@ public class Retrieve extends Operation {
 		
 		Eviction evict = new Eviction(charlie, debbie);
 		evict.loadTreeSpecificParameters(currTree);
-		evict.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{sE_pi_P, sE_Ti_p}, null);
+		BigInteger sE_P_pp = evict.executeEddieSubTree(charlie, debbie, sE_OT, new BigInteger[]{sE_pi_P, sE_Ti_p}, null);
 		
+				
 		// PP+Evict
 		//Timing localTiming = new Timing();
 		//PPEvict thread = new PPEvict(Party.Eddie, AOut, OT, new BigInteger[] { Li }, currTree, localTiming);
@@ -118,9 +120,10 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 11; // how many random records we want to test retrieval
-		int retrievals = 10; // for each record, how many repeated retrievals we
+		int records = 1; // how many random records we want to test retrieval
+		int retrievals = 100; // for each record, how many repeated retrievals we
 							// want to do
+		/*
 		if (records < 2) {
 			System.err.println("Number of records must be at least 2 for average timing");
 			return;
@@ -129,6 +132,7 @@ public class Retrieve extends Operation {
 			System.err.println("Number of retrievals must be at least 1");
 			return;
 		}
+		*/
 		
 		long numInsert = Math.min(ForestMetadata.getNumInsert(),
 				ForestMetadata.getAddressSpace());

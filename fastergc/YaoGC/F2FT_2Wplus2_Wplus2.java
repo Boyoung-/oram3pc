@@ -64,16 +64,4 @@ public class F2FT_2Wplus2_Wplus2 extends CompositeCircuit {
 	for (int i = 0; i < w; i++)
 	    outputWires[i+2] = subCircuits[i+5*w].outputWires[0];
     }
-    
-    /*
-    public void sendOutBitsLookup(boolean send) {
-    	//sendOutBitsLookup = send;
-    	if (send) 
-    		for (int i=0; i<outputWires.length; i++) 
-    			outputWires[i].outBitEncPair = new BigInteger[2];
-    	else
-    		for (int i=0; i<outputWires.length; i++) 
-    			outputWires[i].outBitEncPair = null;
-    }
-    */
 }

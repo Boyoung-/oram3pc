@@ -32,6 +32,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		// protocol
 		// step 1
 		BigInteger Li = args[0];
+		PreData.access_Li[i] = Li;
 		debbie.write(Li);
 		eddie.write(Li);
 		

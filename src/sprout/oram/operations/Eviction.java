@@ -4,8 +4,11 @@ import java.math.BigInteger;
 
 import sprout.communication.Communication;
 import sprout.crypto.SR;
+import sprout.oram.Bucket;
+import sprout.oram.BucketException;
 import sprout.oram.PreData;
 import sprout.oram.Tree;
+import sprout.oram.TreeException;
 import sprout.util.Timing;
 import sprout.util.Util;
 
@@ -92,12 +95,17 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		for (int j = 0; j < sC_P_pp.length; j++)
 			secretC_P_pp = secretC_P_pp.shiftLeft(tupleBits).xor(sC_P_pp[j]);
 		
+		
+		// new
+		debbie.write(secretC_P_pp);
+		debbie.write(PreData.access_Li[i]);
+		
 		return secretC_P_pp;
 	}
 
 	@Override
 	public BigInteger executeDebbieSubTree(Communication charlie,
-			Communication eddie, Tree unused, BigInteger[] unused2, Timing localTiming) {
+			Communication eddie, Tree OT, BigInteger[] unused2, Timing localTiming) {
 		if (i == 0)
 			return null;
 
@@ -169,13 +177,36 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		// step 5
 		SSXOT ssxot = new SSXOT(charlie, eddie);
 		ssxot.executeDebbie(charlie, eddie, i, k + 2, k, tupleBits, I);
+		
+		
+		// new
+				BigInteger tmp = charlie.readBigInteger();
+				BigInteger Li = charlie.readBigInteger();
+				BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(BigInteger.ONE);
+				Bucket[] buckets = new Bucket[pathBuckets];
+				for (int j=pathBuckets-1; j>=0; j--) {
+					BigInteger content = tmp.and(helper);
+					tmp = tmp.shiftRight(bucketBits);
+					try {
+						buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
+					} catch (BucketException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				try {
+					OT.setBucketsOnPath(buckets, Li);
+				} catch (TreeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
 		return null;
 	}
 
 	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
-			Communication debbie, Tree unused, BigInteger[] args, Timing localTiming) {
+			Communication debbie, Tree OT, BigInteger[] args, Timing localTiming) {
 		if (i == 0)
 			return null;
 
@@ -246,6 +277,32 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		BigInteger secretE_P_pp = BigInteger.ZERO;
 		for (int j = 0; j < sE_P_pp.length; j++)
 			secretE_P_pp = secretE_P_pp.shiftLeft(tupleBits).xor(sE_P_pp[j]);
+		
+
+		
+		// new
+		BigInteger tmp = secretE_P_pp;
+		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(BigInteger.ONE);
+		Bucket[] buckets = new Bucket[pathBuckets];
+		for (int j=pathBuckets-1; j>=0; j--) {
+			BigInteger content = tmp.and(helper);
+			tmp = tmp.shiftRight(bucketBits);
+			try {
+				buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
+			} catch (BucketException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		try {
+			OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
+		} catch (TreeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
 
 		return secretE_P_pp;
 	}
