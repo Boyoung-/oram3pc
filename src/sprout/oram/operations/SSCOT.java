@@ -3,6 +3,7 @@ package sprout.oram.operations;
 import java.math.BigInteger;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.bouncycastle.util.Arrays;
 
 import sprout.communication.Communication;
 import sprout.crypto.AES_PRF;
@@ -11,8 +12,10 @@ import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
+import sprout.oram.TID;
 
 public class SSCOT extends Operation {
 	public SSCOT(Communication con1, Communication con2) {
@@ -22,22 +25,34 @@ public class SSCOT extends Operation {
 	public Pair<Integer, BigInteger> executeCharlie(Communication D, Communication E, int i, int N, int l, int l_p) {
 		// protocol
 		// step 1
-		BigInteger[] e = E.readBigIntegerArray();
-		BigInteger[] v = E.readBigIntegerArray();
+		timing.stopwatch[PID.sscot][TID.online_read].start();
+		byte[] msg_ev = E.read();
 
 		// step 2
-		BigInteger[] p = D.readBigIntegerArray();
-		BigInteger[] w = D.readBigIntegerArray();
+		byte[] msg_pw = D.read();
+		timing.stopwatch[PID.sscot][TID.online_read].stop();
 
 		// step 3
+		timing.stopwatch[PID.sscot][TID.online].start();
+		byte[][] e = new byte[N][];
+		byte[][] v = new byte[N][];		
+		byte[][] p = new byte[N][];
+		byte[][] w = new byte[N][];		
 		PRG G = new PRG(l);
 		
 		for (int t=0; t<N; t++) {
-			if (v[t].compareTo(w[t]) == 0) {
-				BigInteger m_t = e[t].xor(new BigInteger(1, G.compute(p[t].toByteArray())));
+			e[t] = Arrays.copyOfRange(msg_ev, t*SR.kBytes, (t+1)*SR.kBytes);
+			v[t] = Arrays.copyOfRange(msg_ev, (N+t)*SR.kBytes, (N+t+1)*SR.kBytes);
+			p[t] = Arrays.copyOfRange(msg_pw, t*SR.kBytes, (t+1)*SR.kBytes);
+			w[t] = Arrays.copyOfRange(msg_pw, (N+t)*SR.kBytes, (N+t+1)*SR.kBytes);
+			
+			if (new BigInteger(1, v[t]).compareTo(new BigInteger(1, w[t])) == 0) {
+				BigInteger m_t = new BigInteger(1, e[t]).xor(new BigInteger(1, G.compute(p[t])));
+				timing.stopwatch[PID.sscot][TID.online].stop();
 				return Pair.of(t, m_t);
 			}
 		}
+		timing.stopwatch[PID.sscot][TID.online].stop();
 
 		// error
 		return null;
@@ -46,10 +61,11 @@ public class SSCOT extends Operation {
 	public void executeDebbie(Communication C, Communication E, int i, int N, int l, int l_p, BigInteger[] b) {
 		// protocol
 		// step 2
+		timing.stopwatch[PID.sscot][TID.online].start();
 		int diffBits = SR.kBits - l_p;
 		BigInteger[] y = new BigInteger[N];
-		BigInteger[] p = new BigInteger[N];
-		BigInteger[] w = new BigInteger[N];
+		byte[][][] pw = new byte[2][N][];
+		byte[] msg_pw = new byte[SR.kBytes * N * 2];
 		AES_PRF F_k = new AES_PRF(SR.kBits);
 		AES_PRF F_k_p = new AES_PRF(SR.kBits);
 		F_k.init(PreData.sscot_k[i]);
@@ -57,21 +73,26 @@ public class SSCOT extends Operation {
 		
 		for (int t=0; t<N; t++) {
 			y[t] = PreData.sscot_r[i][t].xor(b[t].shiftLeft(diffBits));
-			p[t] = new BigInteger(1, F_k.compute(y[t].toByteArray()));
-			w[t] = new BigInteger(1, F_k_p.compute(y[t].toByteArray()));
+			pw[0][t] = F_k.compute(y[t].toByteArray());
+			pw[1][t] = F_k_p.compute(y[t].toByteArray());
+			System.arraycopy(pw[0][t], 0, msg_pw, t*SR.kBytes, SR.kBytes);
+			System.arraycopy(pw[1][t], 0, msg_pw, (N+t)*SR.kBytes, SR.kBytes);
 		}
-		
-		C.write(p);
-		C.write(w);
+		timing.stopwatch[PID.sscot][TID.online].stop();
+
+		timing.stopwatch[PID.sscot][TID.online_write].start();
+		C.write(msg_pw);
+		timing.stopwatch[PID.sscot][TID.online_write].stop();
 	}
 
 	public void executeEddie(Communication C, Communication D, int i, int N, int l, int l_p, BigInteger[] m, BigInteger[] a) {
 		// protocol
 		// step 1
+		timing.stopwatch[PID.sscot][TID.online].start();
 		int diffBits = SR.kBits - l_p;
 		BigInteger[] x = new BigInteger[N];
-		BigInteger[] e = new BigInteger[N];
-		BigInteger[] v = new BigInteger[N];
+		byte[][][] ev = new byte[2][N][];
+		byte[] msg_ev = new byte[SR.kBytes * N * 2];
 		AES_PRF F_k = new AES_PRF(SR.kBits);
 		AES_PRF F_k_p = new AES_PRF(SR.kBits);
 		PRG G = new PRG(l);
@@ -80,12 +101,19 @@ public class SSCOT extends Operation {
 		
 		for (int t=0; t<N; t++) {
 			x[t] = PreData.sscot_r[i][t].xor(a[t].shiftLeft(diffBits));
-			e[t] = new BigInteger(1, G.compute(F_k.compute(x[t].toByteArray()))).xor(m[t]);
-			v[t] = new BigInteger(1, F_k_p.compute(x[t].toByteArray()));
+			ev[0][t] = new BigInteger(1, G.compute(F_k.compute(x[t].toByteArray()))).xor(m[t]).toByteArray();
+			ev[1][t] = F_k_p.compute(x[t].toByteArray());
+			if (ev[0][t].length < SR.kBytes)
+				System.arraycopy(ev[0][t], 0, msg_ev, (t+1)*SR.kBytes-ev[0][t].length, ev[0][t].length);
+			else
+				System.arraycopy(ev[0][t], ev[0][t].length-SR.kBytes, msg_ev, t*SR.kBytes, SR.kBytes);
+			System.arraycopy(ev[1][t], 0, msg_ev, (N+t)*SR.kBytes, SR.kBytes);
 		}
+		timing.stopwatch[PID.sscot][TID.online].stop();
 		
-		C.write(e);
-		C.write(v);
+		timing.stopwatch[PID.sscot][TID.online_write].start();
+		C.write(msg_ev);
+		timing.stopwatch[PID.sscot][TID.online_write].stop();
 	}
 
 	// for testing correctness

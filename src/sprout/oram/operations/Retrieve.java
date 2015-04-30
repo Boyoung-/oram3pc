@@ -13,6 +13,7 @@ import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.PID;
 import sprout.oram.Party;
+import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.util.StopWatch;
 import sprout.util.Timing;
@@ -20,7 +21,6 @@ import sprout.util.Util;
 
 public class Retrieve extends Operation {
 
-	private int currTree;
 	//private StopWatch indParallelPE = new StopWatch("Individual Paralleled PP + Evict");
 
 	public Retrieve(Communication con1, Communication con2) {
@@ -28,24 +28,24 @@ public class Retrieve extends Operation {
 	}
 
 	public Pair<BigInteger[], PPEvict> executeCharlie(Communication debbie,
-			Communication eddie, BigInteger Li, BigInteger sC_Nip1) {
+			Communication eddie, int i, BigInteger Li, BigInteger sC_Nip1) {
 		// Access
 		Access access = new Access(debbie, eddie);
-		access.loadTreeSpecificParameters(currTree);
+		access.loadTreeSpecificParameters(i);
 		AOutput AOut = access.executeCharlieSubTree(debbie, eddie, null,
 				new BigInteger[] { Li, sC_Nip1 }, null);
 		BigInteger[] output = new BigInteger[] { AOut.Lip1, AOut.data };
-		
+
 		PostProcessT ppt = new PostProcessT(debbie, eddie);
-		ppt.loadTreeSpecificParameters(currTree);
+		ppt.loadTreeSpecificParameters(i);
 		BigInteger sC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{AOut.sC_Ti, Li, AOut.Lip1, BigInteger.valueOf(AOut.j_2)}, null);
-		
+
 		Reshuffle res = new Reshuffle(debbie, eddie);
-		res.loadTreeSpecificParameters(currTree);
+		res.loadTreeSpecificParameters(i);
 		BigInteger sC_pi_P = res.executeCharlieSubTree(debbie, eddie, null, AOut.sC_sig_P_p, null);
-		
+
 		Eviction evict = new Eviction(debbie, eddie);
-		evict.loadTreeSpecificParameters(currTree);
+		evict.loadTreeSpecificParameters(i);
 		BigInteger sC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{sC_pi_P, sC_Ti_p}, null);
 		
 		// PP+Evict
@@ -59,22 +59,22 @@ public class Retrieve extends Operation {
 		return Pair.of(output, null);
 	}
 
-	public PPEvict executeDebbie(Communication charlie, Communication eddie, Tree sD_OT) {
+	public PPEvict executeDebbie(Communication charlie, Communication eddie, int i, Tree sD_OT) {
 		// Access
 		Access access = new Access(charlie, eddie);
-		access.loadTreeSpecificParameters(currTree);
+		access.loadTreeSpecificParameters(i);
 		access.executeDebbieSubTree(charlie, eddie, sD_OT, null, null);
-		
+
 		PostProcessT ppt = new PostProcessT(charlie, eddie);
-		ppt.loadTreeSpecificParameters(currTree);
+		ppt.loadTreeSpecificParameters(i);
 		ppt.executeDebbieSubTree(charlie, eddie, null, null, null);
-		
+
 		Reshuffle res = new Reshuffle(charlie, eddie);
-		res.loadTreeSpecificParameters(currTree);
+		res.loadTreeSpecificParameters(i);
 		res.executeDebbieSubTree(charlie, eddie, null, null, null);
-		
+
 		Eviction evict = new Eviction(charlie, eddie);
-		evict.loadTreeSpecificParameters(currTree);
+		evict.loadTreeSpecificParameters(i);
 		evict.executeDebbieSubTree(charlie, eddie, sD_OT, null, null);
 		
 		// PP+Evictv
@@ -88,22 +88,22 @@ public class Retrieve extends Operation {
 		return null;
 	}
 
-	public PPEvict executeEddie(Communication charlie, Communication debbie, Tree sE_OT, BigInteger sE_Nip1) {
+	public PPEvict executeEddie(Communication charlie, Communication debbie, int i, Tree sE_OT, BigInteger sE_Nip1) {
 		// Access
 		Access access = new Access(charlie, debbie);
-		access.loadTreeSpecificParameters(currTree);
+		access.loadTreeSpecificParameters(i);
 		AOutput AOut = access.executeEddieSubTree(charlie, debbie, sE_OT, new BigInteger[] {sE_Nip1}, null);
-		
+
 		PostProcessT ppt = new PostProcessT(charlie, debbie);
-		ppt.loadTreeSpecificParameters(currTree);
+		ppt.loadTreeSpecificParameters(i);
 		BigInteger sE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{AOut.sE_Ti}, null);
-		
+
 		Reshuffle res = new Reshuffle(charlie, debbie);
-		res.loadTreeSpecificParameters(currTree);
+		res.loadTreeSpecificParameters(i);
 		BigInteger sE_pi_P = res.executeEddieSubTree(charlie, debbie, null, AOut.sE_sig_P_p, null);
-		
+
 		Eviction evict = new Eviction(charlie, debbie);
-		evict.loadTreeSpecificParameters(currTree);
+		evict.loadTreeSpecificParameters(i);
 		BigInteger sE_P_pp = evict.executeEddieSubTree(charlie, debbie, sE_OT, new BigInteger[]{sE_pi_P, sE_Ti_p}, null);
 		
 				
@@ -235,8 +235,6 @@ public class Retrieve extends Operation {
 				// for each retrieval, execute protocols on each tree
 				BigInteger Li = null;
 				for (int i = 0; i < numTrees; i++) {
-					currTree = i;
-
 					switch (party) {
 					case Charlie:
 						BigInteger sC_Ni;
@@ -253,7 +251,7 @@ public class Retrieve extends Operation {
 										Li.toString(2),
 										ForestMetadata.getLBits(i))));
 						//con2.write(Li);
-						Pair<BigInteger[], PPEvict> outPair = executeCharlie(con1, con2, Li, sC_Ni);
+						Pair<BigInteger[], PPEvict> outPair = executeCharlie(con1, con2, i, Li, sC_Ni);
 						BigInteger[] outC = outPair.getLeft();
 						Li = outC[0];
 						if (i == h) {
@@ -273,7 +271,7 @@ public class Retrieve extends Operation {
 						threads[i] = outPair.getRight();
 						break;
 					case Debbie:
-						threads[i] = executeDebbie(con1, con2, forest.getTree(currTree));
+						threads[i] = executeDebbie(con1, con2, i, forest.getTree(i));
 						break;
 					case Eddie:
 						//Li = con1.readBigInteger();
@@ -282,7 +280,7 @@ public class Retrieve extends Operation {
 							sE_Ni = Util.getSubBits(sE_N, lastNBits - (i + 1) * tau, lastNBits);
 						} else 
 							sE_Ni = sE_N;
-						threads[i] = executeEddie(con1, con2, forest.getTree(currTree), sE_Ni);
+						threads[i] = executeEddie(con1, con2, i, forest.getTree(i), sE_Ni);
 						break;
 					}
 				}
@@ -318,19 +316,28 @@ public class Retrieve extends Operation {
 				
 				bp_online.stop();
 				bp_whole.stop();
+				
+				if (retri == (retrievals / 2) -1 ) {
+					bp_online.reset();
+					bp_whole.reset();
+					timing.reset();
+				}
 			}
 
 			// abandon the timing of the first several retrievals
 			// assert records > 1
 			if (rec == 0) {
 				;//wholeExecution.start();
-				bp_online.reset();
-				bp_whole.reset();
+				//bp_online.reset();
+				//bp_whole.reset();
 			}
 		}
 		
-		System.out.println(bp_whole.toString());
-		System.out.println(bp_online.toString());
+		System.out.println(bp_whole.toTab());
+		System.out.println(bp_online.toTab());
+		
+		System.out.println("-------------------------");
+		System.out.println(timing.toTab());
 		
 		/*
 		wholeExecution.stop();

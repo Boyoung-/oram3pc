@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
+// TODO: clean code
+
 public class StopWatch implements Serializable {
 	/**
      * 
@@ -19,7 +21,7 @@ public class StopWatch implements Serializable {
 	private long startWallClockTime;
 	private long startCPUTime;
 
-	public static final int convert = 1000000; // from nanoseconds to milliseconds
+	public static final int to_ms = 1000000; // from nanoseconds to milliseconds
 	
 	private boolean parallelTestSwitch = true;
 
@@ -132,15 +134,26 @@ public class StopWatch implements Serializable {
 	@Override
 	public String toString() {
 		String out = " - Wall clock time(ms): " + elapsedWallClockTime
-				/ convert + "\n - CPU time(ms): " + elapsedCPUTime / convert;
+				/ to_ms + "\n - CPU time(ms): " + elapsedCPUTime / to_ms;
 		if (task == null)
 			return out;
 		return "Task: " + task + "\n" + out;
 	}
+	
+	public String toTab() {
+		String out = "\n WC(ms):\t" + (elapsedWallClockTime/to_ms) + 
+				"\nCPU(ms):\t" + (elapsedCPUTime/to_ms);
+		if (task == null)
+			out = "Task: (un-specified)" + out;
+		else
+			out = "Task: " + task + out;
+		return out;
+			
+	}
 
 	public String toCSV() {
-		String csv = task + ",Wall clock(ms)," + elapsedWallClockTime / convert
-				+ "\n,CPU(ms)," + elapsedCPUTime / convert;
+		String csv = task + ",Wall clock(ms)," + elapsedWallClockTime / to_ms
+				+ "\n,CPU(ms)," + elapsedCPUTime / to_ms;
 		return csv;
 	}
 	
@@ -150,7 +163,7 @@ public class StopWatch implements Serializable {
 	}
 	
 	public String afterConversion() {
-		String num = elapsedWallClockTime / convert + "\n" + elapsedCPUTime / convert;
+		String num = elapsedWallClockTime / to_ms + "\n" + elapsedCPUTime / to_ms;
 		return num;
 	}
 

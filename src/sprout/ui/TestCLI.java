@@ -113,6 +113,8 @@ public class TestCLI {
 				operation = SSCOT.class;
 			} else if (alg.equals("ssiot")) {
 				operation = SSIOT.class;
+			} else if (alg.equals("ts")) {
+				operation = TestSend.class;
 			} else {
 				System.out.println("Method " + alg + " not supported");
 				System.exit(-1);

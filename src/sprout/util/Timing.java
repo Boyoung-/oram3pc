@@ -202,6 +202,15 @@ public class Timing {
 		}
 		return "\n" + csv;
 	}
+	
+	public String toTab() {
+		String out = "";
+		for (int i=0; i<PID.size; i++) {
+			for (int j=0; j<TID.size; j++)
+				out += stopwatch[i][j].toTab() + "\n";
+		}
+		return out;
+	}
 
 	public String toCSV() {
 		String csv = "";

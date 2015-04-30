@@ -15,6 +15,7 @@ public class SR {
 	public static BigInteger p;
 	public static SecretKeySpec skey;
 	public static int kBits;
+	public static int kBytes;
 
 	static {
 		try {
@@ -32,5 +33,6 @@ public class SR {
 		skey = PRG.readKey();
 		
 		kBits = 80;
+		kBytes = (kBits + 7) / 8;
 	}
 }

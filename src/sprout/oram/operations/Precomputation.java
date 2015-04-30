@@ -119,6 +119,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		
 		
 		// Access
+		PreData.access_Li = new BigInteger[levels];		
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
 		PreData.access_p = new BigInteger[levels];
 
