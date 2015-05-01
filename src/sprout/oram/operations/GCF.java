@@ -134,8 +134,8 @@ public class GCF extends Operation {
 			PreData.gcf_gc_E = new Circuit[1][1];
 			PreData.gcf_lbs = new BigInteger[1][1][n][2];
 
-			int tmp1 = SR.rand.nextInt(ww) + 1;
-			int tmp2 = SR.rand.nextInt(ww) + 1;
+			int tmp1 = SR.rand.nextInt(ww);
+			int tmp2 = SR.rand.nextInt(ww);
 			int s1 = Math.min(tmp1, tmp2);
 			int s2 = Math.max(tmp1, tmp2);
 			Circuit.isForGarbling = true;
@@ -183,7 +183,7 @@ public class GCF extends Operation {
 			PreData.gcf_gc_D = new Circuit[1][1];
 			Circuit.isForGarbling = false;
 			Circuit.setSender(con2);
-			PreData.gcf_gc_D[i][j] = F2FT ? new F2FT_2Wplus2_Wplus2(ww, 1, 1) : new F2ET_Wplus2_Wplus2(ww, 1, 1);
+			PreData.gcf_gc_D[i][j] = F2FT ? new F2FT_2Wplus2_Wplus2(ww, 0, 0) : new F2ET_Wplus2_Wplus2(ww, 0, 0);
 			try {
 				PreData.gcf_gc_D[i][j].build();
 			} catch (Exception e) {

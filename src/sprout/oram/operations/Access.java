@@ -332,6 +332,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		int shiftN = lastNBits % tau;
 		if (shiftN == 0)
 			shiftN = tau;	
+		
+		timing = new Timing();
 
 				
 		////////////////////////////////////////////

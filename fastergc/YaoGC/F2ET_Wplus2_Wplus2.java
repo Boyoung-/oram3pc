@@ -21,7 +21,7 @@ public class F2ET_Wplus2_Wplus2 extends CompositeCircuit {
 	subCircuits[2*w]   = new FF10_Wplus1_Wplus1(w, false, s1);
 	subCircuits[2*w+1] = new FF10_Wplus1_Wplus1(w, false, s2);
 	
-	s1 = s2 = 1;
+	s1 = s2 = 0;
 
 	super.createSubCircuits();
     }

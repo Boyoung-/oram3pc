@@ -15,6 +15,8 @@ import sprout.util.Timing;
 import sprout.util.Util;
 
 public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
+	
+	// TODO: rm try except
 
 	public Eviction() {
 		super(null, null);
@@ -27,8 +29,13 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
-		if (i == 0)
+		if (i == 0) {
+			timing.stopwatch[PID.evict][TID.online_write].start();
+			debbie.write(args[1]);
+			timing.stopwatch[PID.evict][TID.online_write].stop();
+			
 			return null;
+		}
 
 		GCF gcf = new GCF(debbie, eddie);
 		
@@ -106,18 +113,36 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		timing.stopwatch[PID.evict][TID.online].stop();
 		
 		
-		// new
+		// step 6
+		timing.stopwatch[PID.evict][TID.online_write].start();
 		debbie.write(secretC_P_pp);
-		debbie.write(PreData.access_Li[i]);
+		timing.stopwatch[PID.evict][TID.online_write].stop();
 		
-		return secretC_P_pp;
+		return null;
 	}
 
 	@Override
 	public BigInteger executeDebbieSubTree(Communication charlie,
 			Communication eddie, Tree OT, BigInteger[] unused2, Timing localTiming) {
-		if (i == 0)
+		if (i == 0) {
+			timing.stopwatch[PID.evict][TID.online_read].start();
+			BigInteger sD_Ti_p = charlie.readBigInteger();
+			timing.stopwatch[PID.evict][TID.online_read].stop();
+			
+			timing.stopwatch[PID.evict][TID.online].start();
+			Bucket[] buckets = null;
+			try {
+				buckets = new Bucket[] {new Bucket(i, Util.rmSignBit(sD_Ti_p.toByteArray()))};
+				BigInteger Li = null;
+				OT.setBucketsOnPath(buckets, Li);
+			} catch (BucketException | TreeException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			timing.stopwatch[PID.evict][TID.online].stop();
+			
 			return null;
+		}
 
 		GCF gcf = new GCF(charlie, eddie);
 		
@@ -128,7 +153,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		for (int j = 0; j < d_i; j++) {
 			BigInteger GCFOutput = gcf
 					.executeDebbie(charlie, eddie, i, j, w * 2 + 2);
-
+			
 			timing.stopwatch[PID.evict][TID.online].start();
 			for (alpha1_j[j] = 0; alpha1_j[j] < w; alpha1_j[j]++)
 				if (GCFOutput.testBit(w - alpha1_j[j] - 1))
@@ -141,7 +166,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 					break;
 			while (alpha2_j[j] == w || alpha2_j[j] == alpha1_j[j])
 				alpha2_j[j] = SR.rand.nextInt(w);
-			timing.stopwatch[PID.evict][TID.online].stop();
+			timing.stopwatch[PID.evict][TID.online].stop();			
 		}
 
 		// step 2
@@ -187,15 +212,18 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			}
 		Integer[] I = beta;
 		timing.stopwatch[PID.evict][TID.online].stop();
-
+		
 		// step 5
 		SSXOT ssxot = new SSXOT(charlie, eddie);
 		ssxot.executeDebbie(charlie, eddie, i, k + 2, k, tupleBits, I);
 		
 		
-		// new
+		// step 6
+		timing.stopwatch[PID.evict][TID.online_read].start();
 		BigInteger tmp = charlie.readBigInteger();
-		BigInteger Li = charlie.readBigInteger();
+		timing.stopwatch[PID.evict][TID.online_read].stop();
+
+		timing.stopwatch[PID.evict][TID.online].start();
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
 				BigInteger.ONE);
 		Bucket[] buckets = new Bucket[pathBuckets];
@@ -205,17 +233,13 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			try {
 				buckets[j] = new Bucket(i,
 						Util.rmSignBit(content.toByteArray()));
-			} catch (BucketException e) {
+				OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
+			} catch (BucketException | TreeException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		try {
-			OT.setBucketsOnPath(buckets, Li);
-		} catch (TreeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		timing.stopwatch[PID.evict][TID.online].stop();
 
 		return null;
 	}
@@ -223,8 +247,21 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
 			Communication debbie, Tree OT, BigInteger[] args, Timing localTiming) {
-		if (i == 0)
+		if (i == 0) {
+			timing.stopwatch[PID.evict][TID.online].start();
+			Bucket[] buckets = null;
+			try {
+				buckets = new Bucket[] {new Bucket(i, Util.rmSignBit(args[1].toByteArray()))};
+				BigInteger Li = null;
+				OT.setBucketsOnPath(buckets, Li);
+			} catch (BucketException | TreeException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			timing.stopwatch[PID.evict][TID.online].stop();
+			
 			return null;
+		}
 
 		GCF gcf = new GCF(charlie, debbie);
 
@@ -303,7 +340,8 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		timing.stopwatch[PID.evict][TID.online].stop();
 
 		
-		// new
+		// step 6
+		timing.stopwatch[PID.evict][TID.online].start();
 		BigInteger tmp = secretE_P_pp;
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(BigInteger.ONE);
 		Bucket[] buckets = new Bucket[pathBuckets];
@@ -312,21 +350,15 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			tmp = tmp.shiftRight(bucketBits);
 			try {
 				buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
-			} catch (BucketException e) {
+				OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
+			} catch (BucketException | TreeException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		try {
-			OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
-		} catch (TreeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
+		timing.stopwatch[PID.evict][TID.online].stop();		
 		
 
-		return secretE_P_pp;
+		return null;
 	}
 }

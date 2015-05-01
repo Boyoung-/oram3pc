@@ -26,7 +26,7 @@ public class F2FT_2Wplus2_Wplus2 extends CompositeCircuit {
 	subCircuits[6*w+2] = new FF10_Wplus1_Wplus1(w, true, s2);
 	subCircuits[6*w+3] = new FF10_Wplus1_Wplus1(w, false, s2);
 	
-	s1 = s2 = 1;
+	s1 = s2 = 0;
 
 	super.createSubCircuits();
     }
