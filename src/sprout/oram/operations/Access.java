@@ -161,8 +161,11 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		
 		
 		// step 2
-		timing.stopwatch[PID.access][TID.online].start();
+		timing.stopwatch[PID.access][TID.online_read].start();
 		BigInteger sD_Nip1 = charlie.readBigInteger();
+		timing.stopwatch[PID.access][TID.online_read].stop();
+		
+		timing.stopwatch[PID.access][TID.online].start();
 		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata.getLastNBits();
 		BigInteger sD_Ni = Util.getSubBits(sD_Nip1, Nip1Bits - nBits, Nip1Bits);
 

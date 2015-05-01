@@ -10,8 +10,11 @@ import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
+import sprout.oram.TID;
+import sprout.util.Timing;
 import sprout.util.Util;
 
 public class XOT extends Operation {
@@ -23,18 +26,22 @@ public class XOT extends Operation {
 	public BigInteger[] executeCharlie(Communication debbie, Communication eddie, int id, int i, int N, int k, int l) {
 		// protocol
 		// step 1
+		timing.stopwatch[PID.xot][TID.online_read].start();
 		BigInteger[] a = eddie.readBigIntegerArray();
 
 		
 		// step 2
 		Integer[] j = debbie.readIntegerArray();
 		BigInteger[] p = debbie.readBigIntegerArray();
+		timing.stopwatch[PID.xot][TID.online_read].stop();
 
 		
 		// step 3
+		timing.stopwatch[PID.xot][TID.online].start();
 		BigInteger[] z = new BigInteger[k];
 		for (int o = 0; o < k; o++)
 			z[o] = a[j[o]].xor(p[o]);
+		timing.stopwatch[PID.xot][TID.online].stop();
 
 		
 		return z;
@@ -43,26 +50,34 @@ public class XOT extends Operation {
 	public void executeDebbie(Communication charlie, Communication eddie, int id, int i, int N, int k, int l, Integer[] ii, BigInteger[] delta) {
 		// protocol
 		// step 2
+		timing.stopwatch[PID.xot][TID.online].start();
 		Integer[] j = new Integer[k];
 		BigInteger[] p = new BigInteger[k];
 		for (int o = 0; o < k; o++) {
 			j[o] = PreData.xot_pi_ivs[id][i].get(ii[o]);
 			p[o] = PreData.xot_r[id][i][j[o]].xor(delta[o]);
 		}
+		timing.stopwatch[PID.xot][TID.online].stop();
 
+		timing.stopwatch[PID.xot][TID.online_write].start();
 		charlie.write(j);
 		charlie.write(p);
+		timing.stopwatch[PID.xot][TID.online_write].stop();
 	}
 
 	public void executeEddie(Communication charlie, Communication debbie, int id, int i, int N, int k, int l, BigInteger[] m) {
 		// protocol
 		// step 1
+		timing.stopwatch[PID.xot][TID.online].start();
 		BigInteger[] a = new BigInteger[N];
 		for (int o = 0; o < N; o++)
 			a[o] = m[PreData.xot_pi[0][i].get(o)]
 					.xor(PreData.xot_r[0][i][o]);
+		timing.stopwatch[PID.xot][TID.online].stop();
 
+		timing.stopwatch[PID.xot][TID.online_write].start();
 		charlie.write(a);
+		timing.stopwatch[PID.xot][TID.online_write].stop();
 	}
 
 	// for testing correctness
@@ -70,6 +85,8 @@ public class XOT extends Operation {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		System.out.println("#####  Testing XOT  #####");
+		
+		timing = new Timing();
 
 		int levels = ForestMetadata.getLevels();
 		int id = 0;

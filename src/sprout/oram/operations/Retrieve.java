@@ -1,23 +1,21 @@
 package sprout.oram.operations;
 
-import java.io.IOException;
 import java.math.BigInteger;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import sprout.communication.Communication;
 import sprout.crypto.SR;
-import sprout.oram.Bucket;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
-import sprout.oram.PID;
 import sprout.oram.Party;
-import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.util.StopWatch;
 import sprout.util.Timing;
 import sprout.util.Util;
+
+//TODO: fix sigma in GC
 
 public class Retrieve extends Operation {
 

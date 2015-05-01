@@ -7,13 +7,13 @@ import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
+import sprout.oram.TID;
 import sprout.oram.Tree;
 import sprout.util.Timing;
 import sprout.util.Util;
-
-// TODO: This operation is unlike the other TreeOperations we may want to 
 
 public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
@@ -28,6 +28,8 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree unused, BigInteger[] args, Timing localTiming) {
+
+		timing.stopwatch[PID.ppt][TID.online].start();
 		BigInteger sC_Ti = args[0];
 		BigInteger Li = args[1];
 		BigInteger Lip1 = args[2];
@@ -36,6 +38,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 		if (i == h) {
 			BigInteger sC_Ti_p = Li.xor(PreData.ppt_sC_Li_p[i]).shiftLeft(aBits).xor(sC_Ti);
+			timing.stopwatch[PID.ppt][TID.online].stop();
 			return sC_Ti_p;
 		}
 		
@@ -43,11 +46,15 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		// protocol
 		// step 1
 		int delta = (PreData.ppt_alpha[i] - j_2 + twotaupow) % twotaupow;
+		timing.stopwatch[PID.ppt][TID.online].stop();
 		
+		timing.stopwatch[PID.ppt][TID.online_write].start();
 		eddie.write(delta);
+		timing.stopwatch[PID.ppt][TID.online_write].stop();
 		
 		
 		// step 2
+		timing.stopwatch[PID.ppt][TID.online].start();
 		BigInteger[] c = new BigInteger[twotaupow];
 		BigInteger c_all = BigInteger.ZERO;
 		for (int t=0; t<twotaupow; t++) {
@@ -65,6 +72,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		else {
 			sC_Ti_p = sC_Ti.xor(Li.xor(PreData.ppt_sC_Li_p[i]).shiftLeft(aBits).xor(c_all));
 		}
+		timing.stopwatch[PID.ppt][TID.online].stop();
 		
 		
 		return sC_Ti_p;
@@ -78,22 +86,28 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
-			Communication debbie, Tree unused, BigInteger[] args, Timing localTiming) {		
+			Communication debbie, Tree unused, BigInteger[] args, Timing localTiming) {	
+		timing.stopwatch[PID.ppt][TID.online].start();
 		BigInteger sE_Ti = args[0];
 		
 
 		if (i == h) {
 			BigInteger sE_Ti_p = PreData.ppt_sE_Li_p[i].shiftLeft(aBits).xor(sE_Ti);
+			timing.stopwatch[PID.ppt][TID.online].stop();
 			return sE_Ti_p;
 		}
+		timing.stopwatch[PID.ppt][TID.online].stop();
 		
 		
 		// protocol
 		// step 1
+		timing.stopwatch[PID.ppt][TID.online_read].start();
 		int delta = charlie.readInt();
+		timing.stopwatch[PID.ppt][TID.online_read].stop();
 		
 		
 		// step 3
+		timing.stopwatch[PID.ppt][TID.online].start();
 		BigInteger[] e = new BigInteger[twotaupow];
 		BigInteger e_all = BigInteger.ZERO;
 		for (int t=0; t<twotaupow; t++) {
@@ -108,6 +122,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		else {
 			sE_Ti_p = sE_Ti.xor(PreData.ppt_sE_Li_p[i].shiftLeft(aBits).xor(e_all));
 		}
+		timing.stopwatch[PID.ppt][TID.online].stop();
 		
 		
 		return sE_Ti_p;
@@ -117,10 +132,12 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		System.out.println("#####  Testing PPT  #####");
+		
+		timing = new Timing();
 
 		if (party == Party.Eddie) {
 			int levels = ForestMetadata.getLevels();
-			int i = SR.rand.nextInt(levels + 1);
+			int i = SR.rand.nextInt(levels);
 			PreData.ppt_sC_Li_p = new BigInteger[levels];
 			PreData.ppt_sE_Li_p = new BigInteger[levels];
 			PreData.ppt_sC_Lip1_p = new BigInteger[levels];

@@ -27,7 +27,8 @@ public class TestSend extends Operation {
 		
 		byte[][] a = new byte[1300*50][];
 		for (int i=0; i<1300*50; i++) {
-			a[i] = E.read();
+			;
+			//a[i] = E.read();
 			//if ( i > 1)
 				//a[i][0] = (byte) (a[i][0] ^ a[i-1][0]); 
 		}

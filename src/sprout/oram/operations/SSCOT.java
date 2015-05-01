@@ -16,6 +16,7 @@ import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
 import sprout.oram.TID;
+import sprout.util.Timing;
 
 public class SSCOT extends Operation {
 	public SSCOT(Communication con1, Communication con2) {
@@ -103,6 +104,7 @@ public class SSCOT extends Operation {
 			x[t] = PreData.sscot_r[i][t].xor(a[t].shiftLeft(diffBits));
 			ev[0][t] = new BigInteger(1, G.compute(F_k.compute(x[t].toByteArray()))).xor(m[t]).toByteArray();
 			ev[1][t] = F_k_p.compute(x[t].toByteArray());
+			// TODO: simplify below
 			if (ev[0][t].length < SR.kBytes)
 				System.arraycopy(ev[0][t], 0, msg_ev, (t+1)*SR.kBytes-ev[0][t].length, ev[0][t].length);
 			else
@@ -120,6 +122,8 @@ public class SSCOT extends Operation {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		System.out.println("#####  Testing SSCOT  #####");
+		
+		timing = new Timing();
 		
 		if (party == Party.Eddie) {
 			int levels = ForestMetadata.getLevels();

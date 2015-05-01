@@ -6,18 +6,21 @@ import Cipher.Cipher;
 import YaoGC.Circuit;
 import YaoGC.F2ET_Wplus2_Wplus2;
 import YaoGC.F2FT_2Wplus2_Wplus2;
-import YaoGC.FF10_2_2;
-import YaoGC.FF10_Wplus1_Wplus1;
 import YaoGC.State;
-import YaoGC.TestCircuit;
 import YaoGC.Wire;
 import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
+import sprout.oram.TID;
+import sprout.util.Timing;
 import sprout.util.Util;
+
+// TODO: remove testcircuit in fastergc
+// TODO: fix sigma shift
 
 public class GCF extends Operation {
 	public GCF(Communication con1, Communication con2) {
@@ -27,27 +30,39 @@ public class GCF extends Operation {
 	public void executeCharlie(Communication debbie, Communication eddie, int i, int level, int n, BigInteger sC_X) {
 		// protocol
 		// step 1
+		timing.stopwatch[PID.gcf][TID.online].start();
 		BigInteger[][] A = new BigInteger[n][2];
 		BigInteger[] K_C = new BigInteger[n];
+		timing.stopwatch[PID.gcf][TID.online].stop();
+
+		timing.stopwatch[PID.gcf][TID.online_read].start();
 		for (int j = 0; j < n; j++) {
 			A[j] = eddie.readBigIntegerArray();
 		}
+		timing.stopwatch[PID.gcf][TID.online_read].stop();
 
+		timing.stopwatch[PID.gcf][TID.online].start();
 		for (int j = 0; j < n; j++) {
 			int beta = sC_X.testBit(n - j - 1) ? 1 : 0;
 			K_C[j] = A[j][beta];
 		}
+		timing.stopwatch[PID.gcf][TID.online].stop();
 
 		// step 2
+		timing.stopwatch[PID.gcf][TID.online_write].start();
 		debbie.write(K_C);
+		timing.stopwatch[PID.gcf][TID.online_write].stop();
 	}
 
 	public BigInteger executeDebbie(Communication charlie, Communication eddie, int i, int level, int n) {
 		// protocol
 		// step 2
+		timing.stopwatch[PID.gcf][TID.online_read].start();
 		BigInteger[] K_C = charlie.readBigIntegerArray();
+		timing.stopwatch[PID.gcf][TID.online_read].stop();
 
 		// step 3
+		timing.stopwatch[PID.gcf][TID.online].start();
 		State in_D = State.fromLabels(K_C);
 		PreData.gcf_gc_D[i][level].startExecuting(in_D); 
 
@@ -68,6 +83,7 @@ public class GCF extends Operation {
 				System.out.println("**** GCF output error! ****");
 			}
 		}
+		timing.stopwatch[PID.gcf][TID.online].stop();
 
 		return output;
 	}
@@ -75,6 +91,7 @@ public class GCF extends Operation {
 	public void executeEddie(Communication charlie, Communication debbie, int i, int level, int n, BigInteger sE_X) {
 		// protocol
 		// step 1
+		timing.stopwatch[PID.gcf][TID.online].start();
 		BigInteger[][] A = new BigInteger[n][2];
 		BigInteger[] K_E = new BigInteger[n];
 		for (int k = 0; k < n; k++) {
@@ -83,16 +100,13 @@ public class GCF extends Operation {
 			A[k][1] = PreData.gcf_lbs[i][level][k][1 - alpha];
 			K_E[k] = PreData.gcf_lbs[i][level][k][0];
 		}
+		timing.stopwatch[PID.gcf][TID.online].stop();
 
+		timing.stopwatch[PID.gcf][TID.online_write].start();
 		for (int k = 0; k < n; k++) {
 			charlie.write(A[k]);
 		}
-
-		// step 3
-		// in the Retrieval GC write/read will be
-		// subtracted from this time
-		//State in_E = State.fromLabels(K_E);
-		//PreData.gcf_gc_E[tree_index][level_index].startExecuting(in_E);
+		timing.stopwatch[PID.gcf][TID.online_write].stop();
 	}
 
 	// for testing correctness
@@ -100,12 +114,13 @@ public class GCF extends Operation {
 	public void run(Party party, Forest forest) throws ForestException {
 		System.out.println("#####  Testing GCF  #####");
 		
+		timing = new Timing();
+		
 		boolean F2FT = true; 
 
 		int i = 0;
 		int j = 0;
 		int n = F2FT ? 18 : 10;
-		//int n = 9;
 		int ww = 8;
 		
 		if (party == Party.Eddie) {
@@ -116,12 +131,9 @@ public class GCF extends Operation {
 			int tmp2 = SR.rand.nextInt(ww) + 1;
 			int s1 = Math.min(tmp1, tmp2);
 			int s2 = Math.max(tmp1, tmp2);
-			s1 = 1;
-			s2 = 2;
 			Circuit.isForGarbling = true;
 			Circuit.setReceiver(con2);
 			PreData.gcf_gc_E[i][j] = F2FT ? new F2FT_2Wplus2_Wplus2(ww, s1, s2) : new F2ET_Wplus2_Wplus2(ww, s1, s2);
-			//PreData.gcf_gc_E[i][j] = new FF10_Wplus1_Wplus1(ww, false, 1);
 			try {
 				PreData.gcf_gc_E[i][j].build();
 			} catch (Exception e) {
@@ -142,8 +154,12 @@ public class GCF extends Operation {
 			State in_E = State.fromLabels(K_E);
 			PreData.gcf_gc_E[i][j].sendTruthTables(in_E);
 			
-			//BigInteger sE_X = new BigInteger(n-2, SR.rand);
-			BigInteger sE_X = new BigInteger("001111111111111111", 2);
+			BigInteger ones = BigInteger.ONE.shiftLeft(ww).subtract(BigInteger.ONE);
+			BigInteger sE_X;
+			if (F2FT)
+				sE_X = new BigInteger(ww, SR.rand).shiftLeft(ww).xor(ones);
+			else
+				sE_X = new BigInteger(ww, SR.rand);
 
 			executeEddie(con1, con2, i, j, n, sE_X);
 			
@@ -151,6 +167,9 @@ public class GCF extends Operation {
 			
 			System.out.println("sigma: " + s1 + "  " + s2);
 			System.out.println(Util.addZero(sE_X.toString(2), n));
+			if (F2FT) {
+				System.out.println(Util.addZero(sE_X.shiftRight(ww).toString(2), ww+2));
+			}
 			System.out.println(Util.addZero(output.toString(2), ww+2));
 			
 		} else if (party == Party.Debbie) {
@@ -158,7 +177,6 @@ public class GCF extends Operation {
 			Circuit.isForGarbling = false;
 			Circuit.setSender(con2);
 			PreData.gcf_gc_D[i][j] = F2FT ? new F2FT_2Wplus2_Wplus2(ww, 1, 1) : new F2ET_Wplus2_Wplus2(ww, 1, 1);
-			//PreData.gcf_gc_D[i][j] = new FF10_Wplus1_Wplus1(ww, false, 1);
 			try {
 				PreData.gcf_gc_D[i][j].build();
 			} catch (Exception e) {

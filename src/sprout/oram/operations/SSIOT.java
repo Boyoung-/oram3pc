@@ -3,6 +3,7 @@ package sprout.oram.operations;
 import java.math.BigInteger;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.bouncycastle.util.Arrays;
 
 import sprout.communication.Communication;
 import sprout.crypto.AES_PRF;
@@ -11,8 +12,11 @@ import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
+import sprout.oram.TID;
+import sprout.util.Timing;
 
 public class SSIOT extends Operation {
 	public SSIOT(Communication con1, Communication con2) {
@@ -22,22 +26,31 @@ public class SSIOT extends Operation {
 	public Pair<Integer, BigInteger> executeCharlie(Communication D, Communication E, int i, int N, int l, int tau) {
 		// protocol
 		// step 1
-		BigInteger[] e = E.readBigIntegerArray();
-		BigInteger[] v = E.readBigIntegerArray();
+		timing.stopwatch[PID.ssiot][TID.online_read].start();
+		byte[] msg_ev = E.read();
 
 		// step 2
 		BigInteger p = D.readBigInteger();
 		BigInteger w = D.readBigInteger();
+		timing.stopwatch[PID.ssiot][TID.online_read].stop();
 
 		// step 3
+		timing.stopwatch[PID.ssiot][TID.online].start();
 		PRG G = new PRG(l);
+		byte[][] e = new byte[N][];
+		byte[][] v = new byte[N][];		
 		
 		for (int j=0; j<N; j++) {
-			if (v[j].compareTo(w) == 0) {
-				BigInteger m = e[j].xor(new BigInteger(1, G.compute(p.toByteArray())));
+			e[j] = Arrays.copyOfRange(msg_ev, j*SR.kBytes, (j+1)*SR.kBytes);
+			v[j] = Arrays.copyOfRange(msg_ev, (N+j)*SR.kBytes, (N+j+1)*SR.kBytes);
+			
+			if (new BigInteger(1, v[j]).compareTo(w) == 0) {
+				BigInteger m = new BigInteger(1, e[j]).xor(new BigInteger(1, G.compute(p.toByteArray())));
+				timing.stopwatch[PID.ssiot][TID.online].stop();
 				return Pair.of(j, m);
 			}
 		}
+		timing.stopwatch[PID.ssiot][TID.online].stop();
 
 		// error
 		return null;
@@ -46,6 +59,7 @@ public class SSIOT extends Operation {
 	public void executeDebbie(Communication C, Communication E, int i, int N, int l, int tau, BigInteger j_D) {
 		// protocol
 		// step 2
+		timing.stopwatch[PID.ssiot][TID.online].start();
 		int diffBits = SR.kBits - tau;
 		AES_PRF F_k = new AES_PRF(SR.kBits);
 		AES_PRF F_k_p = new AES_PRF(SR.kBits);
@@ -55,18 +69,22 @@ public class SSIOT extends Operation {
 		BigInteger y = PreData.ssiot_r[i].xor(j_D.shiftLeft(diffBits));
 		BigInteger p = new BigInteger(1, F_k.compute(y.toByteArray()));
 		BigInteger w = new BigInteger(1, F_k_p.compute(y.toByteArray()));
-		
+		timing.stopwatch[PID.ssiot][TID.online].stop();
+
+		timing.stopwatch[PID.ssiot][TID.online_write].start();
 		C.write(p);
 		C.write(w);
+		timing.stopwatch[PID.ssiot][TID.online_write].stop();
 	}
 
 	public void executeEddie(Communication C, Communication D, int i, int N, int l, int tau, BigInteger[] m, BigInteger j_E) {
 		// protocol
 		// step 1
+		timing.stopwatch[PID.ssiot][TID.online].start();
 		int diffBits = SR.kBits - tau;
 		BigInteger[] x = new BigInteger[N];
-		BigInteger[] e = new BigInteger[N];
-		BigInteger[] v = new BigInteger[N];
+		byte[][][] ev = new byte[2][N][];
+		byte[] msg_ev = new byte[SR.kBytes*N*2];
 		AES_PRF F_k = new AES_PRF(SR.kBits);
 		AES_PRF F_k_p = new AES_PRF(SR.kBits);
 		PRG G = new PRG(l);
@@ -75,18 +93,28 @@ public class SSIOT extends Operation {
 		
 		for (int t=0; t<N; t++) {
 			x[t] = PreData.ssiot_r[i].xor(j_E.xor(BigInteger.valueOf(t)).shiftLeft(diffBits));
-			e[t] = new BigInteger(1, G.compute(F_k.compute(x[t].toByteArray()))).xor(m[t]);
-			v[t] = new BigInteger(1, F_k_p.compute(x[t].toByteArray()));
+			ev[0][t] = new BigInteger(1, G.compute(F_k.compute(x[t].toByteArray()))).xor(m[t]).toByteArray();
+			ev[1][t] = F_k_p.compute(x[t].toByteArray());
+			// TODO: simplify below
+			if (ev[0][t].length < SR.kBytes)
+				System.arraycopy(ev[0][t], 0, msg_ev, (t + 1) * SR.kBytes - ev[0][t].length, ev[0][t].length);
+			else
+				System.arraycopy(ev[0][t], ev[0][t].length - SR.kBytes, msg_ev,	t * SR.kBytes, SR.kBytes);
+			System.arraycopy(ev[1][t], 0, msg_ev, (N + t) * SR.kBytes, SR.kBytes);
 		}
-		
-		C.write(e);
-		C.write(v);
+		timing.stopwatch[PID.ssiot][TID.online].stop();
+
+		timing.stopwatch[PID.ssiot][TID.online_write].start();
+		C.write(msg_ev);
+		timing.stopwatch[PID.ssiot][TID.online_write].stop();
 	}
 
 	// for testing correctness
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		System.out.println("#####  Testing SSIOT  #####");
+		
+		timing = new Timing();
 		
 		if (party == Party.Eddie) {
 			int levels = ForestMetadata.getLevels();
