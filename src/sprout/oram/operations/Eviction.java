@@ -130,7 +130,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			timing.stopwatch[PID.evict][TID.online].start();
 			Bucket[] buckets =  new Bucket[] {new Bucket(i, Util.rmSignBit(sD_Ti_p.xor(PreData.evict_upxi[i]).toByteArray()))};
 			BigInteger Li = null;
-			OT.setBucketsOnPath(buckets, Li);
+			//OT.setBucketsOnPath(buckets, Li);
 			timing.stopwatch[PID.evict][TID.online].stop();
 			
 			return null;
@@ -226,7 +226,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 				buckets[j] = new Bucket(i,
 						Util.rmSignBit(content.toByteArray()));
 		}
-		OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
+		//OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
 		timing.stopwatch[PID.evict][TID.online].stop();
 
 		return null;
@@ -239,7 +239,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			timing.stopwatch[PID.evict][TID.online].start();
 			Bucket[] buckets = new Bucket[] {new Bucket(i, Util.rmSignBit(args[1].xor(PreData.evict_upxi[i]).toByteArray()))};
 			BigInteger Li = null;
-			OT.setBucketsOnPath(buckets, Li);
+			//OT.setBucketsOnPath(buckets, Li);
 			timing.stopwatch[PID.evict][TID.online].stop();
 			
 			return null;
@@ -332,7 +332,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			tmp = tmp.shiftRight(bucketBits);
 			buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
 		}
-		OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
+		//OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
 		timing.stopwatch[PID.evict][TID.online].stop();		
 		
 

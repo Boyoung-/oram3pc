@@ -40,10 +40,11 @@ public class SSCOT extends Operation {
 		byte[][] p = new byte[N][];
 		byte[][] w = new byte[N][];		
 		PRG G = new PRG(l);
+		int gBytes = (l + 7) / 8;
 		
 		for (int t=0; t<N; t++) {
-			e[t] = Arrays.copyOfRange(msg_ev, t*SR.kBytes, (t+1)*SR.kBytes);
-			v[t] = Arrays.copyOfRange(msg_ev, (N+t)*SR.kBytes, (N+t+1)*SR.kBytes);
+			e[t] = Arrays.copyOfRange(msg_ev, t*gBytes, (t+1)*gBytes);
+			v[t] = Arrays.copyOfRange(msg_ev, N*gBytes+t*SR.kBytes, N*gBytes+(t+1)*SR.kBytes);
 			p[t] = Arrays.copyOfRange(msg_pw, t*SR.kBytes, (t+1)*SR.kBytes);
 			w[t] = Arrays.copyOfRange(msg_pw, (N+t)*SR.kBytes, (N+t+1)*SR.kBytes);
 			
@@ -90,10 +91,11 @@ public class SSCOT extends Operation {
 		// protocol
 		// step 1
 		timing.stopwatch[PID.sscot][TID.online].start();
+		int gBytes = (l + 7) / 8;
 		int diffBits = SR.kBits - l_p;
 		BigInteger[] x = new BigInteger[N];
 		byte[][][] ev = new byte[2][N][];
-		byte[] msg_ev = new byte[SR.kBytes * N * 2];
+		byte[] msg_ev = new byte[(SR.kBytes + gBytes) * N];
 		AES_PRF F_k = new AES_PRF(SR.kBits);
 		AES_PRF F_k_p = new AES_PRF(SR.kBits);
 		PRG G = new PRG(l);
@@ -105,11 +107,11 @@ public class SSCOT extends Operation {
 			ev[0][t] = new BigInteger(1, G.compute(F_k.compute(x[t].toByteArray()))).xor(m[t]).toByteArray();
 			ev[1][t] = F_k_p.compute(x[t].toByteArray());
 			// TODO: simplify below
-			if (ev[0][t].length < SR.kBytes)
-				System.arraycopy(ev[0][t], 0, msg_ev, (t+1)*SR.kBytes-ev[0][t].length, ev[0][t].length);
+			if (ev[0][t].length < gBytes)
+				System.arraycopy(ev[0][t], 0, msg_ev, (t+1)*gBytes-ev[0][t].length, ev[0][t].length);
 			else
-				System.arraycopy(ev[0][t], ev[0][t].length-SR.kBytes, msg_ev, t*SR.kBytes, SR.kBytes);
-			System.arraycopy(ev[1][t], 0, msg_ev, (N+t)*SR.kBytes, SR.kBytes);
+				System.arraycopy(ev[0][t], ev[0][t].length-gBytes, msg_ev, t*gBytes, gBytes);
+			System.arraycopy(ev[1][t], 0, msg_ev, N*gBytes+t*SR.kBytes, SR.kBytes);
 		}
 		timing.stopwatch[PID.sscot][TID.online].stop();
 		
@@ -124,6 +126,8 @@ public class SSCOT extends Operation {
 		System.out.println("#####  Testing SSCOT  #####");
 		
 		timing = new Timing();
+		
+		for (int ii=0; ii<20; ii++) {
 		
 		if (party == Party.Eddie) {
 			int levels = ForestMetadata.getLevels();
@@ -171,6 +175,7 @@ public class SSCOT extends Operation {
 			int output_t = con1.readInt();
 			BigInteger m_t = con1.readBigInteger();
 			
+			System.out.println("i = " + i);
 			if (t == output_t && m[t].compareTo(m_t) == 0) {
 				System.out.println("SSCOT test passed:");
 			}
@@ -210,6 +215,8 @@ public class SSCOT extends Operation {
 			
 			con2.write(t);
 			con2.write(m_t);
+		}
+		
 		}
 
 		System.out.println("#####  Testing SSCOT Finished  #####");

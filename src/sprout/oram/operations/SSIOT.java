@@ -36,13 +36,14 @@ public class SSIOT extends Operation {
 
 		// step 3
 		timing.stopwatch[PID.ssiot][TID.online].start();
+		int gBytes = (l + 7) / 8;
 		PRG G = new PRG(l);
 		byte[][] e = new byte[N][];
 		byte[][] v = new byte[N][];		
 		
 		for (int j=0; j<N; j++) {
-			e[j] = Arrays.copyOfRange(msg_ev, j*SR.kBytes, (j+1)*SR.kBytes);
-			v[j] = Arrays.copyOfRange(msg_ev, (N+j)*SR.kBytes, (N+j+1)*SR.kBytes);
+			e[j] = Arrays.copyOfRange(msg_ev, j*gBytes, (j+1)*gBytes);
+			v[j] = Arrays.copyOfRange(msg_ev, N*gBytes+j*SR.kBytes, N*gBytes+(j+1)*SR.kBytes);
 			
 			if (new BigInteger(1, v[j]).compareTo(w) == 0) {
 				BigInteger m = new BigInteger(1, e[j]).xor(new BigInteger(1, G.compute(p.toByteArray())));
@@ -81,10 +82,11 @@ public class SSIOT extends Operation {
 		// protocol
 		// step 1
 		timing.stopwatch[PID.ssiot][TID.online].start();
+		int gBytes = (l + 7) / 8;
 		int diffBits = SR.kBits - tau;
 		BigInteger[] x = new BigInteger[N];
 		byte[][][] ev = new byte[2][N][];
-		byte[] msg_ev = new byte[SR.kBytes*N*2];
+		byte[] msg_ev = new byte[(SR.kBytes+gBytes)*N];
 		AES_PRF F_k = new AES_PRF(SR.kBits);
 		AES_PRF F_k_p = new AES_PRF(SR.kBits);
 		PRG G = new PRG(l);
@@ -96,11 +98,11 @@ public class SSIOT extends Operation {
 			ev[0][t] = new BigInteger(1, G.compute(F_k.compute(x[t].toByteArray()))).xor(m[t]).toByteArray();
 			ev[1][t] = F_k_p.compute(x[t].toByteArray());
 			// TODO: simplify below
-			if (ev[0][t].length < SR.kBytes)
-				System.arraycopy(ev[0][t], 0, msg_ev, (t + 1) * SR.kBytes - ev[0][t].length, ev[0][t].length);
+			if (ev[0][t].length < gBytes)
+				System.arraycopy(ev[0][t], 0, msg_ev, (t+1)*gBytes-ev[0][t].length, ev[0][t].length);
 			else
-				System.arraycopy(ev[0][t], ev[0][t].length - SR.kBytes, msg_ev,	t * SR.kBytes, SR.kBytes);
-			System.arraycopy(ev[1][t], 0, msg_ev, (N + t) * SR.kBytes, SR.kBytes);
+				System.arraycopy(ev[0][t], ev[0][t].length-gBytes, msg_ev, t*gBytes, gBytes);
+			System.arraycopy(ev[1][t], 0, msg_ev, N*gBytes+t*SR.kBytes, SR.kBytes);
 		}
 		timing.stopwatch[PID.ssiot][TID.online].stop();
 
@@ -115,6 +117,8 @@ public class SSIOT extends Operation {
 		System.out.println("#####  Testing SSIOT  #####");
 		
 		timing = new Timing();
+		
+		for (int ii=0; ii<20; ii++) {
 		
 		if (party == Party.Eddie) {
 			int levels = ForestMetadata.getLevels();
@@ -196,6 +200,8 @@ public class SSIOT extends Operation {
 			
 			con2.write(j);
 			con2.write(m);
+		}
+		
 		}
 
 		System.out.println("#####  Testing SSIOT Finished  #####");
