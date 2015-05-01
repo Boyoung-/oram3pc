@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.bouncycastle.util.Arrays;
+
 import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.Forest;
@@ -27,20 +29,31 @@ public class XOT extends Operation {
 		// protocol
 		// step 1
 		timing.stopwatch[PID.xot][TID.online_read].start();
-		BigInteger[] a = eddie.readBigIntegerArray();
-
+		byte[] msg_a = eddie.read();
 		
 		// step 2
-		Integer[] j = debbie.readIntegerArray();
-		BigInteger[] p = debbie.readBigIntegerArray();
+		byte[] msg_j = debbie.read();
+		byte[] msg_p = debbie.read();
 		timing.stopwatch[PID.xot][TID.online_read].stop();
 
 		
 		// step 3
 		timing.stopwatch[PID.xot][TID.online].start();
+		int[] j = new int[k];
+		BigInteger[] p = new BigInteger[k];
+		BigInteger[] a = new BigInteger[N];
 		BigInteger[] z = new BigInteger[k];
-		for (int o = 0; o < k; o++)
+		int pBytes = (l + 7) / 8;
+		
+		for (int o = 0; o < N; o++) {
+			a[o] = new BigInteger(1, Arrays.copyOfRange(msg_a, o*pBytes, (o+1)*pBytes));
+		}
+		
+		for (int o = 0; o < k; o++) {
+			j[o] = new BigInteger(1, Arrays.copyOfRange(msg_j, o*4, (o+1)*4)).intValue();
+			p[o] = new BigInteger(1, Arrays.copyOfRange(msg_p, o*pBytes, (o+1)*pBytes));
 			z[o] = a[j[o]].xor(p[o]);
+		}
 		timing.stopwatch[PID.xot][TID.online].stop();
 
 		
@@ -51,17 +64,29 @@ public class XOT extends Operation {
 		// protocol
 		// step 2
 		timing.stopwatch[PID.xot][TID.online].start();
-		Integer[] j = new Integer[k];
-		BigInteger[] p = new BigInteger[k];
+		int pBytes = (l + 7) / 8;
+		int[] j = new int[k];
+		byte[][] j_bytes = new byte[k][];
+		byte[] msg_j = new byte[k*4];
+		byte[][] p = new byte[k][];
+		byte[] msg_p = new byte[k*pBytes];
+		
 		for (int o = 0; o < k; o++) {
 			j[o] = PreData.xot_pi_ivs[id][i].get(ii[o]);
-			p[o] = PreData.xot_r[id][i][j[o]].xor(delta[o]);
+			j_bytes[o] = BigInteger.valueOf(PreData.xot_pi_ivs[id][i].get(ii[o])).toByteArray();
+			p[o] = PreData.xot_r[id][i][j[o]].xor(delta[o]).toByteArray();
+			
+			System.arraycopy(j_bytes[o], 0, msg_j, (o+1)*4-j_bytes[o].length, j_bytes[o].length);
+			if (p[o].length < pBytes)
+				System.arraycopy(p[o], 0, msg_p, (o + 1) * pBytes - p[o].length, p[o].length);
+			else
+				System.arraycopy(p[o], p[o].length - pBytes, msg_p, o * pBytes, pBytes);
 		}
 		timing.stopwatch[PID.xot][TID.online].stop();
 
 		timing.stopwatch[PID.xot][TID.online_write].start();
-		charlie.write(j);
-		charlie.write(p);
+		charlie.write(msg_j);
+		charlie.write(msg_p);
 		timing.stopwatch[PID.xot][TID.online_write].stop();
 	}
 
@@ -69,14 +94,21 @@ public class XOT extends Operation {
 		// protocol
 		// step 1
 		timing.stopwatch[PID.xot][TID.online].start();
-		BigInteger[] a = new BigInteger[N];
-		for (int o = 0; o < N; o++)
-			a[o] = m[PreData.xot_pi[0][i].get(o)]
-					.xor(PreData.xot_r[0][i][o]);
+		int aBytes = (l + 7) / 8;
+		byte[][] a = new byte[N][];
+		byte[] msg_a = new byte[N*aBytes];
+		
+		for (int o = 0; o < N; o++) {
+			a[o] = m[PreData.xot_pi[0][i].get(o)].xor(PreData.xot_r[0][i][o]).toByteArray();
+			if (a[o].length < aBytes)
+				System.arraycopy(a[o], 0, msg_a, (o + 1) * aBytes - a[o].length, a[o].length);
+			else
+				System.arraycopy(a[o], a[o].length - aBytes, msg_a, o * aBytes, aBytes);
+		}
 		timing.stopwatch[PID.xot][TID.online].stop();
 
 		timing.stopwatch[PID.xot][TID.online_write].start();
-		charlie.write(a);
+		charlie.write(msg_a);
 		timing.stopwatch[PID.xot][TID.online_write].stop();
 	}
 

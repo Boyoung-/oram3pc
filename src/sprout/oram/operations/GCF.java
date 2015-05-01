@@ -2,6 +2,8 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 
+import org.bouncycastle.util.Arrays;
+
 import Cipher.Cipher;
 import YaoGC.Circuit;
 import YaoGC.F2ET_Wplus2_Wplus2;
@@ -30,27 +32,22 @@ public class GCF extends Operation {
 	public void executeCharlie(Communication debbie, Communication eddie, int i, int level, int n, BigInteger sC_X) {
 		// protocol
 		// step 1
-		timing.stopwatch[PID.gcf][TID.online].start();
-		BigInteger[][] A = new BigInteger[n][2];
-		BigInteger[] K_C = new BigInteger[n];
-		timing.stopwatch[PID.gcf][TID.online].stop();
-
 		timing.stopwatch[PID.gcf][TID.online_read].start();
-		for (int j = 0; j < n; j++) {
-			A[j] = eddie.readBigIntegerArray();
-		}
+		byte[] msg_A = eddie.read();
 		timing.stopwatch[PID.gcf][TID.online_read].stop();
 
 		timing.stopwatch[PID.gcf][TID.online].start();
+		byte[] msg_K_C = new byte[n*Wire.labelBytes];
+		
 		for (int j = 0; j < n; j++) {
 			int beta = sC_X.testBit(n - j - 1) ? 1 : 0;
-			K_C[j] = A[j][beta];
+			System.arraycopy(msg_A, (beta*n+j)*Wire.labelBytes, msg_K_C, j*Wire.labelBytes, Wire.labelBytes);
 		}
 		timing.stopwatch[PID.gcf][TID.online].stop();
 
 		// step 2
 		timing.stopwatch[PID.gcf][TID.online_write].start();
-		debbie.write(K_C);
+		debbie.write(msg_K_C);
 		timing.stopwatch[PID.gcf][TID.online_write].stop();
 	}
 
@@ -58,11 +55,16 @@ public class GCF extends Operation {
 		// protocol
 		// step 2
 		timing.stopwatch[PID.gcf][TID.online_read].start();
-		BigInteger[] K_C = charlie.readBigIntegerArray();
+		byte[] msg_K_C = charlie.read();
 		timing.stopwatch[PID.gcf][TID.online_read].stop();
 
 		// step 3
 		timing.stopwatch[PID.gcf][TID.online].start();
+		BigInteger[] K_C = new BigInteger[n];
+		for (int j=0; j<n; j++) {
+			K_C[j] = new BigInteger(1, Arrays.copyOfRange(msg_K_C, j*Wire.labelBytes, (j+1)*Wire.labelBytes));
+		}
+		
 		State in_D = State.fromLabels(K_C);
 		PreData.gcf_gc_D[i][level].startExecuting(in_D); 
 
@@ -92,20 +94,25 @@ public class GCF extends Operation {
 		// protocol
 		// step 1
 		timing.stopwatch[PID.gcf][TID.online].start();
-		BigInteger[][] A = new BigInteger[n][2];
-		BigInteger[] K_E = new BigInteger[n];
+		byte[][][] A = new byte[n][2][];
+		byte[] msg_A = new byte[Wire.labelBytes*n*2];
 		for (int k = 0; k < n; k++) {
 			int alpha = sE_X.testBit(n - k - 1) ? 1 : 0;
-			A[k][0] = PreData.gcf_lbs[i][level][k][alpha];
-			A[k][1] = PreData.gcf_lbs[i][level][k][1 - alpha];
-			K_E[k] = PreData.gcf_lbs[i][level][k][0];
+			A[k][0] = PreData.gcf_lbs[i][level][k][alpha].toByteArray();
+			A[k][1] = PreData.gcf_lbs[i][level][k][1 - alpha].toByteArray();
+			if (A[k][0].length < Wire.labelBytes)
+				System.arraycopy(A[k][0], 0, msg_A, (k + 1) * Wire.labelBytes - A[k][0].length, A[k][0].length);
+			else
+				System.arraycopy(A[k][0], A[k][0].length - Wire.labelBytes, msg_A,	k * Wire.labelBytes, Wire.labelBytes);
+			if (A[k][1].length < Wire.labelBytes)
+				System.arraycopy(A[k][1], 0, msg_A, (n + k + 1) * Wire.labelBytes - A[k][1].length, A[k][1].length);
+			else
+				System.arraycopy(A[k][1], A[k][1].length - Wire.labelBytes, msg_A, (n + k) * Wire.labelBytes, Wire.labelBytes);
 		}
 		timing.stopwatch[PID.gcf][TID.online].stop();
 
 		timing.stopwatch[PID.gcf][TID.online_write].start();
-		for (int k = 0; k < n; k++) {
-			charlie.write(A[k]);
-		}
+		charlie.write(msg_A);
 		timing.stopwatch[PID.gcf][TID.online_write].stop();
 	}
 

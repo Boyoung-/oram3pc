@@ -14,6 +14,7 @@ public class Wire extends TransitiveObservable {
     public static int K = 0;
     private static SecureRandom rnd = SR.rand;
     public static final int labelBitLength = 80;
+    public static final int labelBytes = (labelBitLength + 7) / 8;
 
     public static final BigInteger R = new BigInteger(labelBitLength-1, rnd);
 
