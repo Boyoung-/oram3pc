@@ -3,8 +3,6 @@ package sprout.oram;
 import java.math.BigInteger;
 import java.util.List;
 
-import org.bouncycastle.math.ec.ECPoint;
-
 import YaoGC.Circuit;
 
 // TODO: clean unused stuff
@@ -53,14 +51,6 @@ public class PreData {
 	public static Circuit[][] gcf_gc_E;
 	public static BigInteger[][][][] gcf_lbs;
 	
-	
-	
-	
-	////// OLD STUFF /////////
-
-	// Encrypt
-	public static byte[][] encrypt_s;
-	public static ECPoint[][] encrypt_x;
-	public static BigInteger[][] encrypt_c;
-	public static BigInteger[][] encrypt_a;
+	// Eviction
+	public static BigInteger[] evict_upxi;
 }

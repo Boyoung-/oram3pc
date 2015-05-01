@@ -5,12 +5,10 @@ import java.math.BigInteger;
 import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.Bucket;
-import sprout.oram.BucketException;
 import sprout.oram.PID;
 import sprout.oram.PreData;
 import sprout.oram.TID;
 import sprout.oram.Tree;
-import sprout.oram.TreeException;
 import sprout.util.Timing;
 import sprout.util.Util;
 
@@ -130,15 +128,9 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			timing.stopwatch[PID.evict][TID.online_read].stop();
 			
 			timing.stopwatch[PID.evict][TID.online].start();
-			Bucket[] buckets = null;
-			try {
-				buckets = new Bucket[] {new Bucket(i, Util.rmSignBit(sD_Ti_p.toByteArray()))};
-				BigInteger Li = null;
-				OT.setBucketsOnPath(buckets, Li);
-			} catch (BucketException | TreeException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			Bucket[] buckets =  new Bucket[] {new Bucket(i, Util.rmSignBit(sD_Ti_p.xor(PreData.evict_upxi[i]).toByteArray()))};
+			BigInteger Li = null;
+			OT.setBucketsOnPath(buckets, Li);
 			timing.stopwatch[PID.evict][TID.online].stop();
 			
 			return null;
@@ -220,25 +212,21 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		
 		// step 6
 		timing.stopwatch[PID.evict][TID.online_read].start();
-		BigInteger tmp = charlie.readBigInteger();
+		BigInteger secretD_P_pp = charlie.readBigInteger();
 		timing.stopwatch[PID.evict][TID.online_read].stop();
 
 		timing.stopwatch[PID.evict][TID.online].start();
+		BigInteger tmp = secretD_P_pp.xor(PreData.evict_upxi[i]);
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
 				BigInteger.ONE);
 		Bucket[] buckets = new Bucket[pathBuckets];
 		for (int j = pathBuckets - 1; j >= 0; j--) {
 			BigInteger content = tmp.and(helper);
 			tmp = tmp.shiftRight(bucketBits);
-			try {
 				buckets[j] = new Bucket(i,
 						Util.rmSignBit(content.toByteArray()));
-				OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
-			} catch (BucketException | TreeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
+		OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
 		timing.stopwatch[PID.evict][TID.online].stop();
 
 		return null;
@@ -249,15 +237,9 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			Communication debbie, Tree OT, BigInteger[] args, Timing localTiming) {
 		if (i == 0) {
 			timing.stopwatch[PID.evict][TID.online].start();
-			Bucket[] buckets = null;
-			try {
-				buckets = new Bucket[] {new Bucket(i, Util.rmSignBit(args[1].toByteArray()))};
-				BigInteger Li = null;
-				OT.setBucketsOnPath(buckets, Li);
-			} catch (BucketException | TreeException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			Bucket[] buckets = new Bucket[] {new Bucket(i, Util.rmSignBit(args[1].xor(PreData.evict_upxi[i]).toByteArray()))};
+			BigInteger Li = null;
+			OT.setBucketsOnPath(buckets, Li);
 			timing.stopwatch[PID.evict][TID.online].stop();
 			
 			return null;
@@ -342,20 +324,15 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		
 		// step 6
 		timing.stopwatch[PID.evict][TID.online].start();
-		BigInteger tmp = secretE_P_pp;
+		BigInteger tmp = secretE_P_pp.xor(PreData.evict_upxi[i]);
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(BigInteger.ONE);
 		Bucket[] buckets = new Bucket[pathBuckets];
 		for (int j=pathBuckets-1; j>=0; j--) {
 			BigInteger content = tmp.and(helper);
 			tmp = tmp.shiftRight(bucketBits);
-			try {
-				buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
-				OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
-			} catch (BucketException | TreeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
 		}
+		OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
 		timing.stopwatch[PID.evict][TID.online].stop();		
 		
 

@@ -34,25 +34,34 @@ public class Tree {
 		return new Bucket(index, getByteBucket(bucketNum));
 	}
 
-	private void setByteBucket(byte[] bucket, long bucketNum)
-			throws TreeException {
+	private void setByteBucket(byte[] bucket, long bucketNum) {
 		if (bucketNum < 0 || bucketNum >= ForestMetadata.getNumBuckets(index))
-			throw new TreeException("Bucket number error");
+			try {
+				throw new TreeException("Bucket number error");
+			} catch (TreeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		int bucketBytes = ForestMetadata.getBucketBytes(index);
 		if (bucket.length != bucketBytes)
-			throw new TreeException("Bucket length error");
+			try {
+				throw new TreeException("Bucket length error");
+			} catch (TreeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		long start = ForestMetadata.getTreeOffset(index) + bucketNum
 				* bucketBytes;
 		Forest.setForestData(start, bucket);
 	}
 
-	public void setBucket(Bucket bucket, long bucketNum) throws TreeException {
+	public void setBucket(Bucket bucket, long bucketNum) {
 		setByteBucket(bucket.toByteArray(), bucketNum);
 	}
 
-	private List<Long> getBucketIndicesOnPath(long L) throws TreeException {
+	private List<Long> getBucketIndicesOnPath(long L) {
 		List<Long> indices = new ArrayList<Long>();
 		if (index == 0) {
 			indices.add(0L);
@@ -60,7 +69,12 @@ public class Tree {
 		}
 
 		if (L < 0 || L >= ForestMetadata.getNumLeaves(index))
-			throw new TreeException("L=" + L + ": Invalid path");
+			try {
+				throw new TreeException("L=" + L + ": Invalid path");
+			} catch (TreeException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 		int e = ForestMetadata.getLeafExpansion();
 		int lBits = ForestMetadata.getLBits(index);
@@ -108,10 +122,14 @@ public class Tree {
 		return getBucketsOnPath(new BigInteger(L, 2).longValue());
 	}
 
-	public void setBucketsOnPath(Bucket[] buckets, BigInteger L)
-			throws TreeException {
+	public void setBucketsOnPath(Bucket[] buckets, BigInteger L) {
 		if (L == null && index != 0)
-			throw new TreeException("L is null");
+			try {
+				throw new TreeException("L is null");
+			} catch (TreeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		else if (L == null && index == 0) {
 			setBucketsOnPath(buckets, 0);
 			return;
@@ -119,10 +137,15 @@ public class Tree {
 			setBucketsOnPath(buckets, L.longValue());
 	}
 
-	public void setBucketsOnPath(Bucket[] buckets, long L) throws TreeException {
+	public void setBucketsOnPath(Bucket[] buckets, long L) {
 		List<Long> indices = getBucketIndicesOnPath(L);
 		if (indices.size() != buckets.length)
-			throw new TreeException("Number of buckets is not correct");
+			try {
+				throw new TreeException("Number of buckets is not correct");
+			} catch (TreeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		for (int i = 0; i < indices.size(); i++)
 			setBucket(buckets[i], indices.get(i));

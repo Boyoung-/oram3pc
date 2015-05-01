@@ -118,8 +118,8 @@ public class Retrieve extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 34; // how many random records we want to test retrieval
-		int retrievals = 3; // for each record, how many repeated retrievals we
+		int records = 1; // how many random records we want to test retrieval
+		int retrievals = 100; // for each record, how many repeated retrievals we
 							// want to do
 		/*
 		if (records < 2) {

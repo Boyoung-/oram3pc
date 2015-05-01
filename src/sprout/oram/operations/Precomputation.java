@@ -267,6 +267,16 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				PreData.gcf_gc_D[i][j].receiveTruthTables();
 			}
 		}
+		
+		// Eviction
+		PreData.evict_upxi = new BigInteger[levels];
+		
+		for (int index = 0; index < levels; index++) {
+			loadTreeSpecificParameters(index);
+			PreData.evict_upxi[i] = new BigInteger(pathBuckets*bucketBits, SR.rand);
+		}
+		
+		eddie.write(PreData.evict_upxi);
 
 		return null;
 	}
@@ -387,6 +397,9 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				PreData.gcf_gc_E[i][j].sendTruthTables(in_E);
 			}
 		}
+		
+		// Eviction
+		PreData.evict_upxi = debbie.readBigIntegerArray();
 
 		return null;
 	}

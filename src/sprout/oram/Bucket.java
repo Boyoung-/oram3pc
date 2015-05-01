@@ -28,8 +28,7 @@ public class Bucket {
 	}
 	*/
 	
-	public Bucket(int treeIndex, byte[] tuples)
-			throws BucketException {
+	public Bucket(int treeIndex, byte[] tuples) {
 		this.treeIndex = treeIndex;
 		setTuples(tuples);
 	}
@@ -83,10 +82,15 @@ public class Bucket {
 	}
 	*/
 
-	public void setTuples(byte[] tuples) throws BucketException {
+	public void setTuples(byte[] tuples) {
 		int bucketTupleBytes = ForestMetadata.getBucketTupleBytes(treeIndex);
 		if (tuples.length > bucketTupleBytes)
-			throw new BucketException("Tuples length error");
+			try {
+				throw new BucketException("Tuples length error");
+			} catch (BucketException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		else {
 			this.tuples = new byte[bucketTupleBytes];
 			System.arraycopy(tuples, 0, this.tuples, bucketTupleBytes
