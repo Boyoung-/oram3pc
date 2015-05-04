@@ -46,18 +46,20 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			timing.stopwatch[PID.evict][TID.online].start();
 			BigInteger sC_fb = BigInteger.ZERO;
 			BigInteger sC_dir = BigInteger.ZERO;
-			BigInteger sC_bucket = Util.getSubBits(sC_P_p,
-					(pathBuckets - j - 1) * bucketBits, (pathBuckets - j)
-							* bucketBits);
+			//BigInteger sC_bucket = Util.getSubBits(sC_P_p,
+			//		(pathBuckets - j - 1) * bucketBits, (pathBuckets - j)
+			//				* bucketBits);
 			for (int l = 0; l < w; l++) {
-				BigInteger sC_tuple = Util.getSubBits(sC_bucket, (w - l - 1)
-						* tupleBits, (w - l) * tupleBits);
+				//BigInteger sC_tuple = Util.getSubBits(sC_bucket, (w - l - 1)
+				//		* tupleBits, (w - l) * tupleBits);
 				sC_fb = sC_fb.shiftLeft(1);
-				if (sC_tuple.testBit(tupleBits - 1))
+				//if (sC_tuple.testBit(tupleBits - 1))
+				if (sC_P_p.testBit((pathBuckets-j)*bucketBits-l*tupleBits-1))
 					sC_fb = sC_fb.setBit(0);
-				int bit = (sC_tuple.testBit(lBits - j - 1 + aBits) ? 1 : 0);
 				sC_dir = sC_dir.shiftLeft(1);
-				if (bit == 1)
+				//int bit = (sC_tuple.testBit(lBits - j - 1 + aBits) ? 1 : 0);
+				//if (bit == 1)
+				if (sC_P_p.testBit((pathBuckets-j)*bucketBits-l*tupleBits-1-nBits-j-1))
 					sC_dir = sC_dir.setBit(0);
 			}
 			BigInteger sC_input = sC_dir.shiftLeft(w).xor(sC_fb);
@@ -70,12 +72,13 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		timing.stopwatch[PID.evict][TID.online].start();
 		BigInteger sC_fb = BigInteger.ZERO;
 		for (int j = d_i; j < pathBuckets; j++) {
-			BigInteger sC_bucket = Util.getSubBits(sC_P_p,
-					(pathBuckets - j - 1) * bucketBits, (pathBuckets - j)
-							* bucketBits);
+			//BigInteger sC_bucket = Util.getSubBits(sC_P_p,
+			//		(pathBuckets - j - 1) * bucketBits, (pathBuckets - j)
+			//				* bucketBits);
 			for (int l = 0; l < w; l++) {
 				sC_fb = sC_fb.shiftLeft(1);
-				if (sC_bucket.testBit((w - l) * tupleBits - 1))
+				//if (sC_bucket.testBit((w - l) * tupleBits - 1))
+				if (sC_P_p.testBit((pathBuckets-j)*bucketBits-l*tupleBits-1))
 					sC_fb = sC_fb.setBit(0);
 			}
 		}
@@ -83,18 +86,26 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 		gcf.executeCharlie(debbie, eddie, i, d_i, w * expen + 2, sC_fb);
 
+		
+		//TODO: optimize the following two online part for C and E
+		// idea: don't store a whole path as one BigInteger but as a BigInteger array?
+		
 		// step 3
 		timing.stopwatch[PID.evict][TID.online].start();
 		int k = w * pathBuckets;
 
 		// step 4
+		BigInteger tmp = sC_P_p;
+		BigInteger helper = BigInteger.ONE.shiftLeft(tupleBits).subtract(BigInteger.ONE);
 		BigInteger[] sC_a = new BigInteger[k + 2];
 		for (int j = 0; j < pathBuckets; j++)
 			for (int l = 0; l < w; l++) {
-				sC_a[w * j + l] = Util.getSubBits(sC_P_p, (pathBuckets - j - 1)
-						* bucketBits + (w - l - 1) * tupleBits, (pathBuckets
-						- j - 1)
-						* bucketBits + (w - l) * tupleBits);
+				//sC_a[w * j + l] = Util.getSubBits(sC_P_p, (pathBuckets - j - 1)
+				//		* bucketBits + (w - l - 1) * tupleBits, (pathBuckets
+				//		- j - 1)
+				//		* bucketBits + (w - l) * tupleBits);
+				sC_a[k - (w * j + l) - 1] = tmp.and(helper);
+				tmp = tmp.shiftRight(tupleBits);
 			}
 		sC_a[k] = sC_T_p;
 		sC_a[k + 1] = new BigInteger(tupleBits - 1, SR.rand);
@@ -130,7 +141,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			timing.stopwatch[PID.evict][TID.online].start();
 			Bucket[] buckets =  new Bucket[] {new Bucket(i, Util.rmSignBit(sD_Ti_p.xor(PreData.evict_upxi[i]).toByteArray()))};
 			BigInteger Li = null;
-			//OT.setBucketsOnPath(buckets, Li);
+			OT.setBucketsOnPath(buckets, Li);
 			timing.stopwatch[PID.evict][TID.online].stop();
 			
 			return null;
@@ -226,7 +237,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 				buckets[j] = new Bucket(i,
 						Util.rmSignBit(content.toByteArray()));
 		}
-		//OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
+		OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
 		timing.stopwatch[PID.evict][TID.online].stop();
 
 		return null;
@@ -239,7 +250,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			timing.stopwatch[PID.evict][TID.online].start();
 			Bucket[] buckets = new Bucket[] {new Bucket(i, Util.rmSignBit(args[1].xor(PreData.evict_upxi[i]).toByteArray()))};
 			BigInteger Li = null;
-			//OT.setBucketsOnPath(buckets, Li);
+			OT.setBucketsOnPath(buckets, Li);
 			timing.stopwatch[PID.evict][TID.online].stop();
 			
 			return null;
@@ -256,18 +267,20 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			timing.stopwatch[PID.evict][TID.online].start();
 			BigInteger sE_fb = BigInteger.ZERO;
 			BigInteger sE_dir = BigInteger.ZERO;
-			BigInteger sE_bucket = Util.getSubBits(sE_P_p,
-					(pathBuckets - j - 1) * bucketBits, (pathBuckets - j)
-							* bucketBits);
+			//BigInteger sE_bucket = Util.getSubBits(sE_P_p,
+			//		(pathBuckets - j - 1) * bucketBits, (pathBuckets - j)
+			//				* bucketBits);
 			for (int l = 0; l < w; l++) {
-				BigInteger sE_tuple = Util.getSubBits(sE_bucket, (w - l - 1)
-						* tupleBits, (w - l) * tupleBits);
+				//BigInteger sE_tuple = Util.getSubBits(sE_bucket, (w - l - 1)
+				//		* tupleBits, (w - l) * tupleBits);
 				sE_fb = sE_fb.shiftLeft(1);
-				if (sE_tuple.testBit(tupleBits - 1))
+				//if (sE_tuple.testBit(tupleBits - 1))
+				if (sE_P_p.testBit((pathBuckets-j)*bucketBits-l*tupleBits-1))
 					sE_fb = sE_fb.setBit(0);
-				int bit = (sE_tuple.testBit(lBits - j - 1 + aBits) ? 1 : 0) ^ 1
-						^ (PreData.access_Li[i].testBit(lBits - j - 1) ? 1 : 0);
 				sE_dir = sE_dir.shiftLeft(1);
+				//int bit = (sE_tuple.testBit(lBits - j - 1 + aBits) ? 1 : 0) ^ 1
+				//		^ (PreData.access_Li[i].testBit(lBits - j - 1) ? 1 : 0);
+				int bit = (sE_P_p.testBit((pathBuckets-j)*bucketBits-l*tupleBits-1-nBits-j-1) ? 1 : 0) ^ 1 ^ (PreData.access_Li[i].testBit(lBits - j - 1) ? 1 : 0);
 				if (bit == 1)
 					sE_dir = sE_dir.setBit(0);
 			}
@@ -281,12 +294,13 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		timing.stopwatch[PID.evict][TID.online].start();
 		BigInteger sE_fb = BigInteger.ZERO;
 		for (int j = d_i; j < pathBuckets; j++) {
-			BigInteger sE_bucket = Util.getSubBits(sE_P_p,
-					(pathBuckets - j - 1) * bucketBits, (pathBuckets - j)
-							* bucketBits);
+			//BigInteger sE_bucket = Util.getSubBits(sE_P_p,
+			//		(pathBuckets - j - 1) * bucketBits, (pathBuckets - j)
+			//				* bucketBits);
 			for (int l = 0; l < w; l++) {
 				sE_fb = sE_fb.shiftLeft(1);
-				if (sE_bucket.testBit((w - l) * tupleBits - 1))
+				//if (sE_bucket.testBit((w - l) * tupleBits - 1))
+				if (sE_P_p.testBit((pathBuckets-j)*bucketBits-l*tupleBits-1))
 					sE_fb = sE_fb.setBit(0);
 			}
 		}
@@ -299,13 +313,17 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		int k = w * pathBuckets;
 
 		// step 4
+		BigInteger tmp = sE_P_p;
+		BigInteger helper = BigInteger.ONE.shiftLeft(tupleBits).subtract(BigInteger.ONE);
 		BigInteger[] sE_a = new BigInteger[k + 2];
 		for (int j = 0; j < pathBuckets; j++)
 			for (int l = 0; l < w; l++) {
-				sE_a[w * j + l] = Util.getSubBits(sE_P_p, (pathBuckets - j - 1)
-						* bucketBits + (w - l - 1) * tupleBits, (pathBuckets
-						- j - 1)
-						* bucketBits + (w - l) * tupleBits);
+				//sE_a[w * j + l] = Util.getSubBits(sE_P_p, (pathBuckets - j - 1)
+				//		* bucketBits + (w - l - 1) * tupleBits, (pathBuckets
+				//		- j - 1)
+				//		* bucketBits + (w - l) * tupleBits);
+				sE_a[k - (w * j + l) - 1] = tmp.and(helper);
+				tmp = tmp.shiftRight(tupleBits);
 			}
 		sE_a[k] = sE_T_p;
 		sE_a[k + 1] = new BigInteger(tupleBits - 1, SR.rand);
@@ -324,15 +342,15 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		
 		// step 6
 		timing.stopwatch[PID.evict][TID.online].start();
-		BigInteger tmp = secretE_P_pp.xor(PreData.evict_upxi[i]);
-		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(BigInteger.ONE);
+		tmp = secretE_P_pp.xor(PreData.evict_upxi[i]);
+		helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(BigInteger.ONE);
 		Bucket[] buckets = new Bucket[pathBuckets];
 		for (int j=pathBuckets-1; j>=0; j--) {
 			BigInteger content = tmp.and(helper);
 			tmp = tmp.shiftRight(bucketBits);
 			buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
 		}
-		//OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
+		OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
 		timing.stopwatch[PID.evict][TID.online].stop();		
 		
 

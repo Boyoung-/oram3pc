@@ -117,17 +117,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 		 * else System.out.println("Finished round " + i); }
 		 */
 	}
-
-	/*
-	 * public abstract T executeCharlieSubTree(Communication debbie,
-	 * Communication eddie, BigInteger Li, Tree OT, V extraArgs);
-	 * 
-	 * public abstract T executeDebbieSubTree(Communication charlie,
-	 * Communication eddie, BigInteger k, Tree OT, V extraArgs);
-	 * 
-	 * public abstract T executeEddieSubTree(Communication charlie,
-	 * Communication debbie, Tree OT, V extraArgs);
-	 */
+	
 	public abstract T executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree OT, V args, Timing localTiming);
 
