@@ -115,7 +115,7 @@ public class ThreadPPEvict extends Operation {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		int records = 1; // how many random records we want to test retrieval
-		int retrievals = 1; // for each record, how many repeated retrievals we
+		int retrievals = 100; // for each record, how many repeated retrievals we
 							// want to do
 		/*
 		if (records < 2) {
@@ -146,14 +146,6 @@ public class ThreadPPEvict extends Operation {
 
 		// timing stuff
 		timing = new Timing();
-		
-		/*
-		Timing[] individualTiming = new Timing[cycles];
-		Timing wholeTiming = new Timing();
-		
-		StopWatch wholeExecution = new StopWatch("Whole Execution");
-		StopWatch avgParallelPE = new StopWatch("Average Paralleled PP + Evict");
-		*/
 		
 		// threads init
 		PPEvict[] threads = new PPEvict[numTrees];
@@ -283,6 +275,7 @@ public class ThreadPPEvict extends Operation {
 				for (int i = 0; i < numTrees; i++)
 					try {
 						threads[i].join();
+						timing = timing.add(threads[i].getTiming());
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
