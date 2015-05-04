@@ -36,15 +36,15 @@ public class Retrieve extends Operation {
 
 		PostProcessT ppt = new PostProcessT(debbie, eddie);
 		ppt.loadTreeSpecificParameters(i);
-		BigInteger sC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{AOut.sC_Ti, Li, AOut.Lip1, BigInteger.valueOf(AOut.j_2)}, null);
+		BigInteger sC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{AOut.sC_Ti, Li, AOut.Lip1, AOut.j_2}, timing);
 
 		Reshuffle res = new Reshuffle(debbie, eddie);
 		res.loadTreeSpecificParameters(i);
-		BigInteger sC_pi_P = res.executeCharlieSubTree(debbie, eddie, null, AOut.sC_sig_P_p, null);
+		BigInteger sC_pi_P = res.executeCharlieSubTree(debbie, eddie, null, AOut.sC_sig_P_p, timing);
 
 		Eviction evict = new Eviction(debbie, eddie);
 		evict.loadTreeSpecificParameters(i);
-		BigInteger sC_P_pp = evict.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{sC_pi_P, sC_Ti_p}, null);
+		evict.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{sC_pi_P, sC_Ti_p}, timing);
 		
 		// PP+Evict
 		//Timing localTiming = new Timing();
@@ -65,15 +65,15 @@ public class Retrieve extends Operation {
 
 		PostProcessT ppt = new PostProcessT(charlie, eddie);
 		ppt.loadTreeSpecificParameters(i);
-		ppt.executeDebbieSubTree(charlie, eddie, null, null, null);
+		ppt.executeDebbieSubTree(charlie, eddie, null, null, timing);
 
 		Reshuffle res = new Reshuffle(charlie, eddie);
 		res.loadTreeSpecificParameters(i);
-		res.executeDebbieSubTree(charlie, eddie, null, null, null);
+		res.executeDebbieSubTree(charlie, eddie, null, null, timing);
 
 		Eviction evict = new Eviction(charlie, eddie);
 		evict.loadTreeSpecificParameters(i);
-		evict.executeDebbieSubTree(charlie, eddie, sD_OT, null, null);
+		evict.executeDebbieSubTree(charlie, eddie, sD_OT, null, timing);
 		
 		// PP+Evictv
 		//Timing localTiming = new Timing();
@@ -94,15 +94,15 @@ public class Retrieve extends Operation {
 
 		PostProcessT ppt = new PostProcessT(charlie, debbie);
 		ppt.loadTreeSpecificParameters(i);
-		BigInteger sE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{AOut.sE_Ti}, null);
+		BigInteger sE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{AOut.sE_Ti}, timing);
 
 		Reshuffle res = new Reshuffle(charlie, debbie);
 		res.loadTreeSpecificParameters(i);
-		BigInteger sE_pi_P = res.executeEddieSubTree(charlie, debbie, null, AOut.sE_sig_P_p, null);
+		BigInteger sE_pi_P = res.executeEddieSubTree(charlie, debbie, null, AOut.sE_sig_P_p, timing);
 
 		Eviction evict = new Eviction(charlie, debbie);
 		evict.loadTreeSpecificParameters(i);
-		BigInteger sE_P_pp = evict.executeEddieSubTree(charlie, debbie, sE_OT, new BigInteger[]{sE_pi_P, sE_Ti_p}, null);
+		evict.executeEddieSubTree(charlie, debbie, sE_OT, new BigInteger[]{sE_pi_P, sE_Ti_p}, timing);
 		
 				
 		// PP+Evict
@@ -119,7 +119,7 @@ public class Retrieve extends Operation {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		int records = 1; // how many random records we want to test retrieval
-		int retrievals = 200; // for each record, how many repeated retrievals we
+		int retrievals = 100; // for each record, how many repeated retrievals we
 							// want to do
 		/*
 		if (records < 2) {
@@ -139,7 +139,7 @@ public class Retrieve extends Operation {
 			return;
 		}
 		
-		int cycles = (records - 1) * retrievals; // first round timing is abandoned	
+		//int cycles = (records - 1) * retrievals; // first round timing is abandoned	
 		int numTrees = ForestMetadata.getLevels();
 		int h = numTrees - 1;
 		int tau = ForestMetadata.getTau();

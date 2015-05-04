@@ -113,6 +113,8 @@ public class TestCLI {
 				operation = SSCOT.class;
 			} else if (alg.equals("ssiot")) {
 				operation = SSIOT.class;
+			} else if (alg.equals("thread")) {
+				operation = ThreadPPEvict.class;
 			} else if (alg.equals("ts")) {
 				operation = TestSend.class;
 			} else {

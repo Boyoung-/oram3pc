@@ -42,20 +42,20 @@ public class Reshuffle extends
 
 		// protocol
 		// step 1
-		timing.stopwatch[PID.reshuf][TID.online].start();
+		localTiming.stopwatch[PID.reshuf][TID.online].start();
 		BigInteger z = sC_P.xor(PreData.reshuffle_p[i]);
-		timing.stopwatch[PID.reshuf][TID.online].stop();
+		localTiming.stopwatch[PID.reshuf][TID.online].stop();
 
-		timing.stopwatch[PID.reshuf][TID.online_write].start();
+		localTiming.stopwatch[PID.reshuf][TID.online_write].start();
 		eddie.write(z);
-		timing.stopwatch[PID.reshuf][TID.online_write].stop();
+		localTiming.stopwatch[PID.reshuf][TID.online_write].stop();
 
-		timing.stopwatch[PID.reshuf][TID.online].start();
+		localTiming.stopwatch[PID.reshuf][TID.online].start();
 		BigInteger sC_pi_P = BigInteger.ZERO;
 		for (int j = 0; j < pathBuckets; j++)
 			sC_pi_P = sC_pi_P.shiftLeft(bucketBits).xor(
 					PreData.reshuffle_a_p[i][j]);
-		timing.stopwatch[PID.reshuf][TID.online].stop();
+		localTiming.stopwatch[PID.reshuf][TID.online].stop();
 
 		return sC_pi_P;
 	}
@@ -78,12 +78,12 @@ public class Reshuffle extends
 
 		// protocol
 		// step 1
-		timing.stopwatch[PID.reshuf][TID.online_read].start();
+		localTiming.stopwatch[PID.reshuf][TID.online_read].start();
 		BigInteger z = charlie.readBigInteger();
-		timing.stopwatch[PID.reshuf][TID.online_read].stop();
+		localTiming.stopwatch[PID.reshuf][TID.online_read].stop();
 
 		// step 2
-		timing.stopwatch[PID.reshuf][TID.online].start();
+		localTiming.stopwatch[PID.reshuf][TID.online].start();
 		BigInteger b_all = sE_P.xor(z).xor(PreData.reshuffle_r[i]);
 		BigInteger[] b = new BigInteger[pathBuckets];
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
@@ -97,7 +97,7 @@ public class Reshuffle extends
 		BigInteger sE_pi_P = BigInteger.ZERO;
 		for (int j = 0; j < pathBuckets; j++)
 			sE_pi_P = sE_pi_P.shiftLeft(bucketBits).xor(b[j]);
-		timing.stopwatch[PID.reshuf][TID.online].stop();
+		localTiming.stopwatch[PID.reshuf][TID.online].stop();
 
 		return sE_pi_P;
 	}

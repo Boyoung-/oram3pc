@@ -12,6 +12,7 @@ import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.oram.PreData;
+import sprout.util.Timing;
 import sprout.util.Util;
 
 // TODO: Possible parallelization opportunity in running each IOT
@@ -21,43 +22,43 @@ public class SSXOT extends Operation {
 		super(con1, con2);
 	}
 
-	public BigInteger[] executeCharlie(Communication debbie, Communication eddie, int i, int N, int k, int l, BigInteger[] sC_m) {
+	public BigInteger[] executeCharlie(Communication debbie, Communication eddie, Timing localTiming, int i, int N, int k, int l, BigInteger[] sC_m) {
 		XOT xot = new XOT(debbie, eddie);
 		
 		// protocol
 		// step 1
-		xot.executeEddie(eddie, debbie, 0, i, N, k, l, sC_m);
+		xot.executeEddie(eddie, debbie, localTiming, 0, i, N, k, l, sC_m);
 		
 		
 		// step 2
-		BigInteger[] b = xot.executeCharlie(debbie, eddie, 1, i, N, k, l);
+		BigInteger[] b = xot.executeCharlie(debbie, eddie, localTiming, 1, i, N, k, l);
 		
 		
 		return b;
 	}
 
-	public void executeDebbie(Communication charlie, Communication eddie, int i, int N, int k, int l, Integer[] ii) {
+	public void executeDebbie(Communication charlie, Communication eddie, Timing localTiming, int i, int N, int k, int l, Integer[] ii) {
 		XOT xot = new XOT(charlie, eddie);
 		
 		// protocol
 		// step 1
-		xot.executeDebbie(eddie, charlie, 0, i, N, k, l, ii, PreData.ssxot_delta[i]);
+		xot.executeDebbie(eddie, charlie, localTiming, 0, i, N, k, l, ii, PreData.ssxot_delta[i]);
 
 		
 		// step 2
-		xot.executeDebbie(charlie, eddie, 1, i, N, k, l, ii, PreData.ssxot_delta[i]);
+		xot.executeDebbie(charlie, eddie, localTiming, 1, i, N, k, l, ii, PreData.ssxot_delta[i]);
 	}
 
-	public BigInteger[] executeEddie(Communication charlie, Communication debbie, int i, int N, int k, int l, BigInteger[] sE_m) {
+	public BigInteger[] executeEddie(Communication charlie, Communication debbie, Timing localTiming, int i, int N, int k, int l, BigInteger[] sE_m) {
 		XOT xot = new XOT(charlie, debbie);
 		
 		// protocol
 		// step 1
-		BigInteger[] a = xot.executeCharlie(debbie, charlie, 0, i, N, k, l);
+		BigInteger[] a = xot.executeCharlie(debbie, charlie, localTiming, 0, i, N, k, l);
 
 		
 		// step 2
-		xot.executeEddie(charlie, debbie, 1, i, N, k, l, sE_m);
+		xot.executeEddie(charlie, debbie, localTiming, 1, i, N, k, l, sE_m);
 		
 		
 		return a;
@@ -68,6 +69,8 @@ public class SSXOT extends Operation {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		System.out.println("#####  Testing SSXOT  #####");
+		
+		timing = new Timing();
 
 		int levels = ForestMetadata.getLevels();
 		if (party == Party.Eddie) {
@@ -82,7 +85,7 @@ public class SSXOT extends Operation {
 			PreData.xot_r[0][i] = con2.readBigIntegerArray();
 			BigInteger[] sE_m = con2.readBigIntegerArray();
 			
-			BigInteger[] a = executeEddie(con1, con2, i, N, k, l, sE_m);
+			BigInteger[] a = executeEddie(con1, con2, timing, i, N, k, l, sE_m);
 			
 			BigInteger[] b = con1.readBigIntegerArray();
 			BigInteger[] sC_m = con2.readBigIntegerArray();
@@ -156,7 +159,7 @@ public class SSXOT extends Operation {
 			con2.write(PreData.xot_r[1][i]);
 			con2.write(sE_m);
 			
-			executeDebbie(con1, con2, i, N, k, l, ii);
+			executeDebbie(con1, con2, timing, i, N, k, l, ii);
 			
 			con2.write(sC_m);
 			con2.write(ii);
@@ -172,7 +175,7 @@ public class SSXOT extends Operation {
 			PreData.xot_r[0][i] = con1.readBigIntegerArray();
 			BigInteger[] sC_m = con1.readBigIntegerArray();
 			
-			BigInteger[] b = executeCharlie(con1, con2, i, N, k, l, sC_m);
+			BigInteger[] b = executeCharlie(con1, con2, timing, i, N, k, l, sC_m);
 
 			con2.write(b);
 		}

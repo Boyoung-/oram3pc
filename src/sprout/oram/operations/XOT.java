@@ -25,20 +25,20 @@ public class XOT extends Operation {
 		super(con1, con2);
 	}
 
-	public BigInteger[] executeCharlie(Communication debbie, Communication eddie, int id, int i, int N, int k, int l) {
+	public BigInteger[] executeCharlie(Communication debbie, Communication eddie, Timing localTiming, int id, int i, int N, int k, int l) {
 		// protocol
 		// step 1
-		timing.stopwatch[PID.xot][TID.online_read].start();
+		localTiming.stopwatch[PID.xot][TID.online_read].start();
 		byte[] msg_a = eddie.read();
 		
 		// step 2
 		byte[] msg_j = debbie.read();
 		byte[] msg_p = debbie.read();
-		timing.stopwatch[PID.xot][TID.online_read].stop();
+		localTiming.stopwatch[PID.xot][TID.online_read].stop();
 
 		
 		// step 3
-		timing.stopwatch[PID.xot][TID.online].start();
+		localTiming.stopwatch[PID.xot][TID.online].start();
 		int[] j = new int[k];
 		BigInteger[] p = new BigInteger[k];
 		BigInteger[] a = new BigInteger[N];
@@ -54,16 +54,16 @@ public class XOT extends Operation {
 			p[o] = new BigInteger(1, Arrays.copyOfRange(msg_p, o*pBytes, (o+1)*pBytes));
 			z[o] = a[j[o]].xor(p[o]);
 		}
-		timing.stopwatch[PID.xot][TID.online].stop();
+		localTiming.stopwatch[PID.xot][TID.online].stop();
 
 		
 		return z;
 	}
 
-	public void executeDebbie(Communication charlie, Communication eddie, int id, int i, int N, int k, int l, Integer[] ii, BigInteger[] delta) {
+	public void executeDebbie(Communication charlie, Communication eddie, Timing localTiming, int id, int i, int N, int k, int l, Integer[] ii, BigInteger[] delta) {
 		// protocol
 		// step 2
-		timing.stopwatch[PID.xot][TID.online].start();
+		localTiming.stopwatch[PID.xot][TID.online].start();
 		int pBytes = (l + 7) / 8;
 		int[] j = new int[k];
 		byte[][] j_bytes = new byte[k][];
@@ -82,18 +82,18 @@ public class XOT extends Operation {
 			else
 				System.arraycopy(p[o], p[o].length - pBytes, msg_p, o * pBytes, pBytes);
 		}
-		timing.stopwatch[PID.xot][TID.online].stop();
+		localTiming.stopwatch[PID.xot][TID.online].stop();
 
-		timing.stopwatch[PID.xot][TID.online_write].start();
+		localTiming.stopwatch[PID.xot][TID.online_write].start();
 		charlie.write(msg_j);
 		charlie.write(msg_p);
-		timing.stopwatch[PID.xot][TID.online_write].stop();
+		localTiming.stopwatch[PID.xot][TID.online_write].stop();
 	}
 
-	public void executeEddie(Communication charlie, Communication debbie, int id, int i, int N, int k, int l, BigInteger[] m) {
+	public void executeEddie(Communication charlie, Communication debbie, Timing localTiming, int id, int i, int N, int k, int l, BigInteger[] m) {
 		// protocol
 		// step 1
-		timing.stopwatch[PID.xot][TID.online].start();
+		localTiming.stopwatch[PID.xot][TID.online].start();
 		int aBytes = (l + 7) / 8;
 		byte[][] a = new byte[N][];
 		byte[] msg_a = new byte[N*aBytes];
@@ -105,11 +105,11 @@ public class XOT extends Operation {
 			else
 				System.arraycopy(a[o], a[o].length - aBytes, msg_a, o * aBytes, aBytes);
 		}
-		timing.stopwatch[PID.xot][TID.online].stop();
+		localTiming.stopwatch[PID.xot][TID.online].stop();
 
-		timing.stopwatch[PID.xot][TID.online_write].start();
+		localTiming.stopwatch[PID.xot][TID.online_write].start();
 		charlie.write(msg_a);
-		timing.stopwatch[PID.xot][TID.online_write].stop();
+		localTiming.stopwatch[PID.xot][TID.online_write].stop();
 	}
 
 	// for testing correctness
@@ -172,7 +172,7 @@ public class XOT extends Operation {
 			con1.write(k);
 			con1.write(l);
 
-			executeEddie(con1, con2, id, i, N, k, l, m);
+			executeEddie(con1, con2, timing, id, i, N, k, l, m);
 
 			BigInteger[] z = con1.readBigIntegerArray();
 
@@ -200,14 +200,14 @@ public class XOT extends Operation {
 			Integer[] ii = con2.readIntegerArray();
 			BigInteger[] delta = con2.readBigIntegerArray();
 
-			executeDebbie(con1, con2, id, i, N, k, l, ii, delta);
+			executeDebbie(con1, con2, timing, id, i, N, k, l, ii, delta);
 		} else if (party == Party.Charlie) {
 			int i = con2.readInt();
 			int N = con2.readInt();
 			int k = con2.readInt();
 			int l = con2.readInt();
 
-			BigInteger[] z = executeCharlie(con1, con2, id, i, N, k, l);
+			BigInteger[] z = executeCharlie(con1, con2, timing, id, i, N, k, l);
 
 			con2.write(z);
 		}

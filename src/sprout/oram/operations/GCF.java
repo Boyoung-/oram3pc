@@ -29,37 +29,37 @@ public class GCF extends Operation {
 		super(con1, con2);
 	}
 
-	public void executeCharlie(Communication debbie, Communication eddie, int i, int level, int n, BigInteger sC_X) {
+	public void executeCharlie(Communication debbie, Communication eddie, Timing localTiming, int i, int level, int n, BigInteger sC_X) {
 		// protocol
 		// step 1
-		timing.stopwatch[PID.gcf][TID.online_read].start();
+		localTiming.stopwatch[PID.gcf][TID.online_read].start();
 		byte[] msg_A = eddie.read();
-		timing.stopwatch[PID.gcf][TID.online_read].stop();
+		localTiming.stopwatch[PID.gcf][TID.online_read].stop();
 
-		timing.stopwatch[PID.gcf][TID.online].start();
+		localTiming.stopwatch[PID.gcf][TID.online].start();
 		byte[] msg_K_C = new byte[n*Wire.labelBytes];
 		
 		for (int j = 0; j < n; j++) {
 			int beta = sC_X.testBit(n - j - 1) ? 1 : 0;
 			System.arraycopy(msg_A, (beta*n+j)*Wire.labelBytes, msg_K_C, j*Wire.labelBytes, Wire.labelBytes);
 		}
-		timing.stopwatch[PID.gcf][TID.online].stop();
+		localTiming.stopwatch[PID.gcf][TID.online].stop();
 
 		// step 2
-		timing.stopwatch[PID.gcf][TID.online_write].start();
+		localTiming.stopwatch[PID.gcf][TID.online_write].start();
 		debbie.write(msg_K_C);
-		timing.stopwatch[PID.gcf][TID.online_write].stop();
+		localTiming.stopwatch[PID.gcf][TID.online_write].stop();
 	}
 
-	public BigInteger executeDebbie(Communication charlie, Communication eddie, int i, int level, int n) {
+	public BigInteger executeDebbie(Communication charlie, Communication eddie, Timing localTiming, int i, int level, int n) {
 		// protocol
 		// step 2
-		timing.stopwatch[PID.gcf][TID.online_read].start();
+		localTiming.stopwatch[PID.gcf][TID.online_read].start();
 		byte[] msg_K_C = charlie.read();
-		timing.stopwatch[PID.gcf][TID.online_read].stop();
+		localTiming.stopwatch[PID.gcf][TID.online_read].stop();
 
 		// step 3
-		timing.stopwatch[PID.gcf][TID.online].start();
+		localTiming.stopwatch[PID.gcf][TID.online].start();
 		BigInteger[] K_C = new BigInteger[n];
 		for (int j=0; j<n; j++) {
 			K_C[j] = new BigInteger(1, Arrays.copyOfRange(msg_K_C, j*Wire.labelBytes, (j+1)*Wire.labelBytes));
@@ -85,15 +85,15 @@ public class GCF extends Operation {
 				System.out.println("**** GCF output error! ****");
 			}
 		}
-		timing.stopwatch[PID.gcf][TID.online].stop();
+		localTiming.stopwatch[PID.gcf][TID.online].stop();
 
 		return output;
 	}
 
-	public void executeEddie(Communication charlie, Communication debbie, int i, int level, int n, BigInteger sE_X) {
+	public void executeEddie(Communication charlie, Communication debbie, Timing localTiming, int i, int level, int n, BigInteger sE_X) {
 		// protocol
 		// step 1
-		timing.stopwatch[PID.gcf][TID.online].start();
+		localTiming.stopwatch[PID.gcf][TID.online].start();
 		byte[][][] A = new byte[n][2][];
 		byte[] msg_A = new byte[Wire.labelBytes*n*2];
 		for (int k = 0; k < n; k++) {
@@ -109,11 +109,11 @@ public class GCF extends Operation {
 			else
 				System.arraycopy(A[k][1], A[k][1].length - Wire.labelBytes, msg_A, (n + k) * Wire.labelBytes, Wire.labelBytes);
 		}
-		timing.stopwatch[PID.gcf][TID.online].stop();
+		localTiming.stopwatch[PID.gcf][TID.online].stop();
 
-		timing.stopwatch[PID.gcf][TID.online_write].start();
+		localTiming.stopwatch[PID.gcf][TID.online_write].start();
 		charlie.write(msg_A);
-		timing.stopwatch[PID.gcf][TID.online_write].stop();
+		localTiming.stopwatch[PID.gcf][TID.online_write].stop();
 	}
 
 	// for testing correctness
@@ -168,7 +168,7 @@ public class GCF extends Operation {
 			else
 				sE_X = new BigInteger(ww, SR.rand);
 
-			executeEddie(con1, con2, i, j, n, sE_X);
+			executeEddie(con1, con2, timing, i, j, n, sE_X);
 			
 			BigInteger output = con2.readBigInteger();
 			
@@ -194,14 +194,14 @@ public class GCF extends Operation {
 
 			PreData.gcf_gc_D[i][j].receiveTruthTables();
 
-			BigInteger output = executeDebbie(con1, con2, i, j, n);
+			BigInteger output = executeDebbie(con1, con2, timing, i, j, n);
 			
 			con2.write(output);
 
 		} else if (party == Party.Charlie) {
 			BigInteger sC_X = BigInteger.ZERO;
 			
-			executeCharlie(con1, con2, i, j, n, sC_X);
+			executeCharlie(con1, con2, timing, i, j, n, sC_X);
 		}
 
 		System.out.println("#####  Testing GCF Finished  #####");

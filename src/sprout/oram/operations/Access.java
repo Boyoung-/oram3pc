@@ -124,7 +124,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online].stop();
 		
 
-		return new AOutput(Lip1, sC_Ti, null, sC_sig_P_p, null, d, j_2);
+		return new AOutput(Lip1, sC_Ti, null, sC_sig_P_p, null, d, BigInteger.valueOf(j_2));
 	}
 
 	@Override
@@ -300,7 +300,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online].stop();
 		
 		
-		return new AOutput(null, null, sE_Ti, null, sE_sig_P_p, null, -1);
+		return new AOutput(null, null, sE_Ti, null, sE_sig_P_p, null, null);
 	}
 
 	// for testing correctness

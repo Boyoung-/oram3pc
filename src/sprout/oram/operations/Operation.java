@@ -1,14 +1,11 @@
 package sprout.oram.operations;
 
-import java.math.BigInteger;
-
 import sprout.communication.Communication;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
 import sprout.oram.Party;
 import sprout.util.Timing;
-import sprout.util.Util;
 
 public abstract class Operation {
 	Communication con1, con2;
