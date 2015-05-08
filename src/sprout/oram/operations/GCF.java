@@ -32,16 +32,17 @@ public class GCF extends Operation {
 	public void executeCharlie(Communication debbie, Communication eddie, Timing localTiming, int i, int level, int n, BigInteger sC_X) {
 		// protocol
 		// step 1
-		localTiming.stopwatch[PID.gcf][TID.online_read].start();
-		byte[] msg_A = eddie.read();
-		localTiming.stopwatch[PID.gcf][TID.online_read].stop();
+		//localTiming.stopwatch[PID.gcf][TID.online_read].start();
+		//byte[] msg_A = eddie.read();
+		//localTiming.stopwatch[PID.gcf][TID.online_read].stop();
 
 		localTiming.stopwatch[PID.gcf][TID.online].start();
 		byte[] msg_K_C = new byte[n*Wire.labelBytes];
-		
+				
 		for (int j = 0; j < n; j++) {
 			int beta = sC_X.testBit(n - j - 1) ? 1 : 0;
-			System.arraycopy(msg_A, (beta*n+j)*Wire.labelBytes, msg_K_C, j*Wire.labelBytes, Wire.labelBytes);
+			//System.arraycopy(msg_A, (beta*n+j)*Wire.labelBytes, msg_K_C, j*Wire.labelBytes, Wire.labelBytes);
+			msg_K_C[(j+1)*Wire.labelBytes-1] = (byte) beta;
 		}
 		localTiming.stopwatch[PID.gcf][TID.online].stop();
 
@@ -55,6 +56,8 @@ public class GCF extends Operation {
 		// protocol
 		// step 2
 		localTiming.stopwatch[PID.gcf][TID.online_read].start();
+		byte[] msg_A = eddie.read();
+		
 		byte[] msg_K_C = charlie.read();
 		localTiming.stopwatch[PID.gcf][TID.online_read].stop();
 
@@ -62,7 +65,9 @@ public class GCF extends Operation {
 		localTiming.stopwatch[PID.gcf][TID.online].start();
 		BigInteger[] K_C = new BigInteger[n];
 		for (int j=0; j<n; j++) {
-			K_C[j] = new BigInteger(1, Arrays.copyOfRange(msg_K_C, j*Wire.labelBytes, (j+1)*Wire.labelBytes));
+			//K_C[j] = new BigInteger(1, Arrays.copyOfRange(msg_K_C, j*Wire.labelBytes, (j+1)*Wire.labelBytes));
+			int beta = msg_K_C[(j+1)*Wire.labelBytes-1];			
+			K_C[j] = new BigInteger(1, Arrays.copyOfRange(msg_A, (beta*n+j)*Wire.labelBytes, (beta*n+j+1)*Wire.labelBytes));
 		}
 		
 		State in_D = State.fromLabels(K_C);
@@ -93,7 +98,7 @@ public class GCF extends Operation {
 	public void executeEddie(Communication charlie, Communication debbie, Timing localTiming, int i, int level, int n, BigInteger sE_X) {
 		// protocol
 		// step 1
-		// TODO: put this BigInteger to byte[] conversion into precomputation
+		// TODO: put this BigInteger to byte[] conversion into precomputation (wait for the protocol change)
 		localTiming.stopwatch[PID.gcf][TID.online].start();
 		byte[][][] A = new byte[n][2][];
 		byte[] msg_A = new byte[Wire.labelBytes*n*2];
@@ -113,7 +118,8 @@ public class GCF extends Operation {
 		localTiming.stopwatch[PID.gcf][TID.online].stop();
 
 		localTiming.stopwatch[PID.gcf][TID.online_write].start();
-		charlie.write(msg_A);
+		//charlie.write(msg_A);
+		debbie.write(msg_A);
 		localTiming.stopwatch[PID.gcf][TID.online_write].stop();
 	}
 
@@ -124,7 +130,7 @@ public class GCF extends Operation {
 		
 		timing = new Timing();
 		
-		boolean F2FT = true; 
+		boolean F2FT = false; 
 
 		int i = 0;
 		int j = 0;

@@ -5,13 +5,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.bouncycastle.util.Arrays;
+
 import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
+import sprout.oram.PID;
 import sprout.oram.Party;
 import sprout.oram.PreData;
+import sprout.oram.TID;
 import sprout.util.Timing;
 import sprout.util.Util;
 
@@ -23,6 +27,7 @@ public class SSXOT extends Operation {
 	}
 
 	public BigInteger[] executeCharlie(Communication debbie, Communication eddie, Timing localTiming, int i, int N, int k, int l, BigInteger[] sC_m) {
+		/*
 		XOT xot = new XOT(debbie, eddie);
 		
 		// protocol
@@ -33,11 +38,61 @@ public class SSXOT extends Operation {
 		// step 2
 		BigInteger[] b = xot.executeCharlie(debbie, eddie, localTiming, 1, i, N, k, l);
 		
-		
 		return b;
+		*/
+		
+		
+		// XOT 1
+		localTiming.stopwatch[PID.ssxot][TID.online].start();
+		int aBytes = (l + 7) / 8;
+		byte[][] a = new byte[N][];
+		byte[] msg_a = new byte[N*aBytes];
+		
+		for (int o = 0; o < N; o++) {
+			a[o] = sC_m[PreData.xot_pi[0][i].get(o)].xor(PreData.xot_r[0][i][o]).toByteArray();
+			if (a[o].length < aBytes)
+				System.arraycopy(a[o], 0, msg_a, (o + 1) * aBytes - a[o].length, a[o].length);
+			else
+				System.arraycopy(a[o], a[o].length - aBytes, msg_a, o * aBytes, aBytes);
+		}
+		localTiming.stopwatch[PID.ssxot][TID.online].stop();
+
+		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
+		eddie.write(msg_a);
+		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
+		
+		
+		// XOT 2
+		localTiming.stopwatch[PID.ssxot][TID.online_read].start();
+		msg_a = eddie.read();
+		
+		byte[] msg_j = debbie.read();
+		byte[] msg_p = debbie.read();
+		localTiming.stopwatch[PID.ssxot][TID.online_read].stop();
+
+		localTiming.stopwatch[PID.ssxot][TID.online].start();
+		int[] j = new int[k];
+		BigInteger[] p = new BigInteger[k];
+		BigInteger[] aa = new BigInteger[N];
+		BigInteger[] z = new BigInteger[k];
+		int pBytes = (l + 7) / 8;
+		
+		for (int o = 0; o < N; o++) {
+			aa[o] = new BigInteger(1, Arrays.copyOfRange(msg_a, o*pBytes, (o+1)*pBytes));
+		}
+		
+		for (int o = 0; o < k; o++) {
+			j[o] = new BigInteger(1, Arrays.copyOfRange(msg_j, o*4, (o+1)*4)).intValue();
+			p[o] = new BigInteger(1, Arrays.copyOfRange(msg_p, o*pBytes, (o+1)*pBytes));
+			z[o] = aa[j[o]].xor(p[o]);
+		}
+		localTiming.stopwatch[PID.ssxot][TID.online].stop();
+		
+		return z;
 	}
 
 	public void executeDebbie(Communication charlie, Communication eddie, Timing localTiming, int i, int N, int k, int l, Integer[] ii) {
+		/*
 		XOT xot = new XOT(charlie, eddie);
 		
 		// protocol
@@ -47,9 +102,63 @@ public class SSXOT extends Operation {
 		
 		// step 2
 		xot.executeDebbie(charlie, eddie, localTiming, 1, i, N, k, l, ii, PreData.ssxot_delta[i]);
+		*/
+		
+		
+		// XOT 1
+		localTiming.stopwatch[PID.ssxot][TID.online].start();
+		int pBytes = (l + 7) / 8;
+		int[] j = new int[k];
+		byte[][] j_bytes = new byte[k][];
+		byte[] msg_j = new byte[k*4];
+		byte[][] p = new byte[k][];
+		byte[] msg_p = new byte[k*pBytes];
+		
+		for (int o = 0; o < k; o++) {
+			j[o] = PreData.xot_pi_ivs[0][i].get(ii[o]);
+			j_bytes[o] = BigInteger.valueOf(PreData.xot_pi_ivs[0][i].get(ii[o])).toByteArray();
+			p[o] = PreData.xot_r[0][i][j[o]].xor(PreData.ssxot_delta[i][o]).toByteArray();
+			
+			System.arraycopy(j_bytes[o], 0, msg_j, (o+1)*4-j_bytes[o].length, j_bytes[o].length);
+			if (p[o].length < pBytes)
+				System.arraycopy(p[o], 0, msg_p, (o + 1) * pBytes - p[o].length, p[o].length);
+			else
+				System.arraycopy(p[o], p[o].length - pBytes, msg_p, o * pBytes, pBytes);
+		}
+		localTiming.stopwatch[PID.ssxot][TID.online].stop();
+
+		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
+		eddie.write(msg_j);
+		eddie.write(msg_p);
+		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
+		
+		
+		// XOT 2
+		localTiming.stopwatch[PID.ssxot][TID.online].start();
+		msg_j = new byte[k*4];
+		msg_p = new byte[k*pBytes];
+		
+		for (int o = 0; o < k; o++) {
+			j[o] = PreData.xot_pi_ivs[1][i].get(ii[o]);
+			j_bytes[o] = BigInteger.valueOf(PreData.xot_pi_ivs[1][i].get(ii[o])).toByteArray();
+			p[o] = PreData.xot_r[1][i][j[o]].xor(PreData.ssxot_delta[i][o]).toByteArray();
+			
+			System.arraycopy(j_bytes[o], 0, msg_j, (o+1)*4-j_bytes[o].length, j_bytes[o].length);
+			if (p[o].length < pBytes)
+				System.arraycopy(p[o], 0, msg_p, (o + 1) * pBytes - p[o].length, p[o].length);
+			else
+				System.arraycopy(p[o], p[o].length - pBytes, msg_p, o * pBytes, pBytes);
+		}
+		localTiming.stopwatch[PID.ssxot][TID.online].stop();
+
+		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
+		charlie.write(msg_j);
+		charlie.write(msg_p);
+		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
 	}
 
 	public BigInteger[] executeEddie(Communication charlie, Communication debbie, Timing localTiming, int i, int N, int k, int l, BigInteger[] sE_m) {
+		/*
 		XOT xot = new XOT(charlie, debbie);
 		
 		// protocol
@@ -60,8 +169,57 @@ public class SSXOT extends Operation {
 		// step 2
 		xot.executeEddie(charlie, debbie, localTiming, 1, i, N, k, l, sE_m);
 		
-		
 		return a;
+		*/
+		
+		
+		// XOT 2
+		localTiming.stopwatch[PID.ssxot][TID.online].start();
+		int aBytes = (l + 7) / 8;
+		byte[][] a = new byte[N][];
+		byte[] msg_a = new byte[N*aBytes];
+		
+		for (int o = 0; o < N; o++) {
+			a[o] = sE_m[PreData.xot_pi[0][i].get(o)].xor(PreData.xot_r[0][i][o]).toByteArray();
+			if (a[o].length < aBytes)
+				System.arraycopy(a[o], 0, msg_a, (o + 1) * aBytes - a[o].length, a[o].length);
+			else
+				System.arraycopy(a[o], a[o].length - aBytes, msg_a, o * aBytes, aBytes);
+		}
+		localTiming.stopwatch[PID.ssxot][TID.online].stop();
+
+		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
+		charlie.write(msg_a);
+		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
+		
+		
+		// XOT 1
+		localTiming.stopwatch[PID.ssxot][TID.online_read].start();
+		msg_a = charlie.read();
+		
+		byte[] msg_j = debbie.read();
+		byte[] msg_p = debbie.read();
+		localTiming.stopwatch[PID.ssxot][TID.online_read].stop();
+
+		localTiming.stopwatch[PID.ssxot][TID.online].start();
+		int[] j = new int[k];
+		BigInteger[] p = new BigInteger[k];
+		BigInteger[] aa = new BigInteger[N];
+		BigInteger[] z = new BigInteger[k];
+		int pBytes = (l + 7) / 8;
+		
+		for (int o = 0; o < N; o++) {
+			aa[o] = new BigInteger(1, Arrays.copyOfRange(msg_a, o*pBytes, (o+1)*pBytes));
+		}
+		
+		for (int o = 0; o < k; o++) {
+			j[o] = new BigInteger(1, Arrays.copyOfRange(msg_j, o*4, (o+1)*4)).intValue();
+			p[o] = new BigInteger(1, Arrays.copyOfRange(msg_p, o*pBytes, (o+1)*pBytes));
+			z[o] = aa[j[o]].xor(p[o]);
+		}
+		localTiming.stopwatch[PID.ssxot][TID.online].stop();
+		
+		return z;
 	}
 
 	// for testing correctness
@@ -71,6 +229,8 @@ public class SSXOT extends Operation {
 		System.out.println("#####  Testing SSXOT  #####");
 		
 		timing = new Timing();
+		
+		for (int iii=0; iii<20; iii++) {
 
 		int levels = ForestMetadata.getLevels();
 		if (party == Party.Eddie) {
@@ -178,6 +338,8 @@ public class SSXOT extends Operation {
 			BigInteger[] b = executeCharlie(con1, con2, timing, i, N, k, l, sC_m);
 
 			con2.write(b);
+		}
+		
 		}
 
 		System.out.println("#####  Testing SSXOT Finished  #####");
