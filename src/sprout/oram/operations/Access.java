@@ -51,9 +51,9 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		
 		
 		// step 2
-		timing.stopwatch[PID.access][TID.online_write].start();
-		debbie.write(sC_Nip1);
-		timing.stopwatch[PID.access][TID.online_write].stop();
+		//timing.stopwatch[PID.access][TID.online_write].start();
+		//debbie.write(sC_Nip1);
+		//timing.stopwatch[PID.access][TID.online_write].stop();
 		
 		int j_1 = 0;
 		BigInteger z;
@@ -129,9 +129,11 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 	@Override
 	public AOutput executeDebbieSubTree(Communication charlie,
-			Communication eddie, Tree sD_OT, BigInteger[] unused, Timing localTiming) {
+			Communication eddie, Tree sD_OT, BigInteger[] args, Timing localTiming) {
+		BigInteger sD_Nip1 = args[0];
+		
 		// protocol
-		// step 1
+		// step 1		
 		timing.stopwatch[PID.access][TID.online_read].start();
 		PreData.access_Li[i] = charlie.readBigInteger();
 		timing.stopwatch[PID.access][TID.online_read].stop();
@@ -161,9 +163,9 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		
 		
 		// step 2
-		timing.stopwatch[PID.access][TID.online_read].start();
-		BigInteger sD_Nip1 = charlie.readBigInteger();
-		timing.stopwatch[PID.access][TID.online_read].stop();
+		//timing.stopwatch[PID.access][TID.online_read].start();
+		//BigInteger sD_Nip1 = charlie.readBigInteger();
+		//timing.stopwatch[PID.access][TID.online_read].stop();
 		
 		timing.stopwatch[PID.access][TID.online].start();
 		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata.getLastNBits();

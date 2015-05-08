@@ -57,11 +57,11 @@ public class Retrieve extends Operation {
 		return Pair.of(output, null);
 	}
 
-	public PPEvict executeDebbie(Communication charlie, Communication eddie, int i, Tree sD_OT) {
+	public PPEvict executeDebbie(Communication charlie, Communication eddie, int i, Tree sD_OT, BigInteger sD_Nip1) {
 		// Access
 		Access access = new Access(charlie, eddie);
 		access.loadTreeSpecificParameters(i);
-		access.executeDebbieSubTree(charlie, eddie, sD_OT, null, null);
+		access.executeDebbieSubTree(charlie, eddie, sD_OT, new BigInteger[]{sD_Nip1}, null);
 
 		PostProcessT ppt = new PostProcessT(charlie, eddie);
 		ppt.loadTreeSpecificParameters(i);
@@ -182,6 +182,7 @@ public class Retrieve extends Operation {
 			BigInteger N = null;
 			BigInteger sC_N = null;
 			BigInteger sE_N = null;
+			BigInteger sD_N = null;
 			if (party == Party.Charlie) {
 				if (numInsert == -1) {
 					N = new BigInteger(lastNBits, SR.rand);
@@ -196,8 +197,11 @@ public class Retrieve extends Operation {
 				//N = BigInteger.valueOf(3);
 				
 				sE_N = N.xor(sC_N);
+				con1.write(sC_N);
 				con2.write(sE_N);
 			}
+			else if (party == Party.Debbie)
+				sD_N = con1.readBigInteger();
 			else if (party == Party.Eddie)
 				sE_N = con1.readBigInteger();
 			
@@ -248,7 +252,6 @@ public class Retrieve extends Operation {
 								+ (Li == null ? "" : Util.addZero(
 										Li.toString(2),
 										ForestMetadata.getLBits(i))));
-						//con2.write(Li);
 						Pair<BigInteger[], PPEvict> outPair = executeCharlie(con1, con2, i, Li, sC_Ni);
 						BigInteger[] outC = outPair.getLeft();
 						Li = outC[0];
@@ -269,10 +272,14 @@ public class Retrieve extends Operation {
 						threads[i] = outPair.getRight();
 						break;
 					case Debbie:
-						threads[i] = executeDebbie(con1, con2, i, forest.getTree(i));
+						BigInteger sD_Ni;
+						if (i < h - 1) {
+							sD_Ni = Util.getSubBits(sD_N, lastNBits - (i + 1) * tau, lastNBits);
+						} else 
+							sD_Ni = sD_N;
+						threads[i] = executeDebbie(con1, con2, i, forest.getTree(i), sD_Ni);
 						break;
 					case Eddie:
-						//Li = con1.readBigInteger();
 						BigInteger sE_Ni;
 						if (i < h - 1) {
 							sE_Ni = Util.getSubBits(sE_N, lastNBits - (i + 1) * tau, lastNBits);

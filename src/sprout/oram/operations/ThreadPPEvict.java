@@ -31,20 +31,6 @@ public class ThreadPPEvict extends Operation {
 		AOutput AOut = access.executeCharlieSubTree(debbie, eddie, null,
 				new BigInteger[] { Li, sC_Nip1 }, null);
 		BigInteger[] output = new BigInteger[] { AOut.Lip1, AOut.data };
-
-		/*
-		PostProcessT ppt = new PostProcessT(debbie, eddie);
-		ppt.loadTreeSpecificParameters(i);
-		BigInteger sC_Ti_p = ppt.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{AOut.sC_Ti, Li, AOut.Lip1, AOut.j_2}, null);
-
-		Reshuffle res = new Reshuffle(debbie, eddie);
-		res.loadTreeSpecificParameters(i);
-		BigInteger sC_pi_P = res.executeCharlieSubTree(debbie, eddie, null, AOut.sC_sig_P_p, null);
-
-		Eviction evict = new Eviction(debbie, eddie);
-		evict.loadTreeSpecificParameters(i);
-		evict.executeCharlieSubTree(debbie, eddie, null, new BigInteger[]{sC_pi_P, sC_Ti_p}, null);
-		*/
 		
 		// PP+Evict
 		Timing localTiming = new Timing();
@@ -54,25 +40,11 @@ public class ThreadPPEvict extends Operation {
 		return Pair.of(thread, output);
 	}
 
-	public PPEvict executeDebbie(Communication charlie, Communication eddie, int i, Tree sD_OT) {
+	public PPEvict executeDebbie(Communication charlie, Communication eddie, int i, Tree sD_OT, BigInteger sD_Nip1) {
 		// Access
 		Access access = new Access(charlie, eddie);
 		access.loadTreeSpecificParameters(i);
-		access.executeDebbieSubTree(charlie, eddie, sD_OT, null, null);
-
-		/*
-		PostProcessT ppt = new PostProcessT(charlie, eddie);
-		ppt.loadTreeSpecificParameters(i);
-		ppt.executeDebbieSubTree(charlie, eddie, null, null, null);
-
-		Reshuffle res = new Reshuffle(charlie, eddie);
-		res.loadTreeSpecificParameters(i);
-		res.executeDebbieSubTree(charlie, eddie, null, null, null);
-
-		Eviction evict = new Eviction(charlie, eddie);
-		evict.loadTreeSpecificParameters(i);
-		evict.executeDebbieSubTree(charlie, eddie, sD_OT, null, null);
-		*/
+		access.executeDebbieSubTree(charlie, eddie, sD_OT, new BigInteger[]{sD_Nip1}, null);
 		
 		// PP+Evict
 		Timing localTiming = new Timing();
@@ -80,7 +52,6 @@ public class ThreadPPEvict extends Operation {
 		thread.start();
 		
 		return thread;
-		//return null;
 	}
 
 	public PPEvict executeEddie(Communication charlie, Communication debbie, int i, Tree sE_OT, BigInteger sE_Nip1) {
@@ -88,20 +59,6 @@ public class ThreadPPEvict extends Operation {
 		Access access = new Access(charlie, debbie);
 		access.loadTreeSpecificParameters(i);
 		AOutput AOut = access.executeEddieSubTree(charlie, debbie, sE_OT, new BigInteger[] {sE_Nip1}, null);
-
-		/*
-		PostProcessT ppt = new PostProcessT(charlie, debbie);
-		ppt.loadTreeSpecificParameters(i);
-		BigInteger sE_Ti_p = ppt.executeEddieSubTree(charlie, debbie, null, new BigInteger[]{AOut.sE_Ti}, null);
-
-		Reshuffle res = new Reshuffle(charlie, debbie);
-		res.loadTreeSpecificParameters(i);
-		BigInteger sE_pi_P = res.executeEddieSubTree(charlie, debbie, null, AOut.sE_sig_P_p, null);
-
-		Eviction evict = new Eviction(charlie, debbie);
-		evict.loadTreeSpecificParameters(i);
-		evict.executeEddieSubTree(charlie, debbie, sE_OT, new BigInteger[]{sE_pi_P, sE_Ti_p}, null);
-		*/
 			
 		// PP+Evict
 		Timing localTiming = new Timing();
@@ -109,7 +66,6 @@ public class ThreadPPEvict extends Operation {
 		thread.start();
 		
 		return thread;
-		//return null;
 	}
 
 	@Override
@@ -170,6 +126,7 @@ public class ThreadPPEvict extends Operation {
 			BigInteger N = null;
 			BigInteger sC_N = null;
 			BigInteger sE_N = null;
+			BigInteger sD_N = null;
 			if (party == Party.Charlie) {
 				if (numInsert == -1) {
 					N = new BigInteger(lastNBits, SR.rand);
@@ -184,8 +141,11 @@ public class ThreadPPEvict extends Operation {
 				//N = BigInteger.valueOf(3);
 				
 				sE_N = N.xor(sC_N);
+				con1.write(sC_N);
 				con2.write(sE_N);
 			}
+			else if (party == Party.Debbie)
+				sD_N = con1.readBigInteger();
 			else if (party == Party.Eddie)
 				sE_N = con1.readBigInteger();
 			
@@ -256,7 +216,12 @@ public class ThreadPPEvict extends Operation {
 						threads[i] = outPair.getLeft();
 						break;
 					case Debbie:
-						threads[i] = executeDebbie(con1, con2, i, forest.getTree(i));
+						BigInteger sD_Ni;
+						if (i < h - 1) {
+							sD_Ni = Util.getSubBits(sD_N, lastNBits - (i + 1) * tau, lastNBits);
+						} else 
+							sD_Ni = sD_N;
+						threads[i] = executeDebbie(con1, con2, i, forest.getTree(i), sD_Ni);
 						break;
 					case Eddie:
 						BigInteger sE_Ni;

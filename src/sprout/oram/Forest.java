@@ -179,14 +179,14 @@ public class Forest {
 		Util.disp("");
 		
 		// TODO: for testing
-		data1.writeToFile(ForestMetadata.getDefaultForestNames()[2]);
+		//data1.writeToFile(ForestMetadata.getDefaultForestNames()[2]);
 
-		//encryptForest();
-		//System.out.println("data1:  " + Util.addZero(new BigInteger(1, data1.getBytes(0, 2)).toString(2), 16));
-		data2 = new ByteArray64(ForestMetadata.getForestBytes(), "random");
-		data1.setXOR(data2);
-		System.out.println("data2:  " + Util.addZero(new BigInteger(1, data2.getBytes(0, 2)).toString(2), 16));
-		System.out.println("data1:  " + Util.addZero(new BigInteger(1, data1.getBytes(0, 2)).toString(2), 16));
+		// TODO: these two lines are real xors
+		//data2 = new ByteArray64(ForestMetadata.getForestBytes(), "random");
+		//data1.setXOR(data2);
+		
+		// TODO: these line are for testing
+		data2 = new ByteArray64(ForestMetadata.getForestBytes(), "empty");
 
 		writeToFile(filename1, filename2);
 	}
@@ -204,37 +204,6 @@ public class Forest {
 		// data = FileUtils.readFileToByteArray(file);
 		data1 = new ByteArray64(filename);
 	}
-
-	/*
-	private void encryptForest() throws BucketException,
-			NoSuchAlgorithmException, TreeException {
-		Util.disp("===== Encryption ===== ");
-		OPRF oprf = OPRFHelper.getOPRF(false);
-		ECPoint g = oprf.getG();
-		ECPoint y = oprf.getY();
-
-		for (int i = 0; i < trees.size(); i++) {
-			Tree t = trees.get(i);
-			int bucketTupleBits = ForestMetadata.getBucketTupleBits(i);
-			PRG G = new PRG(bucketTupleBits);
-			for (long j = 0; j < ForestMetadata.getNumBuckets(i); j++) {
-				Bucket bucket = t.getBucket(j);
-				BigInteger r = oprf.randomExponent();
-				ECPoint x = g.multiply(r);
-				ECPoint v = y.multiply(r);
-				BigInteger mask = new BigInteger(1, G.compute(v));
-				BigInteger ctext = new BigInteger(1, bucket.getByteTuples())
-						.xor(mask);
-				bucket.setBucket(x.getEncoded(),
-						Util.rmSignBit(ctext.toByteArray()));
-				//Util.disp("Tree-" + i + " writing encrypted " + bucket);
-				Util.disp("Tree-" + i + " writing encrypted bucket " + j);
-				t.setBucket(bucket, j);
-			}
-		}
-		Util.disp("");
-	}
-	*/
 
 	public Tree getTree(int index) throws ForestException {
 		if (index < 0 || index >= trees.size()) {

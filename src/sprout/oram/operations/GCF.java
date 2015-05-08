@@ -93,6 +93,7 @@ public class GCF extends Operation {
 	public void executeEddie(Communication charlie, Communication debbie, Timing localTiming, int i, int level, int n, BigInteger sE_X) {
 		// protocol
 		// step 1
+		// TODO: put this BigInteger to byte[] conversion into precomputation
 		localTiming.stopwatch[PID.gcf][TID.online].start();
 		byte[][][] A = new byte[n][2][];
 		byte[] msg_A = new byte[Wire.labelBytes*n*2];
