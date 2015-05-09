@@ -1,6 +1,7 @@
 package sprout.oram;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,8 @@ public class Forest {
 	// TODO: write large data to disk
 	private static ByteArray64 data1;
 	private static ByteArray64 data2;
+	
+	private static String forestFile;
 
 	private void initTrees() {
 		int levels = ForestMetadata.getLevels();
@@ -61,8 +64,8 @@ public class Forest {
 
 	private void restoreForest(String filename) throws IOException {
 		initTrees();
-		readFromFile(filename);
-		//System.out.println("data1:  " + Util.addZero(new BigInteger(1, data1.getBytes(0, 2)).toString(2), 16));
+		//readFromFile(filename);
+		forestFile = filename;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -217,15 +220,44 @@ public class Forest {
 		return data1;
 	}
 
+	// TODO: thread-safe read/write??
 	public static byte[] getForestData(long offset, int length) {
-		// byte[] tmp = new byte[length];
-		// System.arraycopy(data, (int) offset, tmp, 0, length);
-		// return tmp;
-		return data1.getBytes(offset, length);
+		//return data1.getBytes(offset, length);
+		byte[] content = new byte[length];
+		try {
+			RandomAccessFile raf = new RandomAccessFile(forestFile, "r");
+			raf.seek(offset);
+			raf.readFully(content, 0, length);
+			raf.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			try {
+				throw new Exception("Forest.getForestData() error");
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		return content;
 	}
 
 	public static void setForestData(long offset, byte[] newData) {
-		// System.arraycopy(newData, 0, data, (int) offset, newData.length);
-		data1.setBytes(offset, newData);
+		//data1.setBytes(offset, newData);
+		try {
+			RandomAccessFile raf = new RandomAccessFile(forestFile, "rw");
+			raf.seek(offset);
+			raf.write(newData, 0, newData.length);
+			raf.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			try {
+				throw new Exception("Forest.setForestData() error");
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 	}
 }
