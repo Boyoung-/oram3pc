@@ -12,7 +12,7 @@ public class AES_SHA1 {
 	public static void main(String[] args) throws Exception {
 		int iteration = 20000000;
 		int convert = 1000000;
-		
+
 		MessageDigest digest = MessageDigest.getInstance("SHA-1");
 		digest.reset();
 		byte[] key = new byte[16];
@@ -25,8 +25,7 @@ public class AES_SHA1 {
 		StopWatch aes_sw = new StopWatch("AES");
 		StopWatch prg_sw = new StopWatch("PRG");
 
-		
-		for (int i=0; i<iteration; i++)
+		for (int i = 0; i < iteration; i++)
 			SR.rand.nextBytes(input[i]);
 
 		for (int i = 0; i < iteration; i++) {
@@ -46,7 +45,7 @@ public class AES_SHA1 {
 
 		System.out.print(aes_sw.elapsedWallClockTime / convert);
 		System.out.println("\t" + aes_sw.elapsedCPUTime / convert);
-		
+
 		System.out.print(prg_sw.elapsedWallClockTime / convert);
 		System.out.println("\t" + prg_sw.elapsedCPUTime / convert);
 	}

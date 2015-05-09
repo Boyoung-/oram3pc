@@ -81,21 +81,13 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 	 * executeEddieSubTree(con1, con2, OT, extraArgs); } return null; }
 	 */
 	/*
-	public T execut(Party party, V args) {
-		loadTreeSpecificParameters(i);
-
-		// TODO: remove unnecessary args
-		switch (party) {
-		case Charlie:
-			return executeCharlieSubTree(con1, con2, args);
-		case Debbie:
-			return executeDebbieSubTree(con1, con2, args);
-		case Eddie:
-			return executeEddieSubTree(con1, con2, args);
-		}
-		return null;
-	}
-	*/
+	 * public T execut(Party party, V args) { loadTreeSpecificParameters(i);
+	 * 
+	 * // TODO: remove unnecessary args switch (party) { case Charlie: return
+	 * executeCharlieSubTree(con1, con2, args); case Debbie: return
+	 * executeDebbieSubTree(con1, con2, args); case Eddie: return
+	 * executeEddieSubTree(con1, con2, args); } return null; }
+	 */
 
 	/*
 	 * This is mostly just testing code and may need to change for the purpose
@@ -117,7 +109,7 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 		 * else System.out.println("Finished round " + i); }
 		 */
 	}
-	
+
 	public abstract T executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree OT, V args, Timing localTiming);
 

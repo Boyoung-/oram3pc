@@ -202,14 +202,10 @@ public class Util {
 
 	// should be abandoned
 	/*
-	public static <T> T[] reversePermutation(T[] arr, List<Integer> p) {
-		T[] arr_new = arr.clone();
-		for (int i = 0; i < arr.length; i++) {
-			arr_new[i] = arr[p.get(i)];
-		}
-		return arr_new;
-	}
-	*/
+	 * public static <T> T[] reversePermutation(T[] arr, List<Integer> p) { T[]
+	 * arr_new = arr.clone(); for (int i = 0; i < arr.length; i++) { arr_new[i]
+	 * = arr[p.get(i)]; } return arr_new; }
+	 */
 
 	public static <T> void printArrV(T[] arr) {
 		for (int i = 0; i < arr.length; i++)

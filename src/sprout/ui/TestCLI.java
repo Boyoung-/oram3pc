@@ -35,9 +35,12 @@ public class TestCLI {
 		options.addOption("dbfile", true, "Database file");
 		options.addOption("datafile", true, "File for generating forest data");
 		options.addOption("build", false, "If enabled, build the forest");
-		options.addOption("eddie_port_1", true, "Eddie's port to listen for Debbie");
-		options.addOption("eddie_port_2", true, "Eddie's port to listen for Charlie");
-		options.addOption("debbie_port", true, "Debbie's port to listen for Charlie");
+		options.addOption("eddie_port_1", true,
+				"Eddie's port to listen for Debbie");
+		options.addOption("eddie_port_2", true,
+				"Eddie's port to listen for Charlie");
+		options.addOption("debbie_port", true,
+				"Debbie's port to listen for Charlie");
 		options.addOption("eddie_ip", true, "IP to look for eddie");
 		options.addOption("debbie_ip", true, "IP to look for debbie");
 		options.addOption("test_alg", true, "Algorithim to test");
@@ -62,19 +65,23 @@ public class TestCLI {
 			}
 
 			int extra_port = 15;
-			//if (party.equals("debbie")) {
-			//	extra_port = 1;
-			//}
+			// if (party.equals("debbie")) {
+			// extra_port = 1;
+			// }
 
-			//int debbiePort = Integer.parseInt(cmd.getOptionValue("debbie_port",
-			//		Integer.toString(DEFAULT_PORT)));
-			//int charliePort = Integer.parseInt(cmd.getOptionValue(
-			//		"charlie_port",
-			//		Integer.toString(DEFAULT_PORT + 1 + extra_port)));
-			int eddiePort1 = Integer.parseInt(cmd.getOptionValue("eddie_port_1", Integer.toString(DEFAULT_PORT)));
-			int eddiePort2 = Integer.parseInt(cmd.getOptionValue("eddie_port_2", Integer.toString(eddiePort1 + extra_port)));
-			int debbiePort = Integer.parseInt(cmd.getOptionValue("debbie_port", Integer.toString(eddiePort2 + extra_port)));
-			
+			// int debbiePort =
+			// Integer.parseInt(cmd.getOptionValue("debbie_port",
+			// Integer.toString(DEFAULT_PORT)));
+			// int charliePort = Integer.parseInt(cmd.getOptionValue(
+			// "charlie_port",
+			// Integer.toString(DEFAULT_PORT + 1 + extra_port)));
+			int eddiePort1 = Integer.parseInt(cmd.getOptionValue(
+					"eddie_port_1", Integer.toString(DEFAULT_PORT)));
+			int eddiePort2 = Integer.parseInt(cmd.getOptionValue(
+					"eddie_port_2", Integer.toString(eddiePort1 + extra_port)));
+			int debbiePort = Integer.parseInt(cmd.getOptionValue("debbie_port",
+					Integer.toString(eddiePort2 + extra_port)));
+
 			String eddieIp = cmd.getOptionValue("eddie_ip", DEFAULT_IP);
 			String debbieIp = cmd.getOptionValue("debbie_ip", DEFAULT_IP);
 
@@ -125,7 +132,7 @@ public class TestCLI {
 			Constructor<? extends Operation> operationCtor = operation
 					.getDeclaredConstructor(Communication.class,
 							Communication.class);
-			
+
 			try {
 				ForestMetadata.setup(configFile);
 			} catch (FileNotFoundException e1) {
@@ -134,9 +141,8 @@ public class TestCLI {
 			int numTrees = ForestMetadata.getLevels();
 			PPEvict.threadCon1 = new Communication[numTrees];
 			PPEvict.threadCon2 = new Communication[numTrees];
-			//System.out.println("numTrees: " + numTrees);
-			
-			
+			// System.out.println("numTrees: " + numTrees);
+
 			// For now all logic happens here. Eventually this will get wrapped
 			// up in party specific classes.
 			System.out.println("Starting " + party + "...");
@@ -147,31 +153,33 @@ public class TestCLI {
 				Communication charlieCon = new Communication();
 				charlieCon.start(eddiePort2);
 
-				for (int i=0; i<numTrees; i++) {
+				for (int i = 0; i < numTrees; i++) {
 					// for charlie
 					PPEvict.threadCon1[i] = new Communication();
 					PPEvict.threadCon1[i].start(eddiePort2 + i + 1);
 					// for debbie
 					PPEvict.threadCon2[i] = new Communication();
-					PPEvict.threadCon2[i].start(eddiePort1 + i + 1);					
+					PPEvict.threadCon2[i].start(eddiePort1 + i + 1);
 				}
 
 				System.out.println("Waiting to establish connections...");
-				
-				while (debbieCon.getState() != Communication.STATE_CONNECTED);
-				for (int i=0; i<numTrees; ) {
+
+				while (debbieCon.getState() != Communication.STATE_CONNECTED)
+					;
+				for (int i = 0; i < numTrees;) {
 					if (PPEvict.threadCon2[i].getState() == Communication.STATE_CONNECTED)
 						i++;
 				}
-				while (charlieCon.getState() != Communication.STATE_CONNECTED);
-				for (int i=0; i<numTrees; ) {
+				while (charlieCon.getState() != Communication.STATE_CONNECTED)
+					;
+				for (int i = 0; i < numTrees;) {
 					if (PPEvict.threadCon1[i].getState() == Communication.STATE_CONNECTED)
 						i++;
 				}
-				
-				//while (charlieCon.getState() != Communication.STATE_CONNECTED
-				//		|| debbieCon.getState() != Communication.STATE_CONNECTED)
-				//	;
+
+				// while (charlieCon.getState() != Communication.STATE_CONNECTED
+				// || debbieCon.getState() != Communication.STATE_CONNECTED)
+				// ;
 				System.out.println("Connection established");
 
 				System.out.println("Charlie: " + charlieCon.readString());
@@ -198,45 +206,49 @@ public class TestCLI {
 
 				charlieCon.stop();
 				debbieCon.stop();
-				for (int i=0; i<numTrees; i++) {
+				for (int i = 0; i < numTrees; i++) {
 					PPEvict.threadCon1[i].stop();
 					PPEvict.threadCon2[i].stop();
 				}
-				
+
 			} else if (party.equals("debbie")) {
 				Communication eddieCon = new Communication();
-				InetSocketAddress eddieAddr = new InetSocketAddress(eddieIp, eddiePort1);
+				InetSocketAddress eddieAddr = new InetSocketAddress(eddieIp,
+						eddiePort1);
 				eddieCon.connect(eddieAddr);
 
 				Communication charlieCon = new Communication();
 				charlieCon.start(debbiePort);
 
-				for (int i=0; i<numTrees; i++) {
+				for (int i = 0; i < numTrees; i++) {
 					// for charlie
 					PPEvict.threadCon1[i] = new Communication();
 					PPEvict.threadCon1[i].start(debbiePort + i + 1);
 					// for eddie
 					PPEvict.threadCon2[i] = new Communication();
-					eddieAddr = new InetSocketAddress(eddieIp, eddiePort1 + i + 1);
-					PPEvict.threadCon2[i].connect(eddieAddr);			
+					eddieAddr = new InetSocketAddress(eddieIp, eddiePort1 + i
+							+ 1);
+					PPEvict.threadCon2[i].connect(eddieAddr);
 				}
 
 				System.out.println("Waiting to establish connections...");
-				
-				while (eddieCon.getState() != Communication.STATE_CONNECTED);
-				for (int i=0; i<numTrees; ) {
+
+				while (eddieCon.getState() != Communication.STATE_CONNECTED)
+					;
+				for (int i = 0; i < numTrees;) {
 					if (PPEvict.threadCon2[i].getState() == Communication.STATE_CONNECTED)
 						i++;
 				}
-				while (charlieCon.getState() != Communication.STATE_CONNECTED);
-				for (int i=0; i<numTrees; ) {
+				while (charlieCon.getState() != Communication.STATE_CONNECTED)
+					;
+				for (int i = 0; i < numTrees;) {
 					if (PPEvict.threadCon1[i].getState() == Communication.STATE_CONNECTED)
 						i++;
 				}
-				
-				//while (eddieCon.getState() != Communication.STATE_CONNECTED
-				//		|| charlieCon.getState() != Communication.STATE_CONNECTED)
-				//	;
+
+				// while (eddieCon.getState() != Communication.STATE_CONNECTED
+				// || charlieCon.getState() != Communication.STATE_CONNECTED)
+				// ;
 				System.out.println("Connection established");
 
 				eddieCon.write("Hello eddie, from debbie");
@@ -261,48 +273,54 @@ public class TestCLI {
 
 				eddieCon.stop();
 				charlieCon.stop();
-				for (int i=0; i<numTrees; i++) {
+				for (int i = 0; i < numTrees; i++) {
 					PPEvict.threadCon1[i].stop();
 					PPEvict.threadCon2[i].stop();
 				}
-				
+
 			} else if (party.equals("charlie")) {
 				Communication debbieCon = new Communication();
 				Communication eddieCon = new Communication();
 
-				InetSocketAddress eddieAddr = new InetSocketAddress(eddieIp, eddiePort2);
+				InetSocketAddress eddieAddr = new InetSocketAddress(eddieIp,
+						eddiePort2);
 				eddieCon.connect(eddieAddr);
-				
-				InetSocketAddress debbieAddr = new InetSocketAddress(debbieIp, debbiePort);
+
+				InetSocketAddress debbieAddr = new InetSocketAddress(debbieIp,
+						debbiePort);
 				debbieCon.connect(debbieAddr);
 
-				for (int i=0; i<numTrees; i++) {
+				for (int i = 0; i < numTrees; i++) {
 					// for debbie
 					PPEvict.threadCon1[i] = new Communication();
-					debbieAddr = new InetSocketAddress(debbieIp, debbiePort + i + 1);
+					debbieAddr = new InetSocketAddress(debbieIp, debbiePort + i
+							+ 1);
 					PPEvict.threadCon1[i].connect(debbieAddr);
 					// for eddie
 					PPEvict.threadCon2[i] = new Communication();
-					eddieAddr = new InetSocketAddress(eddieIp, eddiePort2 + i + 1);
-					PPEvict.threadCon2[i].connect(eddieAddr);					
+					eddieAddr = new InetSocketAddress(eddieIp, eddiePort2 + i
+							+ 1);
+					PPEvict.threadCon2[i].connect(eddieAddr);
 				}
 
 				System.out.println("Waiting to establish connections...");
-				
-				while (eddieCon.getState() != Communication.STATE_CONNECTED);
-				for (int i=0; i<numTrees; ) {
+
+				while (eddieCon.getState() != Communication.STATE_CONNECTED)
+					;
+				for (int i = 0; i < numTrees;) {
 					if (PPEvict.threadCon2[i].getState() == Communication.STATE_CONNECTED)
 						i++;
 				}
-				while (debbieCon.getState() != Communication.STATE_CONNECTED);
-				for (int i=0; i<numTrees; ) {
+				while (debbieCon.getState() != Communication.STATE_CONNECTED)
+					;
+				for (int i = 0; i < numTrees;) {
 					if (PPEvict.threadCon1[i].getState() == Communication.STATE_CONNECTED)
 						i++;
 				}
-				
-				//while (eddieCon.getState() != Communication.STATE_CONNECTED
-				//		|| debbieCon.getState() != Communication.STATE_CONNECTED)
-				//	;
+
+				// while (eddieCon.getState() != Communication.STATE_CONNECTED
+				// || debbieCon.getState() != Communication.STATE_CONNECTED)
+				// ;
 
 				System.out.println("Connection established");
 
@@ -330,11 +348,11 @@ public class TestCLI {
 
 				eddieCon.stop();
 				debbieCon.stop();
-				for (int i=0; i<numTrees; i++) {
+				for (int i = 0; i < numTrees; i++) {
 					PPEvict.threadCon1[i].stop();
 					PPEvict.threadCon2[i].stop();
 				}
-				
+
 			} else {
 				throw new ParseException("Invalid party, " + party
 						+ ", specified");

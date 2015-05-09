@@ -169,24 +169,24 @@ public class OPRF {
 
 	public Message prepare(ECPoint msg) throws CryptoException,
 			WrongPartyException {
-		//timing.stopwatch[PID.oprf][TID.offline].start();
+		// timing.stopwatch[PID.oprf][TID.offline].start();
 		BigInteger t = randomRange(n);
-		
+
 		ECPoint gt = g.multiply(t);
-		
+
 		ECPoint w = y.multiply(t).negate();
-		//timing.stopwatch[PID.oprf][TID.offline].stop();
-		
-		//timing.stopwatch[PID.oprf][TID.online].start();
+		// timing.stopwatch[PID.oprf][TID.offline].stop();
+
+		// timing.stopwatch[PID.oprf][TID.online].start();
 		ECPoint v = msg.add(gt);
-		//timing.stopwatch[PID.oprf][TID.online].stop();
-		
+		// timing.stopwatch[PID.oprf][TID.online].stop();
+
 		return new Message(v, w);
 	}
-	
+
 	public ECPoint[][] preparePairs(int length) {
 		ECPoint[][] gy = new ECPoint[2][length];
-		for (int i=0; i<length; i++) {
+		for (int i = 0; i < length; i++) {
 			BigInteger t = randomRange(n);
 			gy[0][i] = g.multiply(t);
 			gy[1][i] = y.multiply(t).negate();

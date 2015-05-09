@@ -25,18 +25,19 @@ public class XOT extends Operation {
 		super(con1, con2);
 	}
 
-	public BigInteger[] executeCharlie(Communication debbie, Communication eddie, Timing localTiming, int id, int i, int N, int k, int l) {
+	public BigInteger[] executeCharlie(Communication debbie,
+			Communication eddie, Timing localTiming, int id, int i, int N,
+			int k, int l) {
 		// protocol
 		// step 1
 		localTiming.stopwatch[PID.xot][TID.online_read].start();
 		byte[] msg_a = eddie.read();
-		
+
 		// step 2
 		byte[] msg_j = debbie.read();
 		byte[] msg_p = debbie.read();
 		localTiming.stopwatch[PID.xot][TID.online_read].stop();
 
-		
 		// step 3
 		localTiming.stopwatch[PID.xot][TID.online].start();
 		int[] j = new int[k];
@@ -44,43 +45,51 @@ public class XOT extends Operation {
 		BigInteger[] a = new BigInteger[N];
 		BigInteger[] z = new BigInteger[k];
 		int pBytes = (l + 7) / 8;
-		
+
 		for (int o = 0; o < N; o++) {
-			a[o] = new BigInteger(1, Arrays.copyOfRange(msg_a, o*pBytes, (o+1)*pBytes));
+			a[o] = new BigInteger(1, Arrays.copyOfRange(msg_a, o * pBytes,
+					(o + 1) * pBytes));
 		}
-		
+
 		for (int o = 0; o < k; o++) {
-			j[o] = new BigInteger(1, Arrays.copyOfRange(msg_j, o*4, (o+1)*4)).intValue();
-			p[o] = new BigInteger(1, Arrays.copyOfRange(msg_p, o*pBytes, (o+1)*pBytes));
+			j[o] = new BigInteger(1, Arrays.copyOfRange(msg_j, o * 4,
+					(o + 1) * 4)).intValue();
+			p[o] = new BigInteger(1, Arrays.copyOfRange(msg_p, o * pBytes,
+					(o + 1) * pBytes));
 			z[o] = a[j[o]].xor(p[o]);
 		}
 		localTiming.stopwatch[PID.xot][TID.online].stop();
 
-		
 		return z;
 	}
 
-	public void executeDebbie(Communication charlie, Communication eddie, Timing localTiming, int id, int i, int N, int k, int l, Integer[] ii, BigInteger[] delta) {
+	public void executeDebbie(Communication charlie, Communication eddie,
+			Timing localTiming, int id, int i, int N, int k, int l,
+			Integer[] ii, BigInteger[] delta) {
 		// protocol
 		// step 2
 		localTiming.stopwatch[PID.xot][TID.online].start();
 		int pBytes = (l + 7) / 8;
 		int[] j = new int[k];
 		byte[][] j_bytes = new byte[k][];
-		byte[] msg_j = new byte[k*4];
+		byte[] msg_j = new byte[k * 4];
 		byte[][] p = new byte[k][];
-		byte[] msg_p = new byte[k*pBytes];
-		
+		byte[] msg_p = new byte[k * pBytes];
+
 		for (int o = 0; o < k; o++) {
 			j[o] = PreData.xot_pi_ivs[id][i].get(ii[o]);
-			j_bytes[o] = BigInteger.valueOf(PreData.xot_pi_ivs[id][i].get(ii[o])).toByteArray();
+			j_bytes[o] = BigInteger.valueOf(
+					PreData.xot_pi_ivs[id][i].get(ii[o])).toByteArray();
 			p[o] = PreData.xot_r[id][i][j[o]].xor(delta[o]).toByteArray();
-			
-			System.arraycopy(j_bytes[o], 0, msg_j, (o+1)*4-j_bytes[o].length, j_bytes[o].length);
+
+			System.arraycopy(j_bytes[o], 0, msg_j, (o + 1) * 4
+					- j_bytes[o].length, j_bytes[o].length);
 			if (p[o].length < pBytes)
-				System.arraycopy(p[o], 0, msg_p, (o + 1) * pBytes - p[o].length, p[o].length);
+				System.arraycopy(p[o], 0, msg_p,
+						(o + 1) * pBytes - p[o].length, p[o].length);
 			else
-				System.arraycopy(p[o], p[o].length - pBytes, msg_p, o * pBytes, pBytes);
+				System.arraycopy(p[o], p[o].length - pBytes, msg_p, o * pBytes,
+						pBytes);
 		}
 		localTiming.stopwatch[PID.xot][TID.online].stop();
 
@@ -90,20 +99,25 @@ public class XOT extends Operation {
 		localTiming.stopwatch[PID.xot][TID.online_write].stop();
 	}
 
-	public void executeEddie(Communication charlie, Communication debbie, Timing localTiming, int id, int i, int N, int k, int l, BigInteger[] m) {
+	public void executeEddie(Communication charlie, Communication debbie,
+			Timing localTiming, int id, int i, int N, int k, int l,
+			BigInteger[] m) {
 		// protocol
 		// step 1
 		localTiming.stopwatch[PID.xot][TID.online].start();
 		int aBytes = (l + 7) / 8;
 		byte[][] a = new byte[N][];
-		byte[] msg_a = new byte[N*aBytes];
-		
+		byte[] msg_a = new byte[N * aBytes];
+
 		for (int o = 0; o < N; o++) {
-			a[o] = m[PreData.xot_pi[0][i].get(o)].xor(PreData.xot_r[0][i][o]).toByteArray();
+			a[o] = m[PreData.xot_pi[0][i].get(o)].xor(PreData.xot_r[0][i][o])
+					.toByteArray();
 			if (a[o].length < aBytes)
-				System.arraycopy(a[o], 0, msg_a, (o + 1) * aBytes - a[o].length, a[o].length);
+				System.arraycopy(a[o], 0, msg_a,
+						(o + 1) * aBytes - a[o].length, a[o].length);
 			else
-				System.arraycopy(a[o], a[o].length - aBytes, msg_a, o * aBytes, aBytes);
+				System.arraycopy(a[o], a[o].length - aBytes, msg_a, o * aBytes,
+						aBytes);
 		}
 		localTiming.stopwatch[PID.xot][TID.online].stop();
 
@@ -117,7 +131,7 @@ public class XOT extends Operation {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		System.out.println("#####  Testing XOT  #####");
-		
+
 		timing = new Timing();
 
 		int levels = ForestMetadata.getLevels();
@@ -131,7 +145,7 @@ public class XOT extends Operation {
 			PreData.xot_pi = (List<Integer>[][]) new List[2][levels];
 			PreData.xot_pi_ivs = (List<Integer>[][]) new List[2][levels];
 			PreData.xot_r = new BigInteger[2][levels][];
-			
+
 			PreData.xot_pi[id][i] = new ArrayList<Integer>();
 			for (int o = 0; o < N; o++)
 				PreData.xot_pi[id][i].add(o);
@@ -142,22 +156,22 @@ public class XOT extends Operation {
 			for (int o = 0; o < N; o++) {
 				PreData.xot_r[id][i][o] = new BigInteger(l, SR.rand);
 			}
-			
+
 			BigInteger[] m = new BigInteger[N];
 			Integer[] ii = new Integer[k];
 			BigInteger[] delta = new BigInteger[k];
-			
-			for (int o=0; o<N; o++) {
+
+			for (int o = 0; o < N; o++) {
 				m[o] = new BigInteger(l, SR.rand);
 			}
 			List<Integer> tmp = new ArrayList<Integer>();
-			for (int o=0; o<k; o++) {
+			for (int o = 0; o < k; o++) {
 				delta[o] = new BigInteger(l, SR.rand);
 				tmp.add(o);
 			}
 			Collections.shuffle(tmp, SR.rand);
 			tmp.toArray(ii);
-			
+
 			con2.write(i);
 			con2.write(N);
 			con2.write(k);
@@ -166,7 +180,7 @@ public class XOT extends Operation {
 			con2.write(PreData.xot_r[id][i]);
 			con2.write(ii);
 			con2.write(delta);
-			
+
 			con1.write(i);
 			con1.write(N);
 			con1.write(k);
@@ -190,7 +204,7 @@ public class XOT extends Operation {
 		} else if (party == Party.Debbie) {
 			PreData.xot_pi_ivs = (List<Integer>[][]) new List[2][levels];
 			PreData.xot_r = new BigInteger[2][levels][];
-			
+
 			int i = con2.readInt();
 			int N = con2.readInt();
 			int k = con2.readInt();

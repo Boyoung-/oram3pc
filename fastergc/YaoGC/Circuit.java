@@ -72,7 +72,7 @@ abstract public class Circuit implements TransitiveObserver {
 			inputWires[i].setReady(true);
 		}
 	}
-	
+
 	public void receiveTruthTables() {
 		for (int i = 0; i < this.inDegree; i++) {
 			inputWires[i].setReady(false);

@@ -21,8 +21,7 @@ import sprout.util.Util;
 // TODO: make a util function to return a random permutation
 // TODO: make permutation array of int instead of list of int
 
-public class Reshuffle extends
-		TreeOperation<BigInteger, BigInteger> {
+public class Reshuffle extends TreeOperation<BigInteger, BigInteger> {
 
 	public Reshuffle() {
 		super(null, null);
@@ -34,7 +33,8 @@ public class Reshuffle extends
 
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
-			Communication eddie, Tree unused, BigInteger sC_P, Timing localTiming) {
+			Communication eddie, Tree unused, BigInteger sC_P,
+			Timing localTiming) {
 		// i = 0 case: no reshuffle needed
 		if (i == 0) {
 			return sC_P;
@@ -62,7 +62,8 @@ public class Reshuffle extends
 
 	@Override
 	public BigInteger executeDebbieSubTree(Communication charlie,
-			Communication eddie, Tree unused, BigInteger unused2, Timing localTiming) {
+			Communication eddie, Tree unused, BigInteger unused2,
+			Timing localTiming) {
 		// protocol
 		// debbie does nothing online
 		return null;
@@ -70,7 +71,8 @@ public class Reshuffle extends
 
 	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
-			Communication debbie, Tree unused, BigInteger sE_P, Timing localTiming) {
+			Communication debbie, Tree unused, BigInteger sE_P,
+			Timing localTiming) {
 		// i = 0 case: no shuffle needed
 		if (i == 0) {
 			return sE_P;
@@ -101,13 +103,13 @@ public class Reshuffle extends
 
 		return sE_pi_P;
 	}
-	
+
 	// for testing correctness
 	@SuppressWarnings("unchecked")
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		System.out.println("#####  Testing Reshuffle  #####");
-		
+
 		timing = new Timing();
 
 		if (party == Party.Eddie) {
@@ -117,15 +119,18 @@ public class Reshuffle extends
 			PreData.reshuffle_r = new BigInteger[levels];
 			PreData.reshuffle_a_p = new BigInteger[levels][];
 			PreData.reshuffle_pi = (List<Integer>[]) new List[levels];
-			
+
 			loadTreeSpecificParameters(i);
 			PreData.reshuffle_pi[i] = new ArrayList<Integer>();
 			for (int j = 0; j < pathBuckets; j++)
 				PreData.reshuffle_pi[i].add(j);
 			Collections.shuffle(PreData.reshuffle_pi[i], SR.rand);
-			PreData.reshuffle_p[i] = new BigInteger(pathBuckets * bucketBits, SR.rand);
-			PreData.reshuffle_r[i] = new BigInteger(pathBuckets * bucketBits, SR.rand);
-			BigInteger a_all = PreData.reshuffle_p[i].xor(PreData.reshuffle_r[i]);
+			PreData.reshuffle_p[i] = new BigInteger(pathBuckets * bucketBits,
+					SR.rand);
+			PreData.reshuffle_r[i] = new BigInteger(pathBuckets * bucketBits,
+					SR.rand);
+			BigInteger a_all = PreData.reshuffle_p[i]
+					.xor(PreData.reshuffle_r[i]);
 			PreData.reshuffle_a_p[i] = new BigInteger[pathBuckets];
 			BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
 					BigInteger.ONE);
@@ -134,8 +139,9 @@ public class Reshuffle extends
 				PreData.reshuffle_a_p[i][j] = tmp.and(helper);
 				tmp = tmp.shiftRight(bucketBits);
 			}
-			PreData.reshuffle_a_p[i] = Util.permute(PreData.reshuffle_a_p[i], PreData.reshuffle_pi[i]);
-			
+			PreData.reshuffle_a_p[i] = Util.permute(PreData.reshuffle_a_p[i],
+					PreData.reshuffle_pi[i]);
+
 			BigInteger sC_P = new BigInteger(pathBuckets * bucketBits, SR.rand);
 			BigInteger sE_P = new BigInteger(pathBuckets * bucketBits, SR.rand);
 
@@ -143,13 +149,14 @@ public class Reshuffle extends
 			con1.write(PreData.reshuffle_p[i]);
 			con1.write(PreData.reshuffle_a_p[i]);
 			con1.write(sC_P);
-			
+
 			con2.write(i);
-			
-			BigInteger sE_pi_P = executeEddieSubTree(con1, con2, null, sE_P, null);
-			
+
+			BigInteger sE_pi_P = executeEddieSubTree(con1, con2, null, sE_P,
+					null);
+
 			BigInteger sC_pi_P = con1.readBigInteger();
-			
+
 			tmp = sC_P.xor(sE_P);
 			BigInteger[] path = new BigInteger[pathBuckets];
 			for (int j = pathBuckets - 1; j >= 0; j--) {
@@ -160,7 +167,7 @@ public class Reshuffle extends
 			BigInteger pi_path = BigInteger.ZERO;
 			for (int j = 0; j < pathBuckets; j++)
 				pi_path = pi_path.shiftLeft(bucketBits).xor(path[j]);
-			
+
 			System.out.println("levels = " + levels);
 			System.out.println("i = " + i);
 			if (pi_path.compareTo(sE_pi_P.xor(sC_pi_P)) == 0) {
@@ -170,22 +177,23 @@ public class Reshuffle extends
 			}
 		} else if (party == Party.Debbie) {
 			int i = con2.readInt();
-			
+
 			loadTreeSpecificParameters(i);
 			executeDebbieSubTree(con1, con2, null, null, null);
 		} else if (party == Party.Charlie) {
 			int levels = ForestMetadata.getLevels();
 			PreData.reshuffle_p = new BigInteger[levels];
 			PreData.reshuffle_a_p = new BigInteger[levels][];
-			
-			int i = con2.readInt();	
+
+			int i = con2.readInt();
 			PreData.reshuffle_p[i] = con2.readBigInteger();
 			PreData.reshuffle_a_p[i] = con2.readBigIntegerArray();
 			BigInteger sC_P = con2.readBigInteger();
 
 			loadTreeSpecificParameters(i);
-			BigInteger sC_pi_P = executeCharlieSubTree(con1, con2, null, sC_P, null);
-			
+			BigInteger sC_pi_P = executeCharlieSubTree(con1, con2, null, sC_P,
+					null);
+
 			con2.write(sC_pi_P);
 		}
 

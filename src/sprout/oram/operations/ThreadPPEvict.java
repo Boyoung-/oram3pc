@@ -31,84 +31,90 @@ public class ThreadPPEvict extends Operation {
 		AOutput AOut = access.executeCharlieSubTree(debbie, eddie, null,
 				new BigInteger[] { Li, sC_Nip1 }, null);
 		BigInteger[] output = new BigInteger[] { AOut.Lip1, AOut.data };
-		
+
 		// PP+Evict
 		Timing localTiming = new Timing();
-		PPEvict thread = new PPEvict(Party.Charlie, i, null, localTiming, new BigInteger[] {AOut.sC_Ti, Li, AOut.Lip1, AOut.j_2, AOut.sC_sig_P_p});
+		PPEvict thread = new PPEvict(Party.Charlie, i, null, localTiming,
+				new BigInteger[] { AOut.sC_Ti, Li, AOut.Lip1, AOut.j_2,
+						AOut.sC_sig_P_p });
 		thread.start();
-		
+
 		return Pair.of(thread, output);
 	}
 
-	public PPEvict executeDebbie(Communication charlie, Communication eddie, int i, Tree sD_OT, BigInteger sD_Nip1) {
+	public PPEvict executeDebbie(Communication charlie, Communication eddie,
+			int i, Tree sD_OT, BigInteger sD_Nip1) {
 		// Access
 		Access access = new Access(charlie, eddie);
 		access.loadTreeSpecificParameters(i);
-		access.executeDebbieSubTree(charlie, eddie, sD_OT, new BigInteger[]{sD_Nip1}, null);
-		
+		access.executeDebbieSubTree(charlie, eddie, sD_OT,
+				new BigInteger[] { sD_Nip1 }, null);
+
 		// PP+Evict
 		Timing localTiming = new Timing();
 		PPEvict thread = new PPEvict(Party.Debbie, i, sD_OT, localTiming, null);
 		thread.start();
-		
+
 		return thread;
 	}
 
-	public PPEvict executeEddie(Communication charlie, Communication debbie, int i, Tree sE_OT, BigInteger sE_Nip1) {
+	public PPEvict executeEddie(Communication charlie, Communication debbie,
+			int i, Tree sE_OT, BigInteger sE_Nip1) {
 		// Access
 		Access access = new Access(charlie, debbie);
 		access.loadTreeSpecificParameters(i);
-		AOutput AOut = access.executeEddieSubTree(charlie, debbie, sE_OT, new BigInteger[] {sE_Nip1}, null);
-			
+		AOutput AOut = access.executeEddieSubTree(charlie, debbie, sE_OT,
+				new BigInteger[] { sE_Nip1 }, null);
+
 		// PP+Evict
 		Timing localTiming = new Timing();
-		PPEvict thread = new PPEvict(Party.Eddie, i, sE_OT, localTiming, new BigInteger[]{AOut.sE_Ti, AOut.sE_sig_P_p});
+		PPEvict thread = new PPEvict(Party.Eddie, i, sE_OT, localTiming,
+				new BigInteger[] { AOut.sE_Ti, AOut.sE_sig_P_p });
 		thread.start();
-		
+
 		return thread;
 	}
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		int records = 1; // how many random records we want to test retrieval
-		int retrievals = 100; // for each record, how many repeated retrievals we
-							// want to do
+		int retrievals = 100; // for each record, how many repeated retrievals
+								// we
+								// want to do
 		/*
-		if (records < 2) {
-			System.err.println("Number of records must be at least 2 for average timing");
-			return;
-		}
-		else if (retrievals < 1) {
-			System.err.println("Number of retrievals must be at least 1");
-			return;
-		}
-		*/
-		
+		 * if (records < 2) { System.err.println(
+		 * "Number of records must be at least 2 for average timing"); return; }
+		 * else if (retrievals < 1) {
+		 * System.err.println("Number of retrievals must be at least 1");
+		 * return; }
+		 */
+
 		long numInsert = Math.min(ForestMetadata.getNumInsert(),
 				ForestMetadata.getAddressSpace());
 		if (numInsert == 0L) {
 			System.err.println("No record in the forest");
 			return;
 		}
-		
-		//int cycles = (records - 1) * retrievals; // first round timing is abandoned	
+
+		// int cycles = (records - 1) * retrievals; // first round timing is
+		// abandoned
 		int numTrees = ForestMetadata.getLevels();
 		int h = numTrees - 1;
 		int tau = ForestMetadata.getTau();
 		int lastNBits = ForestMetadata.getLastNBits();
 		int shiftN = lastNBits % tau;
 		if (shiftN == 0)
-			shiftN = tau;	
+			shiftN = tau;
 
 		// timing stuff
 		timing = new Timing();
-		
+
 		// threads init
 		PPEvict[] threads = new PPEvict[numTrees];
-		
+
 		// turn on bandwidth measurement
-		//con1.bandWidthSwitch = true;
-		//con2.bandWidthSwitch = true;
+		// con1.bandWidthSwitch = true;
+		// con2.bandWidthSwitch = true;
 
 		// sync TODO: check where?
 		if (ifSanityCheck())
@@ -116,11 +122,11 @@ public class ThreadPPEvict extends Operation {
 
 		StopWatch bp_whole = new StopWatch("ballpark_whole");
 		StopWatch bp_online = new StopWatch("ballpark_online");
-		
-		////////////////////////////////////////////
-		////////   main execution starts   /////////
-		////////////////////////////////////////////
-		
+
+		// //////////////////////////////////////////
+		// ////// main execution starts /////////
+		// //////////////////////////////////////////
+
 		for (int rec = 0; rec < records; rec++) {
 			// retrieve a record by picking a random N
 			BigInteger N = null;
@@ -131,28 +137,25 @@ public class ThreadPPEvict extends Operation {
 				if (numInsert == -1) {
 					N = new BigInteger(lastNBits, SR.rand);
 					sC_N = new BigInteger(lastNBits, SR.rand);
-				}
-				else {
+				} else {
 					N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
 					sC_N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
 				}
-				
-				//debug
-				//N = BigInteger.valueOf(3);
-				
+
+				// debug
+				// N = BigInteger.valueOf(3);
+
 				sE_N = N.xor(sC_N);
 				con1.write(sC_N);
 				con2.write(sE_N);
-			}
-			else if (party == Party.Debbie)
+			} else if (party == Party.Debbie)
 				sD_N = con1.readBigInteger();
 			else if (party == Party.Eddie)
 				sE_N = con1.readBigInteger();
-			
 
-			for (long retri = 0; retri < retrievals; retri++) {		
+			for (long retri = 0; retri < retrievals; retri++) {
 				bp_whole.start();
-				
+
 				// pre-computation
 				if (party == Party.Charlie)
 					new Precomputation(con1, con2).executeCharlieSubTree(con1,
@@ -172,10 +175,11 @@ public class ThreadPPEvict extends Operation {
 				if (party == Party.Charlie)
 					System.out.println("N=" + N.longValue() + " ("
 							+ Util.addZero(N.toString(2), lastNBits) + ")");
-				
-				// sync so online protocols for all parties start at the same time
+
+				// sync so online protocols for all parties start at the same
+				// time
 				sanityCheck();
-				
+
 				bp_online.start();
 
 				// for each retrieval, execute protocols on each tree
@@ -185,9 +189,9 @@ public class ThreadPPEvict extends Operation {
 					case Charlie:
 						BigInteger sC_Ni;
 						if (i < h - 1) {
-							sC_Ni = Util.getSubBits(sC_N, lastNBits - (i + 1) * tau,
-									lastNBits);
-						} else 
+							sC_Ni = Util.getSubBits(sC_N, lastNBits - (i + 1)
+									* tau, lastNBits);
+						} else
 							sC_Ni = sC_N;
 
 						System.out.println("i="
@@ -196,7 +200,8 @@ public class ThreadPPEvict extends Operation {
 								+ (Li == null ? "" : Util.addZero(
 										Li.toString(2),
 										ForestMetadata.getLBits(i))));
-						Pair<PPEvict, BigInteger[]> outPair = executeCharlie(con1, con2, i, Li, sC_Ni);
+						Pair<PPEvict, BigInteger[]> outPair = executeCharlie(
+								con1, con2, i, Li, sC_Ni);
 						BigInteger[] outC = outPair.getRight();
 						Li = outC[0];
 						if (i == h) {
@@ -218,25 +223,29 @@ public class ThreadPPEvict extends Operation {
 					case Debbie:
 						BigInteger sD_Ni;
 						if (i < h - 1) {
-							sD_Ni = Util.getSubBits(sD_N, lastNBits - (i + 1) * tau, lastNBits);
-						} else 
+							sD_Ni = Util.getSubBits(sD_N, lastNBits - (i + 1)
+									* tau, lastNBits);
+						} else
 							sD_Ni = sD_N;
-						threads[i] = executeDebbie(con1, con2, i, forest.getTree(i), sD_Ni);
+						threads[i] = executeDebbie(con1, con2, i,
+								forest.getTree(i), sD_Ni);
 						break;
 					case Eddie:
 						BigInteger sE_Ni;
 						if (i < h - 1) {
-							sE_Ni = Util.getSubBits(sE_N, lastNBits - (i + 1) * tau, lastNBits);
-						} else 
+							sE_Ni = Util.getSubBits(sE_N, lastNBits - (i + 1)
+									* tau, lastNBits);
+						} else
 							sE_Ni = sE_N;
-						threads[i] = executeEddie(con1, con2, i, forest.getTree(i), sE_Ni);
+						threads[i] = executeEddie(con1, con2, i,
+								forest.getTree(i), sE_Ni);
 						break;
 					}
 				}
-				
+
 				// wait for all threads to terminate
 				// so timing data can be gathered
-				
+
 				for (int i = 0; i < numTrees; i++)
 					try {
 						threads[i].join();
@@ -244,17 +253,15 @@ public class ThreadPPEvict extends Operation {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					
-				
 
 				// only need to count bandwidth once
 				con1.bandWidthSwitch = false;
 				con2.bandWidthSwitch = false;
-				
+
 				bp_online.stop();
 				bp_whole.stop();
-				
-				if (retri == (retrievals / 2) -1 ) {
+
+				if (retri == (retrievals / 2) - 1) {
 					bp_online.reset();
 					bp_whole.reset();
 					timing.reset();
@@ -265,15 +272,15 @@ public class ThreadPPEvict extends Operation {
 			// assert records > 1
 			if (rec == 0) {
 				;
-				//wholeExecution.start();
-				//bp_online.reset();
-				//bp_whole.reset();
+				// wholeExecution.start();
+				// bp_online.reset();
+				// bp_whole.reset();
 			}
 		}
-		
+
 		System.out.println(bp_whole.toTab());
 		System.out.println(bp_online.toTab());
-		
+
 		System.out.println("-------------------------");
 		System.out.println(timing.toTab());
 	}

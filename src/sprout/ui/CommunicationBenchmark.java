@@ -21,7 +21,8 @@ public class CommunicationBenchmark {
 	// should turn IPSec off, for hera.
 	public static final String DEFAULT_IP = "localhost";
 	public static final String DEFAULT_CONFIG_FILE = "config/newConfig.yaml";
-	//public static final String DEFAULT_DB_FILE = "files/forest.bin";
+
+	// public static final String DEFAULT_DB_FILE = "files/forest.bin";
 
 	// public static final String DEFAULT_DATA_FILE = "config/smallData.txt";
 

@@ -12,17 +12,17 @@ public class PreData {
 	public static byte[][] sscot_k;
 	public static byte[][] sscot_k_p;
 	public static BigInteger[][] sscot_r;
-	
+
 	// SSIOT
 	public static byte[][] ssiot_k;
 	public static byte[][] ssiot_k_p;
 	public static BigInteger[] ssiot_r;
-	
+
 	// Access
 	public static List<Integer>[] access_sigma;
 	public static BigInteger[] access_p;
 	public static BigInteger[] access_Li;
-	
+
 	// Reshuffle
 	public static BigInteger[] reshuffle_p;
 	public static BigInteger[] reshuffle_r;
@@ -50,7 +50,7 @@ public class PreData {
 	public static Circuit[][] gcf_gc_D;
 	public static Circuit[][] gcf_gc_E;
 	public static BigInteger[][][][] gcf_lbs;
-	
+
 	// Eviction
 	public static BigInteger[] evict_upxi;
 }

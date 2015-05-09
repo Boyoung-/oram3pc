@@ -22,7 +22,7 @@ public class StopWatch implements Serializable {
 	private long startCPUTime;
 
 	public static final int to_ms = 1000000; // from nanoseconds to milliseconds
-	
+
 	private boolean parallelTestSwitch = true;
 
 	public StopWatch() {
@@ -58,7 +58,7 @@ public class StopWatch implements Serializable {
 	public void start() {
 		if (!parallelTestSwitch)
 			return;
-		
+
 		if (running) {
 			System.err.println(task + ": StopWatch is alrealdy running.");
 			return;
@@ -72,7 +72,7 @@ public class StopWatch implements Serializable {
 	public void stop() {
 		if (!parallelTestSwitch)
 			return;
-		
+
 		if (!running) {
 			System.err.println(task + ":StopWatch is not running.");
 			return;
@@ -86,7 +86,7 @@ public class StopWatch implements Serializable {
 	public void reset() {
 		if (!parallelTestSwitch)
 			return;
-		
+
 		if (running) {
 			System.err.println(task
 					+ ": StopWatch is still running. Please stop first.");
@@ -99,9 +99,8 @@ public class StopWatch implements Serializable {
 
 	public StopWatch add_mut(StopWatch sw) {
 		if (task == null) {
-			; //TODO: fix
-		}
-		else if (!task.equals(sw.task) && (strict || sw.strict)) {
+			; // TODO: fix
+		} else if (!task.equals(sw.task) && (strict || sw.strict)) {
 			System.out.println("Warning: addition between different task!");
 		}
 
@@ -133,22 +132,22 @@ public class StopWatch implements Serializable {
 
 	@Override
 	public String toString() {
-		String out = " - Wall clock time(ms): " + elapsedWallClockTime
-				/ to_ms + "\n - CPU time(ms): " + elapsedCPUTime / to_ms;
+		String out = " - Wall clock time(ms): " + elapsedWallClockTime / to_ms
+				+ "\n - CPU time(ms): " + elapsedCPUTime / to_ms;
 		if (task == null)
 			return out;
 		return "Task: " + task + "\n" + out;
 	}
-	
+
 	public String toTab() {
-		String out = "\n WC(ms):\t" + (elapsedWallClockTime/to_ms) + 
-				"\nCPU(ms):\t" + (elapsedCPUTime/to_ms);
+		String out = "\n WC(ms):\t" + (elapsedWallClockTime / to_ms)
+				+ "\nCPU(ms):\t" + (elapsedCPUTime / to_ms);
 		if (task == null)
 			out = "Task: (un-specified)" + out;
 		else
 			out = "Task: " + task + out;
 		return out;
-			
+
 	}
 
 	public String toCSV() {
@@ -156,14 +155,15 @@ public class StopWatch implements Serializable {
 				+ "\n,CPU(ms)," + elapsedCPUTime / to_ms;
 		return csv;
 	}
-	
+
 	public String toNumber() {
 		String num = elapsedWallClockTime + "\n" + elapsedCPUTime;
 		return num;
 	}
-	
+
 	public String afterConversion() {
-		String num = elapsedWallClockTime / to_ms + "\n" + elapsedCPUTime / to_ms;
+		String num = elapsedWallClockTime / to_ms + "\n" + elapsedCPUTime
+				/ to_ms;
 		return num;
 	}
 

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 class RAFThread extends Thread {
-	
+
 	byte[] content;
 
 	public RAFThread(byte[] content) {
@@ -15,9 +15,9 @@ class RAFThread extends Thread {
 		RandomAccessFile raf;
 		try {
 			raf = new RandomAccessFile("c:/test/test.txt", "rw");
-	        raf.seek(0);
-	        raf.write(content, 0, content.length);
-	        raf.close();
+			raf.seek(0);
+			raf.write(content, 0, content.length);
+			raf.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -28,7 +28,7 @@ class RAFThread extends Thread {
 public class ThreadTest extends Thread {
 	public static void main(String args[]) {
 		byte[] in1 = new byte[50000000];
-		for (int i=0; i<in1.length; i++)
+		for (int i = 0; i < in1.length; i++)
 			in1[i] = 66;
 		byte[] in2 = new byte[in1.length];
 		RAFThread raft = new RAFThread(in1);

@@ -79,7 +79,7 @@ public class Communication {
 		mState = STATE_NONE;
 
 		bandwidth = new Bandwidth[PID.size];
-		for (int i=0; i<PID.size; i++) 
+		for (int i = 0; i < PID.size; i++)
 			bandwidth[i] = new Bandwidth(PID.names[i]);
 
 		sharedBandwidth = new Bandwidth("shared", false);

@@ -17,7 +17,7 @@ public class AES_PRF {
 
 	private Cipher cipher = null;
 	private int l; // output bit length
-	
+
 	private int maxInputBytes = 12;
 
 	public AES_PRF(int l) {
@@ -50,7 +50,8 @@ public class AES_PRF {
 	public byte[] compute(byte[] input) {
 		if (input.length > maxInputBytes)
 			try {
-				throw new Exception("input length error: " + input.length + " > " + maxInputBytes);
+				throw new Exception("input length error: " + input.length
+						+ " > " + maxInputBytes);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -78,7 +79,7 @@ public class AES_PRF {
 				e.printStackTrace();
 			}
 
-		//System.out.println(Arrays.toString(input));
+		// System.out.println(Arrays.toString(input));
 		byte[] ctext = null;
 		try {
 			ctext = cipher.doFinal(input);
@@ -89,7 +90,7 @@ public class AES_PRF {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//System.out.println(Arrays.toString(ctext));
+		// System.out.println(Arrays.toString(ctext));
 		if (np == 128)
 			return ctext;
 
@@ -106,8 +107,7 @@ public class AES_PRF {
 			output = tmp;
 		}
 
-
-		//System.out.println(Arrays.toString(output));
+		// System.out.println(Arrays.toString(output));
 		return output;
 	}
 
@@ -126,7 +126,8 @@ public class AES_PRF {
 		byte[] front = new byte[n * 16];
 		for (int i = 0; i < n; i++) {
 			byte[] index = BigInteger.valueOf(i + 1).toByteArray();
-			System.arraycopy(index, 0, in, 16 - maxInputBytes - index.length, index.length);
+			System.arraycopy(index, 0, in, 16 - maxInputBytes - index.length,
+					index.length);
 			byte[] seg = leq128(in, 128);
 			System.arraycopy(seg, 0, front, i * seg.length, seg.length);
 		}
@@ -136,7 +137,8 @@ public class AES_PRF {
 			return front;
 
 		byte[] index = BigInteger.valueOf(n + 1).toByteArray();
-		System.arraycopy(index, 0, in, 16 - maxInputBytes - index.length, index.length);
+		System.arraycopy(index, 0, in, 16 - maxInputBytes - index.length,
+				index.length);
 		byte[] back = leq128(in, np);
 		byte[] output = new BigInteger(1, front).shiftLeft(np)
 				.or(new BigInteger(1, back)).toByteArray();
@@ -181,7 +183,7 @@ public class AES_PRF {
 					break;
 				}
 			}
-			
+
 			System.out.println("done");
 
 		} catch (Exception e) {

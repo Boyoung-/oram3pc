@@ -3,34 +3,41 @@
 package YaoGC;
 
 public abstract class CompositeCircuit extends Circuit {
-    protected Circuit[] subCircuits;
-    protected int nSubCircuits;
+	protected Circuit[] subCircuits;
+	protected int nSubCircuits;
 
-    public CompositeCircuit(int inDegree, int outDegree, int nSubCircuits, String name) {
-	super(inDegree, outDegree, name);
+	public CompositeCircuit(int inDegree, int outDegree, int nSubCircuits,
+			String name) {
+		super(inDegree, outDegree, name);
 
-	this.nSubCircuits = nSubCircuits;
+		this.nSubCircuits = nSubCircuits;
 
-	subCircuits = new Circuit[nSubCircuits];
-    }
+		subCircuits = new Circuit[nSubCircuits];
+	}
 
-    public void build() throws Exception {
-	createInputWires();
-	createSubCircuits();
-	connectWires();
-	defineOutputWires();
-	fixInternalWires();
-    }
+	public void build() throws Exception {
+		createInputWires();
+		createSubCircuits();
+		connectWires();
+		defineOutputWires();
+		fixInternalWires();
+	}
 
-    protected void createSubCircuits() throws Exception {
-	for (int i = 0; i < nSubCircuits; i++)
-	    subCircuits[i].build();
-    }
+	protected void createSubCircuits() throws Exception {
+		for (int i = 0; i < nSubCircuits; i++)
+			subCircuits[i].build();
+	}
 
-    abstract protected void connectWires() throws Exception;
-    abstract protected void defineOutputWires();
-    protected void fixInternalWires() {}
+	abstract protected void connectWires() throws Exception;
 
-    protected void compute() {}
-    protected void execute(boolean evaluate) {}
+	abstract protected void defineOutputWires();
+
+	protected void fixInternalWires() {
+	}
+
+	protected void compute() {
+	}
+
+	protected void execute(boolean evaluate) {
+	}
 }

@@ -3,16 +3,16 @@
 package YaoGC;
 
 class G_OR_2_1 extends OR_2_1 {
-    public G_OR_2_1() {
-	super();
-    }
+	public G_OR_2_1() {
+		super();
+	}
 
-    protected void execYao() {
-	//fillTruthTable();
-	//encryptTruthTable();
-	//sendGTT();
-	//gtt = null;
-    }
+	protected void execYao() {
+		// fillTruthTable();
+		// encryptTruthTable();
+		// sendGTT();
+		// gtt = null;
+	}
 
 	@Override
 	protected void passTruthTable() {

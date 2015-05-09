@@ -15,5 +15,5 @@ public class PID {
 	public static final int xot = 9;
 
 	public static final String[] names = { "precomp", "access", "sscot",
-			"ssiot", "ppt", "reshuf", "evict", "gcf", "ssxot", "xot"};
+			"ssiot", "ppt", "reshuf", "evict", "gcf", "ssxot", "xot" };
 }

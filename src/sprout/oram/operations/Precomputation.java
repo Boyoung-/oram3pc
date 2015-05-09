@@ -33,7 +33,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			Communication eddie, Tree OT, Object unused, Timing localTiming) {
 		// Access
 		PreData.access_Li = new BigInteger[levels];
-		
+
 		// Reshuffle
 		byte[][] reshuffle_s1 = debbie.readDoubleByteArray();
 		PreData.reshuffle_p = new BigInteger[levels];
@@ -42,10 +42,10 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
 			PRG G = new PRG(pathBuckets * bucketBits);
-			PreData.reshuffle_p[i] = new BigInteger(1, G.compute(reshuffle_s1[i]));
+			PreData.reshuffle_p[i] = new BigInteger(1,
+					G.compute(reshuffle_s1[i]));
 			PreData.reshuffle_a_p[i] = debbie.readBigIntegerArray();
 		}
-		
 
 		// PPT
 		PreData.ppt_sC_Li_p = new BigInteger[levels];
@@ -56,15 +56,15 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.ppt_sC_Li_p[i] = new BigInteger(lBits, SR.rand);
 			PreData.ppt_sC_Lip1_p[i] = new BigInteger(d_ip1, SR.rand);
 		}
-		
+
 		PreData.ppt_r = new BigInteger[levels][];
 		PreData.ppt_alpha = new int[levels];
-		
+
 		for (int index = 0; index < levels; index++) {
 			PreData.ppt_alpha[index] = debbie.readInt();
 			PreData.ppt_r[index] = debbie.readBigIntegerArray();
 		}
-		
+
 		// XOT
 		PreData.xot_pi = (List<Integer>[][]) new List[1][levels];
 		PreData.xot_r = new BigInteger[1][levels][];
@@ -85,23 +85,22 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		PreData.sscot_k = new byte[levels][16];
 		PreData.sscot_k_p = new byte[levels][16];
 		PreData.sscot_r = new BigInteger[levels][];
-		
+
 		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
 			SR.rand.nextBytes(PreData.sscot_k[i]);
 			SR.rand.nextBytes(PreData.sscot_k_p[i]);
 			PreData.sscot_r[i] = new BigInteger[pathTuples];
-			for (int j=0; j<pathTuples; j++) {
+			for (int j = 0; j < pathTuples; j++) {
 				PreData.sscot_r[i][j] = new BigInteger(SR.kBits, SR.rand);
 			}
-			
+
 			eddie.write(PreData.sscot_r[i]);
 		}
-		
+
 		eddie.write(PreData.sscot_k);
 		eddie.write(PreData.sscot_k_p);
-		
-		
+
 		// SSIOT
 		PreData.ssiot_k = new byte[levels][16];
 		PreData.ssiot_k_p = new byte[levels][16];
@@ -116,10 +115,9 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		eddie.write(PreData.ssiot_k);
 		eddie.write(PreData.ssiot_k_p);
 		eddie.write(PreData.ssiot_r);
-		
-		
+
 		// Access
-		PreData.access_Li = new BigInteger[levels];		
+		PreData.access_Li = new BigInteger[levels];
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
 		PreData.access_p = new BigInteger[levels];
 
@@ -129,14 +127,14 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			for (int j = 0; j < pathBuckets; j++)
 				PreData.access_sigma[i].add(j);
 			Collections.shuffle(PreData.access_sigma[i], SR.rand);
-			PreData.access_p[i] = new BigInteger(pathTuples * tupleBits, SR.rand);
+			PreData.access_p[i] = new BigInteger(pathTuples * tupleBits,
+					SR.rand);
 		}
 
 		for (int index = 0; index < levels; index++) {
 			eddie.write(PreData.access_sigma[index]);
 		}
 		eddie.write(PreData.access_p);
-		
 
 		// Reshuffle
 		byte[][] reshuffle_s1 = new byte[levels][16];
@@ -148,13 +146,17 @@ public class Precomputation extends TreeOperation<Object, Object> {
 
 		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
-			PreData.reshuffle_pi[i] = Util.getInversePermutation(PreData.access_sigma[i]);
+			PreData.reshuffle_pi[i] = Util
+					.getInversePermutation(PreData.access_sigma[i]);
 			SR.rand.nextBytes(reshuffle_s1[i]);
 			SR.rand.nextBytes(reshuffle_s2[i]);
 			PRG G = new PRG(pathBuckets * bucketBits);
-			PreData.reshuffle_p[i] = new BigInteger(1, G.compute(reshuffle_s1[i]));
-			PreData.reshuffle_r[i] = new BigInteger(1, G.compute(reshuffle_s2[i]));
-			BigInteger a_all = PreData.reshuffle_p[i].xor(PreData.reshuffle_r[i]);
+			PreData.reshuffle_p[i] = new BigInteger(1,
+					G.compute(reshuffle_s1[i]));
+			PreData.reshuffle_r[i] = new BigInteger(1,
+					G.compute(reshuffle_s2[i]));
+			BigInteger a_all = PreData.reshuffle_p[i]
+					.xor(PreData.reshuffle_r[i]);
 			PreData.reshuffle_a_p[i] = new BigInteger[pathBuckets];
 			BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
 					BigInteger.ONE);
@@ -163,7 +165,8 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				PreData.reshuffle_a_p[i][j] = tmp.and(helper);
 				tmp = tmp.shiftRight(bucketBits);
 			}
-			PreData.reshuffle_a_p[i] = Util.permute(PreData.reshuffle_a_p[i], PreData.reshuffle_pi[i]);
+			PreData.reshuffle_a_p[i] = Util.permute(PreData.reshuffle_a_p[i],
+					PreData.reshuffle_pi[i]);
 		}
 
 		eddie.write(reshuffle_s2);
@@ -171,30 +174,31 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		for (int index = 0; index < levels; index++) {
 			charlie.write(PreData.reshuffle_a_p[index]);
 		}
-		
+
 		// PPT
 		PreData.ppt_sE_Lip1_p = eddie.readBigIntegerArray();
-		
+
 		PreData.ppt_r = new BigInteger[levels][twotaupow];
 		PreData.ppt_r_p = new BigInteger[levels][twotaupow];
 		PreData.ppt_alpha = new int[levels];
-		
+
 		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
-			for (int j=0; j<twotaupow; j++) {
+			for (int j = 0; j < twotaupow; j++) {
 				PreData.ppt_r[i][j] = new BigInteger(d_ip1, SR.rand);
 				PreData.ppt_r_p[i][j] = PreData.ppt_r[i][j];
 			}
 			PreData.ppt_alpha[i] = SR.rand.nextInt(twotaupow);
-			PreData.ppt_r_p[i][PreData.ppt_alpha[i]] = PreData.ppt_r[i][PreData.ppt_alpha[i]].xor(PreData.ppt_sE_Lip1_p[i]);
+			PreData.ppt_r_p[i][PreData.ppt_alpha[i]] = PreData.ppt_r[i][PreData.ppt_alpha[i]]
+					.xor(PreData.ppt_sE_Lip1_p[i]);
 		}
-		
+
 		for (int index = 0; index < levels; index++) {
 			charlie.write(PreData.ppt_alpha[index]);
 			charlie.write(PreData.ppt_r[index]);
 			eddie.write(PreData.ppt_r_p[index]);
 		}
-		
+
 		// XOT
 		PreData.xot_pi = (List<Integer>[][]) new List[2][levels];
 		PreData.xot_pi_ivs = (List<Integer>[][]) new List[2][levels];
@@ -205,9 +209,9 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			int l = tupleBits;
 			int k = w * pathBuckets;
 			int N = k + 2;
-			
+
 			for (int id = 0; id < 2; id++) {
-				PreData.xot_pi[id][i] = new ArrayList<Integer>(); 
+				PreData.xot_pi[id][i] = new ArrayList<Integer>();
 				for (int o = 0; o < N; o++)
 					PreData.xot_pi[id][i].add(o);
 				Collections.shuffle(PreData.xot_pi[id][i], SR.rand);
@@ -219,28 +223,27 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				}
 			}
 		}
-		
+
 		for (int index = 0; index < levels; index++) {
 			charlie.write(PreData.xot_pi[0][index]);
 			charlie.write(PreData.xot_r[0][index]);
 			eddie.write(PreData.xot_pi[1][index]);
 			eddie.write(PreData.xot_r[1][index]);
 		}
-			
+
 		// SSXOT
 		PreData.ssxot_delta = new BigInteger[levels][];
-		
+
 		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
 			int l = tupleBits;
 			int k = w * pathBuckets;
-			
+
 			PreData.ssxot_delta[i] = new BigInteger[k];
 			for (int o = 0; o < k; o++) {
 				PreData.ssxot_delta[i][o] = new BigInteger(l, SR.rand);
 			}
 		}
-		
 
 		// GCF
 		PreData.gcf_gc_D = new Circuit[levels][];
@@ -251,7 +254,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			for (int j = 0; j < d_i + 1; j++) {
 				int ww = (j != d_i) ? w : (w * expen);
 				Circuit.isForGarbling = false;
-				//Circuit.timing = timing;
+				// Circuit.timing = timing;
 				Circuit.setSender(eddie);
 				PreData.gcf_gc_D[i][j] = (j != d_i) ? new F2FT_2Wplus2_Wplus2(
 						ww, 1, 1) : new F2ET_Wplus2_Wplus2(ww, 1, 1);
@@ -263,19 +266,20 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				for (int k = 0; k < PreData.gcf_gc_D[i][j].outputWires.length; k++)
 					// TODO: not a good way; should define a function
 					PreData.gcf_gc_D[i][j].outputWires[k].outBitEncPair = new BigInteger[2];
-				
+
 				PreData.gcf_gc_D[i][j].receiveTruthTables();
 			}
 		}
-		
+
 		// Eviction
 		PreData.evict_upxi = new BigInteger[levels];
-		
+
 		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
-			PreData.evict_upxi[i] = new BigInteger(pathBuckets*bucketBits, SR.rand);
+			PreData.evict_upxi[i] = new BigInteger(pathBuckets * bucketBits,
+					SR.rand);
 		}
-		
+
 		eddie.write(PreData.evict_upxi);
 
 		return null;
@@ -287,21 +291,19 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			Communication debbie, Tree OT, Object unused, Timing localTiming) {
 		// SSCOT
 		PreData.sscot_r = new BigInteger[levels][];
-		
+
 		for (int index = 0; index < levels; index++) {
 			PreData.sscot_r[index] = debbie.readBigIntegerArray();
 		}
-		
+
 		PreData.sscot_k = debbie.readDoubleByteArray();
 		PreData.sscot_k_p = debbie.readDoubleByteArray();
-		
-		
+
 		// SSIOT
 		PreData.ssiot_k = debbie.readDoubleByteArray();
 		PreData.ssiot_k_p = debbie.readDoubleByteArray();
 		PreData.ssiot_r = debbie.readBigIntegerArray();
-		
-		
+
 		// Access
 		PreData.access_Li = new BigInteger[levels];
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
@@ -310,8 +312,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.access_sigma[index] = debbie.readListInt();
 		}
 		PreData.access_p = debbie.readBigIntegerArray();
-		
-		
+
 		// Reshuffle
 		byte[][] reshuffle_s2 = debbie.readDoubleByteArray();
 		PreData.reshuffle_r = new BigInteger[levels];
@@ -322,7 +323,8 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.reshuffle_pi[i] = Util
 					.getInversePermutation(PreData.access_sigma[i]);
 			PRG G = new PRG(pathBuckets * bucketBits);
-			PreData.reshuffle_r[i] = new BigInteger(1, G.compute(reshuffle_s2[i]));
+			PreData.reshuffle_r[i] = new BigInteger(1,
+					G.compute(reshuffle_s2[i]));
 		}
 
 		// PPT
@@ -334,15 +336,15 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.ppt_sE_Li_p[i] = new BigInteger(lBits, SR.rand);
 			PreData.ppt_sE_Lip1_p[i] = new BigInteger(d_ip1, SR.rand);
 		}
-		
+
 		debbie.write(PreData.ppt_sE_Lip1_p);
-		
+
 		PreData.ppt_r_p = new BigInteger[levels][];
-		
+
 		for (int index = 0; index < levels; index++) {
 			PreData.ppt_r_p[index] = debbie.readBigIntegerArray();
 		}
-		
+
 		// XOT
 		PreData.xot_pi = (List<Integer>[][]) new List[1][levels];
 		PreData.xot_r = new BigInteger[1][levels][];
@@ -351,7 +353,6 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.xot_pi[0][index] = debbie.readListInt();
 			PreData.xot_r[0][index] = debbie.readBigIntegerArray();
 		}
-		
 
 		// GCF
 		PreData.gcf_gc_E = new Circuit[levels][];
@@ -368,7 +369,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 				int s1 = Math.min(tmp1, tmp2);
 				int s2 = Math.max(tmp1, tmp2);
 				Circuit.isForGarbling = true;
-				//Circuit.timing = timing;
+				// Circuit.timing = timing;
 				Circuit.setReceiver(debbie);
 				PreData.gcf_gc_E[i][j] = (j != d_i) ? new F2FT_2Wplus2_Wplus2(
 						ww, s1, s2) : new F2ET_Wplus2_Wplus2(ww, s1, s2);
@@ -392,18 +393,18 @@ public class Precomputation extends TreeOperation<Object, Object> {
 					PreData.gcf_lbs[i][j][k][1] = glb1;
 					K_E[k] = PreData.gcf_lbs[i][j][k][0];
 				}
-				
+
 				State in_E = State.fromLabels(K_E);
 				PreData.gcf_gc_E[i][j].sendTruthTables(in_E);
 			}
 		}
-		
+
 		// Eviction
 		PreData.evict_upxi = debbie.readBigIntegerArray();
 
 		return null;
 	}
-	
+
 	// for testing correctness
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {

@@ -13,7 +13,7 @@ public class Forest {
 	// TODO: write large data to disk
 	private static ByteArray64 data1;
 	private static ByteArray64 data2;
-	
+
 	private static String forestFile;
 	private static boolean loadMemory = true;
 
@@ -23,26 +23,23 @@ public class Forest {
 		for (int i = 0; i < levels; i++)
 			trees.add(new Tree(i));
 	}
-	
+
 	/*
-	public static String[] getDefaultFileNames() {
-		int t = ForestMetadata.getTau();
-		int n = ForestMetadata.getLastNBits();
-		int w = ForestMetadata.getBucketDepth();
-		int d = ForestMetadata.getDataSize();
-		long r = ForestMetadata.getNumInsert();
-		defaultFile1 = "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r + "_share1.bin";
-		defaultFile2 = "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r + "_share2.bin";
-		return new String[]{defaultFile1, defaultFile2};
-	}
-	*/
-	
+	 * public static String[] getDefaultFileNames() { int t =
+	 * ForestMetadata.getTau(); int n = ForestMetadata.getLastNBits(); int w =
+	 * ForestMetadata.getBucketDepth(); int d = ForestMetadata.getDataSize();
+	 * long r = ForestMetadata.getNumInsert(); defaultFile1 = "files/forest_t" +
+	 * t + "n" + n + "w" + w + "d" + d + "_r" + r + "_share1.bin"; defaultFile2
+	 * = "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r +
+	 * "_share2.bin"; return new String[]{defaultFile1, defaultFile2}; }
+	 */
+
 	public Forest(String mode) throws Exception {
 		if (!ForestMetadata.getStatus())
 			throw new ForestException("ForestMetadata is not setup");
-		
+
 		String[] defaultFilenames = ForestMetadata.getDefaultForestNames();
-		
+
 		if (mode.equals("init"))
 			initForest(defaultFilenames[0], defaultFilenames[1]);
 		else if (mode.equals("restore"))
@@ -50,11 +47,12 @@ public class Forest {
 		else
 			throw new ForestException("Unrecognized forest mode");
 	}
-	
-	public Forest(String mode, String filename1, String filename2) throws Exception {
+
+	public Forest(String mode, String filename1, String filename2)
+			throws Exception {
 		if (!ForestMetadata.getStatus())
 			throw new ForestException("ForestMetadata is not setup");
-				
+
 		if (mode.equals("init"))
 			initForest(filename1, filename2);
 		else if (mode.equals("restore"))
@@ -72,7 +70,8 @@ public class Forest {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void initForest(String filename1, String filename2) throws Exception {
+	private void initForest(String filename1, String filename2)
+			throws Exception {
 		loadMemory = true;
 		data1 = new ByteArray64(ForestMetadata.getForestBytes());
 
@@ -184,21 +183,22 @@ public class Forest {
 		}
 
 		Util.disp("");
-		
+
 		// TODO: for testing
-		//data1.writeToFile(ForestMetadata.getDefaultForestNames()[2]);
+		// data1.writeToFile(ForestMetadata.getDefaultForestNames()[2]);
 
 		// TODO: these two lines are real xors
-		//data2 = new ByteArray64(ForestMetadata.getForestBytes(), "random");
-		//data1.setXOR(data2);
-		
+		// data2 = new ByteArray64(ForestMetadata.getForestBytes(), "random");
+		// data1.setXOR(data2);
+
 		// TODO: these line are for testing
 		data2 = new ByteArray64(ForestMetadata.getForestBytes(), "empty");
 
 		writeToFile(filename1, filename2);
 	}
 
-	public void writeToFile(String filename1, String filename2) throws IOException {
+	public void writeToFile(String filename1, String filename2)
+			throws IOException {
 		// File file = new File(filename);
 		// FileUtils.writeByteArrayToFile(file, data);
 		data1.writeToFile(filename1);
@@ -228,8 +228,7 @@ public class Forest {
 	public static byte[] getForestData(long offset, int length) {
 		if (loadMemory)
 			return data1.getBytes(offset, length);
-		
-		
+
 		byte[] content = new byte[length];
 		try {
 			RandomAccessFile raf = new RandomAccessFile(forestFile, "r");
@@ -254,8 +253,7 @@ public class Forest {
 			data1.setBytes(offset, newData);
 			return;
 		}
-		
-		
+
 		try {
 			RandomAccessFile raf = new RandomAccessFile(forestFile, "rw");
 			raf.seek(offset);

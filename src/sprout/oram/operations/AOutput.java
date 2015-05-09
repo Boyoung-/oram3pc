@@ -14,8 +14,8 @@ public class AOutput {
 	AOutput() {
 	}
 
-	AOutput(BigInteger l, BigInteger ct, BigInteger et,
-			BigInteger cp, BigInteger ep, BigInteger d, BigInteger j2) {
+	AOutput(BigInteger l, BigInteger ct, BigInteger et, BigInteger cp,
+			BigInteger ep, BigInteger d, BigInteger j2) {
 		Lip1 = l;
 		sC_Ti = ct;
 		sE_Ti = et;

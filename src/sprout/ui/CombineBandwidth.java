@@ -63,7 +63,7 @@ public class CombineBandwidth {
 			a = readFromFile("stats/" + args[0] + "-bandwidth-1" + suffix);
 			b = readFromFile("stats/" + args[0] + "-bandwidth-2" + suffix);
 			a = add(a, b);
-			//printTSVFull(a);
+			// printTSVFull(a);
 			printVertical(a);
 		} else if (args.length == 0) {
 			a = readFromFile("stats/charlie-bandwidth-1" + suffix);

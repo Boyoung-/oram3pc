@@ -34,16 +34,16 @@ public class ByteArray64 {
 		init();
 		readFromFile(file);
 	}
-	
+
 	public ByteArray64(long size, String mode) {
 		this.size = size;
 		init();
 		if (mode.equals("random") && size > 0)
 			randomContent();
 	}
-	
+
 	private void randomContent() {
-		for (int i=0; i<data.length; i++)
+		for (int i = 0; i < data.length; i++)
 			SR.rand.nextBytes(data[i]);
 	}
 
@@ -66,14 +66,14 @@ public class ByteArray64 {
 	public long size() {
 		return size;
 	}
-	
+
 	public int chunks() {
 		if (data == null)
 			return 0;
 		else
 			return data.length;
 	}
-	
+
 	public byte[][] getData() {
 		return data;
 	}
@@ -190,7 +190,7 @@ public class ByteArray64 {
 			System.out.println("ByteArray64.readFromFile(): data is null.");
 			return;
 		}
-		
+
 		FileInputStream fileInputStream = FileUtils.openInputStream(file);
 		for (int i = 0; i < data.length; i++) {
 			if (fileInputStream.read(data[i]) != data[i].length) {
@@ -211,25 +211,24 @@ public class ByteArray64 {
 		for (int i = 0; i < data.length; i++)
 			FileUtils.writeByteArrayToFile(file, data[i], true);
 	}
-	
+
 	// set the data to be XORed with another array
 	public void setXOR(ByteArray64 array2) {
 		if (size <= 0) {
 			System.out.println("ByteArray64.setXOR(): data is empty.");
 			return;
-		}
-		else if (array2.size() <= 0) {
+		} else if (array2.size() <= 0) {
 			System.out.println("ByteArray64.setXOR(): array2's data is empty.");
 			return;
-		}
-		else if (size != array2.size()) {
-			System.out.println("ByteArray64.setXOR(): two arrays have different sizes.");
+		} else if (size != array2.size()) {
+			System.out
+					.println("ByteArray64.setXOR(): two arrays have different sizes.");
 			return;
 		}
 
 		byte[][] array2data = array2.getData();
-		for (int i=0; i<data.length; i++)
-			for (int j=0; j<data[i].length; j++)
+		for (int i = 0; i < data.length; i++)
+			for (int j = 0; j < data[i].length; j++)
 				data[i][j] = (byte) (data[i][j] ^ array2data[i][j]);
 	}
 
@@ -259,14 +258,18 @@ public class ByteArray64 {
 		output = t4.getBytes(0, 30);
 		for (int i = 0; i < output.length; i++)
 			System.out.println(output[i]);
-		
+
 		ByteArray64 t5 = new ByteArray64(1, "random");
 		ByteArray64 t6 = new ByteArray64(1, "random");
-		System.out.println(Util.addZero(new BigInteger(1, t5.getBytes(0, 1)).toString(2), 8));
-		System.out.println(Util.addZero(new BigInteger(1, t6.getBytes(0, 1)).toString(2), 8));
+		System.out.println(Util.addZero(
+				new BigInteger(1, t5.getBytes(0, 1)).toString(2), 8));
+		System.out.println(Util.addZero(
+				new BigInteger(1, t6.getBytes(0, 1)).toString(2), 8));
 		t5.setXOR(t6);
-		System.out.println(Util.addZero(new BigInteger(1, t5.getBytes(0, 1)).toString(2), 8));
-		System.out.println(Util.addZero(new BigInteger(1, t6.getBytes(0, 1)).toString(2), 8));
+		System.out.println(Util.addZero(
+				new BigInteger(1, t5.getBytes(0, 1)).toString(2), 8));
+		System.out.println(Util.addZero(
+				new BigInteger(1, t6.getBytes(0, 1)).toString(2), 8));
 	}
 
 }

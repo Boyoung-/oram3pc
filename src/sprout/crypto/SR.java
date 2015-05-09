@@ -27,11 +27,11 @@ public class SR {
 		}
 
 		p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p =
-																			// 2^34
-																			// -
-																			// 41
+																// 2^34
+																// -
+																// 41
 		skey = PRG.readKey();
-		
+
 		kBits = 80;
 		kBytes = (kBits + 7) / 8;
 	}

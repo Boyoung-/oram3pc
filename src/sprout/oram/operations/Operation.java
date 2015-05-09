@@ -84,11 +84,11 @@ public abstract class Operation {
 		// + dbFile);
 		// }
 
-		//try {
-		//	ForestMetadata.setup(configFile);
-		//} catch (FileNotFoundException e) {
-		//	e.printStackTrace();
-		//}
+		// try {
+		// ForestMetadata.setup(configFile);
+		// } catch (FileNotFoundException e) {
+		// e.printStackTrace();
+		// }
 		Forest forest = null;
 		if (party == Party.Eddie) {
 			if (build)
@@ -100,17 +100,19 @@ public abstract class Operation {
 			else {
 				try {
 					forest = new Forest("restore");
-					//System.out.println("16 bits: " + Util.addZero(new BigInteger(1, Forest.getForestData(0, 2)).toString(2), 16));
+					// System.out.println("16 bits: " + Util.addZero(new
+					// BigInteger(1, Forest.getForestData(0, 2)).toString(2),
+					// 16));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-		}
-		else if (party == Party.Debbie) {
+		} else if (party == Party.Debbie) {
 			try {
 				forest = new Forest("restore",
 						ForestMetadata.getDefaultForestNames()[1], null);
-				//System.out.println("16 bits: " + Util.addZero(new BigInteger(1, Forest.getForestData(0, 2)).toString(2), 16));
+				// System.out.println("16 bits: " + Util.addZero(new
+				// BigInteger(1, Forest.getForestData(0, 2)).toString(2), 16));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

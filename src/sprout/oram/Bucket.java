@@ -6,35 +6,26 @@ import sprout.util.Util;
 
 public class Bucket {
 	private int treeIndex;
-	//private byte[] nonce;
+	// private byte[] nonce;
 	private byte[] tuples;
 
 	/*
-	public Bucket(int treeIndex, byte[] nonce, byte[] tuples)
-			throws BucketException {
-		this.treeIndex = treeIndex;
-		setBucket(nonce, tuples);
-	}
+	 * public Bucket(int treeIndex, byte[] nonce, byte[] tuples) throws
+	 * BucketException { this.treeIndex = treeIndex; setBucket(nonce, tuples); }
+	 * 
+	 * public Bucket(int treeIndex, byte[] nt) throws BucketException {
+	 * this.treeIndex = treeIndex; setBucket(nt); }
+	 * 
+	 * public Bucket(int treeIndex, byte[] nonce, Tuple[] tuples) throws
+	 * BucketException { this.treeIndex = treeIndex; setBucket(nonce, tuples); }
+	 */
 
-	public Bucket(int treeIndex, byte[] nt) throws BucketException {
-		this.treeIndex = treeIndex;
-		setBucket(nt);
-	}
-
-	public Bucket(int treeIndex, byte[] nonce, Tuple[] tuples)
-			throws BucketException {
-		this.treeIndex = treeIndex;
-		setBucket(nonce, tuples);
-	}
-	*/
-	
 	public Bucket(int treeIndex, byte[] tuples) {
 		this.treeIndex = treeIndex;
 		setTuples(tuples);
 	}
-	
-	public Bucket(int treeIndex, Tuple[] tuples)
-			throws BucketException {
+
+	public Bucket(int treeIndex, Tuple[] tuples) throws BucketException {
 		this.treeIndex = treeIndex;
 		setTuples(tuples);
 	}
@@ -44,43 +35,29 @@ public class Bucket {
 	}
 
 	/*
-	public void setBucket(byte[] nonce, byte[] tuples) throws BucketException {
-		setNonce(nonce);
-		setTuples(tuples);
-	}
-
-	public void setBucket(byte[] nonce, Tuple[] tuples) throws BucketException {
-		setNonce(nonce);
-		setTuples(tuples);
-	}
-
-	public void setBucket(byte[] nt) throws BucketException {
-		int nonceBytes = ForestMetadata.getNonceBytes();
-		int bucketTupleBytes = ForestMetadata.getBucketTupleBytes(treeIndex);
-		if (nt.length != (nonceBytes + bucketTupleBytes))
-			throw new BucketException("Bucket length error");
-
-		byte[] n = Arrays.copyOfRange(nt, 0, nonceBytes);
-		byte[] t = Arrays.copyOfRange(nt, nonceBytes, nt.length);
-		setBucket(n, t);
-	}
-
-	public void setNonce(byte[] nonce) throws BucketException {
-		if (nonce == null) {
-			this.nonce = null;
-			return;
-		}
-
-		int nonceBytes = ForestMetadata.getNonceBytes();
-		if (nonce.length > nonceBytes)
-			throw new BucketException("Nonce length error");
-		else {
-			this.nonce = new byte[nonceBytes];
-			System.arraycopy(nonce, 0, this.nonce, nonceBytes - nonce.length,
-					nonce.length);
-		}
-	}
-	*/
+	 * public void setBucket(byte[] nonce, byte[] tuples) throws BucketException
+	 * { setNonce(nonce); setTuples(tuples); }
+	 * 
+	 * public void setBucket(byte[] nonce, Tuple[] tuples) throws
+	 * BucketException { setNonce(nonce); setTuples(tuples); }
+	 * 
+	 * public void setBucket(byte[] nt) throws BucketException { int nonceBytes
+	 * = ForestMetadata.getNonceBytes(); int bucketTupleBytes =
+	 * ForestMetadata.getBucketTupleBytes(treeIndex); if (nt.length !=
+	 * (nonceBytes + bucketTupleBytes)) throw new
+	 * BucketException("Bucket length error");
+	 * 
+	 * byte[] n = Arrays.copyOfRange(nt, 0, nonceBytes); byte[] t =
+	 * Arrays.copyOfRange(nt, nonceBytes, nt.length); setBucket(n, t); }
+	 * 
+	 * public void setNonce(byte[] nonce) throws BucketException { if (nonce ==
+	 * null) { this.nonce = null; return; }
+	 * 
+	 * int nonceBytes = ForestMetadata.getNonceBytes(); if (nonce.length >
+	 * nonceBytes) throw new BucketException("Nonce length error"); else {
+	 * this.nonce = new byte[nonceBytes]; System.arraycopy(nonce, 0, this.nonce,
+	 * nonceBytes - nonce.length, nonce.length); } }
+	 */
 
 	public void setTuples(byte[] tuples) {
 		int bucketTupleBytes = ForestMetadata.getBucketTupleBytes(treeIndex);
@@ -156,10 +133,8 @@ public class Bucket {
 	}
 
 	/*
-	public byte[] getNonce() {
-		return nonce;
-	}
-	*/
+	 * public byte[] getNonce() { return nonce; }
+	 */
 
 	public byte[] getByteTuples() {
 		return tuples;
@@ -199,7 +174,7 @@ public class Bucket {
 	}
 
 	public byte[] toByteArray() {
-		//return ArrayUtils.addAll(nonce, tuples);
+		// return ArrayUtils.addAll(nonce, tuples);
 		return tuples;
 	}
 
@@ -210,12 +185,10 @@ public class Bucket {
 		builder.append("Bucket-" + treeIndex + ": ");
 
 		/*
-		builder.append("Nonce(16)=");
-		if (nonce == null)
-			builder.append("null, ");
-		else
-			builder.append(new BigInteger(1, nonce).toString(16) + ", ");
-		*/
+		 * builder.append("Nonce(16)="); if (nonce == null)
+		 * builder.append("null, "); else builder.append(new BigInteger(1,
+		 * nonce).toString(16) + ", ");
+		 */
 
 		builder.append("Tuples(16)=" + new BigInteger(1, tuples).toString(16));
 		// builder.append("Tuples(2)=" + Util.addZero(new BigInteger(1,

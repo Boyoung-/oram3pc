@@ -20,12 +20,10 @@ public class CombineTiming {
 			if (args[0].equals("eddie")) {
 				E.readFromFile("stats/timing-eddie" + suffix);
 				System.out.println(E.afterConversion() + "\n\n");
-			}
-			else if (args[0].equals("debbie")) {
+			} else if (args[0].equals("debbie")) {
 				D.readFromFile("stats/timing-debbie" + suffix);
 				System.out.println(D.afterConversion() + "\n\n");
-			}
-			else {
+			} else {
 				C.readFromFile("stats/timing-charlie" + suffix);
 				System.out.println(C.afterConversion() + "\n\n");
 			}
