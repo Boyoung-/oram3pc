@@ -15,7 +15,7 @@ public class Forest {
 	private static ByteArray64 data2;
 	
 	private static String forestFile;
-	private static boolean initForest = false;
+	private static boolean loadMemory = true;
 
 	private void initTrees() {
 		int levels = ForestMetadata.getLevels();
@@ -65,13 +65,15 @@ public class Forest {
 
 	private void restoreForest(String filename) throws IOException {
 		initTrees();
-		//readFromFile(filename);
-		forestFile = filename;
+		if (loadMemory)
+			readFromFile(filename);
+		else
+			forestFile = filename;
 	}
 
 	@SuppressWarnings("unchecked")
 	private void initForest(String filename1, String filename2) throws Exception {
-		initForest = true;
+		loadMemory = true;
 		data1 = new ByteArray64(ForestMetadata.getForestBytes());
 
 		int levels = ForestMetadata.getLevels();
@@ -224,7 +226,7 @@ public class Forest {
 
 	// TODO: thread-safe read/write??
 	public static byte[] getForestData(long offset, int length) {
-		if (initForest)
+		if (loadMemory)
 			return data1.getBytes(offset, length);
 		
 		
@@ -248,7 +250,7 @@ public class Forest {
 	}
 
 	public static void setForestData(long offset, byte[] newData) {
-		if (initForest) {
+		if (loadMemory) {
 			data1.setBytes(offset, newData);
 			return;
 		}
