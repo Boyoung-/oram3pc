@@ -15,6 +15,7 @@ public class Forest {
 	private static ByteArray64 data2;
 	
 	private static String forestFile;
+	private static boolean initForest = false;
 
 	private void initTrees() {
 		int levels = ForestMetadata.getLevels();
@@ -70,6 +71,7 @@ public class Forest {
 
 	@SuppressWarnings("unchecked")
 	private void initForest(String filename1, String filename2) throws Exception {
+		initForest = true;
 		data1 = new ByteArray64(ForestMetadata.getForestBytes());
 
 		int levels = ForestMetadata.getLevels();
@@ -222,7 +224,10 @@ public class Forest {
 
 	// TODO: thread-safe read/write??
 	public static byte[] getForestData(long offset, int length) {
-		//return data1.getBytes(offset, length);
+		if (initForest)
+			return data1.getBytes(offset, length);
+		
+		
 		byte[] content = new byte[length];
 		try {
 			RandomAccessFile raf = new RandomAccessFile(forestFile, "r");
@@ -243,7 +248,12 @@ public class Forest {
 	}
 
 	public static void setForestData(long offset, byte[] newData) {
-		//data1.setBytes(offset, newData);
+		if (initForest) {
+			data1.setBytes(offset, newData);
+			return;
+		}
+		
+		
 		try {
 			RandomAccessFile raf = new RandomAccessFile(forestFile, "rw");
 			raf.seek(offset);
