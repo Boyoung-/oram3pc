@@ -15,8 +15,6 @@ import sprout.util.StopWatch;
 import sprout.util.Timing;
 import sprout.util.Util;
 
-//TODO: fix indenting in fastergc
-
 public class ThreadPPEvict extends Operation {
 
 	public ThreadPPEvict(Communication con1, Communication con2) {
@@ -116,7 +114,6 @@ public class ThreadPPEvict extends Operation {
 		// con1.bandWidthSwitch = true;
 		// con2.bandWidthSwitch = true;
 
-		// sync TODO: check where?
 		if (ifSanityCheck())
 			System.out.println("Sanity check enabled\n");
 

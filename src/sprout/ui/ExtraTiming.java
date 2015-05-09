@@ -2,7 +2,7 @@ package sprout.ui;
 
 import java.math.BigInteger;
 
-import sprout.crypto.AES_PRF;
+import sprout.crypto.PRF;
 import sprout.crypto.PRG;
 import sprout.crypto.SR;
 import sprout.util.StopWatch;
@@ -40,7 +40,7 @@ public class ExtraTiming {
 		// start timing
 		for (int n = n_start; n <= n_end; n += n_increment) {
 			SR.rand.nextBytes(k);
-			AES_PRF prf = new AES_PRF(128 * n);
+			PRF prf = new PRF(128 * n);
 			prf.init(k);
 			PRG prg = new PRG(128 * n);
 			mult = new BigInteger[n];

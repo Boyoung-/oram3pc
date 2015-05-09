@@ -31,7 +31,6 @@ class E_T1_FF1_S_2_1 extends T1_FF1_S_2_1 {
 
 	@Override
 	protected void passTruthTable() {
-		// TODO Auto-generated method stub
 		receiveGTT();
 	}
 }

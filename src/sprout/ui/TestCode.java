@@ -53,6 +53,9 @@ public class TestCode {
 			// print it
 			// System.out.println(new String(arr));
 			// System.out.println(new String(arr2));
+
+			raf.close();
+			raf2.close();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}

@@ -1,22 +1,13 @@
 package sprout.ui;
 
-import java.math.BigInteger;
-
-import sprout.oram.Bucket;
-import sprout.oram.BucketException;
 import sprout.oram.Forest;
 import sprout.oram.ForestMetadata;
-import sprout.oram.PreData;
-import sprout.oram.Tree;
-import sprout.oram.TreeException;
-import sprout.oram.Tuple;
 import sprout.util.StopWatch;
-import sprout.util.Util;
 
 public class InitForest {
 	public static void main(String[] args) throws Exception {
 		ForestMetadata.setup("config/newConfig.yaml");
-		String[] defaultFilenames = ForestMetadata.getDefaultForestNames();
+		// String[] defaultFilenames = ForestMetadata.getDefaultForestNames();
 
 		StopWatch sw = new StopWatch("Forest Setup");
 		sw.start();

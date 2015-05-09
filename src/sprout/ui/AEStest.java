@@ -1,6 +1,5 @@
 package sprout.ui;
 
-import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -52,9 +51,9 @@ public class AEStest {
 		System.out.println(Arrays.toString(in1));
 		System.out.println(Arrays.toString(in2));
 
-		byte[] a = new byte[] { -1 };
-		BigInteger a1 = new BigInteger(a);
-		BigInteger a2 = new BigInteger(1, a);
+		// byte[] a = new byte[] { -1 };
+		// BigInteger a1 = new BigInteger(a);
+		// BigInteger a2 = new BigInteger(1, a);
 		// System.out.println(a1);
 		// System.out.println(a2);
 	}

@@ -15,8 +15,6 @@ import sprout.oram.Tree;
 import sprout.util.Timing;
 import sprout.util.Util;
 
-//TODO: rm Li arg
-
 public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 	public PostProcessT() {
@@ -50,7 +48,6 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		int delta = (PreData.ppt_alpha[i] - j_2 + twotaupow) % twotaupow;
 		localTiming.stopwatch[PID.ppt][TID.online].stop();
 
-		// TODO: overhead??
 		localTiming.stopwatch[PID.ppt][TID.online_write].start();
 		eddie.write(delta);
 		localTiming.stopwatch[PID.ppt][TID.online_write].stop();

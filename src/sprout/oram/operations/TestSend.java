@@ -1,20 +1,9 @@
 package sprout.oram.operations;
 
-import java.math.BigInteger;
-
-import org.apache.commons.lang3.tuple.Pair;
-
 import sprout.communication.Communication;
-import sprout.crypto.AES_PRF;
-import sprout.crypto.PRG;
-import sprout.crypto.SR;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
-import sprout.oram.ForestMetadata;
-import sprout.oram.PID;
 import sprout.oram.Party;
-import sprout.oram.PreData;
-import sprout.oram.TID;
 import sprout.util.StopWatch;
 
 public class TestSend extends Operation {
@@ -28,7 +17,7 @@ public class TestSend extends Operation {
 		byte[][] a = new byte[1300 * 50][];
 		for (int i = 0; i < 1300 * 50; i++) {
 			;
-			// a[i] = E.read();
+			a[i] = E.read();
 			// if ( i > 1)
 			// a[i][0] = (byte) (a[i][0] ^ a[i-1][0]);
 		}

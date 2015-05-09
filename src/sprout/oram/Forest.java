@@ -10,7 +10,7 @@ import sprout.util.Util;
 
 public class Forest {
 	private static ArrayList<Tree> trees;
-	// TODO: write large data to disk
+
 	private static ByteArray64 data1;
 	private static ByteArray64 data2;
 
@@ -23,16 +23,6 @@ public class Forest {
 		for (int i = 0; i < levels; i++)
 			trees.add(new Tree(i));
 	}
-
-	/*
-	 * public static String[] getDefaultFileNames() { int t =
-	 * ForestMetadata.getTau(); int n = ForestMetadata.getLastNBits(); int w =
-	 * ForestMetadata.getBucketDepth(); int d = ForestMetadata.getDataSize();
-	 * long r = ForestMetadata.getNumInsert(); defaultFile1 = "files/forest_t" +
-	 * t + "n" + n + "w" + w + "d" + d + "_r" + r + "_share1.bin"; defaultFile2
-	 * = "files/forest_t" + t + "n" + n + "w" + w + "d" + d + "_r" + r +
-	 * "_share2.bin"; return new String[]{defaultFile1, defaultFile2}; }
-	 */
 
 	public Forest(String mode) throws Exception {
 		if (!ForestMetadata.getStatus())
@@ -184,14 +174,11 @@ public class Forest {
 
 		Util.disp("");
 
-		// TODO: for testing
-		// data1.writeToFile(ForestMetadata.getDefaultForestNames()[2]);
-
-		// TODO: these two lines are real xors
+		// these two lines are real xors
 		// data2 = new ByteArray64(ForestMetadata.getForestBytes(), "random");
 		// data1.setXOR(data2);
 
-		// TODO: these line are for testing
+		// this line is for testing
 		data2 = new ByteArray64(ForestMetadata.getForestBytes(), "empty");
 
 		writeToFile(filename1, filename2);
@@ -219,7 +206,7 @@ public class Forest {
 		return trees.get(index);
 	}
 
-	// TODO: make the following non-static
+	// TODO: make the following non-static?
 	public static ByteArray64 getForestData() {
 		return data1;
 	}
@@ -236,12 +223,10 @@ public class Forest {
 			raf.readFully(content, 0, length);
 			raf.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			try {
 				throw new Exception("Forest.getForestData() error");
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
@@ -260,12 +245,10 @@ public class Forest {
 			raf.write(newData, 0, newData.length);
 			raf.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			try {
 				throw new Exception("Forest.setForestData() error");
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}

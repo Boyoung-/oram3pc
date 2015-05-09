@@ -15,8 +15,6 @@ import sprout.util.StopWatch;
 import sprout.util.Timing;
 import sprout.util.Util;
 
-//TODO: fix indenting in fastergc
-
 public class Retrieve extends Operation {
 
 	// private StopWatch indParallelPE = new
@@ -180,7 +178,6 @@ public class Retrieve extends Operation {
 		// con1.bandWidthSwitch = true;
 		// con2.bandWidthSwitch = true;
 
-		// sync TODO: check where?
 		if (ifSanityCheck())
 			System.out.println("Sanity check enabled\n");
 

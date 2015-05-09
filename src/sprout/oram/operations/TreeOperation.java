@@ -47,8 +47,6 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 	int pathTuples;
 
 	public void loadTreeSpecificParameters(int index) {
-		// TODO: Do these need to be accessed by all parties? If not we should
-		// separate them out.
 		i = index; // tree index in the writeup
 		d_i = ForestMetadata.getLBits(i); // # levels in this tree (excluding
 											// the root level)
@@ -70,24 +68,6 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 			pathTuples = pathBuckets * w;
 		}
 	}
-
-	/*
-	 * public T execute(Party party, BigInteger Li, BigInteger k, Tree OT, V
-	 * extraArgs) { loadTreeSpecificParameters(i);
-	 * 
-	 * // TODO: remove unnecessary args switch (party) { case Charlie: return
-	 * executeCharlieSubTree(con1, con2, Li, OT, extraArgs); case Debbie: return
-	 * executeDebbieSubTree(con1, con2, k, OT, extraArgs); case Eddie: return
-	 * executeEddieSubTree(con1, con2, OT, extraArgs); } return null; }
-	 */
-	/*
-	 * public T execut(Party party, V args) { loadTreeSpecificParameters(i);
-	 * 
-	 * // TODO: remove unnecessary args switch (party) { case Charlie: return
-	 * executeCharlieSubTree(con1, con2, args); case Debbie: return
-	 * executeDebbieSubTree(con1, con2, args); case Eddie: return
-	 * executeEddieSubTree(con1, con2, args); } return null; }
-	 */
 
 	/*
 	 * This is mostly just testing code and may need to change for the purpose
@@ -130,6 +110,5 @@ public abstract class TreeOperation<T extends Object, V> extends Operation {
 		}
 		return prepareArgs();
 	}
-	// TODO: Add timing information
 
 }

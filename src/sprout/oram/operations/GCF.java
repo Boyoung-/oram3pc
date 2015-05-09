@@ -21,9 +21,6 @@ import sprout.oram.TID;
 import sprout.util.Timing;
 import sprout.util.Util;
 
-// TODO: remove testcircuit in fastergc
-// TODO: fix sigma shift
-
 public class GCF extends Operation {
 	public GCF(Communication con1, Communication con2) {
 		super(con1, con2);

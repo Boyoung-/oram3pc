@@ -19,7 +19,6 @@ class RAFThread extends Thread {
 			raf.write(content, 0, content.length);
 			raf.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -40,7 +39,6 @@ public class ThreadTest extends Thread {
 			raft.join();
 			raft2.join();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("done");

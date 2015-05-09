@@ -12,19 +12,17 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-// TODO: change name to PRF
-public class AES_PRF {
+public class PRF {
 
 	private Cipher cipher = null;
 	private int l; // output bit length
 
 	private int maxInputBytes = 12;
 
-	public AES_PRF(int l) {
+	public PRF(int l) {
 		try {
 			this.cipher = Cipher.getInstance("AES/ECB/NoPadding");
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		this.l = l;
@@ -35,14 +33,12 @@ public class AES_PRF {
 			try {
 				throw new Exception("key length error");
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		SecretKeySpec skey = new SecretKeySpec(key, "AES");
 		try {
 			cipher.init(Cipher.ENCRYPT_MODE, skey);
 		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -53,7 +49,6 @@ public class AES_PRF {
 				throw new Exception("input length error: " + input.length
 						+ " > " + maxInputBytes);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -75,22 +70,15 @@ public class AES_PRF {
 			try {
 				throw new Exception("leq128 input length error");
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
-		// System.out.println(Arrays.toString(input));
 		byte[] ctext = null;
 		try {
 			ctext = cipher.doFinal(input);
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
+		} catch (IllegalBlockSizeException | BadPaddingException e) {
 			e.printStackTrace();
 		}
-		// System.out.println(Arrays.toString(ctext));
 		if (np == 128)
 			return ctext;
 
@@ -107,7 +95,6 @@ public class AES_PRF {
 			output = tmp;
 		}
 
-		// System.out.println(Arrays.toString(output));
 		return output;
 	}
 
@@ -116,7 +103,6 @@ public class AES_PRF {
 			try {
 				throw new Exception("greater128 input length error");
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -161,8 +147,8 @@ public class AES_PRF {
 		try {
 			for (int l = 1; l < 5000; l++) {
 				System.out.println("Round: l=" + l);
-				AES_PRF f1 = new AES_PRF(l);
-				AES_PRF f2 = new AES_PRF(l);
+				PRF f1 = new PRF(l);
+				PRF f2 = new PRF(l);
 				byte[] k = new byte[16];
 				SR.rand.nextBytes(k);
 				byte[] input = new byte[SR.rand.nextInt(12) + 1];

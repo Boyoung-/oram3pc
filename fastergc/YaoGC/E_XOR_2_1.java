@@ -2,9 +2,7 @@
 
 package YaoGC;
 
-import sprout.oram.PID;
-import sprout.oram.TID;
-
+// TODO: add timing and bandwidth
 class E_XOR_2_1 extends XOR_2_1 {
 	public E_XOR_2_1() {
 		super();

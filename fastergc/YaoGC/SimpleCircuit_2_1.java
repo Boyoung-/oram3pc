@@ -4,12 +4,9 @@ package YaoGC;
 
 import java.math.*;
 
-import sprout.oram.PID;
-import sprout.oram.TID;
 import Cipher.Cipher;
 
-//import Utils.*;
-
+// TODO: add timing and bandwidth
 public abstract class SimpleCircuit_2_1 extends Circuit {
 
 	protected BigInteger[][] gtt;

@@ -6,7 +6,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.util.Arrays;
 
 import sprout.communication.Communication;
-import sprout.crypto.AES_PRF;
+import sprout.crypto.PRF;
 import sprout.crypto.PRG;
 import sprout.crypto.SR;
 import sprout.oram.Forest;
@@ -74,8 +74,8 @@ public class SSCOT extends Operation {
 		BigInteger[] y = new BigInteger[N];
 		byte[][][] pw = new byte[2][N][];
 		byte[] msg_pw = new byte[SR.kBytes * N * 2];
-		AES_PRF F_k = new AES_PRF(SR.kBits);
-		AES_PRF F_k_p = new AES_PRF(SR.kBits);
+		PRF F_k = new PRF(SR.kBits);
+		PRF F_k_p = new PRF(SR.kBits);
 		F_k.init(PreData.sscot_k[i]);
 		F_k_p.init(PreData.sscot_k_p[i]);
 
@@ -104,8 +104,8 @@ public class SSCOT extends Operation {
 		BigInteger[] x = new BigInteger[N];
 		byte[][][] ev = new byte[2][N][];
 		byte[] msg_ev = new byte[(SR.kBytes + gBytes) * N];
-		AES_PRF F_k = new AES_PRF(SR.kBits);
-		AES_PRF F_k_p = new AES_PRF(SR.kBits);
+		PRF F_k = new PRF(SR.kBits);
+		PRF F_k_p = new PRF(SR.kBits);
 		PRG G = new PRG(l);
 		F_k.init(PreData.sscot_k[i]);
 		F_k_p.init(PreData.sscot_k_p[i]);
@@ -115,7 +115,6 @@ public class SSCOT extends Operation {
 			ev[0][t] = new BigInteger(1, G.compute(F_k.compute(x[t]
 					.toByteArray()))).xor(m[t]).toByteArray();
 			ev[1][t] = F_k_p.compute(x[t].toByteArray());
-			// TODO: simplify below
 			if (ev[0][t].length < gBytes)
 				System.arraycopy(ev[0][t], 0, msg_ev, (t + 1) * gBytes
 						- ev[0][t].length, ev[0][t].length);

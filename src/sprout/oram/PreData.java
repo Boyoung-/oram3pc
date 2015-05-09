@@ -5,8 +5,6 @@ import java.util.List;
 
 import YaoGC.Circuit;
 
-// TODO: clean unused stuff
-
 public class PreData {
 	// SSCOT
 	public static byte[][] sscot_k;

@@ -14,8 +14,6 @@ import sprout.util.Util;
 
 public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
-	// TODO: rm try except
-
 	public Eviction() {
 		super(null, null);
 	}

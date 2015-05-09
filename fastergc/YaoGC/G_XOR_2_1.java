@@ -4,10 +4,9 @@ package YaoGC;
 
 import java.math.BigInteger;
 
-import sprout.oram.PID;
-import sprout.oram.TID;
 import Cipher.Cipher;
 
+// TODO: add timing and bandwidth
 class G_XOR_2_1 extends XOR_2_1 {
 	public G_XOR_2_1() {
 		super();

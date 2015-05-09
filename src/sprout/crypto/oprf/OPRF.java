@@ -16,8 +16,6 @@ import sprout.crypto.CryptoException;
 import sprout.crypto.SR;
 import sprout.crypto.WrongPartyException;
 import sprout.crypto.oprf.Message;
-import sprout.oram.PID;
-import sprout.oram.TID;
 import sprout.util.Timing;
 
 // For now we simply use an EC based OPRF. 
@@ -314,8 +312,6 @@ public class OPRF {
 		// openssl bn_range
 		// another option is using an AES based key generator (the only
 		// algorithim supported by android)
-
-		// TODO: Should we be keeping this rand around?
 
 		BigInteger temp = new BigInteger(range.bitLength(), SR.rand);
 		while (temp.compareTo(range) >= 0 || temp.equals(BigInteger.ZERO)) {

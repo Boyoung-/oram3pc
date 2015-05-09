@@ -63,7 +63,6 @@ public abstract class XOR_2_1 extends SimpleCircuit_2_1 {
 			}
 		}
 
-		// TODO: remove extra sending in non-output xor gates
 		if (!evaluate)
 			sendOutBitEncPair();
 

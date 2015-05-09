@@ -16,7 +16,6 @@ class G_T1_FF0_O_2_1 extends T1_FF0_O_2_1 {
 
 	@Override
 	protected void passTruthTable() {
-		// TODO Auto-generated method stub
 		fillTruthTable();
 		encryptTruthTable();
 		sendGTT();

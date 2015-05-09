@@ -19,9 +19,13 @@ public class Tree {
 		return index;
 	}
 
-	private byte[] getByteBucket(long bucketNum) throws TreeException {
+	private byte[] getByteBucket(long bucketNum) {
 		if (bucketNum < 0 || bucketNum >= ForestMetadata.getNumBuckets(index))
-			throw new TreeException("Bucket number error");
+			try {
+				throw new TreeException("Bucket number error");
+			} catch (TreeException e) {
+				e.printStackTrace();
+			}
 
 		int bucketBytes = ForestMetadata.getBucketBytes(index);
 		long start = ForestMetadata.getTreeOffset(index) + bucketNum
@@ -29,8 +33,7 @@ public class Tree {
 		return Forest.getForestData(start, bucketBytes);
 	}
 
-	public Bucket getBucket(long bucketNum) throws BucketException,
-			TreeException {
+	public Bucket getBucket(long bucketNum) {
 		return new Bucket(index, getByteBucket(bucketNum));
 	}
 
@@ -39,7 +42,6 @@ public class Tree {
 			try {
 				throw new TreeException("Bucket number error");
 			} catch (TreeException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -48,7 +50,6 @@ public class Tree {
 			try {
 				throw new TreeException("Bucket length error");
 			} catch (TreeException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -72,7 +73,6 @@ public class Tree {
 			try {
 				throw new TreeException("L=" + L + ": Invalid path");
 			} catch (TreeException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 
@@ -91,18 +91,21 @@ public class Tree {
 		return indices;
 	}
 
-	public Bucket[] getBucketsOnPath(BigInteger L) throws TreeException,
-			BucketException {
-		if (L == null && index != 0)
-			throw new TreeException("L is null");
-		else if (L == null && index == 0)
+	public Bucket[] getBucketsOnPath(BigInteger L) {
+		if (L == null && index != 0) {
+			try {
+				throw new TreeException("L is null");
+			} catch (TreeException e) {
+				e.printStackTrace();
+			}
+			return null;
+		} else if (L == null && index == 0)
 			return getBucketsOnPath(0);
 		else
 			return getBucketsOnPath(L.longValue());
 	}
 
-	public Bucket[] getBucketsOnPath(long L) throws TreeException,
-			BucketException {
+	public Bucket[] getBucketsOnPath(long L) {
 		List<Long> indices = getBucketIndicesOnPath(L);
 		Bucket[] buckets = new Bucket[indices.size()];
 		for (int i = 0; i < indices.size(); i++)
@@ -127,7 +130,6 @@ public class Tree {
 			try {
 				throw new TreeException("L is null");
 			} catch (TreeException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		else if (L == null && index == 0) {
@@ -143,7 +145,6 @@ public class Tree {
 			try {
 				throw new TreeException("Number of buckets is not correct");
 			} catch (TreeException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

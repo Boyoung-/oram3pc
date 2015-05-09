@@ -49,17 +49,6 @@ public abstract class Operation {
 				System.out.println("Sanity check failed for con2");
 			}
 
-			// System.out.println("Sanity check finished");
-
-			/*
-			 * con1.write(100); con2.write(100);
-			 * 
-			 * if (con1.readInt() != 100)
-			 * System.out.println("Sanity check failed for con1"); if
-			 * (con2.readInt() != 100)
-			 * System.out.println("Sanity check failed for con2");
-			 */
-
 			con1.countBandwidth = true;
 			con2.countBandwidth = true;
 		}
@@ -78,17 +67,7 @@ public abstract class Operation {
 
 	public void run(Party party, String configFile, String dbFile, boolean build)
 			throws ForestException {
-		// TODO: clean here
-		// if (!build && !(new File(dbFile)).exists()) {
-		// throw new IllegalArgumentException("DB file does not exist "
-		// + dbFile);
-		// }
 
-		// try {
-		// ForestMetadata.setup(configFile);
-		// } catch (FileNotFoundException e) {
-		// e.printStackTrace();
-		// }
 		Forest forest = null;
 		if (party == Party.Eddie) {
 			if (build)
@@ -100,9 +79,6 @@ public abstract class Operation {
 			else {
 				try {
 					forest = new Forest("restore");
-					// System.out.println("16 bits: " + Util.addZero(new
-					// BigInteger(1, Forest.getForestData(0, 2)).toString(2),
-					// 16));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -111,8 +87,6 @@ public abstract class Operation {
 			try {
 				forest = new Forest("restore",
 						ForestMetadata.getDefaultForestNames()[1], null);
-				// System.out.println("16 bits: " + Util.addZero(new
-				// BigInteger(1, Forest.getForestData(0, 2)).toString(2), 16));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

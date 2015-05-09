@@ -109,14 +109,4 @@ public class PPEvict extends Thread {
 	public Timing getTiming() {
 		return localTiming;
 	}
-	/*
-	 * public static void main(String args[]) {
-	 * 
-	 * PPEvict thread = new PPEvict(1); thread.start();
-	 * System.out.println("should print first"); try { Thread.sleep(2000);
-	 * thread.join(); } catch (InterruptedException e) { // TODO Auto-generated
-	 * catch block e.printStackTrace(); } System.out.println("all done");
-	 * 
-	 * }
-	 */
 }

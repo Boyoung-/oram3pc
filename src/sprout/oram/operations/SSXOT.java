@@ -19,7 +19,6 @@ import sprout.oram.TID;
 import sprout.util.Timing;
 import sprout.util.Util;
 
-// TODO: Possible parallelization opportunity in running each IOT
 public class SSXOT extends Operation {
 
 	public SSXOT(Communication con1, Communication con2) {

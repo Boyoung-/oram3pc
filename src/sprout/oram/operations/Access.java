@@ -7,7 +7,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.Bucket;
-import sprout.oram.BucketException;
 import sprout.oram.Forest;
 import sprout.oram.ForestException;
 import sprout.oram.ForestMetadata;
@@ -16,11 +15,8 @@ import sprout.oram.Party;
 import sprout.oram.PreData;
 import sprout.oram.TID;
 import sprout.oram.Tree;
-import sprout.oram.TreeException;
 import sprout.util.Timing;
 import sprout.util.Util;
-
-// TODO: rm all try catch
 
 public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
@@ -52,10 +48,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online_read].stop();
 
 		// step 2
-		// timing.stopwatch[PID.access][TID.online_write].start();
-		// debbie.write(sC_Nip1);
-		// timing.stopwatch[PID.access][TID.online_write].stop();
-
 		int j_1 = 0;
 		BigInteger z;
 		if (i == 0) {
@@ -142,12 +134,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online_read].stop();
 
 		timing.stopwatch[PID.access][TID.online].start();
-		Bucket[] sD_buckets = null;
-		try {
-			sD_buckets = sD_OT.getBucketsOnPath(PreData.access_Li[i]);
-		} catch (TreeException | BucketException e) {
-			e.printStackTrace();
-		}
+		Bucket[] sD_buckets = sD_OT.getBucketsOnPath(PreData.access_Li[i]);
 		BigInteger[] sD_P = new BigInteger[sD_buckets.length];
 		for (int j = 0; j < sD_buckets.length; j++) {
 			sD_P[j] = new BigInteger(1, sD_buckets[j].getByteTuples());
@@ -165,10 +152,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online_write].stop();
 
 		// step 2
-		// timing.stopwatch[PID.access][TID.online_read].start();
-		// BigInteger sD_Nip1 = charlie.readBigInteger();
-		// timing.stopwatch[PID.access][TID.online_read].stop();
-
 		timing.stopwatch[PID.access][TID.online].start();
 		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata
 				.getLastNBits();
@@ -218,12 +201,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online_read].stop();
 
 		timing.stopwatch[PID.access][TID.online].start();
-		Bucket[] sE_buckets = null;
-		try {
-			sE_buckets = sE_OT.getBucketsOnPath(PreData.access_Li[i]);
-		} catch (TreeException | BucketException e1) {
-			e1.printStackTrace();
-		}
+		Bucket[] sE_buckets = sE_OT.getBucketsOnPath(PreData.access_Li[i]);
 		BigInteger[] sE_P = new BigInteger[sE_buckets.length];
 		for (int j = 0; j < sE_buckets.length; j++) {
 			sE_P[j] = new BigInteger(1, sE_buckets[j].getByteTuples());

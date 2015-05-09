@@ -7,8 +7,6 @@ import java.security.SecureRandom;
 
 import javax.crypto.spec.SecretKeySpec;
 
-// TODO: rm unused item
-
 public class SR {
 	public static SecureRandom rand;
 	public static MessageDigest digest;
@@ -26,10 +24,8 @@ public class SR {
 			e.printStackTrace();
 		}
 
-		p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L); // p =
-																// 2^34
-																// -
-																// 41
+		p = BigInteger.valueOf((long) Math.pow(2, 34) - 41L);
+
 		skey = PRG.readKey();
 
 		kBits = 80;

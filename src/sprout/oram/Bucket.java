@@ -65,7 +65,6 @@ public class Bucket {
 			try {
 				throw new BucketException("Tuples length error");
 			} catch (BucketException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		else {

@@ -16,7 +16,6 @@ class G_OR_2_1 extends OR_2_1 {
 
 	@Override
 	protected void passTruthTable() {
-		// TODO Auto-generated method stub
 		fillTruthTable();
 		encryptTruthTable();
 		sendGTT();
