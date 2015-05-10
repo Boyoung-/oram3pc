@@ -45,10 +45,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 		timing.stopwatch[PID.access][TID.online_read].start();
 		BigInteger sC_sig_P_all_p = debbie.readBigInteger();
-		timing.stopwatch[PID.access][TID.online_read].stop();
-		
-		//System.out.println(Util.addZero(sC_sig_P_all_p.toString(2), tupleBits*pathTuples));
-		
+		timing.stopwatch[PID.access][TID.online_read].stop();		
 
 		// step 2
 		int j_1 = 0;
@@ -77,8 +74,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 					(pathTuples - j_1 - 1) * tupleBits).and(helper);
 			z = eBar.xor(dBar);
 			timing.stopwatch[PID.access][TID.online].stop();
-			
-			//System.out.println("j1= " + j_1);
 		}
 
 		// step 3
@@ -108,6 +103,15 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i == 0) {
 			sC_Ti = z;
 			sC_sig_P_p = null;
+			
+			/*
+			BigInteger sE_Ti = eddie.readBigInteger();
+			BigInteger sE_sig_P_p = eddie.readBigInteger();
+			BigInteger Ti = sE_Ti.xor(sC_Ti);
+			BigInteger originalTi = sE_sig_P_p.xor(sC_sig_P_all_p);
+			if (originalTi.compareTo(Ti) != 0)
+				System.err.println("Ti ERROR!!!!!!!!!!!!");
+				*/
 		} else {
 			sC_Ti = sC_Ni.shiftLeft(lBits + aBits).xor(z).setBit(tupleBits - 1);
 
@@ -120,7 +124,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 					- j_1 - 1)
 					* tupleBits, (pathTuples - j_1) * tupleBits);
 			
-			//System.out.println(Util.addZero(sC_sig_P_p.toString(2), tupleBits*pathTuples));
+			/*
 			BigInteger sE_Ti = eddie.readBigInteger();
 			BigInteger sE_sig_P_p = eddie.readBigInteger();
 			
@@ -138,6 +142,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			if (newPath.compareTo(originalPath) == 0 ||
 					Util.setSubBits(newPath, originalTi, (pathTuples- j_1 - 1)* tupleBits, (pathTuples - j_1) * tupleBits).compareTo(originalPath) != 0)
 				System.err.println("Path ERROR!!!!!!!!!!!!");
+				*/
 		}
 		timing.stopwatch[PID.access][TID.online].stop();
 
@@ -237,8 +242,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			sE_sig_P_all = sE_sig_P_all.shiftLeft(bucketBits).xor(sE_sig_P[j]);
 		BigInteger sE_sig_P_all_p = sE_sig_P_all.xor(PreData.access_p[i]);
 		
-		//System.out.println(Util.addZero(sE_sig_P_all_p.toString(2), tupleBits*pathTuples));
-
 		BigInteger[] y = new BigInteger[twotaupow];
 		BigInteger y_all;
 		if (i == 0)
@@ -304,14 +307,20 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i == 0) {
 			sE_Ti = y_all;
 			sE_sig_P_p = null;
+			
+			/*
+			charlie.write(sE_Ti);
+			charlie.write(sE_sig_P_all_p);
+			*/
 		} else {
 			sE_Ti = sE_Ni.shiftLeft(lBits + aBits)
 					.xor(PreData.access_Li[i].shiftLeft(aBits)).xor(y_all);
 			sE_sig_P_p = sE_sig_P_all_p;
 			
-			//System.out.println(Util.addZero(sE_sig_P_p.toString(2), tupleBits*pathTuples));
+			/*
 			charlie.write(sE_Ti);
 			charlie.write(sE_sig_P_p);
+			*/
 		}
 		timing.stopwatch[PID.access][TID.online].stop();
 
@@ -321,17 +330,9 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 	// for testing correctness
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 21; // how many random records we want to test retrieval
-		int retrievals = 5; // for each record, how many repeated retrievals we
+		int records = 10; // how many random records we want to test retrieval
+		int retrievals = 10; // for each record, how many repeated retrievals we
 							// want to do
-		if (records < 2) {
-			System.err
-					.println("Number of records must be at least 2 for average timing");
-			return;
-		} else if (retrievals < 1) {
-			System.err.println("Number of retrievals must be at least 1");
-			return;
-		}
 
 		long numInsert = Math.min(ForestMetadata.getNumInsert(),
 				ForestMetadata.getAddressSpace());

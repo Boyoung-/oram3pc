@@ -73,6 +73,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		}
 		localTiming.stopwatch[PID.ppt][TID.online].stop();
 		
+		/*
 		BigInteger sE_Ti_p = eddie.readBigInteger();
 		BigInteger sE_Li_p = eddie.readBigInteger();
 		BigInteger sE_Lip1_p = eddie.readBigInteger();
@@ -82,6 +83,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		System.out.println(Util.addZero(PreData.ppt_sC_Li_p[i].xor(sE_Li_p).toString(2), lBits));
 		System.out.println(Util.addZero(PreData.ppt_sC_Li_p[i+1].xor(sE_Lip1_p).toString(2), d_ip1));
 		System.out.println(Util.addZero(newTi.toString(2), tupleBits));
+		*/
 
 		return sC_Ti_p;
 	}
@@ -132,9 +134,11 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		}
 		localTiming.stopwatch[PID.ppt][TID.online].stop();
 		
+		/*
 		charlie.write(sE_Ti_p);
 		charlie.write(PreData.ppt_sE_Li_p[i]);
 		charlie.write(PreData.ppt_sE_Li_p[i+1]);
+		*/
 
 		return sE_Ti_p;
 	}

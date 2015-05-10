@@ -132,7 +132,12 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		localTiming.stopwatch[PID.evict][TID.online_write].start();
 		debbie.write(secretC_P_pp);
 		localTiming.stopwatch[PID.evict][TID.online_write].stop();
-
+		
+		/*
+		debbie.write(sC_T_p);
+		debbie.write(sC_P_p);
+	*/
+		
 		return null;
 	}
 
@@ -248,7 +253,40 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		}
 		OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
 		localTiming.stopwatch[PID.evict][TID.online].stop();
-
+		
+		/*
+		BigInteger sC_T_p = charlie.readBigInteger();
+		BigInteger sC_P_p = charlie.readBigInteger();
+		BigInteger ePath = eddie.readBigInteger();
+		BigInteger sE_T_p = eddie.readBigInteger();
+		BigInteger sE_P_p = eddie.readBigInteger();
+		BigInteger originalTi = sC_T_p.xor(sE_T_p);
+		BigInteger originalPath = sC_P_p.xor(sE_P_p);
+		BigInteger newPath = ePath.xor(secretD_P_pp);
+		BigInteger[] originalPath_arr = new BigInteger[pathTuples+2];
+		BigInteger[] newPath_arr = new BigInteger[pathTuples];
+		
+		helper = BigInteger.ONE.shiftLeft(tupleBits).subtract(BigInteger.ONE);
+		tmp = originalPath;
+		for (int j = pathTuples - 1; j >= 0; j--) {
+			originalPath_arr[j] = tmp.and(helper);
+			tmp = tmp.shiftRight(tupleBits);
+		}
+		originalPath_arr[pathTuples] = originalTi;
+		tmp = newPath;
+		for (int j = pathTuples - 1; j >= 0; j--) {
+			newPath_arr[j] = tmp.and(helper);
+			tmp = tmp.shiftRight(tupleBits);
+		}
+		
+		for (int j=0; j<pathTuples; j++) {
+			if (I[j] != (pathTuples+1)) {
+				if (newPath_arr[j].compareTo(originalPath_arr[I[j]]) != 0)
+					System.err.println("Evict path error!!!!!");
+			}
+		}
+	*/
+		
 		return null;
 	}
 
@@ -359,10 +397,8 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		BigInteger secretE_P_pp = BigInteger.ZERO;
 		for (int j = 0; j < sE_P_pp.length; j++)
 			secretE_P_pp = secretE_P_pp.shiftLeft(tupleBits).xor(sE_P_pp[j]);
-		localTiming.stopwatch[PID.evict][TID.online].stop();
 
 		// step 6
-		localTiming.stopwatch[PID.evict][TID.online].start();
 		tmp = secretE_P_pp.xor(PreData.evict_upxi[i]);
 		helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(BigInteger.ONE);
 		Bucket[] buckets = new Bucket[pathBuckets];
@@ -373,7 +409,13 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		}
 		OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
 		localTiming.stopwatch[PID.evict][TID.online].stop();
-
+		
+		/*
+		debbie.write(secretE_P_pp);
+		debbie.write(sE_T_p);
+		debbie.write(sE_P_p);
+	*/
+		
 		return null;
 	}
 }

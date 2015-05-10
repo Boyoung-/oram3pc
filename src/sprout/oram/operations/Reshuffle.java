@@ -34,10 +34,7 @@ public class Reshuffle extends TreeOperation<BigInteger, BigInteger> {
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree unused, BigInteger sC_P,
-			Timing localTiming) {
-		if (i > -1)
-			return sC_P;
-		
+			Timing localTiming) {		
 		// i = 0 case: no reshuffle needed
 		if (i == 0) {
 			return sC_P;
@@ -76,9 +73,6 @@ public class Reshuffle extends TreeOperation<BigInteger, BigInteger> {
 	public BigInteger executeEddieSubTree(Communication charlie,
 			Communication debbie, Tree unused, BigInteger sE_P,
 			Timing localTiming) {
-		if (i > -1)
-			return sE_P;
-		
 		// i = 0 case: no shuffle needed
 		if (i == 0) {
 			return sE_P;

@@ -75,17 +75,10 @@ public class ThreadPPEvict extends Operation {
 
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 1; // how many random records we want to test retrieval
-		int retrievals = 100; // for each record, how many repeated retrievals
+		int records = 10; // how many random records we want to test retrieval
+		int retrievals = 10; // for each record, how many repeated retrievals
 								// we
 								// want to do
-		/*
-		 * if (records < 2) { System.err.println(
-		 * "Number of records must be at least 2 for average timing"); return; }
-		 * else if (retrievals < 1) {
-		 * System.err.println("Number of retrievals must be at least 1");
-		 * return; }
-		 */
 
 		long numInsert = Math.min(ForestMetadata.getNumInsert(),
 				ForestMetadata.getAddressSpace());
@@ -94,8 +87,6 @@ public class ThreadPPEvict extends Operation {
 			return;
 		}
 
-		// int cycles = (records - 1) * retrievals; // first round timing is
-		// abandoned
 		int numTrees = ForestMetadata.getLevels();
 		int h = numTrees - 1;
 		int tau = ForestMetadata.getTau();
@@ -125,6 +116,12 @@ public class ThreadPPEvict extends Operation {
 		// //////////////////////////////////////////
 
 		for (int rec = 0; rec < records; rec++) {
+			if (rec == records / 2) {
+				bp_online.reset();
+				bp_whole.reset();
+				timing.reset();
+			}
+			
 			// retrieve a record by picking a random N
 			BigInteger N = null;
 			BigInteger sC_N = null;
@@ -258,20 +255,13 @@ public class ThreadPPEvict extends Operation {
 				bp_online.stop();
 				bp_whole.stop();
 
+				/*
 				if (retri == (retrievals / 2) - 1) {
 					bp_online.reset();
 					bp_whole.reset();
 					timing.reset();
 				}
-			}
-
-			// abandon the timing of the first several retrievals
-			// assert records > 1
-			if (rec == 0) {
-				;
-				// wholeExecution.start();
-				// bp_online.reset();
-				// bp_whole.reset();
+				*/
 			}
 		}
 

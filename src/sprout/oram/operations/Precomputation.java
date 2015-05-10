@@ -124,10 +124,10 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.access_sigma[i] = new ArrayList<Integer>();
 			for (int j = 0; j < pathBuckets; j++)
 				PreData.access_sigma[i].add(j);
-			//Collections.shuffle(PreData.access_sigma[i], SR.rand);
-			//PreData.access_p[i] = new BigInteger(pathTuples * tupleBits,
-			//		SR.rand);
-			PreData.access_p[i] = BigInteger.ZERO;
+			Collections.shuffle(PreData.access_sigma[i], SR.rand);
+			PreData.access_p[i] = new BigInteger(pathTuples * tupleBits,
+					SR.rand);
+			//PreData.access_p[i] = BigInteger.ZERO;
 		}
 
 		for (int index = 0; index < levels; index++) {
@@ -240,8 +240,8 @@ public class Precomputation extends TreeOperation<Object, Object> {
 
 			PreData.ssxot_delta[i] = new BigInteger[k];
 			for (int o = 0; o < k; o++) {
-				//PreData.ssxot_delta[i][o] = new BigInteger(l, SR.rand);
-				PreData.ssxot_delta[i][o] = BigInteger.ZERO;
+				PreData.ssxot_delta[i][o] = new BigInteger(l, SR.rand);
+				//PreData.ssxot_delta[i][o] = BigInteger.ZERO;
 			}
 		}
 
