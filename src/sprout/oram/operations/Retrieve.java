@@ -48,16 +48,7 @@ public class Retrieve extends Operation {
 		evict.loadTreeSpecificParameters(i);
 		evict.executeCharlieSubTree(debbie, eddie, null, new BigInteger[] {
 				sC_pi_P, sC_Ti_p }, timing);
-
-		// PP+Evict
-		// Timing localTiming = new Timing();
-		// PPEvict thread = new PPEvict(Party.Charlie, AOut, null, new
-		// BigInteger[] { Li, Nip1 }, currTree, localTiming);
-		// if (currTree == 0)
-		// indParallelPE.start();
-		// thread.start();
-
-		// return Pair.of(output, thread);
+		
 		return Pair.of(output, null);
 	}
 
@@ -81,15 +72,6 @@ public class Retrieve extends Operation {
 		evict.loadTreeSpecificParameters(i);
 		evict.executeDebbieSubTree(charlie, eddie, sD_OT, null, timing);
 
-		// PP+Evictv
-		// Timing localTiming = new Timing();
-		// PPEvict thread = new PPEvict(Party.Debbie, null, null, new
-		// BigInteger[] { k }, currTree, localTiming);
-		// if (currTree == 0)
-		// indParallelPE.start();
-		// thread.start();
-
-		// return thread;
 		return null;
 	}
 
@@ -116,15 +98,6 @@ public class Retrieve extends Operation {
 		evict.executeEddieSubTree(charlie, debbie, sE_OT, new BigInteger[] {
 				sE_pi_P, sE_Ti_p }, timing);
 
-		// PP+Evict
-		// Timing localTiming = new Timing();
-		// PPEvict thread = new PPEvict(Party.Eddie, AOut, OT, new BigInteger[]
-		// { Li }, currTree, localTiming);
-		// if (currTree == 0)
-		// indParallelPE.start();
-		// thread.start();
-
-		// return thread;
 		return null;
 	}
 

@@ -46,6 +46,9 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online_read].start();
 		BigInteger sC_sig_P_all_p = debbie.readBigInteger();
 		timing.stopwatch[PID.access][TID.online_read].stop();
+		
+		//System.out.println(Util.addZero(sC_sig_P_all_p.toString(2), tupleBits*pathTuples));
+		
 
 		// step 2
 		int j_1 = 0;
@@ -74,6 +77,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 					(pathTuples - j_1 - 1) * tupleBits).and(helper);
 			z = eBar.xor(dBar);
 			timing.stopwatch[PID.access][TID.online].stop();
+			
+			//System.out.println("j1= " + j_1);
 		}
 
 		// step 3
@@ -114,6 +119,25 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			sC_sig_P_p = Util.setSubBits(sC_sig_P_all_p, newTuple, (pathTuples
 					- j_1 - 1)
 					* tupleBits, (pathTuples - j_1) * tupleBits);
+			
+			//System.out.println(Util.addZero(sC_sig_P_p.toString(2), tupleBits*pathTuples));
+			BigInteger sE_Ti = eddie.readBigInteger();
+			BigInteger sE_sig_P_p = eddie.readBigInteger();
+			
+			BigInteger originalPath = sE_sig_P_p.xor(sC_sig_P_all_p);
+			BigInteger originalTi = Util.getSubBits(originalPath, (pathTuples- j_1 - 1)	* tupleBits, (pathTuples - j_1) * tupleBits);
+			if (sE_Ti.xor(sC_Ti).compareTo(originalTi) != 0) {
+				System.err.println("Ti ERROR!!!!!!!!!!!!");
+				System.err.println(Util.addZero(sE_Ti.toString(2), tupleBits));
+				System.err.println(Util.addZero(sC_Ti.toString(2), tupleBits));
+				System.err.println(Util.addZero(sE_Ti.xor(sC_Ti).toString(2), tupleBits));
+				System.err.println(Util.addZero(originalTi.toString(2), tupleBits));
+			}
+			
+			BigInteger newPath = sE_sig_P_p.xor(sC_sig_P_p);
+			if (newPath.compareTo(originalPath) == 0 ||
+					Util.setSubBits(newPath, originalTi, (pathTuples- j_1 - 1)* tupleBits, (pathTuples - j_1) * tupleBits).compareTo(originalPath) != 0)
+				System.err.println("Path ERROR!!!!!!!!!!!!");
 		}
 		timing.stopwatch[PID.access][TID.online].stop();
 
@@ -212,6 +236,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		for (int j = 1; j < sE_sig_P.length; j++)
 			sE_sig_P_all = sE_sig_P_all.shiftLeft(bucketBits).xor(sE_sig_P[j]);
 		BigInteger sE_sig_P_all_p = sE_sig_P_all.xor(PreData.access_p[i]);
+		
+		//System.out.println(Util.addZero(sE_sig_P_all_p.toString(2), tupleBits*pathTuples));
 
 		BigInteger[] y = new BigInteger[twotaupow];
 		BigInteger y_all;
@@ -282,6 +308,10 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			sE_Ti = sE_Ni.shiftLeft(lBits + aBits)
 					.xor(PreData.access_Li[i].shiftLeft(aBits)).xor(y_all);
 			sE_sig_P_p = sE_sig_P_all_p;
+			
+			//System.out.println(Util.addZero(sE_sig_P_p.toString(2), tupleBits*pathTuples));
+			charlie.write(sE_Ti);
+			charlie.write(sE_sig_P_p);
 		}
 		timing.stopwatch[PID.access][TID.online].stop();
 
@@ -291,7 +321,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 	// for testing correctness
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
-		int records = 6; // how many random records we want to test retrieval
+		int records = 21; // how many random records we want to test retrieval
 		int retrievals = 5; // for each record, how many repeated retrievals we
 							// want to do
 		if (records < 2) {
@@ -329,6 +359,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			BigInteger N = null;
 			BigInteger sC_N = null;
 			BigInteger sE_N = null;
+			BigInteger sD_N = null;
 			if (party == Party.Charlie) {
 				if (numInsert == -1) {
 					N = new BigInteger(lastNBits, SR.rand);
@@ -339,8 +370,11 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				}
 
 				sE_N = N.xor(sC_N);
+				con1.write(sC_N);
 				con2.write(sE_N);
-			} else if (party == Party.Eddie)
+			} else if (party == Party.Debbie)
+				sD_N = con1.readBigInteger();
+			else if (party == Party.Eddie)
 				sE_N = con1.readBigInteger();
 
 			for (long retri = 0; retri < retrievals; retri++) {
@@ -408,9 +442,15 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 						}
 						break;
 					case Debbie:
+						BigInteger sD_Ni;
+						if (i < h - 1) {
+							sD_Ni = Util.getSubBits(sD_N, lastNBits - (i + 1)
+									* tau, lastNBits);
+						} else
+							sD_Ni = sD_N;
 						loadTreeSpecificParameters(i);
 						executeDebbieSubTree(con1, con2, forest.getTree(i),
-								null, null);
+								new BigInteger[] { sD_Ni }, null);
 						break;
 					case Eddie:
 						BigInteger sE_Ni;

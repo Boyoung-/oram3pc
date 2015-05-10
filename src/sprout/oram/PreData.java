@@ -17,8 +17,8 @@ public class PreData {
 	public static BigInteger[] ssiot_r;
 
 	// Access
-	public static List<Integer>[] access_sigma;
-	public static BigInteger[] access_p;
+	public static List<Integer>[] access_sigma; // set
+	public static BigInteger[] access_p; // set
 	public static BigInteger[] access_Li;
 
 	// Reshuffle
@@ -30,8 +30,6 @@ public class PreData {
 	// PPT
 	public static BigInteger[] ppt_sC_Li_p;
 	public static BigInteger[] ppt_sE_Li_p;
-	public static BigInteger[] ppt_sC_Lip1_p;
-	public static BigInteger[] ppt_sE_Lip1_p;
 	public static BigInteger[][] ppt_r;
 	public static BigInteger[][] ppt_r_p;
 	public static int[] ppt_alpha;
@@ -42,7 +40,7 @@ public class PreData {
 	public static BigInteger[][][] xot_r;
 
 	// SSXOT
-	public static BigInteger[][] ssxot_delta;
+	public static BigInteger[][] ssxot_delta;  // set
 
 	// GCF
 	public static Circuit[][] gcf_gc_D;

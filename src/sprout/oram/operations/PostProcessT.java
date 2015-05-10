@@ -59,7 +59,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		for (int t = 0; t < twotaupow; t++) {
 			c[t] = PreData.ppt_r[i][(t + delta) % twotaupow];
 			if (t == j_2) {
-				c[t] = c[t].xor(Lip1).xor(PreData.ppt_sC_Lip1_p[i]);
+				c[t] = c[t].xor(Lip1).xor(PreData.ppt_sC_Li_p[i+1]);
 			}
 			c_all = c_all.shiftLeft(d_ip1).xor(c[t]);
 		}
@@ -72,6 +72,16 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 					.xor(c_all));
 		}
 		localTiming.stopwatch[PID.ppt][TID.online].stop();
+		
+		BigInteger sE_Ti_p = eddie.readBigInteger();
+		BigInteger sE_Li_p = eddie.readBigInteger();
+		BigInteger sE_Lip1_p = eddie.readBigInteger();
+		BigInteger newTi = sE_Ti_p.xor(sC_Ti_p);
+		System.out.println("-");
+		System.out.println("j2= " +j_2);
+		System.out.println(Util.addZero(PreData.ppt_sC_Li_p[i].xor(sE_Li_p).toString(2), lBits));
+		System.out.println(Util.addZero(PreData.ppt_sC_Li_p[i+1].xor(sE_Lip1_p).toString(2), d_ip1));
+		System.out.println(Util.addZero(newTi.toString(2), tupleBits));
 
 		return sC_Ti_p;
 	}
@@ -121,6 +131,10 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 					e_all));
 		}
 		localTiming.stopwatch[PID.ppt][TID.online].stop();
+		
+		charlie.write(sE_Ti_p);
+		charlie.write(PreData.ppt_sE_Li_p[i]);
+		charlie.write(PreData.ppt_sE_Li_p[i+1]);
 
 		return sE_Ti_p;
 	}
@@ -134,27 +148,25 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 		if (party == Party.Eddie) {
 			int levels = ForestMetadata.getLevels();
-			int i = SR.rand.nextInt(levels);
+			int i = SR.rand.nextInt(levels-1);
 			PreData.ppt_sC_Li_p = new BigInteger[levels];
 			PreData.ppt_sE_Li_p = new BigInteger[levels];
-			PreData.ppt_sC_Lip1_p = new BigInteger[levels];
-			PreData.ppt_sE_Lip1_p = new BigInteger[levels];
 			PreData.ppt_r = new BigInteger[levels][twotaupow];
 			PreData.ppt_r_p = new BigInteger[levels][twotaupow];
 			PreData.ppt_alpha = new int[levels];
 
 			loadTreeSpecificParameters(i);
 			PreData.ppt_sC_Li_p[i] = new BigInteger(d_i, SR.rand);
+			PreData.ppt_sC_Li_p[i+1] = new BigInteger(d_i, SR.rand);
 			PreData.ppt_sE_Li_p[i] = new BigInteger(d_i, SR.rand);
-			PreData.ppt_sC_Lip1_p[i] = new BigInteger(d_ip1, SR.rand);
-			PreData.ppt_sE_Lip1_p[i] = new BigInteger(d_ip1, SR.rand);
+			PreData.ppt_sE_Li_p[i+1] = new BigInteger(d_i, SR.rand);
 			PreData.ppt_alpha[i] = SR.rand.nextInt(twotaupow);
 			for (int j = 0; j < twotaupow; j++) {
 				PreData.ppt_r[i][j] = new BigInteger(d_ip1, SR.rand);
 				PreData.ppt_r_p[i][j] = PreData.ppt_r[i][j];
 			}
 			PreData.ppt_r_p[i][PreData.ppt_alpha[i]] = PreData.ppt_r[i][PreData.ppt_alpha[i]]
-					.xor(PreData.ppt_sE_Lip1_p[i]);
+					.xor(PreData.ppt_sE_Li_p[i+1]);
 
 			BigInteger sC_Ti = new BigInteger(tupleBits, SR.rand);
 			BigInteger sE_Ti = new BigInteger(tupleBits, SR.rand);
@@ -166,7 +178,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 
 			con1.write(i);
 			con1.write(PreData.ppt_sC_Li_p[i]);
-			con1.write(PreData.ppt_sC_Lip1_p[i]);
+			con1.write(PreData.ppt_sC_Li_p[i+1]);
 			con1.write(PreData.ppt_alpha[i]);
 			con1.write(PreData.ppt_r[i]);
 			con1.write(sC_Ti);
@@ -177,7 +189,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 			con2.write(i);
 
 			BigInteger sE_Ti_p = executeEddieSubTree(con1, con2, null,
-					new BigInteger[] { sE_Ti }, null);
+					new BigInteger[] { sE_Ti }, timing);
 
 			BigInteger sC_Ti_p = con1.readBigInteger();
 
@@ -189,28 +201,28 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 			System.out.println("levels = " + levels);
 			System.out.println("i = " + i);
 			if (i == 0) {
-				if (PreData.ppt_sC_Lip1_p[i].xor(PreData.ppt_sE_Lip1_p[i])
+				if (PreData.ppt_sC_Li_p[i+1].xor(PreData.ppt_sE_Li_p[i+1])
 						.compareTo(Lip1_p) == 0) {
-					System.out.println("Reshuffle test passed:");
+					System.out.println("PPT test passed:");
 				} else {
-					System.out.println("Reshuffle test failed:");
+					System.out.println("PPT test failed:");
 				}
 				System.out.println("j_2=\t" + j_2);
 				System.out.println("Lip1=\t"
 						+ Util.addZero(Lip1.toString(2), d_ip1));
 				System.out.println("Lip1_p=\t"
 						+ Util.addZero(
-								PreData.ppt_sC_Lip1_p[i].xor(
-										PreData.ppt_sE_Lip1_p[i]).toString(2),
+								PreData.ppt_sC_Li_p[i+1].xor(
+										PreData.ppt_sE_Li_p[i+1]).toString(2),
 								d_ip1));
 			} else if (i < h) {
 				if (PreData.ppt_sC_Li_p[i].xor(PreData.ppt_sE_Li_p[i])
 						.compareTo(Li_p) == 0
-						&& PreData.ppt_sC_Lip1_p[i].xor(
-								PreData.ppt_sE_Lip1_p[i]).compareTo(Lip1_p) == 0) {
-					System.out.println("Reshuffle test passed:");
+						&& PreData.ppt_sC_Li_p[i+1].xor(
+								PreData.ppt_sE_Li_p[i+1]).compareTo(Lip1_p) == 0) {
+					System.out.println("PPT test passed:");
 				} else {
-					System.out.println("Reshuffle test failed:");
+					System.out.println("PPT test failed:");
 				}
 				System.out.println("Li=\t" + Util.addZero(Li.toString(2), d_i));
 				System.out.println("Li_p=\t"
@@ -223,15 +235,15 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 						+ Util.addZero(Lip1.toString(2), d_ip1));
 				System.out.println("Lip1_p=\t"
 						+ Util.addZero(
-								PreData.ppt_sC_Lip1_p[i].xor(
-										PreData.ppt_sE_Lip1_p[i]).toString(2),
+								PreData.ppt_sC_Li_p[i+1].xor(
+										PreData.ppt_sE_Li_p[i+1]).toString(2),
 								d_ip1));
 			} else {
 				if (PreData.ppt_sC_Li_p[i].xor(PreData.ppt_sE_Li_p[i])
 						.compareTo(Li_p) == 0) {
-					System.out.println("Reshuffle test passed:");
+					System.out.println("PPT test passed:");
 				} else {
-					System.out.println("Reshuffle test failed:");
+					System.out.println("PPT test failed:");
 				}
 				System.out.println("Li=\t" + Util.addZero(Li.toString(2), d_i));
 				System.out.println("Li_p=\t"
@@ -260,17 +272,16 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 			int i = con2.readInt();
 
 			loadTreeSpecificParameters(i);
-			executeDebbieSubTree(con1, con2, null, null, null);
+			executeDebbieSubTree(con1, con2, null, null, timing);
 		} else if (party == Party.Charlie) {
 			int levels = ForestMetadata.getLevels();
 			PreData.ppt_sC_Li_p = new BigInteger[levels];
-			PreData.ppt_sC_Lip1_p = new BigInteger[levels];
 			PreData.ppt_r = new BigInteger[levels][];
 			PreData.ppt_alpha = new int[levels];
 
 			int i = con2.readInt();
 			PreData.ppt_sC_Li_p[i] = con2.readBigInteger();
-			PreData.ppt_sC_Lip1_p[i] = con2.readBigInteger();
+			PreData.ppt_sC_Li_p[i+1] = con2.readBigInteger();
 			PreData.ppt_alpha[i] = con2.readInt();
 			PreData.ppt_r[i] = con2.readBigIntegerArray();
 			BigInteger sC_Ti = con2.readBigInteger();
@@ -284,7 +295,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 					con2,
 					null,
 					new BigInteger[] { sC_Ti, Li, Lip1, BigInteger.valueOf(j_2) },
-					null);
+					timing);
 
 			con2.write(sC_Ti_p);
 		}
