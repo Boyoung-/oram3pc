@@ -21,7 +21,7 @@ import sprout.util.Util;
 // TODO: make a util function to return a random permutation
 // TODO: make permutation array of int instead of list of int
 
-public class Reshuffle extends TreeOperation<BigInteger, BigInteger> {
+public class Reshuffle extends TreeOperation<BigInteger[], BigInteger> {
 
 	public Reshuffle() {
 		super(null, null);
@@ -32,12 +32,12 @@ public class Reshuffle extends TreeOperation<BigInteger, BigInteger> {
 	}
 
 	@Override
-	public BigInteger executeCharlieSubTree(Communication debbie,
+	public BigInteger[] executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree unused, BigInteger sC_P,
 			Timing localTiming) {		
 		// i = 0 case: no reshuffle needed
 		if (i == 0) {
-			return sC_P;
+			return new BigInteger[]{sC_P};
 		}
 
 		// protocol
@@ -53,15 +53,15 @@ public class Reshuffle extends TreeOperation<BigInteger, BigInteger> {
 		localTiming.stopwatch[PID.reshuf][TID.online].start();
 		BigInteger sC_pi_P = BigInteger.ZERO;
 		for (int j = 0; j < pathBuckets; j++)
-			sC_pi_P = sC_pi_P.shiftLeft(bucketBits).xor(
-					PreData.reshuffle_a_p[i][j]);
+			sC_pi_P = sC_pi_P.shiftLeft(bucketBits).xor(PreData.reshuffle_a_p[i][j]);
 		localTiming.stopwatch[PID.reshuf][TID.online].stop();
 
-		return sC_pi_P;
+		//return sC_pi_P;
+		return PreData.reshuffle_a_p[i];
 	}
 
 	@Override
-	public BigInteger executeDebbieSubTree(Communication charlie,
+	public BigInteger[] executeDebbieSubTree(Communication charlie,
 			Communication eddie, Tree unused, BigInteger unused2,
 			Timing localTiming) {
 		// protocol
@@ -70,12 +70,12 @@ public class Reshuffle extends TreeOperation<BigInteger, BigInteger> {
 	}
 
 	@Override
-	public BigInteger executeEddieSubTree(Communication charlie,
+	public BigInteger[] executeEddieSubTree(Communication charlie,
 			Communication debbie, Tree unused, BigInteger sE_P,
 			Timing localTiming) {
 		// i = 0 case: no shuffle needed
 		if (i == 0) {
-			return sE_P;
+			return new BigInteger[]{sE_P};
 		}
 
 		// protocol
@@ -101,9 +101,11 @@ public class Reshuffle extends TreeOperation<BigInteger, BigInteger> {
 			sE_pi_P = sE_pi_P.shiftLeft(bucketBits).xor(b[j]);
 		localTiming.stopwatch[PID.reshuf][TID.online].stop();
 
-		return sE_pi_P;
+		//return sE_pi_P;
+		return b;
 	}
 
+	/*
 	// for testing correctness
 	@SuppressWarnings("unchecked")
 	@Override
@@ -199,4 +201,5 @@ public class Reshuffle extends TreeOperation<BigInteger, BigInteger> {
 
 		System.out.println("#####  Testing Reshuffle Finished  #####");
 	}
+	*/
 }

@@ -41,13 +41,12 @@ public class Retrieve extends Operation {
 
 		Reshuffle res = new Reshuffle(debbie, eddie);
 		res.loadTreeSpecificParameters(i);
-		BigInteger sC_pi_P = res.executeCharlieSubTree(debbie, eddie, null,
+		BigInteger[] sC_pi_P = res.executeCharlieSubTree(debbie, eddie, null,
 				AOut.sC_sig_P_p, timing);
 
 		Eviction evict = new Eviction(debbie, eddie);
 		evict.loadTreeSpecificParameters(i);
-		evict.executeCharlieSubTree(debbie, eddie, null, new BigInteger[] {
-				sC_pi_P, sC_Ti_p }, timing);
+		evict.executeCharlieSubTree(debbie, eddie, null, sC_Ti_p, sC_pi_P, timing);
 		
 		return Pair.of(output, null);
 	}
@@ -70,7 +69,7 @@ public class Retrieve extends Operation {
 
 		Eviction evict = new Eviction(charlie, eddie);
 		evict.loadTreeSpecificParameters(i);
-		evict.executeDebbieSubTree(charlie, eddie, sD_OT, null, timing);
+		evict.executeDebbieSubTree(charlie, eddie, sD_OT, null, null, timing);
 
 		return null;
 	}
@@ -90,13 +89,12 @@ public class Retrieve extends Operation {
 
 		Reshuffle res = new Reshuffle(charlie, debbie);
 		res.loadTreeSpecificParameters(i);
-		BigInteger sE_pi_P = res.executeEddieSubTree(charlie, debbie, null,
+		BigInteger[] sE_pi_P = res.executeEddieSubTree(charlie, debbie, null,
 				AOut.sE_sig_P_p, timing);
 
 		Eviction evict = new Eviction(charlie, debbie);
 		evict.loadTreeSpecificParameters(i);
-		evict.executeEddieSubTree(charlie, debbie, sE_OT, new BigInteger[] {
-				sE_pi_P, sE_Ti_p }, timing);
+		evict.executeEddieSubTree(charlie, debbie, sE_OT, sE_Ti_p, sE_pi_P, timing);
 
 		return null;
 	}

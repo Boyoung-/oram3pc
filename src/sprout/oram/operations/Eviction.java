@@ -22,13 +22,13 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		super(con1, con2);
 	}
 
-	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
-			Communication eddie, Tree unused, BigInteger[] args,
+			Communication eddie, Tree unused, BigInteger sC_T_p, BigInteger[] sC_P_p,
 			Timing localTiming) {
 		if (i == 0) {
 			localTiming.stopwatch[PID.evict][TID.online_write].start();
-			debbie.write(args[1]);
+			//debbie.write(args[1]);
+			debbie.write(sC_T_p);
 			localTiming.stopwatch[PID.evict][TID.online_write].stop();
 
 			return null;
@@ -38,8 +38,8 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// protocol
 		// step 1
-		BigInteger sC_P_p = args[0];
-		BigInteger sC_T_p = args[1];
+		//BigInteger sC_P_p = args[0];
+		//BigInteger sC_T_p = args[1];
 
 		for (int j = 0; j < d_i; j++) {
 			localTiming.stopwatch[PID.evict][TID.online].start();
@@ -53,14 +53,14 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 				// * tupleBits, (w - l) * tupleBits);
 				sC_fb = sC_fb.shiftLeft(1);
 				// if (sC_tuple.testBit(tupleBits - 1))
-				if (sC_P_p.testBit((pathBuckets - j) * bucketBits - l
-						* tupleBits - 1))
+				//if (sC_P_p.testBit((pathBuckets - j) * bucketBits - l * tupleBits - 1))
+				if (sC_P_p[j].testBit((w-l) * tupleBits - 1))
 					sC_fb = sC_fb.setBit(0);
 				sC_dir = sC_dir.shiftLeft(1);
 				// int bit = (sC_tuple.testBit(lBits - j - 1 + aBits) ? 1 : 0);
 				// if (bit == 1)
-				if (sC_P_p.testBit((pathBuckets - j) * bucketBits - l
-						* tupleBits - 1 - nBits - j - 1))
+				//if (sC_P_p.testBit((pathBuckets - j) * bucketBits - l * tupleBits - 1 - nBits - j - 1))
+				if (sC_P_p[j].testBit((w-l) * tupleBits - 1 - nBits - j - 1))
 					sC_dir = sC_dir.setBit(0);
 			}
 			BigInteger sC_input = sC_dir.shiftLeft(w).xor(sC_fb);
@@ -80,8 +80,8 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			for (int l = 0; l < w; l++) {
 				sC_fb = sC_fb.shiftLeft(1);
 				// if (sC_bucket.testBit((w - l) * tupleBits - 1))
-				if (sC_P_p.testBit((pathBuckets - j) * bucketBits - l
-						* tupleBits - 1))
+				//if (sC_P_p.testBit((pathBuckets - j) * bucketBits - l * tupleBits - 1))
+				if (sC_P_p[j].testBit((w-l) * tupleBits - 1))
 					sC_fb = sC_fb.setBit(0);
 			}
 		}
@@ -99,20 +99,26 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		int k = w * pathBuckets;
 
 		// step 4
-		BigInteger tmp = sC_P_p;
+		//BigInteger tmp = sC_P_p;
 		BigInteger helper = BigInteger.ONE.shiftLeft(tupleBits).subtract(
 				BigInteger.ONE);
 		BigInteger[] sC_a = new BigInteger[k + 2];
-		for (int j = 0; j < pathBuckets; j++)
-			for (int l = 0; l < w; l++) {
+		for (int j = 0; j < pathBuckets; j++) {
+			BigInteger tmp = sC_P_p[j];
+			//for (int l = 0; l < w; l++) {
 				// sC_a[w * j + l] = Util.getSubBits(sC_P_p, (pathBuckets - j -
 				// 1)
 				// * bucketBits + (w - l - 1) * tupleBits, (pathBuckets
 				// - j - 1)
 				// * bucketBits + (w - l) * tupleBits);
-				sC_a[k - (w * j + l) - 1] = tmp.and(helper);
+			//	sC_a[k - (w * j + l) - 1] = tmp.and(helper);
+			//	tmp = tmp.shiftRight(tupleBits);
+			//}
+			for (int l=w-1; l>=0; l--) {
+				sC_a[w * j + l] = tmp.and(helper);
 				tmp = tmp.shiftRight(tupleBits);
 			}
+		}
 		sC_a[k] = sC_T_p;
 		sC_a[k + 1] = new BigInteger(tupleBits - 1, SR.rand);
 		localTiming.stopwatch[PID.evict][TID.online].stop();
@@ -141,9 +147,8 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		return null;
 	}
 
-	@Override
 	public BigInteger executeDebbieSubTree(Communication charlie,
-			Communication eddie, Tree OT, BigInteger[] unused2,
+			Communication eddie, Tree OT, BigInteger unused, BigInteger[] unused2,
 			Timing localTiming) {
 		if (i == 0) {
 			localTiming.stopwatch[PID.evict][TID.online_read].start();
@@ -290,14 +295,12 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		return null;
 	}
 
-	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
-			Communication debbie, Tree OT, BigInteger[] args, Timing localTiming) {
+			Communication debbie, Tree OT, BigInteger sE_T_p, BigInteger[] sE_P_p, Timing localTiming) {
 		if (i == 0) {
 			localTiming.stopwatch[PID.evict][TID.online].start();
-			Bucket[] buckets = new Bucket[] { new Bucket(i,
-					Util.rmSignBit(args[1].xor(PreData.evict_upxi[i])
-							.toByteArray())) };
+			//Bucket[] buckets = new Bucket[] { new Bucket(i,	Util.rmSignBit(args[1].xor(PreData.evict_upxi[i]).toByteArray())) };
+			Bucket[] buckets = new Bucket[] { new Bucket(i,	Util.rmSignBit(sE_T_p.xor(PreData.evict_upxi[i]).toByteArray())) };
 			BigInteger Li = null;
 			OT.setBucketsOnPath(buckets, Li);
 			localTiming.stopwatch[PID.evict][TID.online].stop();
@@ -309,8 +312,8 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// protocol
 		// step 1
-		BigInteger sE_P_p = args[0];
-		BigInteger sE_T_p = args[1];
+		//BigInteger sE_P_p = args[0];
+		//BigInteger sE_T_p = args[1];
 
 		for (int j = 0; j < d_i; j++) {
 			localTiming.stopwatch[PID.evict][TID.online].start();
@@ -324,17 +327,16 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 				// * tupleBits, (w - l) * tupleBits);
 				sE_fb = sE_fb.shiftLeft(1);
 				// if (sE_tuple.testBit(tupleBits - 1))
-				if (sE_P_p.testBit((pathBuckets - j) * bucketBits - l
-						* tupleBits - 1))
+				//if (sE_P_p.testBit((pathBuckets - j) * bucketBits - l * tupleBits - 1))
+				if (sE_P_p[j].testBit((w-l) * tupleBits - 1))
 					sE_fb = sE_fb.setBit(0);
 				sE_dir = sE_dir.shiftLeft(1);
 				// int bit = (sE_tuple.testBit(lBits - j - 1 + aBits) ? 1 : 0) ^
 				// 1
 				// ^ (PreData.access_Li[i].testBit(lBits - j - 1) ? 1 : 0);
-				int bit = (sE_P_p.testBit((pathBuckets - j) * bucketBits - l
-						* tupleBits - 1 - nBits - j - 1) ? 1 : 0)
-						^ 1
-						^ (PreData.access_Li[i].testBit(lBits - j - 1) ? 1 : 0);
+				//int bit = (sE_P_p.testBit((pathBuckets - j) * bucketBits - l * tupleBits - 1 - nBits - j - 1) ? 1 : 0)
+				int bit = (sE_P_p[j].testBit((w-l) * tupleBits - 1 - nBits - j - 1) ? 1 : 0)
+						^ 1	^ (PreData.access_Li[i].testBit(lBits - j - 1) ? 1 : 0);
 				if (bit == 1)
 					sE_dir = sE_dir.setBit(0);
 			}
@@ -355,8 +357,8 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			for (int l = 0; l < w; l++) {
 				sE_fb = sE_fb.shiftLeft(1);
 				// if (sE_bucket.testBit((w - l) * tupleBits - 1))
-				if (sE_P_p.testBit((pathBuckets - j) * bucketBits - l
-						* tupleBits - 1))
+				//if (sE_P_p.testBit((pathBuckets - j) * bucketBits - l * tupleBits - 1))
+				if (sE_P_p[j].testBit((w-l) * tupleBits - 1))
 					sE_fb = sE_fb.setBit(0);
 			}
 		}
@@ -370,20 +372,27 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		int k = w * pathBuckets;
 
 		// step 4
-		BigInteger tmp = sE_P_p;
+		//BigInteger tmp = sE_P_p;
+		BigInteger tmp;
 		BigInteger helper = BigInteger.ONE.shiftLeft(tupleBits).subtract(
 				BigInteger.ONE);
 		BigInteger[] sE_a = new BigInteger[k + 2];
-		for (int j = 0; j < pathBuckets; j++)
-			for (int l = 0; l < w; l++) {
+		for (int j = 0; j < pathBuckets; j++) {
+			tmp = sE_P_p[j];
+			//for (int l = 0; l < w; l++) {
 				// sE_a[w * j + l] = Util.getSubBits(sE_P_p, (pathBuckets - j -
 				// 1)
 				// * bucketBits + (w - l - 1) * tupleBits, (pathBuckets
 				// - j - 1)
 				// * bucketBits + (w - l) * tupleBits);
-				sE_a[k - (w * j + l) - 1] = tmp.and(helper);
+			//	sE_a[k - (w * j + l) - 1] = tmp.and(helper);
+			//	tmp = tmp.shiftRight(tupleBits);
+			//}
+			for (int l=w-1; l>=0; l--) {
+				sE_a[w * j + l] = tmp.and(helper);
 				tmp = tmp.shiftRight(tupleBits);
 			}
+		}
 		sE_a[k] = sE_T_p;
 		sE_a[k + 1] = new BigInteger(tupleBits - 1, SR.rand);
 		localTiming.stopwatch[PID.evict][TID.online].stop();
@@ -416,6 +425,27 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		debbie.write(sE_P_p);
 	*/
 		
+		return null;
+	}
+
+	@Override
+	public BigInteger executeCharlieSubTree(Communication debbie,
+			Communication eddie, Tree OT, BigInteger[] args, Timing localTiming) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigInteger executeDebbieSubTree(Communication charlie,
+			Communication eddie, Tree OT, BigInteger[] args, Timing localTiming) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BigInteger executeEddieSubTree(Communication charlie,
+			Communication debbie, Tree OT, BigInteger[] args, Timing localTiming) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }
