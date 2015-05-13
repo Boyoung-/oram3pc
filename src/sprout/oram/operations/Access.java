@@ -120,9 +120,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			BigInteger newTuple = new BigInteger(tupleBits - 1, SR.rand);
 			if (flipBit)
 				newTuple = newTuple.setBit(tupleBits - 1);
-			sC_sig_P_p = Util.setSubBits(sC_sig_P_all_p, newTuple, (pathTuples
-					- j_1 - 1)
-					* tupleBits, (pathTuples - j_1) * tupleBits);
+			sC_sig_P_p = Util.setSubBits(sC_sig_P_all_p, newTuple, (pathTuples - j_1 - 1) * tupleBits, (pathTuples - j_1) * tupleBits);
 			
 			/*
 			BigInteger sE_Ti = eddie.readBigInteger();
@@ -196,11 +194,15 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i > 0) {
 			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
 					BigInteger.ONE);
-			tmp = sD_sig_P_all.shiftRight(lBits + aBits);
-			for (int j = pathTuples - 1; j >= 0; j--) {
-				share1N[j] = tmp.and(helper);
-				tmp = tmp.shiftRight(tupleBits);
-				a[j] = share1N[j].xor(sD_Ni.setBit(nBits));
+			//tmp = sD_sig_P_all.shiftRight(lBits + aBits);
+			//for (int j = pathTuples - 1; j >= 0; j--) {
+			for (int j=0; j<pathBuckets; j++) {
+				tmp = sD_sig_P[j].shiftRight(lBits + aBits);
+				for (int t = w - 1; t >= 0; t--) {
+					share1N[j*w+t] = tmp.and(helper);
+					tmp = tmp.shiftRight(tupleBits);
+					a[j*w+t] = share1N[j*w+t].xor(sD_Ni.setBit(nBits));
+				}
 			}
 			timing.stopwatch[PID.access][TID.online].stop();
 
@@ -284,13 +286,13 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			//for (int j = pathTuples - 1; j >= 0; j--) {
 			for (int j=0; j<pathBuckets; j++) {
 				tmp = sE_sig_P[j];
-				for (int t=w-1; t>=0; t--) {
-				shareA[j*w+t] = tmp.and(helperA);
-				tmp = tmp.shiftRight(lBits + aBits);
-				share1N[j*w+t] = tmp.and(helper1N);
-				tmp = tmp.shiftRight(1 + nBits);
-				e[j*w+t] = shareA[j*w+t].xor(y_all);
-				b[j*w+t] = share1N[j*w+t].xor(sE_Ni);
+				for (int t = w - 1; t >= 0; t--) {
+					shareA[j * w + t] = tmp.and(helperA);
+					tmp = tmp.shiftRight(lBits + aBits);
+					share1N[j * w + t] = tmp.and(helper1N);
+					tmp = tmp.shiftRight(1 + nBits);
+					e[j * w + t] = shareA[j * w + t].xor(y_all);
+					b[j * w + t] = share1N[j * w + t].xor(sE_Ni);
 				}
 			}
 			timing.stopwatch[PID.access][TID.online].stop();

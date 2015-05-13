@@ -250,13 +250,25 @@ public class Util {
 
 	public static BigInteger setSubBits(BigInteger target, BigInteger input,
 			int i, int j) {
+		/*
 		for (int k = 0; k < j - i; k++) {
 			if (input.testBit(k))
 				target = target.setBit(i + k);
 			else
 				target = target.clearBit(i + k);
 		}
-		return target;
+		*/
+		if (input.bitLength() > (j-i)) {
+			try {
+				throw new Exception("input longer than the relpacing bits");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+		
+		BigInteger original = Util.getSubBits(target, i, j);
+		return target.xor(original.shiftLeft(i)).xor(input.shiftLeft(i));
 	}
 
 	public static byte[] rmSignBit(byte[] arr) {
