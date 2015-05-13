@@ -271,23 +271,22 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 		BigInteger[] e = new BigInteger[pathTuples];
 		BigInteger[] b = new BigInteger[pathTuples];
-		//BigInteger[] share1N = new BigInteger[pathTuples];
-		//BigInteger[] shareA = new BigInteger[pathTuples];
-		BigInteger helper1N;
-		BigInteger helperA;
+		
+		//BigInteger helper1N;
+		//BigInteger helperA;
 		if (i > 0) {
-			helper1N = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
-					BigInteger.ONE);
-			helperA = BigInteger.ONE.shiftLeft(aBits).subtract(BigInteger.ONE);
+			byte[] helper1N = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
+					BigInteger.ONE).toByteArray();
+			byte[] helperA = BigInteger.ONE.shiftLeft(aBits).subtract(BigInteger.ONE).toByteArray();
+			byte[] y_all_byte = y_all.toByteArray();
+			byte[] sE_Ni_byte = sE_Ni.toByteArray();
 			tmp = sE_sig_P_all_p;
 			for (int j = pathTuples - 1; j >= 0; j--) {
-				//shareA[j] = tmp.and(helperA);
 				//e[j] = tmp.and(helperA).xor(y_all);
-				e[j] = new BigInteger(1, Util.xor(Util.and(tmp.toByteArray(), helperA.toByteArray()), y_all.toByteArray()));
+				e[j] = new BigInteger(1, Util.xor(Util.and(tmp.toByteArray(), helperA), y_all_byte));
 				tmp = tmp.shiftRight(lBits + aBits);
-				//share1N[j] = tmp.and(helper1N);
 				//b[j] = tmp.and(helper1N).xor(sE_Ni);
-				b[j] = new BigInteger(1, Util.xor(Util.and(tmp.toByteArray(), helper1N.toByteArray()), sE_Ni.toByteArray()));
+				b[j] = new BigInteger(1, Util.xor(Util.and(tmp.toByteArray(), helper1N), sE_Ni_byte));
 				tmp = tmp.shiftRight(1 + nBits);
 				//e[j] = shareA[j].xor(y_all);
 				//b[j] = share1N[j].xor(sE_Ni);
