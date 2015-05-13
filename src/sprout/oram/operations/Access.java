@@ -271,8 +271,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 		BigInteger[] e = new BigInteger[pathTuples];
 		BigInteger[] b = new BigInteger[pathTuples];
-		BigInteger[] share1N = new BigInteger[pathTuples];
-		BigInteger[] shareA = new BigInteger[pathTuples];
+		//BigInteger[] share1N = new BigInteger[pathTuples];
+		//BigInteger[] shareA = new BigInteger[pathTuples];
 		BigInteger helper1N;
 		BigInteger helperA;
 		if (i > 0) {
@@ -281,12 +281,14 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			helperA = BigInteger.ONE.shiftLeft(aBits).subtract(BigInteger.ONE);
 			tmp = sE_sig_P_all_p;
 			for (int j = pathTuples - 1; j >= 0; j--) {
-				shareA[j] = tmp.and(helperA);
+				//shareA[j] = tmp.and(helperA);
+				e[j] = tmp.and(helperA).xor(y_all);
 				tmp = tmp.shiftRight(lBits + aBits);
-				share1N[j] = tmp.and(helper1N);
+				//share1N[j] = tmp.and(helper1N);
+				b[j] = tmp.and(helper1N).xor(sE_Ni);
 				tmp = tmp.shiftRight(1 + nBits);
-				e[j] = shareA[j].xor(y_all);
-				b[j] = share1N[j].xor(sE_Ni);
+				//e[j] = shareA[j].xor(y_all);
+				//b[j] = share1N[j].xor(sE_Ni);
 			}
 			//timing.stopwatch[PID.access][TID.online].stop();
 			timing.stopwatch[PID.precomp][TID.online_read].stop();
