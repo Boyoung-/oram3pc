@@ -296,4 +296,44 @@ public class Util {
 	 * null; T[][] out = m.clone(); for (int i=0; i<m.length; i++) out[i] =
 	 * m[i].clone(); return out; }
 	 */
+	
+	public static byte[] xor(byte[] a, byte[] b) {
+		byte[] small = a;
+		byte[] big = b;
+		if (a.length > b.length) {	
+			small = b;
+			big = a;
+		}
+		
+		int lenDiff = big.length - small.length;
+		byte[] out = new byte[big.length];
+		
+		int i=0;
+		for (; i<lenDiff; i++) {
+			out[i] = big[i];
+		}
+		for (; i<big.length; i++) {
+			out[i] = (byte) (small[i-lenDiff] ^ big[i]);
+		}
+		
+		return out;
+	}
+	
+	public static byte[] and(byte[] a, byte[] b) {
+		byte[] small = a;
+		byte[] big = b;
+		if (a.length > b.length) {	
+			small = b;
+			big = a;
+		}
+		
+		int lenDiff = big.length - small.length;
+		byte[] out = new byte[small.length];
+		
+		for (int i=0; i<small.length; i++) {
+			out[i] = (byte) (small[i] & big[i+lenDiff]);
+		}
+		
+		return out;
+	}
 }

@@ -282,10 +282,12 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			tmp = sE_sig_P_all_p;
 			for (int j = pathTuples - 1; j >= 0; j--) {
 				//shareA[j] = tmp.and(helperA);
-				e[j] = tmp.and(helperA).xor(y_all);
+				//e[j] = tmp.and(helperA).xor(y_all);
+				e[j] = new BigInteger(1, Util.xor(Util.and(tmp.toByteArray(), helperA.toByteArray()), y_all.toByteArray()));
 				tmp = tmp.shiftRight(lBits + aBits);
 				//share1N[j] = tmp.and(helper1N);
-				b[j] = tmp.and(helper1N).xor(sE_Ni);
+				//b[j] = tmp.and(helper1N).xor(sE_Ni);
+				b[j] = new BigInteger(1, Util.xor(Util.and(tmp.toByteArray(), helper1N.toByteArray()), sE_Ni.toByteArray()));
 				tmp = tmp.shiftRight(1 + nBits);
 				//e[j] = shareA[j].xor(y_all);
 				//b[j] = share1N[j].xor(sE_Ni);
