@@ -247,7 +247,8 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		localTiming.stopwatch[PID.evict][TID.online_read].stop();
 
 		localTiming.stopwatch[PID.evict][TID.online].start();
-		BigInteger tmp = secretD_P_pp.xor(PreData.evict_upxi[i]);
+		//BigInteger tmp = secretD_P_pp.xor(PreData.evict_upxi[i]);
+		BigInteger tmp = secretD_P_pp;
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
 				BigInteger.ONE);
 		Bucket[] buckets = new Bucket[pathBuckets];
@@ -403,6 +404,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 				i, k + 2, k, tupleBits, sE_a);
 
 		localTiming.stopwatch[PID.evict][TID.online].start();
+		/*
 		BigInteger secretE_P_pp = BigInteger.ZERO;
 		for (int j = 0; j < sE_P_pp.length; j++)
 			secretE_P_pp = secretE_P_pp.shiftLeft(tupleBits).xor(sE_P_pp[j]);
@@ -416,6 +418,17 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			tmp = tmp.shiftRight(bucketBits);
 			buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
 		}
+		*/
+		
+		Bucket[] buckets = new Bucket[pathBuckets];
+		for (int j=0; j<pathBuckets; j++) {
+			BigInteger content = BigInteger.ZERO;
+			for (int t=0; t<w; t++) {
+				content = content.shiftLeft(tupleBits).xor(sE_P_pp[j*w+t]);
+				buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
+			}
+		}
+		
 		OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
 		localTiming.stopwatch[PID.evict][TID.online].stop();
 		

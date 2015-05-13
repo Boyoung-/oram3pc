@@ -50,11 +50,11 @@ public class Reshuffle extends TreeOperation<BigInteger[], BigInteger> {
 		eddie.write(z);
 		localTiming.stopwatch[PID.reshuf][TID.online_write].stop();
 
-		localTiming.stopwatch[PID.reshuf][TID.online].start();
-		BigInteger sC_pi_P = BigInteger.ZERO;
-		for (int j = 0; j < pathBuckets; j++)
-			sC_pi_P = sC_pi_P.shiftLeft(bucketBits).xor(PreData.reshuffle_a_p[i][j]);
-		localTiming.stopwatch[PID.reshuf][TID.online].stop();
+		//localTiming.stopwatch[PID.reshuf][TID.online].start();
+		//BigInteger sC_pi_P = BigInteger.ZERO;
+		//for (int j = 0; j < pathBuckets; j++)
+		//	sC_pi_P = sC_pi_P.shiftLeft(bucketBits).xor(PreData.reshuffle_a_p[i][j]);
+		//localTiming.stopwatch[PID.reshuf][TID.online].stop();
 
 		//return sC_pi_P;
 		return PreData.reshuffle_a_p[i];
@@ -96,10 +96,11 @@ public class Reshuffle extends TreeOperation<BigInteger[], BigInteger> {
 			tmp = tmp.shiftRight(bucketBits);
 		}
 		b = Util.permute(b, PreData.reshuffle_pi[i]);
-		BigInteger sE_pi_P = BigInteger.ZERO;
-		for (int j = 0; j < pathBuckets; j++)
-			sE_pi_P = sE_pi_P.shiftLeft(bucketBits).xor(b[j]);
-		localTiming.stopwatch[PID.reshuf][TID.online].stop();
+		
+		//BigInteger sE_pi_P = BigInteger.ZERO;
+		//for (int j = 0; j < pathBuckets; j++)
+		//	sE_pi_P = sE_pi_P.shiftLeft(bucketBits).xor(b[j]);
+		//localTiming.stopwatch[PID.reshuf][TID.online].stop();
 
 		//return sE_pi_P;
 		return b;
