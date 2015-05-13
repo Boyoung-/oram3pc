@@ -229,7 +229,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		PreData.access_Li[i] = charlie.readBigInteger();
 		timing.stopwatch[PID.access][TID.online_read].stop();
 
-		timing.stopwatch[PID.access][TID.online].start();
+		//timing.stopwatch[PID.access][TID.online].start();
+		timing.stopwatch[PID.precomp][TID.online].start();
 		Bucket[] sE_buckets = sE_OT.getBucketsOnPath(PreData.access_Li[i]);
 		BigInteger[] sE_P = new BigInteger[sE_buckets.length];
 		for (int j = 0; j < sE_buckets.length; j++) {
@@ -241,7 +242,9 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		for (int j = 1; j < sE_sig_P.length; j++)
 			sE_sig_P_all = sE_sig_P_all.shiftLeft(bucketBits).xor(sE_sig_P[j]);
 		BigInteger sE_sig_P_all_p = sE_sig_P_all.xor(PreData.access_p[i]);
+		timing.stopwatch[PID.precomp][TID.online].stop();
 		
+		timing.stopwatch[PID.precomp][TID.online_write].start();
 		BigInteger[] y = new BigInteger[twotaupow];
 		BigInteger y_all;
 		if (i == 0)
@@ -257,8 +260,10 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			y[o] = tmp.and(helper);
 			tmp = tmp.shiftRight(d_ip1);
 		}
+		timing.stopwatch[PID.precomp][TID.online_write].stop();
 
 		// step 2
+		timing.stopwatch[PID.precomp][TID.online_read].start();
 		BigInteger sE_Nip1 = args[0];
 		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata
 				.getLastNBits();
@@ -283,13 +288,15 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 				e[j] = shareA[j].xor(y_all);
 				b[j] = share1N[j].xor(sE_Ni);
 			}
-			timing.stopwatch[PID.access][TID.online].stop();
+			//timing.stopwatch[PID.access][TID.online].stop();
+			timing.stopwatch[PID.precomp][TID.online_read].stop();
 
 			SSCOT sscot = new SSCOT(charlie, debbie);
 			sscot.executeEddie(charlie, debbie, i, pathTuples, aBits,
 					1 + nBits, e, b);
 		} else
-			timing.stopwatch[PID.access][TID.online].stop();
+			//timing.stopwatch[PID.access][TID.online].stop();
+			timing.stopwatch[PID.precomp][TID.online_read].stop();
 
 		// step 3
 		if (i < h) {
