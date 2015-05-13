@@ -117,7 +117,7 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		// Access
 		PreData.access_Li = new BigInteger[levels];
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
-		PreData.access_p = new BigInteger[levels];
+		PreData.access_p = new BigInteger[levels][];
 
 		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
@@ -125,15 +125,17 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			for (int j = 0; j < pathBuckets; j++)
 				PreData.access_sigma[i].add(j);
 			Collections.shuffle(PreData.access_sigma[i], SR.rand);
-			PreData.access_p[i] = new BigInteger(pathTuples * tupleBits,
-					SR.rand);
+			
+			PreData.access_p[i] = new BigInteger[pathBuckets];
+			for (int j=0; j<pathBuckets; j++)
+				PreData.access_p[i][j] = new BigInteger(bucketBits, SR.rand);
 			//PreData.access_p[i] = BigInteger.ZERO;
 		}
 
 		for (int index = 0; index < levels; index++) {
 			eddie.write(PreData.access_sigma[index]);
+			eddie.write(PreData.access_p[index]);
 		}
-		eddie.write(PreData.access_p);
 
 		// Reshuffle
 		byte[][] reshuffle_s1 = new byte[levels][16];
@@ -307,11 +309,12 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		// Access
 		PreData.access_Li = new BigInteger[levels];
 		PreData.access_sigma = (List<Integer>[]) new List[levels];
+		PreData.access_p = new BigInteger[levels][];
 
 		for (int index = 0; index < levels; index++) {
 			PreData.access_sigma[index] = debbie.readListInt();
+			PreData.access_p[index] = debbie.readBigIntegerArray();
 		}
-		PreData.access_p = debbie.readBigIntegerArray();
 
 		// Reshuffle
 		byte[][] reshuffle_s2 = debbie.readDoubleByteArray();

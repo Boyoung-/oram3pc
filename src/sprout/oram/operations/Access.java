@@ -169,15 +169,18 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			sD_P[j] = new BigInteger(1, sD_buckets[j].getByteTuples());
 		}
 		BigInteger[] sD_sig_P = Util.permute(sD_P, PreData.access_sigma[i]);
+		
+		for (int j=0; j<sD_sig_P.length; j++)
+			sD_sig_P[j] = sD_sig_P[j].xor(PreData.access_p[i][j]);
 
 		BigInteger sD_sig_P_all = sD_sig_P[0];
 		for (int j = 1; j < sD_sig_P.length; j++)
 			sD_sig_P_all = sD_sig_P_all.shiftLeft(bucketBits).xor(sD_sig_P[j]);
-		BigInteger sD_sig_P_all_p = sD_sig_P_all.xor(PreData.access_p[i]);
+		//BigInteger sD_sig_P_all_p = sD_sig_P_all.xor(PreData.access_p[i]);
 		timing.stopwatch[PID.access][TID.online].stop();
 
 		timing.stopwatch[PID.access][TID.online_write].start();
-		charlie.write(sD_sig_P_all_p);
+		charlie.write(sD_sig_P_all);
 		timing.stopwatch[PID.access][TID.online_write].stop();
 
 		// step 2
@@ -193,7 +196,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i > 0) {
 			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
 					BigInteger.ONE);
-			tmp = sD_sig_P_all_p.shiftRight(lBits + aBits);
+			tmp = sD_sig_P_all.shiftRight(lBits + aBits);
 			for (int j = pathTuples - 1; j >= 0; j--) {
 				share1N[j] = tmp.and(helper);
 				tmp = tmp.shiftRight(tupleBits);
@@ -236,16 +239,19 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			sE_P[j] = new BigInteger(1, sE_buckets[j].getByteTuples());
 		}
 		BigInteger[] sE_sig_P = Util.permute(sE_P, PreData.access_sigma[i]);
+		
+		for (int j=0; j<sE_sig_P.length; j++)
+			sE_sig_P[j] = sE_sig_P[j].xor(PreData.access_p[i][j]);
 
 		BigInteger sE_sig_P_all = sE_sig_P[0];
 		for (int j = 1; j < sE_sig_P.length; j++)
 			sE_sig_P_all = sE_sig_P_all.shiftLeft(bucketBits).xor(sE_sig_P[j]);
-		BigInteger sE_sig_P_all_p = sE_sig_P_all.xor(PreData.access_p[i]);
+		//BigInteger sE_sig_P_all_p = sE_sig_P_all.xor(PreData.access_p[i]);
 		
 		BigInteger[] y = new BigInteger[twotaupow];
 		BigInteger y_all;
 		if (i == 0)
-			y_all = sE_sig_P_all_p;
+			y_all = sE_sig_P_all;
 		else if (i < h)
 			y_all = new BigInteger(aBits, SR.rand);
 		else
@@ -274,14 +280,18 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			helper1N = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
 					BigInteger.ONE);
 			helperA = BigInteger.ONE.shiftLeft(aBits).subtract(BigInteger.ONE);
-			tmp = sE_sig_P_all_p;
-			for (int j = pathTuples - 1; j >= 0; j--) {
-				shareA[j] = tmp.and(helperA);
+			//tmp = sE_sig_P_all;
+			//for (int j = pathTuples - 1; j >= 0; j--) {
+			for (int j=0; j<pathBuckets; j++) {
+				tmp = sE_sig_P[j];
+				for (int t=w-1; t>=0; t--) {
+				shareA[j*w+t] = tmp.and(helperA);
 				tmp = tmp.shiftRight(lBits + aBits);
-				share1N[j] = tmp.and(helper1N);
+				share1N[j*w+t] = tmp.and(helper1N);
 				tmp = tmp.shiftRight(1 + nBits);
-				e[j] = shareA[j].xor(y_all);
-				b[j] = share1N[j].xor(sE_Ni);
+				e[j*w+t] = shareA[j*w+t].xor(y_all);
+				b[j*w+t] = share1N[j*w+t].xor(sE_Ni);
+				}
 			}
 			timing.stopwatch[PID.access][TID.online].stop();
 
@@ -315,7 +325,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		} else {
 			sE_Ti = sE_Ni.shiftLeft(lBits + aBits)
 					.xor(PreData.access_Li[i].shiftLeft(aBits)).xor(y_all);
-			sE_sig_P_p = sE_sig_P_all_p;
+			sE_sig_P_p = sE_sig_P_all;
 			
 			/*
 			charlie.write(sE_Ti);

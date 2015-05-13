@@ -55,6 +55,7 @@ public class TestCode {
 		BigInteger bb = new BigInteger(1, b);
 		StopWatch sw1 = new StopWatch();
 		StopWatch sw2 = new StopWatch();
+		StopWatch sw3 = new StopWatch();
 		
 		sw1.start();
 		for (int i=0; i<100000; i++)
@@ -66,8 +67,14 @@ public class TestCode {
 			ba.xor(bb);
 		sw2.stop();
 		
+		sw3.start();
+		for (int i=0; i<100000; i++)
+			ba.shiftLeft(5);
+		sw3.stop();
+		
 		System.out.println(sw1);
 		System.out.println(sw2);
+		System.out.println(sw3);
 		
 	}
 }
