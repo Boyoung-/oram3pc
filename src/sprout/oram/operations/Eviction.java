@@ -476,21 +476,18 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 	@Override
 	public BigInteger executeCharlieSubTree(Communication debbie,
 			Communication eddie, Tree OT, BigInteger[] args, Timing localTiming) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public BigInteger executeDebbieSubTree(Communication charlie,
 			Communication eddie, Tree OT, BigInteger[] args, Timing localTiming) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public BigInteger executeEddieSubTree(Communication charlie,
 			Communication debbie, Tree OT, BigInteger[] args, Timing localTiming) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

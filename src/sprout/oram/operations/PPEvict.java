@@ -52,14 +52,14 @@ public class PPEvict extends Thread {
 		Reshuffle res = new Reshuffle(threadCon1[currTree],
 				threadCon2[currTree]);
 		res.loadTreeSpecificParameters(currTree);
-		BigInteger sC_pi_P = res.executeCharlieSubTree(threadCon1[currTree],
+		BigInteger sC_pi_P[] = res.executeCharlieSubTree(threadCon1[currTree],
 				threadCon2[currTree], null, AOut_sC_sig_P_p, localTiming);
 
 		Eviction evict = new Eviction(threadCon1[currTree],
 				threadCon2[currTree]);
 		evict.loadTreeSpecificParameters(currTree);
 		evict.executeCharlieSubTree(threadCon1[currTree], threadCon2[currTree],
-				null, new BigInteger[] { sC_pi_P, sC_Ti_p }, localTiming);
+				null, sC_Ti_p, sC_pi_P, localTiming);
 	}
 
 	private void runDebbie() {
@@ -79,7 +79,7 @@ public class PPEvict extends Thread {
 				threadCon2[currTree]);
 		evict.loadTreeSpecificParameters(currTree);
 		evict.executeDebbieSubTree(threadCon1[currTree], threadCon2[currTree],
-				OT, null, localTiming);
+				OT, null, null, localTiming);
 	}
 
 	private void runEddie() {
@@ -96,14 +96,14 @@ public class PPEvict extends Thread {
 		Reshuffle res = new Reshuffle(threadCon1[currTree],
 				threadCon2[currTree]);
 		res.loadTreeSpecificParameters(currTree);
-		BigInteger sE_pi_P = res.executeEddieSubTree(threadCon1[currTree],
+		BigInteger[] sE_pi_P = res.executeEddieSubTree(threadCon1[currTree],
 				threadCon2[currTree], null, AOut_sE_sig_P_p, localTiming);
 
 		Eviction evict = new Eviction(threadCon1[currTree],
 				threadCon2[currTree]);
 		evict.loadTreeSpecificParameters(currTree);
 		evict.executeEddieSubTree(threadCon1[currTree], threadCon2[currTree],
-				OT, new BigInteger[] { sE_pi_P, sE_Ti_p }, localTiming);
+				OT, sE_Ti_p, sE_pi_P, localTiming);
 	}
 
 	public Timing getTiming() {

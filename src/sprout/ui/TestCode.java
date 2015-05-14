@@ -6,7 +6,7 @@ import sprout.crypto.SR;
 import sprout.util.StopWatch;
 
 public class TestCode {
-	private static byte[] xor(byte[] a, byte[] b) {
+	public static byte[] xor(byte[] a, byte[] b) {
 		byte[] small = a;
 		byte[] big = b;
 		if (a.length > b.length) {	
@@ -28,7 +28,7 @@ public class TestCode {
 		return out;
 	}
 	
-	private static byte[] and(byte[] a, byte[] b) {
+	public static byte[] and(byte[] a, byte[] b) {
 		byte[] small = a;
 		byte[] big = b;
 		if (a.length > b.length) {	
