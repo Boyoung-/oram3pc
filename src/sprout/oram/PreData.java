@@ -48,5 +48,5 @@ public class PreData {
 	public static BigInteger[][][][] gcf_lbs;
 
 	// Eviction
-	public static BigInteger[] evict_upxi;
+	public static BigInteger[][] evict_upxi;
 }

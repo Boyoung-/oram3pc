@@ -274,15 +274,19 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		}
 
 		// Eviction
-		PreData.evict_upxi = new BigInteger[levels];
+		PreData.evict_upxi = new BigInteger[levels][];
 
 		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
-			PreData.evict_upxi[i] = new BigInteger(pathBuckets * bucketBits,
-					SR.rand);
+			PreData.evict_upxi[i] = new BigInteger[pathBuckets];
+			for (int j=0; j<pathBuckets; j++) {
+				PreData.evict_upxi[i][j] = new BigInteger(bucketBits, SR.rand);
+			}
 		}
 
-		eddie.write(PreData.evict_upxi);
+		for (int index = 0; index < levels; index++) {
+			eddie.write(PreData.evict_upxi[index]);
+		}
 
 		return null;
 	}
@@ -401,7 +405,10 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		}
 
 		// Eviction
-		PreData.evict_upxi = debbie.readBigIntegerArray();
+		PreData.evict_upxi = new BigInteger[levels][];
+		for (int index = 0; index < levels; index++) {
+			PreData.evict_upxi[index] = debbie.readBigIntegerArray();
+		}
 
 		return null;
 	}

@@ -2,6 +2,8 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 
+import org.bouncycastle.util.Arrays;
+
 import sprout.communication.Communication;
 import sprout.crypto.SR;
 import sprout.oram.Bucket;
@@ -129,14 +131,27 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 				i, k + 2, k, tupleBits, sC_a);
 
 		localTiming.stopwatch[PID.evict][TID.online].start();
-		BigInteger secretC_P_pp = BigInteger.ZERO;
-		for (int j = 0; j < sC_P_pp.length; j++)
-			secretC_P_pp = secretC_P_pp.shiftLeft(tupleBits).xor(sC_P_pp[j]);
+		//BigInteger secretC_P_pp = BigInteger.ZERO;
+		//for (int j = 0; j < sC_P_pp.length; j++)
+		//	secretC_P_pp = secretC_P_pp.shiftLeft(tupleBits).xor(sC_P_pp[j]);
+		
+		int tupleBytes = (tupleBits+7) / 8;
+		byte[] msg_path = new byte[tupleBytes*pathTuples];
+		for (int j=0; j<pathTuples; j++) {
+			byte[] tuple = sC_P_pp[j].toByteArray();
+			if (tuple.length < tupleBytes)
+				System.arraycopy(tuple, 0, msg_path, (j + 1) * tupleBytes
+						- tuple.length, tuple.length);
+			else
+				System.arraycopy(tuple, tuple.length - tupleBytes, msg_path, j
+						* tupleBytes, tupleBytes);
+		}
 		localTiming.stopwatch[PID.evict][TID.online].stop();
 
 		// step 6
 		localTiming.stopwatch[PID.evict][TID.online_write].start();
-		debbie.write(secretC_P_pp);
+		//debbie.write(secretC_P_pp);
+		debbie.write(msg_path);
 		localTiming.stopwatch[PID.evict][TID.online_write].stop();
 		
 		/*
@@ -157,7 +172,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 			localTiming.stopwatch[PID.evict][TID.online].start();
 			Bucket[] buckets = new Bucket[] { new Bucket(i,
-					Util.rmSignBit(sD_Ti_p.xor(PreData.evict_upxi[i])
+					Util.rmSignBit(sD_Ti_p.xor(PreData.evict_upxi[i][0])
 							.toByteArray())) };
 			BigInteger Li = null;
 			OT.setBucketsOnPath(buckets, Li);
@@ -243,11 +258,13 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 
 		// step 6
 		localTiming.stopwatch[PID.evict][TID.online_read].start();
-		BigInteger secretD_P_pp = charlie.readBigInteger();
+		//BigInteger secretD_P_pp = charlie.readBigInteger();
+		byte[] msg_path = charlie.read();
 		localTiming.stopwatch[PID.evict][TID.online_read].stop();
 
 		localTiming.stopwatch[PID.evict][TID.online].start();
 		//BigInteger tmp = secretD_P_pp.xor(PreData.evict_upxi[i]);
+		/*
 		BigInteger tmp = secretD_P_pp;
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(
 				BigInteger.ONE);
@@ -257,6 +274,20 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			tmp = tmp.shiftRight(bucketBits);
 			buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
 		}
+		*/
+		
+		int tupleBytes = (tupleBits+7)/8;
+		Bucket[] buckets = new Bucket[pathBuckets];
+		for (int j=0; j<pathBuckets; j++) {
+			BigInteger content = BigInteger.ZERO;
+			for (int t=0; t<w; t++) {
+				BigInteger tuple = new BigInteger(1, Arrays.copyOfRange(msg_path, (j*w+t)*tupleBytes, (j*w+t+1)*tupleBytes));
+				content = content.shiftLeft(tupleBits).xor(tuple);
+			}
+			content = content.xor(PreData.evict_upxi[i][j]);
+			buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
+		}
+		
 		OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
 		localTiming.stopwatch[PID.evict][TID.online].stop();
 		
@@ -301,7 +332,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		if (i == 0) {
 			localTiming.stopwatch[PID.evict][TID.online].start();
 			//Bucket[] buckets = new Bucket[] { new Bucket(i,	Util.rmSignBit(args[1].xor(PreData.evict_upxi[i]).toByteArray())) };
-			Bucket[] buckets = new Bucket[] { new Bucket(i,	Util.rmSignBit(sE_T_p.xor(PreData.evict_upxi[i]).toByteArray())) };
+			Bucket[] buckets = new Bucket[] { new Bucket(i,	Util.rmSignBit(sE_T_p.xor(PreData.evict_upxi[i][0]).toByteArray())) };
 			BigInteger Li = null;
 			OT.setBucketsOnPath(buckets, Li);
 			localTiming.stopwatch[PID.evict][TID.online].stop();
@@ -425,8 +456,9 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			BigInteger content = BigInteger.ZERO;
 			for (int t=0; t<w; t++) {
 				content = content.shiftLeft(tupleBits).xor(sE_P_pp[j*w+t]);
-				buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
 			}
+			content  = content.xor(PreData.evict_upxi[i][j]);
+			buckets[j] = new Bucket(i, Util.rmSignBit(content.toByteArray()));
 		}
 		
 		OT.setBucketsOnPath(buckets, PreData.access_Li[i]);
