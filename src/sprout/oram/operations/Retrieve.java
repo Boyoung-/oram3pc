@@ -16,10 +16,6 @@ import sprout.util.Timing;
 import sprout.util.Util;
 
 public class Retrieve extends Operation {
-
-	// private StopWatch indParallelPE = new
-	// StopWatch("Individual Paralleled PP + Evict");
-
 	public Retrieve(Communication con1, Communication con2) {
 		super(con1, con2);
 	}
@@ -121,18 +117,6 @@ public class Retrieve extends Operation {
 		if (shiftN == 0)
 			shiftN = tau;
 
-		// timing stuff
-		timing = new Timing();
-
-		/*
-		 * Timing[] individualTiming = new Timing[cycles]; Timing wholeTiming =
-		 * new Timing();
-		 * 
-		 * StopWatch wholeExecution = new StopWatch("Whole Execution");
-		 * StopWatch avgParallelPE = new
-		 * StopWatch("Average Paralleled PP + Evict");
-		 */
-
 		// threads init
 		PPEvict[] threads = new PPEvict[numTrees];
 
@@ -143,8 +127,9 @@ public class Retrieve extends Operation {
 		if (ifSanityCheck())
 			System.out.println("Sanity check enabled\n");
 
-		StopWatch bp_whole = new StopWatch("ballpark_whole");
-		StopWatch bp_online = new StopWatch("ballpark_online");
+		timing = new Timing();
+		StopWatch whole_execution = new StopWatch("whole_execution");
+		StopWatch online_phrase = new StopWatch("online_phrase");
 
 		// //////////////////////////////////////////
 		// ////// main execution starts /////////
@@ -152,8 +137,8 @@ public class Retrieve extends Operation {
 
 		for (int rec = 0; rec < records; rec++) {
 			if (rec == records / 2) {
-				bp_online.reset();
-				bp_whole.reset();
+				whole_execution.reset();
+				online_phrase.reset();
 				timing.reset();
 			}
 			
@@ -180,7 +165,13 @@ public class Retrieve extends Operation {
 				sE_N = con1.readBigInteger();
 
 			for (long retri = 0; retri < retrievals; retri++) {
-				bp_whole.start();
+				if (records == 1 && retri == retrievals / 2) {
+					whole_execution.reset();
+					online_phrase.reset();
+					timing.reset();
+				}
+				
+				whole_execution.start();
 
 				// pre-computation
 				if (party == Party.Charlie)
@@ -206,7 +197,7 @@ public class Retrieve extends Operation {
 				// time
 				sanityCheck();
 
-				bp_online.start();
+				online_phrase.start();
 
 				// for each retrieval, execute protocols on each tree
 				BigInteger Li = null;
@@ -269,166 +260,19 @@ public class Retrieve extends Operation {
 					}
 				}
 
-				// wait for all threads to terminate
-				// so timing data can be gathered
-				/*
-				 * for (int i = 0; i < numTrees; i++) try { threads[i].join(); }
-				 * catch (InterruptedException e) { e.printStackTrace(); }
-				 */
-				// indParallelPE.stop();
-
-				// get individual timing
-				/*
-				 * if (rec > 0) { for (int i = 0; i < numTrees; i++) timing =
-				 * timing.add(threads[i].getTiming()); individualTiming[(int)
-				 * ((rec-1)*retrievals+retri)] = new Timing(timing);
-				 * individualTiming[(int)
-				 * ((rec-1)*retrievals+retri)].divide(1000000); wholeTiming =
-				 * wholeTiming.add(timing); avgParallelPE =
-				 * avgParallelPE.add(indParallelPE); }
-				 */
-				// indParallelPE.reset();
+				online_phrase.stop();
+				whole_execution.stop();
 
 				// only need to count bandwidth once
 				con1.bandWidthSwitch = false;
 				con2.bandWidthSwitch = false;
-
-				bp_online.stop();
-				bp_whole.stop();
-
-				/*
-				// drop timing of the first half queries
-				if (retri == (retrievals / 2) - 1) {
-					bp_online.reset();
-					bp_whole.reset();
-					timing.reset();
-				}
-				*/
 			}
 		}
 
-		System.out.println(bp_whole.toTab());
-		System.out.println(bp_online.toTab());
+		System.out.println(whole_execution.toTab());
+		System.out.println(online_phrase.toTab());
 
 		System.out.println("-------------------------");
 		System.out.println(timing.toTab());
-
-		/*
-		 * wholeExecution.stop(); wholeTiming.divide(cycles); Timing avgTiming =
-		 * new Timing(wholeTiming); avgTiming.divide(1000000);
-		 * avgParallelPE.divide(cycles);
-		 * 
-		 * 
-		 * StopWatch avgOffline = avgTiming.groupOffline(); StopWatch
-		 * avgOffline_write = avgTiming.groupOffline_write(); StopWatch
-		 * avgOffline_read = avgTiming.groupOffline_read(); StopWatch avgAccess
-		 * = avgTiming.groupAccess(); StopWatch avgAccess_write =
-		 * avgTiming.groupAccess_write(); StopWatch avgAccess_read =
-		 * avgTiming.groupAccess_read(); StopWatch avgPE = avgTiming.groupPE();
-		 * StopWatch avgPE_write = avgTiming.groupPE_write(); StopWatch
-		 * avgPE_read = avgTiming.groupPE_read();
-		 * 
-		 * StopWatch[] indOffline = new StopWatch[cycles]; StopWatch[]
-		 * indOffline_write = new StopWatch[cycles]; StopWatch[] indOffline_read
-		 * = new StopWatch[cycles]; StopWatch[] indAccess = new
-		 * StopWatch[cycles]; StopWatch[] indAccess_write = new
-		 * StopWatch[cycles]; StopWatch[] indAccess_read = new
-		 * StopWatch[cycles]; StopWatch[] indPE = new StopWatch[cycles];
-		 * StopWatch[] indPE_write = new StopWatch[cycles]; StopWatch[]
-		 * indPE_read = new StopWatch[cycles]; for (int i=0; i<cycles; i++) {
-		 * indOffline[i] = individualTiming[i].groupOffline();
-		 * indOffline_write[i] = individualTiming[i].groupOffline_write();
-		 * indOffline_read[i] = individualTiming[i].groupOffline_read();
-		 * indAccess[i] = individualTiming[i].groupAccess(); indAccess_write[i]
-		 * = individualTiming[i].groupAccess_write(); indAccess_read[i] =
-		 * individualTiming[i].groupAccess_read(); indPE[i] =
-		 * individualTiming[i].groupPE(); indPE_write[i] =
-		 * individualTiming[i].groupPE_write(); indPE_read[i] =
-		 * individualTiming[i].groupPE_read(); }
-		 * 
-		 * StopWatch varOffline = getSTD(avgOffline, indOffline); StopWatch
-		 * varOffline_write = getSTD(avgOffline_write, indOffline_write);
-		 * StopWatch varOffline_read = getSTD(avgOffline_read, indOffline_read);
-		 * StopWatch varAccess = getSTD(avgAccess, indAccess); StopWatch
-		 * varAccess_write = getSTD(avgAccess_write, indAccess_write); StopWatch
-		 * varAccess_read = getSTD(avgAccess_read, indAccess_read); StopWatch
-		 * varPE = getSTD(avgPE, indPE); StopWatch varPE_write =
-		 * getSTD(avgPE_write, indPE_write); StopWatch varPE_read =
-		 * getSTD(avgPE_read, indPE_read);
-		 * 
-		 * System.out.println(
-		 * "\n######### AVERAGE AND STD DEVIATION SECTION ###########\n");
-		 * System.out.println(avgOffline.toNumber());
-		 * System.out.println(avgOffline_write.toNumber());
-		 * System.out.println(avgOffline_read.toNumber()); System.out.println();
-		 * System.out.println(varOffline.toNumber());
-		 * System.out.println(varOffline_write.toNumber());
-		 * System.out.println(varOffline_read.toNumber()); System.out.println();
-		 * 
-		 * System.out.println(avgAccess.toNumber());
-		 * System.out.println(avgAccess_write.toNumber());
-		 * System.out.println(avgAccess_read.toNumber()); System.out.println();
-		 * System.out.println(varAccess.toNumber());
-		 * System.out.println(varAccess_write.toNumber());
-		 * System.out.println(varAccess_read.toNumber()); System.out.println();
-		 * 
-		 * System.out.println(avgPE.toNumber());
-		 * System.out.println(avgPE_write.toNumber());
-		 * System.out.println(avgPE_read.toNumber()); System.out.println();
-		 * System.out.println(varPE.toNumber());
-		 * System.out.println(varPE_write.toNumber());
-		 * System.out.println(varPE_read.toNumber()); System.out.println();
-		 * 
-		 * System.out.println("\n######### BANDWIDTH SECTION ###########\n");
-		 * int peBW = 0; peBW += con1.bandwidth[PID.ppt].bandwidth; peBW +=
-		 * con1.bandwidth[PID.reshuffle].bandwidth; peBW +=
-		 * con1.bandwidth[PID.eviction].bandwidth; peBW +=
-		 * con1.bandwidth[PID.encrypt].bandwidth; peBW +=
-		 * con2.bandwidth[PID.ppt].bandwidth; peBW +=
-		 * con2.bandwidth[PID.reshuffle].bandwidth; peBW +=
-		 * con2.bandwidth[PID.eviction].bandwidth; peBW +=
-		 * con2.bandwidth[PID.encrypt].bandwidth; int accessBW =
-		 * con1.bandwidth[PID.access].bandwidth +
-		 * con2.bandwidth[PID.access].bandwidth; int gcfBW =
-		 * con1.bandwidth[PID.gcf].bandwidth +
-		 * con2.bandwidth[PID.gcf].bandwidth; int precomputationBW =
-		 * con1.bandwidth[PID.pre].bandwidth +
-		 * con2.bandwidth[PID.pre].bandwidth;
-		 * System.out.println(precomputationBW * 8); System.out.println(accessBW
-		 * * 8); System.out.println(peBW * 8); System.out.println(gcfBW * 8);
-		 * System.out.println();
-		 * 
-		 * System.out.println(
-		 * "\n######### WHOLE EXECUTION TIMING SECTION ###########\n");
-		 * System.out.println(wholeExecution.afterConversion());
-		 * System.out.println();
-		 * 
-		 * System.out.println(
-		 * "\n######### PARALLEL PP+EVICT TIMING SECTION ###########\n");
-		 * System.out.println(avgParallelPE.elapsedWallClockTime /
-		 * StopWatch.convert); System.out.println();
-		 * 
-		 * int t = ForestMetadata.getTau(); int n =
-		 * ForestMetadata.getLastNBits(); int w =
-		 * ForestMetadata.getBucketDepth(); int d =
-		 * ForestMetadata.getDataSize();
-		 * 
-		 * try { wholeTiming.writeToFile("stats/timing-" + party + "-t" + t +
-		 * "n" + n + "w" + w + "d" + d); con1.writeBandwidthToFile("stats/" +
-		 * party + "-bandwidth-1" + "-t" + t + "n" + n + "w" + w + "d" + d);
-		 * con2.writeBandwidthToFile("stats/" + party + "-bandwidth-2" + "-t" +
-		 * t + "n" + n + "w" + w + "d" + d); } catch (IOException e) {
-		 * e.printStackTrace(); }
-		 */
 	}
-
-	/*
-	 * public StopWatch getSTD(StopWatch avg, StopWatch[] ind) { int n =
-	 * ind.length; StopWatch var = new StopWatch(); long sumWall = 0L; long
-	 * sumCPU = 0L; for (int i=0; i<n; i++) { sumWall += (long)
-	 * Math.pow(avg.elapsedWallClockTime-ind[i].elapsedWallClockTime, 2); sumCPU
-	 * += (long) Math.pow(avg.elapsedCPUTime-ind[i].elapsedCPUTime, 2); }
-	 * var.elapsedWallClockTime = (long) Math.sqrt(sumWall / n);
-	 * var.elapsedCPUTime = (long) Math.sqrt(sumCPU / n); return var; }
-	 */
 }

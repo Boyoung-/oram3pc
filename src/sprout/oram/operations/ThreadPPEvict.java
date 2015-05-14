@@ -95,9 +95,6 @@ public class ThreadPPEvict extends Operation {
 		if (shiftN == 0)
 			shiftN = tau;
 
-		// timing stuff
-		timing = new Timing();
-
 		// threads init
 		PPEvict[] threads = new PPEvict[numTrees];
 
@@ -108,8 +105,9 @@ public class ThreadPPEvict extends Operation {
 		if (ifSanityCheck())
 			System.out.println("Sanity check enabled\n");
 
-		StopWatch bp_whole = new StopWatch("ballpark_whole");
-		StopWatch bp_online = new StopWatch("ballpark_online");
+		timing = new Timing();
+		StopWatch whole_execution = new StopWatch("whole_execution");
+		StopWatch online_phrase = new StopWatch("online_phrase");
 
 		// //////////////////////////////////////////
 		// ////// main execution starts /////////
@@ -117,8 +115,8 @@ public class ThreadPPEvict extends Operation {
 
 		for (int rec = 0; rec < records; rec++) {
 			if (rec == records / 2) {
-				bp_online.reset();
-				bp_whole.reset();
+				whole_execution.reset();
+				online_phrase.reset();
 				timing.reset();
 			}
 			
@@ -148,7 +146,13 @@ public class ThreadPPEvict extends Operation {
 				sE_N = con1.readBigInteger();
 
 			for (long retri = 0; retri < retrievals; retri++) {
-				bp_whole.start();
+				if (records == 1 && retri == retrievals / 2) {
+					whole_execution.reset();
+					online_phrase.reset();
+					timing.reset();
+				}
+				
+				whole_execution.start();
 
 				// pre-computation
 				if (party == Party.Charlie)
@@ -174,7 +178,7 @@ public class ThreadPPEvict extends Operation {
 				// time
 				sanityCheck();
 
-				bp_online.start();
+				online_phrase.start();
 
 				// for each retrieval, execute protocols on each tree
 				BigInteger Li = null;
@@ -252,21 +256,13 @@ public class ThreadPPEvict extends Operation {
 				con1.bandWidthSwitch = false;
 				con2.bandWidthSwitch = false;
 
-				bp_online.stop();
-				bp_whole.stop();
-
-				/*
-				if (retri == (retrievals / 2) - 1) {
-					bp_online.reset();
-					bp_whole.reset();
-					timing.reset();
-				}
-				*/
+				online_phrase.stop();
+				whole_execution.stop();
 			}
 		}
 
-		System.out.println(bp_whole.toTab());
-		System.out.println(bp_online.toTab());
+		System.out.println(whole_execution.toTab());
+		System.out.println(online_phrase.toTab());
 
 		System.out.println("-------------------------");
 		System.out.println(timing.toTab());
