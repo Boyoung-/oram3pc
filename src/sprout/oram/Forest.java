@@ -10,8 +10,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.crypto.spec.SecretKeySpec;
-
 import sprout.util.Util;
 
 public class Forest {
@@ -21,7 +19,7 @@ public class Forest {
 	private static ByteArray64 data2;
 	
 	private static Bucket[][] paths1;
-	private static Bucket[][] paths2;
+	//private static Bucket[][] paths2;
 
 	private static String forestFile;
 	private static boolean loadMemory = true;
@@ -401,26 +399,4 @@ public class Forest {
 	public static Bucket[] getPathBuckets(int level) {
 		return paths1[level];
 	}
-	
-	/*
-	public static Bucket[] getPathBuckets(int level) {
-		long offset = ForestMetadata.getPathOffset(level);
-		int numBuckets = (int) ForestMetadata.getPathNumBuckets(level);
-		long bucketBytes = ForestMetadata.getBucketBytes(level);
-		Bucket[] buckets = new Bucket[numBuckets];
-		for (int i=0; i<numBuckets; i++) {
-			buckets[i] = new Bucket(level, paths1.getBytes(offset+i*bucketBytes, (int) bucketBytes));
-		}
-		return buckets;
-	}
-	
-	public static void setPathBuckets(Bucket[] buckets, int level) {
-		long offset = ForestMetadata.getPathOffset(level);
-		int numBuckets = buckets.length;
-		long bucketBytes = ForestMetadata.getBucketBytes(level);
-		for (int i=0; i<numBuckets; i++) {
-			paths1.setBytes(offset+i*bucketBytes, buckets[i].toByteArray());
-		}
-	}
-	*/
 }

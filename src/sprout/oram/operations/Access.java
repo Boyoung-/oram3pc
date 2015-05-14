@@ -161,8 +161,12 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online_read].stop();
 
 		timing.stopwatch[PID.access][TID.online].start();
-		//Bucket[] sD_buckets = sD_OT.getBucketsOnPath(PreData.access_Li[i]);
-		Bucket[] sD_buckets = Forest.getPathBuckets(i);
+		Bucket[] sD_buckets;
+		if (!Forest.loadPathCheat())
+			sD_buckets = sD_OT.getBucketsOnPath(PreData.access_Li[i]);
+		else
+			sD_buckets = Forest.getPathBuckets(i);
+		
 		BigInteger[] sD_P = new BigInteger[sD_buckets.length];
 		for (int j = 0; j < sD_buckets.length; j++) {
 			sD_P[j] = new BigInteger(1, sD_buckets[j].getByteTuples());
@@ -236,8 +240,13 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online_read].stop();
 
 		timing.stopwatch[PID.access][TID.online].start();
-		//Bucket[] sE_buckets = sE_OT.getBucketsOnPath(PreData.access_Li[i]);
-		Bucket[] sE_buckets = Forest.getPathBuckets(i);
+		Bucket[] sE_buckets;
+		if (!Forest.loadPathCheat())
+			sE_buckets = sE_OT.getBucketsOnPath(PreData.access_Li[i]);
+		else
+			sE_buckets = Forest.getPathBuckets(i);
+		
+		
 		BigInteger[] sE_P = new BigInteger[sE_buckets.length];
 		for (int j = 0; j < sE_buckets.length; j++) {
 			sE_P[j] = new BigInteger(1, sE_buckets[j].getByteTuples());
@@ -377,10 +386,16 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			BigInteger sD_N = null;
 			if (party == Party.Charlie) {
 				if (numInsert == -1) {
-					N = new BigInteger(lastNBits, SR.rand);
+					if (Forest.loadPathCheat())
+						N = BigInteger.ZERO;
+					else
+						N = new BigInteger(lastNBits, SR.rand);
 					sC_N = new BigInteger(lastNBits, SR.rand);
 				} else {
-					N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
+					if (Forest.loadPathCheat())
+						N = BigInteger.ZERO;
+					else
+						N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
 					sC_N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
 				}
 
