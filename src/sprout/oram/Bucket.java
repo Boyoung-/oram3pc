@@ -1,10 +1,16 @@
 package sprout.oram;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 import sprout.util.Util;
 
-public class Bucket {
+public class Bucket implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private int treeIndex;
 	// private byte[] nonce;
 	private byte[] tuples;

@@ -149,10 +149,16 @@ public class Retrieve extends Operation {
 			BigInteger sD_N = null;
 			if (party == Party.Charlie) {
 				if (numInsert == -1) {
-					N = new BigInteger(lastNBits, SR.rand);
+					if (Forest.loadPathCheat())
+						N = BigInteger.ZERO;
+					else
+						N = new BigInteger(lastNBits, SR.rand);
 					sC_N = new BigInteger(lastNBits, SR.rand);
 				} else {
-					N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
+					if (Forest.loadPathCheat())
+						N = BigInteger.ZERO;
+					else
+						N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
 					sC_N = Util.nextBigInteger(BigInteger.valueOf(numInsert));
 				}
 

@@ -78,15 +78,22 @@ public abstract class Operation {
 				}
 			else {
 				try {
-					forest = new Forest("restore");
+					if (!Forest.loadPathCheat())
+						forest = new Forest("restore");
+					else
+						forest = new Forest("loadpathcheat");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		} else if (party == Party.Debbie) {
 			try {
-				forest = new Forest("restore",
-						ForestMetadata.getDefaultForestNames()[1], null);
+				if (!Forest.loadPathCheat())
+					forest = new Forest("restore",
+							ForestMetadata.getDefaultForestNames()[1], null);
+				else
+					forest = new Forest("loadpathcheat",
+							ForestMetadata.getDefaultPathNames()[1], null);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

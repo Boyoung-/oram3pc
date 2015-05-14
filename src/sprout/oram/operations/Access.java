@@ -161,7 +161,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online_read].stop();
 
 		timing.stopwatch[PID.access][TID.online].start();
-		Bucket[] sD_buckets = sD_OT.getBucketsOnPath(PreData.access_Li[i]);
+		//Bucket[] sD_buckets = sD_OT.getBucketsOnPath(PreData.access_Li[i]);
+		Bucket[] sD_buckets = Forest.getPathBuckets(i);
 		BigInteger[] sD_P = new BigInteger[sD_buckets.length];
 		for (int j = 0; j < sD_buckets.length; j++) {
 			sD_P[j] = new BigInteger(1, sD_buckets[j].getByteTuples());
@@ -235,7 +236,8 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online_read].stop();
 
 		timing.stopwatch[PID.access][TID.online].start();
-		Bucket[] sE_buckets = sE_OT.getBucketsOnPath(PreData.access_Li[i]);
+		//Bucket[] sE_buckets = sE_OT.getBucketsOnPath(PreData.access_Li[i]);
+		Bucket[] sE_buckets = Forest.getPathBuckets(i);
 		BigInteger[] sE_P = new BigInteger[sE_buckets.length];
 		for (int j = 0; j < sE_buckets.length; j++) {
 			sE_P[j] = new BigInteger(1, sE_buckets[j].getByteTuples());

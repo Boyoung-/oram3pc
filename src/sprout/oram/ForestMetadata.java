@@ -14,6 +14,8 @@ import org.yaml.snakeyaml.Yaml;
 
 import sprout.util.Util;
 
+// TODO: change bucketTupleBytes to tupleBytes
+
 public class ForestMetadata implements Serializable {
 	public static final String CONFIG_FILE = "newConfig.yaml";
 	public static final String TAU_NAME = "tau";
@@ -28,6 +30,7 @@ public class ForestMetadata implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private static String[] defaultForestNames;
+	private static String[] defaultPathNames;
 
 	// Whether ForestMetadata is configured
 	private static boolean status = false;
@@ -74,6 +77,11 @@ public class ForestMetadata implements Serializable {
 
 	// Number of records we want to initially insert
 	private static long numInsert;
+	
+	// for loadPathCheat
+	private static long[] pathOffset;
+	private static long[] pathNumBuckets;
+	private static long pathSize;
 
 	public static void setup(String filename) throws FileNotFoundException {
 		setup(filename, true);
@@ -102,20 +110,24 @@ public class ForestMetadata implements Serializable {
 	}
 
 	private static void setDefaultForestNames() {
-		defaultForestNames = new String[2];
 		int t = tau;
 		int n = lastNBits;
 		// int w = ForestMetadata.getBucketDepth();
 		int d = dBytes;
 		long r = numInsert;
+
+		defaultForestNames = new String[2];
 		defaultForestNames[0] = "files/forest_t" + t + "n" + n + "w" + w + "d"
 				+ d + "_r" + r + "_share1.bin";
 		defaultForestNames[1] = "files/forest_t" + t + "n" + n + "w" + w + "d"
 				+ d + "_r" + r + "_share2.bin";
-		// for testing
-		// defaultForestNames[2] = "files/forest_t" + t + "n" + n + "w" + w +
-		// "d"
-		// + d + "_r" + r + "_testing.bin";
+		
+		// for cheat mode: only load one path of each tree
+		defaultPathNames = new String[2];
+		defaultPathNames[0] = "files/path_t" + t + "n" + n + "w" + w + "d"
+				+ d + "_r" + r + "_share1.bin";
+		defaultPathNames[1] = "files/path_t" + t + "n" + n + "w" + w + "d"
+				+ d + "_r" + r + "_share2.bin";
 
 	}
 
@@ -181,6 +193,19 @@ public class ForestMetadata implements Serializable {
 
 		if (ifPrint)
 			printInfo();
+		
+		
+		// for loadPathCheat
+		pathOffset = new long[levels];
+		pathNumBuckets = new long[levels];
+		pathOffset[0] = 0;
+		pathNumBuckets[0] = 1;
+		pathSize = pathNumBuckets[0] * getBucketBytes(0);
+		for (int i = 1; i < levels; i++) {
+			pathOffset[i] = pathSize;
+			pathNumBuckets[i] = lBits[i] + e;
+			pathSize += pathNumBuckets[i] * getBucketBytes(i);
+		}
 	}
 
 	public static void printInfo() {
@@ -370,5 +395,21 @@ public class ForestMetadata implements Serializable {
 
 	public static String[] getDefaultForestNames() {
 		return defaultForestNames;
+	}
+	
+	public static String[] getDefaultPathNames() {
+		return defaultPathNames;
+	}
+	
+	public static long getPathNumBuckets(int level) {
+		return pathNumBuckets[level];
+	}
+	
+	public static long getPathOffset(int level) {
+		return pathOffset[level];
+	}
+	
+	public static long getPathSize() {
+		return pathSize;
 	}
 }

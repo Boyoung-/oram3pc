@@ -1,10 +1,16 @@
 package sprout.oram;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.crypto.spec.SecretKeySpec;
 
 import sprout.util.Util;
 
@@ -13,9 +19,17 @@ public class Forest {
 
 	private static ByteArray64 data1;
 	private static ByteArray64 data2;
+	
+	private static Bucket[][] paths1;
+	private static Bucket[][] paths2;
 
 	private static String forestFile;
 	private static boolean loadMemory = true;
+	private static boolean loadPathCheat = true;
+	
+	public static boolean loadPathCheat() {
+		return loadPathCheat;
+	}
 
 	private void initTrees() {
 		int levels = ForestMetadata.getLevels();
@@ -34,6 +48,8 @@ public class Forest {
 			initForest(defaultFilenames[0], defaultFilenames[1]);
 		else if (mode.equals("restore"))
 			restoreForest(defaultFilenames[0]);
+		else if (mode.equals("loadpathcheat"))
+			restoreForest(ForestMetadata.getDefaultPathNames()[0]);
 		else
 			throw new ForestException("Unrecognized forest mode");
 	}
@@ -47,13 +63,39 @@ public class Forest {
 			initForest(filename1, filename2);
 		else if (mode.equals("restore"))
 			restoreForest(filename1);
+		else if (mode.equals("loadpathcheat"))
+			restoreForest(filename1);
 		else
 			throw new ForestException("Unrecognized forest mode");
 	}
 
 	private void restoreForest(String filename) throws IOException {
 		initTrees();
-		if (loadMemory)
+		if (loadPathCheat) {
+			FileInputStream fin = null;
+			ObjectInputStream ois = null;
+			try {
+				fin = new FileInputStream(filename);
+				ois = new ObjectInputStream(fin);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
+			
+			paths1 = new Bucket[trees.size()][];
+			for (int i=0; i<trees.size(); i++) {
+				paths1[i] = new Bucket[(int) ForestMetadata.getPathNumBuckets(i)];
+				for (int j=0; j<paths1[i].length; j++) {
+					try {
+						paths1[i][j] = (Bucket) ois.readObject();
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			
+			ois.close();
+		}
+		else if (loadMemory)
 			readFromFile(filename);
 		else
 			forestFile = filename;
@@ -87,6 +129,9 @@ public class Forest {
 		Bucket bucket; // bucket to be updated
 		long bucketIndex; // bucket index in the tree
 		int tupleIndex; // tuple index in the bucket
+		
+		// this one is for loadpathcheat
+		BigInteger[] firstL = new BigInteger[levels];
 
 		HashMap<Long, Long>[] nToSlot = new HashMap[levels];
 		for (int i = 1; i < levels; i++)
@@ -106,6 +151,9 @@ public class Forest {
 					// L[i] = BigInteger.ZERO;
 					bucketIndex = 0;
 					tupleIndex = 0;
+					
+					if (address == 0)
+						firstL[i] = null;
 				} else {
 					FB = BigInteger.ONE;
 					if (i == h)
@@ -126,6 +174,9 @@ public class Forest {
 					L[i] = BigInteger.valueOf(slot / (w * e));
 					bucketIndex = slot / w + ForestMetadata.getNumLeaves(i) - 1;
 					tupleIndex = (int) (slot % w);
+					
+					if (address == 0)
+						firstL[i] = L[i];
 				}
 
 				bucket = trees.get(i).getBucket(bucketIndex);
@@ -182,6 +233,99 @@ public class Forest {
 		data2 = new ByteArray64(ForestMetadata.getForestBytes(), "empty");
 
 		writeToFile(filename1, filename2);
+		
+		if (loadPathCheat)
+			initPaths(firstL);
+	}
+	
+	private void initPaths(BigInteger[] firstL) {
+		FileOutputStream fout = null;
+		ObjectOutputStream oos = null;
+		
+		String[] pathNames = ForestMetadata.getDefaultPathNames();
+		
+		try {
+			fout = new FileOutputStream(pathNames[0]);
+			oos = new ObjectOutputStream(fout);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (int i=0; i<trees.size(); i++) {
+			Bucket[] buckets = trees.get(i).getBucketsOnPath(firstL[i]);
+			for (int j=0; j<buckets.length; j++) {
+				try {
+					oos.writeObject(buckets[j]);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		try {
+			oos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		data1 = data2;
+		try {
+			fout = new FileOutputStream(pathNames[1]);
+			oos = new ObjectOutputStream(fout);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (int i=0; i<trees.size(); i++) {
+			Bucket[] buckets = trees.get(i).getBucketsOnPath(firstL[i]);
+			for (int j=0; j<buckets.length; j++) {
+				try {
+					oos.writeObject(buckets[j]);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		try {
+			oos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		/*
+		paths1 = new ByteArray64(ForestMetadata.getPathSize(), "empty");
+		for (int i=0; i<trees.size(); i++) {
+			//if (firstL[i] != null)
+				//System.out.println(firstL[i].toString(2));
+			Bucket[] buckets = trees.get(i).getBucketsOnPath(firstL[i]);
+			//System.out.println("a " + buckets.length);
+			//System.out.println("b " + ForestMetadata.getPathNumBuckets(i));			
+			long offset = ForestMetadata.getPathOffset(i);
+			long bucketBytes = ForestMetadata.getBucketBytes(i);
+			for (int j=0; j<buckets.length; j++) {
+				paths1.setBytes(offset+bucketBytes*j, buckets[j].toByteArray());
+			}
+		}
+		try {
+			paths1.writeToFile(pathNames[0]);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		data1 = data2;
+		paths2 = new ByteArray64(ForestMetadata.getPathSize(), "empty");
+		for (int i=0; i<trees.size(); i++) {
+			Bucket[] buckets = trees.get(i).getBucketsOnPath(firstL[i]);
+			long offset = ForestMetadata.getPathOffset(i);
+			long bucketBytes = ForestMetadata.getBucketBytes(i);
+			for (int j=0; j<buckets.length; j++) {
+				paths2.setBytes(offset+bucketBytes*j, buckets[j].toByteArray());
+			}
+		}
+		try {
+			paths2.writeToFile(pathNames[1]);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		*/
 	}
 
 	public void writeToFile(String filename1, String filename2)
@@ -253,4 +397,30 @@ public class Forest {
 			}
 		}
 	}
+	
+	public static Bucket[] getPathBuckets(int level) {
+		return paths1[level];
+	}
+	
+	/*
+	public static Bucket[] getPathBuckets(int level) {
+		long offset = ForestMetadata.getPathOffset(level);
+		int numBuckets = (int) ForestMetadata.getPathNumBuckets(level);
+		long bucketBytes = ForestMetadata.getBucketBytes(level);
+		Bucket[] buckets = new Bucket[numBuckets];
+		for (int i=0; i<numBuckets; i++) {
+			buckets[i] = new Bucket(level, paths1.getBytes(offset+i*bucketBytes, (int) bucketBytes));
+		}
+		return buckets;
+	}
+	
+	public static void setPathBuckets(Bucket[] buckets, int level) {
+		long offset = ForestMetadata.getPathOffset(level);
+		int numBuckets = buckets.length;
+		long bucketBytes = ForestMetadata.getBucketBytes(level);
+		for (int i=0; i<numBuckets; i++) {
+			paths1.setBytes(offset+i*bucketBytes, buckets[i].toByteArray());
+		}
+	}
+	*/
 }
