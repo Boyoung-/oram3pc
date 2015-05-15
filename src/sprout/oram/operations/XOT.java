@@ -30,16 +30,16 @@ public class XOT extends Operation {
 			int k, int l) {
 		// protocol
 		// step 1
-		localTiming.stopwatch[PID.xot][TID.online_read].start();
+		localTiming.stopwatch[PID.ssxot][TID.online_read].start();
 		byte[] msg_a = eddie.read();
 
 		// step 2
 		byte[] msg_j = debbie.read();
 		byte[] msg_p = debbie.read();
-		localTiming.stopwatch[PID.xot][TID.online_read].stop();
+		localTiming.stopwatch[PID.ssxot][TID.online_read].stop();
 
 		// step 3
-		localTiming.stopwatch[PID.xot][TID.online].start();
+		localTiming.stopwatch[PID.ssxot][TID.online].start();
 		int[] j = new int[k];
 		BigInteger[] p = new BigInteger[k];
 		BigInteger[] a = new BigInteger[N];
@@ -58,7 +58,7 @@ public class XOT extends Operation {
 					(o + 1) * pBytes));
 			z[o] = a[j[o]].xor(p[o]);
 		}
-		localTiming.stopwatch[PID.xot][TID.online].stop();
+		localTiming.stopwatch[PID.ssxot][TID.online].stop();
 
 		return z;
 	}
@@ -68,7 +68,7 @@ public class XOT extends Operation {
 			Integer[] ii, BigInteger[] delta) {
 		// protocol
 		// step 2
-		localTiming.stopwatch[PID.xot][TID.online].start();
+		localTiming.stopwatch[PID.ssxot][TID.online].start();
 		int pBytes = (l + 7) / 8;
 		int[] j = new int[k];
 		byte[][] j_bytes = new byte[k][];
@@ -91,12 +91,12 @@ public class XOT extends Operation {
 				System.arraycopy(p[o], p[o].length - pBytes, msg_p, o * pBytes,
 						pBytes);
 		}
-		localTiming.stopwatch[PID.xot][TID.online].stop();
+		localTiming.stopwatch[PID.ssxot][TID.online].stop();
 
-		localTiming.stopwatch[PID.xot][TID.online_write].start();
+		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
 		charlie.write(msg_j);
 		charlie.write(msg_p);
-		localTiming.stopwatch[PID.xot][TID.online_write].stop();
+		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
 	}
 
 	public void executeEddie(Communication charlie, Communication debbie,
@@ -104,7 +104,7 @@ public class XOT extends Operation {
 			BigInteger[] m) {
 		// protocol
 		// step 1
-		localTiming.stopwatch[PID.xot][TID.online].start();
+		localTiming.stopwatch[PID.ssxot][TID.online].start();
 		int aBytes = (l + 7) / 8;
 		byte[][] a = new byte[N][];
 		byte[] msg_a = new byte[N * aBytes];
@@ -119,11 +119,11 @@ public class XOT extends Operation {
 				System.arraycopy(a[o], a[o].length - aBytes, msg_a, o * aBytes,
 						aBytes);
 		}
-		localTiming.stopwatch[PID.xot][TID.online].stop();
+		localTiming.stopwatch[PID.ssxot][TID.online].stop();
 
-		localTiming.stopwatch[PID.xot][TID.online_write].start();
+		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
 		charlie.write(msg_a);
-		localTiming.stopwatch[PID.xot][TID.online_write].stop();
+		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
 	}
 
 	// for testing correctness
