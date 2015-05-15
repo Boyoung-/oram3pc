@@ -176,6 +176,9 @@ public class Retrieve extends Operation {
 					timing.reset();
 				}
 				
+				con1.setTcpNoDelay(false);
+				con2.setTcpNoDelay(false);
+				
 				whole_execution.start();
 
 				// pre-computation
@@ -197,6 +200,9 @@ public class Retrieve extends Operation {
 				if (party == Party.Charlie)
 					System.out.println("N=" + N.longValue() + " ("
 							+ Util.addZero(N.toString(2), lastNBits) + ")");
+				
+				con1.setTcpNoDelay(true);
+				con2.setTcpNoDelay(true);
 
 				// sync so online protocols for all parties start at the same
 				// time

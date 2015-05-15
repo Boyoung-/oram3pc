@@ -87,6 +87,11 @@ public class Communication {
 
 		sharedBandwidth = new Bandwidth("shared", false);
 	}
+	
+	public void setTcpNoDelay(boolean on) {
+		if (mConnectedThread != null)
+			mConnectedThread.setTcpNoDelay(on);
+	}
 
 	public void writeBandwidthToFile(String filename) throws IOException {
 		FileOutputStream fout = new FileOutputStream(filename);
@@ -634,7 +639,7 @@ public class Communication {
 					// This is a blocking call and will only return on a
 					// successful connection or an exception
 					socket = mmServerSocket.accept();
-					socket.setTcpNoDelay(true);
+					//socket.setTcpNoDelay(true);
 				} catch (IOException e) {
 					Util.error("accept() failed", e);
 					break;
@@ -694,11 +699,13 @@ public class Communication {
 			mmAddress = address;
 
 			mmSocket = new Socket();
+			/*
 			try {
 				mmSocket.setTcpNoDelay(true);
 			} catch (SocketException e) {
 				e.printStackTrace();
 			}
+			*/
 		}
 
 		public void run() {
@@ -774,6 +781,15 @@ public class Communication {
 
 			mmInStream = tmpIn;
 			mmOutStream = tmpOut;
+		}
+		
+		public void setTcpNoDelay(boolean on) {
+			if (mmSocket != null)
+				try {
+					mmSocket.setTcpNoDelay(on);
+				} catch (SocketException e) {
+					e.printStackTrace();
+				}
 		}
 
 		/**
