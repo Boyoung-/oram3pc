@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -633,6 +634,7 @@ public class Communication {
 					// This is a blocking call and will only return on a
 					// successful connection or an exception
 					socket = mmServerSocket.accept();
+					socket.setTcpNoDelay(true);
 				} catch (IOException e) {
 					Util.error("accept() failed", e);
 					break;
@@ -692,6 +694,11 @@ public class Communication {
 			mmAddress = address;
 
 			mmSocket = new Socket();
+			try {
+				mmSocket.setTcpNoDelay(true);
+			} catch (SocketException e) {
+				e.printStackTrace();
+			}
 		}
 
 		public void run() {
