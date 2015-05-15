@@ -90,7 +90,7 @@ public class SSCOT extends Operation {
 		timing.stopwatch[PID.sscot][TID.online].stop();
 
 		timing.stopwatch[PID.sscot][TID.online_write].start();
-		C.write(msg_pw);
+		C.write(msg_pw, PID.sscot);
 		timing.stopwatch[PID.sscot][TID.online_write].stop();
 	}
 
@@ -127,7 +127,7 @@ public class SSCOT extends Operation {
 		timing.stopwatch[PID.sscot][TID.online].stop();
 
 		timing.stopwatch[PID.sscot][TID.online_write].start();
-		C.write(msg_ev);
+		C.write(msg_ev, PID.sscot);
 		timing.stopwatch[PID.sscot][TID.online_write].stop();
 	}
 

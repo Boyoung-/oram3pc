@@ -52,13 +52,13 @@ public class CommunicationBench {
 			StopWatch sw = new StopWatch();
 			sw.start();
 			B.sharedBandwidth.clear();
-			B.sharedBandwidth.start();
+			//B.sharedBandwidth.start();
 
 			for (int j = 0; j < N; j++) {
 				B.write(obj);
 			}
 
-			B.sharedBandwidth.stop();
+			//B.sharedBandwidth.stop();
 			sw.stop();
 
 			if (i >= ignored_trials) {
@@ -91,7 +91,7 @@ public class CommunicationBench {
 		for (int i = 0; i < num_trials + ignored_trials; i++) {
 			StopWatch sw = new StopWatch();
 			sync(A, A);
-			A.sharedBandwidth.start();
+			//A.sharedBandwidth.start();
 			A.sharedBandwidth.clear();
 
 			if (read_delay != 0) {
@@ -110,7 +110,7 @@ public class CommunicationBench {
 				// A.readString();
 			}
 
-			A.sharedBandwidth.stop();
+			//A.sharedBandwidth.stop();
 			sw.stop();
 
 			if (i >= ignored_trials) {
@@ -158,12 +158,12 @@ public class CommunicationBench {
 			StopWatch sw = new StopWatch();
 			sw.start();
 			B.sharedBandwidth.clear();
-			B.sharedBandwidth.start();
+			//B.sharedBandwidth.start();
 
 			B.write(obj);
 			B.read();
 
-			B.sharedBandwidth.stop();
+			//B.sharedBandwidth.stop();
 			sw.stop();
 
 			if (i >= ignored_trials) {
@@ -188,7 +188,7 @@ public class CommunicationBench {
 		for (int i = 0; i < num_trials + ignored_trials; i++) {
 			StopWatch sw = new StopWatch();
 			sync(A, A);
-			A.sharedBandwidth.start();
+			//A.sharedBandwidth.start();
 			A.sharedBandwidth.clear();
 			sw.start();
 
@@ -196,7 +196,7 @@ public class CommunicationBench {
 			A.write(A.read());
 			// A.readString();
 
-			A.sharedBandwidth.stop();
+			//A.sharedBandwidth.stop();
 			sw.stop();
 
 			if (i >= ignored_trials) {
@@ -241,8 +241,8 @@ public class CommunicationBench {
 	}
 
 	public void TestAll(Party party) {
-		a.countBandwidth = true;
-		b.countBandwidth = true;
+		//a.countBandwidth = true;
+		//b.countBandwidth = true;
 
 		// Strange way to start bandwidth monitoring but oh well.
 		// Would be better to have a method on Com object.

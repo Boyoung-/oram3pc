@@ -31,7 +31,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		if (i == 0) {
 			localTiming.stopwatch[PID.evict][TID.online_write].start();
 			//debbie.write(args[1]);
-			debbie.write(sC_T_p);
+			debbie.write(sC_T_p.toByteArray(), PID.evict);
 			localTiming.stopwatch[PID.evict][TID.online_write].stop();
 
 			return null;
@@ -152,7 +152,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		// step 6
 		localTiming.stopwatch[PID.evict][TID.online_write].start();
 		//debbie.write(secretC_P_pp);
-		debbie.write(msg_path);
+		debbie.write(msg_path, PID.evict);
 		localTiming.stopwatch[PID.evict][TID.online_write].stop();
 		
 		/*
@@ -167,11 +167,15 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			Communication eddie, Tree OT, BigInteger unused, BigInteger[] unused2,
 			Timing localTiming) {
 		if (i == 0) {
+			byte[] msg_tuple = null;
 			localTiming.stopwatch[PID.evict][TID.online_read].start();
-			BigInteger sD_Ti_p = charlie.readBigInteger();
+			//BigInteger sD_Ti_p = charlie.readBigInteger();
+			msg_tuple = charlie.read();
 			localTiming.stopwatch[PID.evict][TID.online_read].stop();
 
 			localTiming.stopwatch[PID.evict][TID.online].start();
+			BigInteger sD_Ti_p = new BigInteger(1, msg_tuple);
+			
 			Bucket[] buckets = new Bucket[] { new Bucket(i,
 					Util.rmSignBit(sD_Ti_p.xor(PreData.evict_upxi[i][0])
 							.toByteArray())) };

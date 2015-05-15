@@ -44,10 +44,12 @@ public class Reshuffle extends TreeOperation<BigInteger[], BigInteger> {
 		// step 1
 		localTiming.stopwatch[PID.reshuf][TID.online].start();
 		BigInteger z = sC_P.xor(PreData.reshuffle_p[i]);
+		byte[] msg_z = z.toByteArray();
 		localTiming.stopwatch[PID.reshuf][TID.online].stop();
 
 		localTiming.stopwatch[PID.reshuf][TID.online_write].start();
-		eddie.write(z);
+		//eddie.write(z);
+		eddie.write(msg_z, PID.reshuf);
 		localTiming.stopwatch[PID.reshuf][TID.online_write].stop();
 		
 		return PreData.reshuffle_a_p[i];
@@ -74,11 +76,14 @@ public class Reshuffle extends TreeOperation<BigInteger[], BigInteger> {
 		// protocol
 		// step 1
 		localTiming.stopwatch[PID.reshuf][TID.online_read].start();
-		BigInteger z = charlie.readBigInteger();
+		//BigInteger z = charlie.readBigInteger();
+		byte[] msg_z = charlie.read();
 		localTiming.stopwatch[PID.reshuf][TID.online_read].stop();
 
 		// step 2
 		localTiming.stopwatch[PID.reshuf][TID.online].start();
+		BigInteger z = new BigInteger(1, msg_z);
+		
 		BigInteger b_all = sE_P.xor(z).xor(PreData.reshuffle_r[i]);
 		BigInteger[] b = new BigInteger[pathBuckets];
 		BigInteger helper = BigInteger.ONE.shiftLeft(bucketBits).subtract(

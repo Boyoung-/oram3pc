@@ -35,9 +35,7 @@ public abstract class Operation {
 	// Utility function will test for synchrony between the parties.
 	public void sanityCheck() {
 		if (ENSURE_SANITY) {
-			con1.countBandwidth = false;
-			con2.countBandwidth = false;
-
+			
 			// System.out.println("Sanity check");
 			con1.write("sanity");
 			con2.write("sanity");
@@ -48,9 +46,6 @@ public abstract class Operation {
 			if (!con2.readString().equals("sanity")) {
 				System.out.println("Sanity check failed for con2");
 			}
-
-			con1.countBandwidth = true;
-			con2.countBandwidth = true;
 		}
 	}
 

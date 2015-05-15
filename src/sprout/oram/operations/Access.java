@@ -36,20 +36,33 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		int Nip1Bits = (i < h - 1) ? (i + 1) * tau : ForestMetadata
 				.getLastNBits();
 		BigInteger sC_Ni = Util.getSubBits(sC_Nip1, Nip1Bits - nBits, Nip1Bits);
+		
+		byte[] msg_Li = null;
+		if (i > 0)
+			msg_Li = PreData.access_Li[i].toByteArray();
 		timing.stopwatch[PID.access][TID.online].stop();
 
-		timing.stopwatch[PID.access][TID.online_write].start();
-		debbie.write(PreData.access_Li[i]);
-		eddie.write(PreData.access_Li[i]);
-		timing.stopwatch[PID.access][TID.online_write].stop();
+		if (i > 0) {
+			timing.stopwatch[PID.access][TID.online_write].start();
+			// debbie.write(PreData.access_Li[i]);
+			// eddie.write(PreData.access_Li[i]);
+			debbie.write(msg_Li, PID.access);
+			eddie.write(msg_Li, PID.access);
+			timing.stopwatch[PID.access][TID.online_write].stop();
+		}
 
 		timing.stopwatch[PID.access][TID.online_read].start();
-		BigInteger sC_sig_P_all_p = debbie.readBigInteger();
+		//BigInteger sC_sig_P_all_p = debbie.readBigInteger();
+		byte[] msg_path = debbie.read();
 		timing.stopwatch[PID.access][TID.online_read].stop();		
 
 		// step 2
+		timing.stopwatch[PID.access][TID.online].start();
+		BigInteger sC_sig_P_all_p = new BigInteger(1, msg_path);
+		
 		int j_1 = 0;
 		BigInteger z;
+		timing.stopwatch[PID.access][TID.online].stop();
 		if (i == 0) {
 			z = sC_sig_P_all_p;
 		} else {
@@ -156,11 +169,23 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 		// protocol
 		// step 1
-		timing.stopwatch[PID.access][TID.online_read].start();
-		PreData.access_Li[i] = charlie.readBigInteger();
-		timing.stopwatch[PID.access][TID.online_read].stop();
+		byte[] msg_Li = null;
+		
+		if (i > 0) {
+			timing.stopwatch[PID.access][TID.online_read].start();
+			// PreData.access_Li[i] = charlie.readBigInteger();
+			msg_Li = charlie.read();
+			timing.stopwatch[PID.access][TID.online_read].stop();
+		}
 
 		timing.stopwatch[PID.access][TID.online].start();
+		if (i == 0) {
+			PreData.access_Li[i] = null;
+		}
+		else {
+			PreData.access_Li[i] = new BigInteger(1, msg_Li);
+		}
+		
 		Bucket[] sD_buckets;
 		if (!Forest.loadPathCheat())
 			sD_buckets = sD_OT.getBucketsOnPath(PreData.access_Li[i]);
@@ -180,10 +205,13 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		for (int j = 1; j < sD_sig_P.length; j++)
 			sD_sig_P_all = sD_sig_P_all.shiftLeft(bucketBits).xor(sD_sig_P[j]);
 		//BigInteger sD_sig_P_all_p = sD_sig_P_all.xor(PreData.access_p[i]);
+		
+		byte[] msg_path = sD_sig_P_all.toByteArray();
 		timing.stopwatch[PID.access][TID.online].stop();
 
 		timing.stopwatch[PID.access][TID.online_write].start();
-		charlie.write(sD_sig_P_all);
+		//charlie.write(sD_sig_P_all);
+		charlie.write(msg_path, PID.access);
 		timing.stopwatch[PID.access][TID.online_write].stop();
 
 		// step 2
@@ -235,11 +263,23 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			Timing localTiming) {
 		// protocol
 		// step 1
-		timing.stopwatch[PID.access][TID.online_read].start();
-		PreData.access_Li[i] = charlie.readBigInteger();
-		timing.stopwatch[PID.access][TID.online_read].stop();
+		byte[] msg_Li = null;
+		
+		if (i > 0) {
+			timing.stopwatch[PID.access][TID.online_read].start();
+			// PreData.access_Li[i] = charlie.readBigInteger();
+			msg_Li = charlie.read();
+			timing.stopwatch[PID.access][TID.online_read].stop();
+		}
 
 		timing.stopwatch[PID.access][TID.online].start();
+		if (i == 0) {
+			PreData.access_Li[i] = null;
+		}
+		else {
+			PreData.access_Li[i] = new BigInteger(1, msg_Li);
+		}
+		
 		Bucket[] sE_buckets;
 		if (!Forest.loadPathCheat())
 			sE_buckets = sE_OT.getBucketsOnPath(PreData.access_Li[i]);
@@ -354,7 +394,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		int records = 10; // how many random records we want to test retrieval
-		int retrievals = 10; // for each record, how many repeated retrievals we
+		int retrievals = 5; // for each record, how many repeated retrievals we
 							// want to do
 
 		long numInsert = Math.min(ForestMetadata.getNumInsert(),

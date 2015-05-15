@@ -7,7 +7,8 @@ public class Bandwidth implements Serializable {
 
 	public String task;
 	public int bandwidth;
-	public boolean active = false;
+	
+	// TODO: what is this?
 	public boolean strict = true;
 
 	public Bandwidth(String t) {
@@ -32,65 +33,25 @@ public class Bandwidth implements Serializable {
 			return true;
 		return false;
 	}
-
-	public boolean isActive() {
-		return active;
-	}
-
-	public void start() {
-		if (active) {
-			System.err.println("Bandwidth.start: " + task + " already active");
-			return;
-		}
-		active = true;
-	}
-
-	public void stop() {
-		if (!active) {
-			System.err.println("Bandwidth.stop: " + task + " not in use");
-			return;
-		}
-		active = false;
-	}
-
+	
 	public void reset() {
-		if (active) {
-			System.err.println("Bandwidth.reset: " + task + " still in use");
-			return;
-		}
 		bandwidth = 0;
 	}
 
-	public void add(int b) {
-		if (!active) {
-			System.err.println("Bandwidth.add: " + task + " not in use");
-			return;
-		}
+	public synchronized void add(int b) {
 		bandwidth += b;
 	}
 
 	public void divide(int n) {
-		if (active) {
-			System.err.println("Bandwidth.divide: " + task + " still in use");
-			return;
-		}
 		bandwidth /= n;
 	}
 
-	/*
-	 * This is slightly more efficient version of add, but mutates the current
-	 * bandwidth
-	 */
+	public void clear() {
+		bandwidth = 0;
+	}
+
 	public Bandwidth add_mut(Bandwidth b) {
-		if (active) {
-			System.err.println("Bandwidth.add2: " + task + " still in use");
-			return null;
-		}
-		if (b.active) {
-			System.err.println("Bandwidth.add2: " + b.task + " still in use");
-			return null;
-		}
-		if (task != null && !task.equals(b.task) && (b.strict || strict))
+		if (task != null && b.task != null && !task.equals(b.task) && (b.strict || strict))
 			System.err.println("Warning: adding bandwidth of " + task + " and "
 					+ b.task);
 
@@ -101,9 +62,9 @@ public class Bandwidth implements Serializable {
 	public Bandwidth add(Bandwidth b) {
 		return new Bandwidth(this).add_mut(b);
 	}
-
-	public void clear() {
-		bandwidth = 0;
+	
+	public String toTab() {
+		return task + "(bytes):\t" + bandwidth;
 	}
 
 	@Override

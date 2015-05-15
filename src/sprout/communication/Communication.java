@@ -70,32 +70,21 @@ public class Communication {
 	protected int mState;
 	protected InetSocketAddress mAddress;
 
-	public Bandwidth[] bandwidth;
+	public static Bandwidth[] bandwidth;
 	public Bandwidth sharedBandwidth;
-	public boolean countBandwidth = false;
-	public boolean bandWidthSwitch = false;
+	
+	public static boolean bandWidthSwitch = false;
+	
+	static {
+		bandwidth = new Bandwidth[PID.size];
+		for (int i = 0; i < PID.size; i++)
+			bandwidth[i] = new Bandwidth(PID.names[i]);
+	}
 
 	public Communication() {
 		mState = STATE_NONE;
 
-		bandwidth = new Bandwidth[PID.size];
-		for (int i = 0; i < PID.size; i++)
-			bandwidth[i] = new Bandwidth(PID.names[i]);
-
 		sharedBandwidth = new Bandwidth("shared", false);
-	}
-
-	public void addBandwidth(int bits) {
-		// TODO: re-arrange this?
-		if (sharedBandwidth.isActive()) {
-			sharedBandwidth.add(bits);
-			return;
-		} else if (bandWidthSwitch) {
-			for (int i = 0; i < bandwidth.length; i++) {
-				if (bandwidth[i].isActive())
-					bandwidth[i].add(bits);
-			}
-		}
 	}
 
 	public void writeBandwidthToFile(String filename) throws IOException {
@@ -335,6 +324,14 @@ public class Communication {
 			mSecureAcceptThread = null;
 		}
 	}
+	
+	public void write(byte[] out, int pid) {
+		if (bandWidthSwitch) {
+			bandwidth[pid].add(out.length);
+		}
+		
+		write(out);
+	}
 
 	/**
 	 * Write to the ConnectedThread in an unsynchronized manner
@@ -356,9 +353,6 @@ public class Communication {
 		}
 		// Perform the write unsynchronized
 		r.write(out);
-
-		if (countBandwidth)
-			addBandwidth(out.length);
 	}
 
 	/**

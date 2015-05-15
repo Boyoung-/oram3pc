@@ -31,12 +31,17 @@ public class SSIOT extends Operation {
 		byte[] msg_ev = E.read();
 
 		// step 2
-		BigInteger p = D.readBigInteger();
-		BigInteger w = D.readBigInteger();
+		//BigInteger p = D.readBigInteger();
+		//BigInteger w = D.readBigInteger();
+		byte[] msg_p = D.read();
+		byte[] msg_w = D.read();
 		timing.stopwatch[PID.ssiot][TID.online_read].stop();
 
 		// step 3
 		timing.stopwatch[PID.ssiot][TID.online].start();
+		BigInteger p = new BigInteger(1, msg_p);
+		BigInteger w = new BigInteger(1, msg_w);
+		
 		int gBytes = (l + 7) / 8;
 		PRG G = new PRG(l);
 		byte[][] e = new byte[N][];
@@ -74,11 +79,16 @@ public class SSIOT extends Operation {
 		BigInteger y = PreData.ssiot_r[i].xor(j_D.shiftLeft(diffBits));
 		BigInteger p = new BigInteger(1, F_k.compute(y.toByteArray()));
 		BigInteger w = new BigInteger(1, F_k_p.compute(y.toByteArray()));
+		
+		byte[] msg_p = p.toByteArray();
+		byte[] msg_w = w.toByteArray();
 		timing.stopwatch[PID.ssiot][TID.online].stop();
 
 		timing.stopwatch[PID.ssiot][TID.online_write].start();
-		C.write(p);
-		C.write(w);
+		//C.write(p);
+		//C.write(w);
+		C.write(msg_p, PID.ssiot);
+		C.write(msg_w, PID.ssiot);
 		timing.stopwatch[PID.ssiot][TID.online_write].stop();
 	}
 
@@ -116,7 +126,7 @@ public class SSIOT extends Operation {
 		timing.stopwatch[PID.ssiot][TID.online].stop();
 
 		timing.stopwatch[PID.ssiot][TID.online_write].start();
-		C.write(msg_ev);
+		C.write(msg_ev, PID.ssiot);
 		timing.stopwatch[PID.ssiot][TID.online_write].stop();
 	}
 

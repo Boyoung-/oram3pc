@@ -60,7 +60,7 @@ public class SSXOT extends Operation {
 		localTiming.stopwatch[PID.ssxot][TID.online].stop();
 
 		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
-		eddie.write(msg_a);
+		eddie.write(msg_a, PID.ssxot);
 		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
 
 		// XOT 2
@@ -136,8 +136,8 @@ public class SSXOT extends Operation {
 		localTiming.stopwatch[PID.ssxot][TID.online].stop();
 
 		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
-		eddie.write(msg_j);
-		eddie.write(msg_p);
+		eddie.write(msg_j, PID.ssxot);
+		eddie.write(msg_p, PID.ssxot);
 		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
 
 		// XOT 2
@@ -164,8 +164,8 @@ public class SSXOT extends Operation {
 		localTiming.stopwatch[PID.ssxot][TID.online].stop();
 
 		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
-		charlie.write(msg_j);
-		charlie.write(msg_p);
+		charlie.write(msg_j, PID.ssxot);
+		charlie.write(msg_p, PID.ssxot);
 		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
 	}
 
@@ -204,7 +204,7 @@ public class SSXOT extends Operation {
 		localTiming.stopwatch[PID.ssxot][TID.online].stop();
 
 		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
-		charlie.write(msg_a);
+		charlie.write(msg_a, PID.ssxot);
 		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
 
 		// XOT 1

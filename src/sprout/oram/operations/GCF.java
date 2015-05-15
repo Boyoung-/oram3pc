@@ -47,7 +47,7 @@ public class GCF extends Operation {
 
 		// step 2
 		localTiming.stopwatch[PID.gcf][TID.online_write].start();
-		debbie.write(msg_K_C);
+		debbie.write(msg_K_C, PID.gcf);
 		localTiming.stopwatch[PID.gcf][TID.online_write].stop();
 	}
 
@@ -127,7 +127,7 @@ public class GCF extends Operation {
 
 		localTiming.stopwatch[PID.gcf][TID.online_write].start();
 		// charlie.write(msg_A);
-		debbie.write(msg_A);
+		debbie.write(msg_A, PID.gcf);
 		localTiming.stopwatch[PID.gcf][TID.online_write].stop();
 	}
 

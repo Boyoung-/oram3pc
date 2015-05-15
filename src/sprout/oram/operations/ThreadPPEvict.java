@@ -76,7 +76,7 @@ public class ThreadPPEvict extends Operation {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		int records = 10; // how many random records we want to test retrieval
-		int retrievals = 10; // for each record, how many repeated retrievals
+		int retrievals = 5; // for each record, how many repeated retrievals
 								// we
 								// want to do
 
@@ -99,8 +99,7 @@ public class ThreadPPEvict extends Operation {
 		PPEvict[] threads = new PPEvict[numTrees];
 
 		// turn on bandwidth measurement
-		// con1.bandWidthSwitch = true;
-		// con2.bandWidthSwitch = true;
+		Communication.bandWidthSwitch = true;
 
 		if (ifSanityCheck())
 			System.out.println("Sanity check enabled\n");
@@ -247,20 +246,20 @@ public class ThreadPPEvict extends Operation {
 				// wait for all threads to terminate
 				// so timing data can be gathered
 
-				for (int i = 0; i < numTrees; i++)
+				for (int i = 0; i < numTrees; i++) {
 					try {
 						threads[i].join();
 						timing = timing.add(threads[i].getTiming());
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-
-				// only need to count bandwidth once
-				con1.bandWidthSwitch = false;
-				con2.bandWidthSwitch = false;
+				}
 
 				online_phrase.stop();
 				whole_execution.stop();
+
+				// only need to count bandwidth once
+				Communication.bandWidthSwitch = false;
 			}
 		}
 
@@ -269,5 +268,9 @@ public class ThreadPPEvict extends Operation {
 
 		System.out.println("-------------------------");
 		System.out.println(timing.toTab());
+		
+		System.out.println("-------------------------");
+		for (int i=0; i<Communication.bandwidth.length; i++)
+			System.out.println(Communication.bandwidth[i].toTab());
 	}
 }

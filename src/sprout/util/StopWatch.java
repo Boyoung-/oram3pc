@@ -22,8 +22,12 @@ public class StopWatch implements Serializable {
 	private long startCPUTime;
 
 	public static final int to_ms = 1000000; // from nanoseconds to milliseconds
-
-	private boolean parallelTestSwitch = true;
+	
+	private long getCPUTime() {
+		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+		return bean.isCurrentThreadCpuTimeSupported() ? bean
+				.getCurrentThreadCpuTime() : 0L;
+	}
 
 	public StopWatch() {
 		elapsedWallClockTime = 0;
@@ -55,11 +59,7 @@ public class StopWatch implements Serializable {
 		this.strict = strict;
 	}
 
-	public void start() {
-		if (!parallelTestSwitch)
-			return;
-
-		if (running) {
+	public void start() {if (running) {
 			System.err.println(task + ": StopWatch is alrealdy running.");
 			return;
 		}
@@ -69,11 +69,7 @@ public class StopWatch implements Serializable {
 		startCPUTime = getCPUTime();
 	}
 
-	public void stop() {
-		if (!parallelTestSwitch)
-			return;
-
-		if (!running) {
+	public void stop() {if (!running) {
 			System.err.println(task + ":StopWatch is not running.");
 			return;
 		}
@@ -83,11 +79,7 @@ public class StopWatch implements Serializable {
 		elapsedWallClockTime += System.nanoTime() - startWallClockTime;
 	}
 
-	public void reset() {
-		if (!parallelTestSwitch)
-			return;
-
-		if (running) {
+	public void reset() {if (running) {
 			System.err.println(task
 					+ ": StopWatch is still running. Please stop first.");
 			return;
@@ -97,11 +89,14 @@ public class StopWatch implements Serializable {
 		elapsedCPUTime = 0;
 	}
 
+	public void divide(int n) {
+		elapsedWallClockTime /= n;
+		elapsedCPUTime /= n;
+	}
+
 	public StopWatch add_mut(StopWatch sw) {
-		if (task == null) {
-			; // TODO: fix
-		} else if (!task.equals(sw.task) && (strict || sw.strict)) {
-			System.out.println("Warning: addition between different task!");
+		if (task != null && sw.task != null && !task.equals(sw.task) && (strict || sw.strict)) {
+			System.err.println("Warning: addition between different task!");
 		}
 
 		elapsedWallClockTime = elapsedWallClockTime + sw.elapsedWallClockTime;
@@ -113,21 +108,18 @@ public class StopWatch implements Serializable {
 		return (new StopWatch(this)).add_mut(sw);
 	}
 
-	public StopWatch subtract(StopWatch sw) {
-		if (!task.equals(sw.task)) {
-			System.out.println("Warning: subtraction between different task!");
+	public StopWatch subtract_mut(StopWatch sw) {
+		if (task != null && sw.task != null && !task.equals(sw.task) && (strict || sw.strict)) {
+			System.err.println("Warning: subtraction between different task!");
 		}
 
-		StopWatch out = new StopWatch(task);
-		out.elapsedWallClockTime = elapsedWallClockTime
-				- sw.elapsedWallClockTime;
-		out.elapsedCPUTime = elapsedCPUTime - sw.elapsedCPUTime;
-		return out;
+		elapsedWallClockTime = elapsedWallClockTime - sw.elapsedWallClockTime;
+		elapsedCPUTime = elapsedCPUTime - sw.elapsedCPUTime;
+		return this;
 	}
-
-	public void divide(int n) {
-		elapsedWallClockTime /= n;
-		elapsedCPUTime /= n;
+	
+	public StopWatch subtract(StopWatch sw) {
+		return (new StopWatch(this)).subtract_mut(sw);
 	}
 
 	@Override
@@ -161,15 +153,9 @@ public class StopWatch implements Serializable {
 		return num;
 	}
 
-	public String afterConversion() {
+	public String toMS() {
 		String num = elapsedWallClockTime / to_ms + "\n" + elapsedCPUTime
 				/ to_ms;
 		return num;
-	}
-
-	private long getCPUTime() {
-		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-		return bean.isCurrentThreadCpuTimeSupported() ? bean
-				.getCurrentThreadCpuTime() : 0L;
 	}
 }

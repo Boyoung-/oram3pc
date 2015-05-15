@@ -46,10 +46,12 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		// protocol
 		// step 1
 		int delta = (PreData.ppt_alpha[i] - j_2 + twotaupow) % twotaupow;
+		byte[] msg_delta = BigInteger.valueOf(delta).toByteArray();
 		localTiming.stopwatch[PID.ppt][TID.online].stop();
 
 		localTiming.stopwatch[PID.ppt][TID.online_write].start();
-		eddie.write(delta);
+		//eddie.write(delta);
+		eddie.write(msg_delta, PID.ppt);
 		localTiming.stopwatch[PID.ppt][TID.online_write].stop();
 
 		// step 2
@@ -113,11 +115,14 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		// protocol
 		// step 1
 		localTiming.stopwatch[PID.ppt][TID.online_read].start();
-		int delta = charlie.readInt();
+		//int delta = charlie.readInt();
+		byte[] msg_delta = charlie.read();
 		localTiming.stopwatch[PID.ppt][TID.online_read].stop();
 
 		// step 3
 		localTiming.stopwatch[PID.ppt][TID.online].start();
+		int delta = new BigInteger(1, msg_delta).intValue();
+		
 		BigInteger[] e = new BigInteger[twotaupow];
 		BigInteger e_all = BigInteger.ZERO;
 		for (int t = 0; t < twotaupow; t++) {

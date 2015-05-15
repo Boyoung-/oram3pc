@@ -98,7 +98,7 @@ public class Retrieve extends Operation {
 	@Override
 	public void run(Party party, Forest forest) throws ForestException {
 		int records = 10; // how many random records we want to test retrieval
-		int retrievals = 10; // for each record, how many repeated retrievals
+		int retrievals = 5; // for each record, how many repeated retrievals
 								// we
 								// want to do
 
@@ -121,8 +121,7 @@ public class Retrieve extends Operation {
 		PPEvict[] threads = new PPEvict[numTrees];
 
 		// turn on bandwidth measurement
-		// con1.bandWidthSwitch = true;
-		// con2.bandWidthSwitch = true;
+		Communication.bandWidthSwitch = true;
 
 		if (ifSanityCheck())
 			System.out.println("Sanity check enabled\n");
@@ -270,8 +269,7 @@ public class Retrieve extends Operation {
 				whole_execution.stop();
 
 				// only need to count bandwidth once
-				con1.bandWidthSwitch = false;
-				con2.bandWidthSwitch = false;
+				Communication.bandWidthSwitch = false;
 			}
 		}
 
@@ -280,5 +278,9 @@ public class Retrieve extends Operation {
 
 		System.out.println("-------------------------");
 		System.out.println(timing.toTab());
+		
+		System.out.println("-------------------------");
+		for (int i=0; i<Communication.bandwidth.length; i++)
+			System.out.println(Communication.bandwidth[i].toTab());
 	}
 }
