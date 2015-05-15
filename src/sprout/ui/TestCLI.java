@@ -139,9 +139,10 @@ public class TestCLI {
 				e1.printStackTrace();
 			}
 			int numTrees = ForestMetadata.getLevels();
-			PPEvict.threadCon1 = new Communication[numTrees];
-			PPEvict.threadCon2 = new Communication[numTrees];
-			// System.out.println("numTrees: " + numTrees);
+			if (alg.equals("thread")) {
+				PPEvict.threadCon1 = new Communication[numTrees];
+				PPEvict.threadCon2 = new Communication[numTrees];
+			}
 
 			// For now all logic happens here. Eventually this will get wrapped
 			// up in party specific classes.
@@ -153,29 +154,32 @@ public class TestCLI {
 				Communication charlieCon = new Communication();
 				charlieCon.start(eddiePort2);
 
-				for (int i = 0; i < numTrees; i++) {
-					// for charlie
-					PPEvict.threadCon1[i] = new Communication();
-					PPEvict.threadCon1[i].start(eddiePort2 + i + 1);
-					// for debbie
-					PPEvict.threadCon2[i] = new Communication();
-					PPEvict.threadCon2[i].start(eddiePort1 + i + 1);
-				}
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees; i++) {
+						// for charlie
+						PPEvict.threadCon1[i] = new Communication();
+						PPEvict.threadCon1[i].start(eddiePort2 + i + 1);
+						// for debbie
+						PPEvict.threadCon2[i] = new Communication();
+						PPEvict.threadCon2[i].start(eddiePort1 + i + 1);
+					}
 
 				System.out.println("Waiting to establish connections...");
 
 				while (debbieCon.getState() != Communication.STATE_CONNECTED)
 					;
-				for (int i = 0; i < numTrees;) {
-					if (PPEvict.threadCon2[i].getState() == Communication.STATE_CONNECTED)
-						i++;
-				}
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees;) {
+						if (PPEvict.threadCon2[i].getState() == Communication.STATE_CONNECTED)
+							i++;
+					}
 				while (charlieCon.getState() != Communication.STATE_CONNECTED)
 					;
-				for (int i = 0; i < numTrees;) {
-					if (PPEvict.threadCon1[i].getState() == Communication.STATE_CONNECTED)
-						i++;
-				}
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees;) {
+						if (PPEvict.threadCon1[i].getState() == Communication.STATE_CONNECTED)
+							i++;
+					}
 
 				// while (charlieCon.getState() != Communication.STATE_CONNECTED
 				// || debbieCon.getState() != Communication.STATE_CONNECTED)
@@ -206,10 +210,11 @@ public class TestCLI {
 
 				charlieCon.stop();
 				debbieCon.stop();
-				for (int i = 0; i < numTrees; i++) {
-					PPEvict.threadCon1[i].stop();
-					PPEvict.threadCon2[i].stop();
-				}
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees; i++) {
+						PPEvict.threadCon1[i].stop();
+						PPEvict.threadCon2[i].stop();
+					}
 
 			} else if (party.equals("debbie")) {
 				Communication eddieCon = new Communication();
@@ -220,31 +225,34 @@ public class TestCLI {
 				Communication charlieCon = new Communication();
 				charlieCon.start(debbiePort);
 
-				for (int i = 0; i < numTrees; i++) {
-					// for charlie
-					PPEvict.threadCon1[i] = new Communication();
-					PPEvict.threadCon1[i].start(debbiePort + i + 1);
-					// for eddie
-					PPEvict.threadCon2[i] = new Communication();
-					eddieAddr = new InetSocketAddress(eddieIp, eddiePort1 + i
-							+ 1);
-					PPEvict.threadCon2[i].connect(eddieAddr);
-				}
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees; i++) {
+						// for charlie
+						PPEvict.threadCon1[i] = new Communication();
+						PPEvict.threadCon1[i].start(debbiePort + i + 1);
+						// for eddie
+						PPEvict.threadCon2[i] = new Communication();
+						eddieAddr = new InetSocketAddress(eddieIp, eddiePort1
+								+ i + 1);
+						PPEvict.threadCon2[i].connect(eddieAddr);
+					}
 
 				System.out.println("Waiting to establish connections...");
 
 				while (eddieCon.getState() != Communication.STATE_CONNECTED)
 					;
-				for (int i = 0; i < numTrees;) {
-					if (PPEvict.threadCon2[i].getState() == Communication.STATE_CONNECTED)
-						i++;
-				}
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees;) {
+						if (PPEvict.threadCon2[i].getState() == Communication.STATE_CONNECTED)
+							i++;
+					}
 				while (charlieCon.getState() != Communication.STATE_CONNECTED)
 					;
-				for (int i = 0; i < numTrees;) {
-					if (PPEvict.threadCon1[i].getState() == Communication.STATE_CONNECTED)
-						i++;
-				}
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees;) {
+						if (PPEvict.threadCon1[i].getState() == Communication.STATE_CONNECTED)
+							i++;
+					}
 
 				// while (eddieCon.getState() != Communication.STATE_CONNECTED
 				// || charlieCon.getState() != Communication.STATE_CONNECTED)
@@ -273,10 +281,11 @@ public class TestCLI {
 
 				eddieCon.stop();
 				charlieCon.stop();
-				for (int i = 0; i < numTrees; i++) {
-					PPEvict.threadCon1[i].stop();
-					PPEvict.threadCon2[i].stop();
-				}
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees; i++) {
+						PPEvict.threadCon1[i].stop();
+						PPEvict.threadCon2[i].stop();
+					}
 
 			} else if (party.equals("charlie")) {
 				Communication debbieCon = new Communication();
@@ -289,34 +298,37 @@ public class TestCLI {
 				InetSocketAddress debbieAddr = new InetSocketAddress(debbieIp,
 						debbiePort);
 				debbieCon.connect(debbieAddr);
-
-				for (int i = 0; i < numTrees; i++) {
-					// for debbie
-					PPEvict.threadCon1[i] = new Communication();
-					debbieAddr = new InetSocketAddress(debbieIp, debbiePort + i
-							+ 1);
-					PPEvict.threadCon1[i].connect(debbieAddr);
-					// for eddie
-					PPEvict.threadCon2[i] = new Communication();
-					eddieAddr = new InetSocketAddress(eddieIp, eddiePort2 + i
-							+ 1);
-					PPEvict.threadCon2[i].connect(eddieAddr);
-				}
+				
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees; i++) {
+						// for debbie
+						PPEvict.threadCon1[i] = new Communication();
+						debbieAddr = new InetSocketAddress(debbieIp, debbiePort
+								+ i + 1);
+						PPEvict.threadCon1[i].connect(debbieAddr);
+						// for eddie
+						PPEvict.threadCon2[i] = new Communication();
+						eddieAddr = new InetSocketAddress(eddieIp, eddiePort2
+								+ i + 1);
+						PPEvict.threadCon2[i].connect(eddieAddr);
+					}
 
 				System.out.println("Waiting to establish connections...");
 
 				while (eddieCon.getState() != Communication.STATE_CONNECTED)
 					;
-				for (int i = 0; i < numTrees;) {
-					if (PPEvict.threadCon2[i].getState() == Communication.STATE_CONNECTED)
-						i++;
-				}
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees;) {
+						if (PPEvict.threadCon2[i].getState() == Communication.STATE_CONNECTED)
+							i++;
+					}
 				while (debbieCon.getState() != Communication.STATE_CONNECTED)
 					;
-				for (int i = 0; i < numTrees;) {
-					if (PPEvict.threadCon1[i].getState() == Communication.STATE_CONNECTED)
-						i++;
-				}
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees;) {
+						if (PPEvict.threadCon1[i].getState() == Communication.STATE_CONNECTED)
+							i++;
+					}
 
 				// while (eddieCon.getState() != Communication.STATE_CONNECTED
 				// || debbieCon.getState() != Communication.STATE_CONNECTED)
@@ -348,10 +360,11 @@ public class TestCLI {
 
 				eddieCon.stop();
 				debbieCon.stop();
-				for (int i = 0; i < numTrees; i++) {
-					PPEvict.threadCon1[i].stop();
-					PPEvict.threadCon2[i].stop();
-				}
+				if (alg.equals("thread"))
+					for (int i = 0; i < numTrees; i++) {
+						PPEvict.threadCon1[i].stop();
+						PPEvict.threadCon2[i].stop();
+					}
 
 			} else {
 				throw new ParseException("Invalid party, " + party
