@@ -93,10 +93,6 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		gcf.executeCharlie(debbie, eddie, localTiming, i, d_i, w * expen + 2,
 				sC_fb);
 
-		// TODO: optimize the following two online part for C and E
-		// idea: don't store a whole path as one BigInteger but as a BigInteger
-		// array?
-
 		// step 3
 		localTiming.stopwatch[PID.evict][TID.online].start();
 		int k = w * pathBuckets;

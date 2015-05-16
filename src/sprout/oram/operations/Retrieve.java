@@ -117,9 +117,6 @@ public class Retrieve extends Operation {
 		if (shiftN == 0)
 			shiftN = tau;
 
-		// threads init
-		PPEvict[] threads = new PPEvict[numTrees];
-
 		// turn on bandwidth measurement
 		Communication.bandWidthSwitch = true;
 
@@ -222,16 +219,21 @@ public class Retrieve extends Operation {
 						} else
 							sC_Ni = sC_N;
 
+						online_phrase.stop();
 						System.out.println("i="
 								+ i
 								+ ", Li="
 								+ (Li == null ? "" : Util.addZero(
 										Li.toString(2),
 										ForestMetadata.getLBits(i))));
+						online_phrase.start();
+						
 						Pair<BigInteger[], PPEvict> outPair = executeCharlie(
 								con1, con2, i, Li, sC_Ni);
 						BigInteger[] outC = outPair.getLeft();
 						Li = outC[0];
+						
+						online_phrase.stop();
 						if (i == h) {
 							BigInteger D = Util.getSubBits(outC[1], 0,
 									ForestMetadata.getDataSize() * 8);
@@ -246,7 +248,7 @@ public class Retrieve extends Operation {
 									e.printStackTrace();
 								}
 						}
-						threads[i] = outPair.getRight();
+						online_phrase.start();
 						break;
 					case Debbie:
 						BigInteger sD_Ni;
@@ -255,7 +257,7 @@ public class Retrieve extends Operation {
 									* tau, lastNBits);
 						} else
 							sD_Ni = sD_N;
-						threads[i] = executeDebbie(con1, con2, i,
+						executeDebbie(con1, con2, i,
 								forest.getTree(i), sD_Ni);
 						break;
 					case Eddie:
@@ -265,7 +267,7 @@ public class Retrieve extends Operation {
 									* tau, lastNBits);
 						} else
 							sE_Ni = sE_N;
-						threads[i] = executeEddie(con1, con2, i,
+						executeEddie(con1, con2, i,
 								forest.getTree(i), sE_Ni);
 						break;
 					}
