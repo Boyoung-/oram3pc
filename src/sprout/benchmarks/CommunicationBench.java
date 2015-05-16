@@ -191,11 +191,12 @@ public class CommunicationBench {
 			A.sharedBandwidth.clear();
 			
 			sw.start();
-			byte[] tmp = A.read();
-			A.write(tmp);
+			//byte[] tmp = A.read();
+			//A.write(tmp);
+			A.write(A.read());
 			sw.stop();
 			
-			A.sharedBandwidth.add(tmp.length);
+			//A.sharedBandwidth.add(tmp.length);
 
 			if (i >= ignored_trials) {
 				totalBand.add_mut(A.sharedBandwidth);
