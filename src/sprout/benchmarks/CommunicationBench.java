@@ -155,16 +155,16 @@ public class CommunicationBench {
 		for (int i = 0; i < num_trials + ignored_trials; i++) {
 			System.out.println("i= " + i);
 			sync(B, B);
-			StopWatch sw = new StopWatch();
-			sw.start();
+			
 			B.sharedBandwidth.clear();
-			//B.sharedBandwidth.start();
-
+			StopWatch sw = new StopWatch();
+			
+			sw.start();
 			B.write(obj);
 			B.read();
-
-			//B.sharedBandwidth.stop();
 			sw.stop();
+			
+			B.sharedBandwidth.add(obj.length);
 
 			if (i >= ignored_trials) {
 				totalBand.add_mut(B.sharedBandwidth);
@@ -188,16 +188,14 @@ public class CommunicationBench {
 		for (int i = 0; i < num_trials + ignored_trials; i++) {
 			StopWatch sw = new StopWatch();
 			sync(A, A);
-			//A.sharedBandwidth.start();
 			A.sharedBandwidth.clear();
+			
 			sw.start();
-
-			// A.write(A.readBigInteger());
-			A.write(A.read());
-			// A.readString();
-
-			//A.sharedBandwidth.stop();
+			byte[] tmp = A.read();
+			A.write(tmp);
 			sw.stop();
+			
+			A.sharedBandwidth.add(tmp.length);
 
 			if (i >= ignored_trials) {
 				totalBand.add_mut(A.sharedBandwidth);
