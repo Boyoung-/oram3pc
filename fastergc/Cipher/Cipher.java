@@ -19,11 +19,6 @@ public final class Cipher {
 
 	private static MessageDigest sha1 = SR.digest;
 
-	/*
-	 * static { try { sha1 = MessageDigest.getInstance("SHA-1"); } catch
-	 * (Exception e) { e.printStackTrace(); System.exit(1); } }
-	 */
-
 	public static synchronized BigInteger encrypt(BigInteger lp0,
 			BigInteger lp1, int k, BigInteger m) {
 		BigInteger ret = getPadding(lp0, lp1, k);
