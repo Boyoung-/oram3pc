@@ -31,8 +31,8 @@ public class CryptoBenchmark {
 		System.out.println("time for doing n*iteration AES/SHA-1 ops");
 		System.out.println();
 		System.out.println("Iterations\t" + iteration / 2);
-		System.out.println(" \tPRF\tPRG\tGC");
-		System.out.println("n\t(AES-ECB)\t(AES-CTR)\t(SHA-1)");
+		System.out.println(" \t\tPRF\tPRG\tGC");
+		System.out.println("n\t\t(AES-ECB)\t(AES-CTR)\t(SHA-1)");
 
 		// start timing
 		for (int n = n_start; n <= n_end; n += n_increment) {
