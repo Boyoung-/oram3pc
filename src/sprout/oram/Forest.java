@@ -22,8 +22,15 @@ public class Forest {
 	//private static Bucket[][] paths2;
 
 	private static String forestFile;
+	
+	// this mode loads entire forest into memory
 	private static boolean loadMemory = true;
+	
+	// this mode only loads one path of each tree into memory
 	private static boolean loadPathCheat = true;
+	
+	// another cheat mode, which don't generate forest file but only path files to save memory
+	private static boolean noForest = true;
 	
 	public static boolean loadPathCheat() {
 		return loadPathCheat;
@@ -222,7 +229,12 @@ public class Forest {
 		}
 
 		Util.disp("");
-
+		
+		if (noForest) {
+			noForestInitPaths(firstL);
+			return;
+		}
+ 
 		// these two lines are real xors
 		// data2 = new ByteArray64(ForestMetadata.getForestBytes(), "random");
 		// data1.setXOR(data2);
@@ -234,6 +246,59 @@ public class Forest {
 		
 		if (loadPathCheat)
 			initPaths(firstL);
+	}
+	
+	private void noForestInitPaths(BigInteger[] firstL) {
+		FileOutputStream fout = null;
+		ObjectOutputStream oos = null;
+		
+		String[] pathNames = ForestMetadata.getDefaultPathNames();
+		Bucket[][] buckets = new Bucket[trees.size()][];
+		
+		try {
+			fout = new FileOutputStream(pathNames[0]);
+			oos = new ObjectOutputStream(fout);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		for (int i=0; i<trees.size(); i++) {
+			buckets[i] = trees.get(i).getBucketsOnPath(firstL[i]);
+			for (int j=0; j<buckets[i].length; j++) {
+				try {
+					oos.writeObject(buckets[i][j]);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		try {
+			oos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			fout = new FileOutputStream(pathNames[1]);
+			oos = new ObjectOutputStream(fout);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (int i=0; i<trees.size(); i++) {
+			for (int j=0; j<buckets[i].length; j++) {
+				buckets[i][j].setTuples(new byte[1]);
+				try {
+					oos.writeObject(buckets[i][j]);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		try {
+			oos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void initPaths(BigInteger[] firstL) {
