@@ -137,6 +137,7 @@ public class GCF extends Operation {
 		System.out.println("#####  Testing GCF  #####");
 
 		timing = new Timing();
+		Circuit.timing = timing;
 
 		boolean F2FT = false;
 
