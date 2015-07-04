@@ -29,8 +29,12 @@ public class Forest {
 	// this mode only loads one path of each tree into memory
 	private static boolean loadPathCheat = true;
 	
-	// another cheat mode, which don't generate forest file but only path files to save memory
+	// another cheat mode, which doesn't generate forest file but only path files
+	// (note that this mode still generate forest in memory)
 	private static boolean noForest = true;
+	
+	// cheat mode, which doesn't generate forest at all but only one path for each tree
+	private static boolean noForestInMemory = true;
 	
 	public static boolean loadPathCheat() {
 		return loadPathCheat;
@@ -109,6 +113,12 @@ public class Forest {
 	@SuppressWarnings("unchecked")
 	private void initForest(String filename1, String filename2)
 			throws Exception {
+		if (noForestInMemory) {
+			noForestInMemoryInitPaths();
+			return;
+		}
+		
+		
 		loadMemory = true;
 		data1 = new ByteArray64(ForestMetadata.getForestBytes());
 
@@ -246,6 +256,71 @@ public class Forest {
 		
 		if (loadPathCheat)
 			initPaths(firstL);
+	}
+	
+	private void noForestInMemoryInitPaths() {
+		long r = ForestMetadata.getNumInsert();
+		if (r != 1) {
+			System.err.println("NumInsert must be 1 in this cheat mode!");
+			return;
+		}
+		
+		FileOutputStream fout = null;
+		ObjectOutputStream oos = null;
+		
+		String[] pathNames = ForestMetadata.getDefaultPathNames();
+		Bucket[][] buckets = new Bucket[ForestMetadata.getLevels()][];
+		
+		try {
+			fout = new FileOutputStream(pathNames[1]);
+			oos = new ObjectOutputStream(fout);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		for (int i=0; i<buckets.length; i++) {
+			int pathSize = (int) ForestMetadata.getPathNumBuckets(i);
+			buckets[i] = new Bucket[pathSize];
+			for (int j=0; j<buckets[i].length; j++) {
+				buckets[i][j] = new Bucket(i, new byte[0]);
+				try {
+					oos.writeObject(buckets[i][j]);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		try {
+			oos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			fout = new FileOutputStream(pathNames[0]);
+			oos = new ObjectOutputStream(fout);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (int i=0; i<buckets.length; i++) {
+			if (i > 0) {
+				int tupleBits = ForestMetadata.getTupleBits(i);
+				byte[] tuple = Util.rmSignBit(BigInteger.ZERO.setBit(tupleBits-1).toByteArray());
+				buckets[i][0].setByteTuple(tuple, 0);
+			}
+			for (int j=0; j<buckets[i].length; j++) {
+				try {
+					oos.writeObject(buckets[i][j]);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		try {
+			oos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void noForestInitPaths(BigInteger[] firstL) {

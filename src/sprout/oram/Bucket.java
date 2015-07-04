@@ -105,17 +105,25 @@ public class Bucket implements Serializable {
 				ts.length);
 	}
 
-	public void setByteTuple(byte[] t, int tupleIndex) throws BucketException {
+	public void setByteTuple(byte[] t, int tupleIndex) {
 		if (treeIndex == 0) {
 			if (tupleIndex != 0)
-				throw new BucketException("Tuple index error");
+				try {
+					throw new BucketException("Tuple index error");
+				} catch (BucketException e) {
+					e.printStackTrace();
+				}
 			setTuples(t);
 			return;
 		}
 
 		int w = ForestMetadata.getBucketDepth();
 		if (tupleIndex < 0 || tupleIndex >= w)
-			throw new BucketException("Tuple index error");
+			try {
+				throw new BucketException("Tuple index error");
+			} catch (BucketException e) {
+				e.printStackTrace();
+			}
 
 		int tupleBits = ForestMetadata.getTupleBits(treeIndex);
 		BigInteger bts = new BigInteger(1, tuples);
