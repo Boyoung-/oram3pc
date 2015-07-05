@@ -139,7 +139,7 @@ public class GCF extends Operation {
 		timing = new Timing();
 		Circuit.timing = timing;
 
-		boolean F2FT = false;
+		boolean F2FT = true;
 
 		int i = 0;
 		int j = 0;

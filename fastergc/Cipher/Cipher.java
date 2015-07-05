@@ -11,18 +11,37 @@ import YaoGC.Wire;
 public final class Cipher {
 	private static final int unitLength = 160; // SHA-1 has 160-bit output.
 
-	private static final BigInteger mask = BigInteger.ONE.shiftLeft(
+	public static final BigInteger mask = BigInteger.ONE.shiftLeft(
 			Wire.labelBitLength).subtract(BigInteger.ONE);
 
-	private static final BigInteger mask2 = BigInteger.ONE.shiftLeft(128)
+	private static final BigInteger mask128 = BigInteger.ONE.shiftLeft(128)
+			.subtract(BigInteger.ONE);
+	
+	private static final BigInteger mask160 = BigInteger.ONE.shiftLeft(160)
 			.subtract(BigInteger.ONE);
 
 	private static MessageDigest sha1 = SR.digest;
+	
+	public static synchronized BigInteger encrypt(BigInteger lp0,
+			BigInteger lp1, int k0, int k1, BigInteger m) {
+		BigInteger ret = getPadding(lp0, lp1, k0, k1);
+		ret = ret.xor(m);
+
+		return ret;
+	}
 
 	public static synchronized BigInteger encrypt(BigInteger lp0,
 			BigInteger lp1, int k, BigInteger m) {
 		BigInteger ret = getPadding(lp0, lp1, k);
 		ret = ret.xor(m);
+
+		return ret;
+	}
+	
+	public static synchronized BigInteger decrypt(BigInteger lp0,
+			BigInteger lp1, int k0, int k1, BigInteger c) {
+		BigInteger ret = getPadding(lp0, lp1, k0, k1);
+		ret = ret.xor(c);
 
 		return ret;
 	}
@@ -39,14 +58,14 @@ public final class Cipher {
 			int outBit) {
 		sha1.update(BigInteger.valueOf(w).toByteArray());
 		sha1.update(key.toByteArray());
-		return new BigInteger(sha1.digest()).and(mask2).xor(
+		return new BigInteger(sha1.digest()).and(mask128).xor(
 				BigInteger.valueOf(outBit));
 	}
 
 	public static synchronized int decrypt(int w, BigInteger key, BigInteger c) {
 		sha1.update(BigInteger.valueOf(w).toByteArray());
 		sha1.update(key.toByteArray());
-		return new BigInteger(sha1.digest()).and(mask2).xor(c).intValue();
+		return new BigInteger(sha1.digest()).and(mask128).xor(c).intValue();
 	}
 
 	// this padding generation function is dedicated for encrypting garbled
@@ -57,6 +76,15 @@ public final class Cipher {
 		sha1.update(lp1.toByteArray());
 		sha1.update(BigInteger.valueOf(k).toByteArray());
 		return (new BigInteger(sha1.digest())).and(mask);
+	}
+	
+	private static synchronized BigInteger getPadding(BigInteger lp0,
+			BigInteger lp1, int k0, int k1) {
+		sha1.update(lp0.toByteArray());
+		sha1.update(lp1.toByteArray());
+		sha1.update(BigInteger.valueOf(k0).toByteArray());
+		sha1.update(BigInteger.valueOf(k1).toByteArray());
+		return (new BigInteger(sha1.digest())).and(mask160);
 	}
 
 	public static synchronized BigInteger encrypt(BigInteger key,

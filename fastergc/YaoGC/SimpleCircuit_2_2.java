@@ -1,5 +1,4 @@
-// Copyright (C) 2010 by Yan Huang <yhuang@virginia.edu>
-
+// by Boyang Wei
 package YaoGC;
 
 import java.math.*;
@@ -8,12 +7,12 @@ import sprout.oram.PID;
 import sprout.oram.TID;
 import Cipher.Cipher;
 
-public abstract class SimpleCircuit_2_1 extends Circuit {
+public abstract class SimpleCircuit_2_2 extends Circuit {
 
 	protected BigInteger[][] gtt;
 
-	public SimpleCircuit_2_1(String name) {
-		super(2, 1, name);
+	public SimpleCircuit_2_2(String name) {
+		super(2, 2, name);
 	}
 
 	public void build() throws Exception {
@@ -31,10 +30,20 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 
 	protected void createOutputWires() {
 		outputWires[0] = new Wire();
+		outputWires[1] = new Wire();
 	}
 
 	protected void execute(boolean evaluate) {
+		if (evaluate) {
+			execYao();
+		} else {
+			passTruthTable();
+		}
 
+		outputWires[0].setReady(evaluate);
+		outputWires[1].setReady(evaluate);
+		
+		/*
 		Wire inWireL = inputWires[0];
 		Wire inWireR = inputWires[1];
 		Wire outWire = outputWires[0];
@@ -74,6 +83,8 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 			passTruthTable();
 
 		outWire.setReady(evaluate);
+		*/
+		
 	}
 
 	protected abstract void execYao();
@@ -94,6 +105,8 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 
 		if (outputWires[0].outBitEncPair != null)
 			receiver.write(outputWires[0].outBitEncPair);
+		if (outputWires[1].outBitEncPair != null)
+			receiver.write(outputWires[1].outBitEncPair);
 		timing.stopwatch[PID.gcf][TID.offline_write].stop();
 
 		timing.stopwatch[PID.gcf][TID.offline].start();
@@ -112,6 +125,8 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 
 			if (outputWires[0].outBitEncPair != null)
 				outputWires[0].outBitEncPair = sender.readBigIntegerArray();
+			if (outputWires[1].outBitEncPair != null)
+				outputWires[1].outBitEncPair = sender.readBigIntegerArray();
 			timing.stopwatch[PID.gcf][TID.offline_read].stop();
 
 			timing.stopwatch[PID.gcf][TID.offline].start();
@@ -124,7 +139,8 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 	protected void encryptTruthTable() {
 		Wire inWireL = inputWires[0];
 		Wire inWireR = inputWires[1];
-		Wire outWire = outputWires[0];
+		Wire outWire0 = outputWires[0];
+		Wire outWire1 = outputWires[1];
 
 		BigInteger[] labelL = { inWireL.lbl, Wire.conjugate(inWireL.lbl) };
 		if (inWireL.invd == true) {
@@ -140,22 +156,23 @@ public abstract class SimpleCircuit_2_1 extends Circuit {
 			labelR[1] = tmp;
 		}
 
-		int k = outWire.serialNum;
+		int k0 = outWire0.serialNum;
+		int k1 = outWire1.serialNum;
 
 		int cL = inWireL.lbl.testBit(0) ? 1 : 0;
 		int cR = inWireR.lbl.testBit(0) ? 1 : 0;
 
 		if (cL != 0 || cR != 0)
-			gtt[0 ^ cL][0 ^ cR] = Cipher.encrypt(labelL[0], labelR[0], k,
+			gtt[0 ^ cL][0 ^ cR] = Cipher.encrypt(labelL[0], labelR[0], k0, k1,
 					gtt[0 ^ cL][0 ^ cR]);
 		if (cL != 0 || cR != 1)
-			gtt[0 ^ cL][1 ^ cR] = Cipher.encrypt(labelL[0], labelR[1], k,
+			gtt[0 ^ cL][1 ^ cR] = Cipher.encrypt(labelL[0], labelR[1], k0, k1,
 					gtt[0 ^ cL][1 ^ cR]);
 		if (cL != 1 || cR != 0)
-			gtt[1 ^ cL][0 ^ cR] = Cipher.encrypt(labelL[1], labelR[0], k,
+			gtt[1 ^ cL][0 ^ cR] = Cipher.encrypt(labelL[1], labelR[0], k0, k1,
 					gtt[1 ^ cL][0 ^ cR]);
 		if (cL != 1 || cR != 1)
-			gtt[1 ^ cL][1 ^ cR] = Cipher.encrypt(labelL[1], labelR[1], k,
+			gtt[1 ^ cL][1 ^ cR] = Cipher.encrypt(labelL[1], labelR[1], k0, k1,
 					gtt[1 ^ cL][1 ^ cR]);
 	}
 }
