@@ -3,7 +3,7 @@ package sprout.oram.operations;
 import java.math.BigInteger;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.bouncycastle.util.Arrays;
+//import org.bouncycastle.util.Arrays;
 
 import sprout.communication.Communication;
 import sprout.crypto.PRF;
@@ -25,14 +25,19 @@ public class SSIOT extends Operation {
 
 	public Pair<Integer, BigInteger> executeCharlie(Communication D,
 			Communication E, int i, int N, int l, int tau) {
+		byte[][] e = new byte[N][];
+		byte[][] v = new byte[N][];
+		
 		// protocol
 		// step 1
 		timing.stopwatch[PID.ssiot][TID.online_read].start();
-		byte[] msg_ev = E.read();
+		//byte[] msg_ev = E.read();
+		for (int t = 0; t < N; t++) {
+			e[t] = E.read();
+			v[t] = E.read();
+		}
 
 		// step 2
-		//BigInteger p = D.readBigInteger();
-		//BigInteger w = D.readBigInteger();
 		byte[] msg_p = D.read();
 		byte[] msg_w = D.read();
 		timing.stopwatch[PID.ssiot][TID.online_read].stop();
@@ -42,15 +47,14 @@ public class SSIOT extends Operation {
 		BigInteger p = new BigInteger(1, msg_p);
 		BigInteger w = new BigInteger(1, msg_w);
 		
-		int gBytes = (l + 7) / 8;
+		//int gBytes = (l + 7) / 8;
 		PRG G = new PRG(l);
-		byte[][] e = new byte[N][];
-		byte[][] v = new byte[N][];
+		//byte[][] e = new byte[N][];
+		//byte[][] v = new byte[N][];
 
 		for (int j = 0; j < N; j++) {
-			e[j] = Arrays.copyOfRange(msg_ev, j * gBytes, (j + 1) * gBytes);
-			v[j] = Arrays.copyOfRange(msg_ev, N * gBytes + j * SR.kBytes, N
-					* gBytes + (j + 1) * SR.kBytes);
+			//e[j] = Arrays.copyOfRange(msg_ev, j * gBytes, (j + 1) * gBytes);
+			//v[j] = Arrays.copyOfRange(msg_ev, N * gBytes + j * SR.kBytes, N * gBytes + (j + 1) * SR.kBytes);
 
 			if (new BigInteger(1, v[j]).compareTo(w) == 0) {
 				BigInteger m = new BigInteger(1, e[j]).xor(new BigInteger(1, G
@@ -85,8 +89,6 @@ public class SSIOT extends Operation {
 		timing.stopwatch[PID.ssiot][TID.online].stop();
 
 		timing.stopwatch[PID.ssiot][TID.online_write].start();
-		//C.write(p);
-		//C.write(w);
 		C.write(msg_p, PID.ssiot);
 		C.write(msg_w, PID.ssiot);
 		timing.stopwatch[PID.ssiot][TID.online_write].stop();
@@ -97,11 +99,11 @@ public class SSIOT extends Operation {
 		// protocol
 		// step 1
 		timing.stopwatch[PID.ssiot][TID.online].start();
-		int gBytes = (l + 7) / 8;
+		//int gBytes = (l + 7) / 8;
 		int diffBits = SR.kBits - tau;
 		BigInteger[] x = new BigInteger[N];
 		byte[][][] ev = new byte[2][N][];
-		byte[] msg_ev = new byte[(SR.kBytes + gBytes) * N];
+		//byte[] msg_ev = new byte[(SR.kBytes + gBytes) * N];
 		PRF F_k = new PRF(SR.kBits);
 		PRF F_k_p = new PRF(SR.kBits);
 		PRG G = new PRG(l);
@@ -114,6 +116,7 @@ public class SSIOT extends Operation {
 			ev[0][t] = new BigInteger(1, G.compute(F_k.compute(x[t]
 					.toByteArray()))).xor(m[t]).toByteArray();
 			ev[1][t] = F_k_p.compute(x[t].toByteArray());
+			/*
 			if (ev[0][t].length < gBytes)
 				System.arraycopy(ev[0][t], 0, msg_ev, (t + 1) * gBytes
 						- ev[0][t].length, ev[0][t].length);
@@ -122,11 +125,16 @@ public class SSIOT extends Operation {
 						* gBytes, gBytes);
 			System.arraycopy(ev[1][t], 0, msg_ev, N * gBytes + t * SR.kBytes,
 					SR.kBytes);
+			*/
 		}
 		timing.stopwatch[PID.ssiot][TID.online].stop();
 
 		timing.stopwatch[PID.ssiot][TID.online_write].start();
-		C.write(msg_ev, PID.ssiot);
+		//C.write(msg_ev, PID.ssiot);
+		for (int t = 0; t < N; t++) {
+			C.write(ev[0][t], PID.ssiot);
+			C.write(ev[1][t], PID.ssiot);
+		}
 		timing.stopwatch[PID.ssiot][TID.online_write].stop();
 	}
 

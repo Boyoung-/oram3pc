@@ -48,7 +48,6 @@ public class Reshuffle extends TreeOperation<BigInteger[], BigInteger> {
 		localTiming.stopwatch[PID.reshuf][TID.online].stop();
 
 		localTiming.stopwatch[PID.reshuf][TID.online_write].start();
-		//eddie.write(z);
 		eddie.write(msg_z, PID.reshuf);
 		localTiming.stopwatch[PID.reshuf][TID.online_write].stop();
 		
@@ -76,7 +75,6 @@ public class Reshuffle extends TreeOperation<BigInteger[], BigInteger> {
 		// protocol
 		// step 1
 		localTiming.stopwatch[PID.reshuf][TID.online_read].start();
-		//BigInteger z = charlie.readBigInteger();
 		byte[] msg_z = charlie.read();
 		localTiming.stopwatch[PID.reshuf][TID.online_read].stop();
 

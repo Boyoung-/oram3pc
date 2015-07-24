@@ -398,6 +398,21 @@ public class Communication {
 	public String readString() {
 		return new String(read());
 	}
+	
+	/*
+	public void write(BigInteger out, int pid) {
+		if (out == null) {
+			write(new byte[] {});
+			return;
+		}
+		
+		byte[] tmp = out.toByteArray();
+		if (bandWidthSwitch) {
+			bandwidth[pid].add(tmp.length);
+		}
+		write(tmp);
+	}
+	*/
 
 	public void write(BigInteger out) {
 		if (out == null) {

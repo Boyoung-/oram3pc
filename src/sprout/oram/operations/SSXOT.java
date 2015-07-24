@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.bouncycastle.util.Arrays;
+//import org.bouncycastle.util.Arrays;
 
 import sprout.communication.Communication;
 import sprout.crypto.SR;
@@ -30,32 +30,49 @@ public class SSXOT extends Operation {
 			int l, BigInteger[] sC_m) {
 		// XOT 1
 		localTiming.stopwatch[PID.ssxot][TID.online].start();
-		int aBytes = (l + 7) / 8;
+		//int aBytes = (l + 7) / 8;
 		byte[][] a = new byte[N][];
-		byte[] msg_a = new byte[N * aBytes];
+		//byte[] msg_a = new byte[N * aBytes];
 
 		for (int o = 0; o < N; o++) {
 			a[o] = sC_m[PreData.xot_pi[0][i].get(o)]
 					.xor(PreData.xot_r[0][i][o]).toByteArray();
+			/*
 			if (a[o].length < aBytes)
 				System.arraycopy(a[o], 0, msg_a,
 						(o + 1) * aBytes - a[o].length, a[o].length);
 			else
 				System.arraycopy(a[o], a[o].length - aBytes, msg_a, o * aBytes,
 						aBytes);
+			*/
 		}
 		localTiming.stopwatch[PID.ssxot][TID.online].stop();
 
 		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
-		eddie.write(msg_a, PID.ssxot);
+		//eddie.write(msg_a, PID.ssxot);
+		for (int o=0; o<N; o++) {
+			eddie.write(a[o], PID.ssxot);
+		}
 		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
 
 		// XOT 2
+		byte[][] j_bytes = new byte[k][];
+		byte[][] p_bytes = new byte[k][];
+		
 		localTiming.stopwatch[PID.ssxot][TID.online_read].start();
-		msg_a = eddie.read();
+		//msg_a = eddie.read();
+		for (int o = 0; o < N; o++) {
+			a[o] = eddie.read();
+		}
 
-		byte[] msg_j = debbie.read();
-		byte[] msg_p = debbie.read();
+		//byte[] msg_j = debbie.read();
+		for (int o = 0; o < k; o++) {
+			j_bytes[o] = debbie.read();
+		}
+		//byte[] msg_p = debbie.read();
+		for (int o = 0; o < k; o++) {
+			p_bytes[o] = debbie.read();
+		}
 		localTiming.stopwatch[PID.ssxot][TID.online_read].stop();
 
 		localTiming.stopwatch[PID.ssxot][TID.online].start();
@@ -63,18 +80,22 @@ public class SSXOT extends Operation {
 		BigInteger[] p = new BigInteger[k];
 		BigInteger[] aa = new BigInteger[N];
 		BigInteger[] z = new BigInteger[k];
-		int pBytes = (l + 7) / 8;
+		//int pBytes = (l + 7) / 8;
 
 		for (int o = 0; o < N; o++) {
-			aa[o] = new BigInteger(1, Arrays.copyOfRange(msg_a, o * pBytes,
-					(o + 1) * pBytes));
+			//aa[o] = new BigInteger(1, Arrays.copyOfRange(msg_a, o * pBytes,	(o + 1) * pBytes));
+			aa[o] = new BigInteger(1, a[o]);
 		}
 
 		for (int o = 0; o < k; o++) {
+			/*
 			j[o] = new BigInteger(1, Arrays.copyOfRange(msg_j, o * 4,
 					(o + 1) * 4)).intValue();
 			p[o] = new BigInteger(1, Arrays.copyOfRange(msg_p, o * pBytes,
 					(o + 1) * pBytes));
+			*/
+			j[o] = new BigInteger(1, j_bytes[o]).intValue();
+			p[o] = new BigInteger(1, p_bytes[o]);
 			z[o] = aa[j[o]].xor(p[o]);
 		}
 		localTiming.stopwatch[PID.ssxot][TID.online].stop();
@@ -86,20 +107,20 @@ public class SSXOT extends Operation {
 			Timing localTiming, int i, int N, int k, int l, Integer[] ii) {
 		// XOT 1
 		localTiming.stopwatch[PID.ssxot][TID.online].start();
-		int pBytes = (l + 7) / 8;
+		//int pBytes = (l + 7) / 8;
 		int[] j = new int[k];
 		byte[][] j_bytes = new byte[k][];
-		byte[] msg_j = new byte[k * 4];
+		//byte[] msg_j = new byte[k * 4];
 		byte[][] p = new byte[k][];
-		byte[] msg_p = new byte[k * pBytes];
+		//byte[] msg_p = new byte[k * pBytes];
 
 		for (int o = 0; o < k; o++) {
 			j[o] = PreData.xot_pi_ivs[0][i].get(ii[o]);
 			j_bytes[o] = BigInteger
-					.valueOf(PreData.xot_pi_ivs[0][i].get(ii[o])).toByteArray();
+					.valueOf(j[o]).toByteArray();
 			p[o] = PreData.xot_r[0][i][j[o]].xor(PreData.ssxot_delta[i][o])
 					.toByteArray();
-
+			/*
 			System.arraycopy(j_bytes[o], 0, msg_j, (o + 1) * 4
 					- j_bytes[o].length, j_bytes[o].length);
 			if (p[o].length < pBytes)
@@ -108,26 +129,33 @@ public class SSXOT extends Operation {
 			else
 				System.arraycopy(p[o], p[o].length - pBytes, msg_p, o * pBytes,
 						pBytes);
+			*/
 		}
 		localTiming.stopwatch[PID.ssxot][TID.online].stop();
 
 		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
-		eddie.write(msg_j, PID.ssxot);
-		eddie.write(msg_p, PID.ssxot);
+		//eddie.write(msg_j, PID.ssxot);
+		for (int o = 0; o < k; o++) {
+			eddie.write(j_bytes[o], PID.ssxot);
+		}
+		//eddie.write(msg_p, PID.ssxot);
+		for (int o = 0; o < k; o++) {
+			eddie.write(p[o], PID.ssxot);
+		}
 		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
 
 		// XOT 2
 		localTiming.stopwatch[PID.ssxot][TID.online].start();
-		msg_j = new byte[k * 4];
-		msg_p = new byte[k * pBytes];
+		//msg_j = new byte[k * 4];
+		//msg_p = new byte[k * pBytes];
 
 		for (int o = 0; o < k; o++) {
 			j[o] = PreData.xot_pi_ivs[1][i].get(ii[o]);
 			j_bytes[o] = BigInteger
-					.valueOf(PreData.xot_pi_ivs[1][i].get(ii[o])).toByteArray();
+					.valueOf(j[o]).toByteArray();
 			p[o] = PreData.xot_r[1][i][j[o]].xor(PreData.ssxot_delta[i][o])
 					.toByteArray();
-
+			/*
 			System.arraycopy(j_bytes[o], 0, msg_j, (o + 1) * 4
 					- j_bytes[o].length, j_bytes[o].length);
 			if (p[o].length < pBytes)
@@ -136,12 +164,19 @@ public class SSXOT extends Operation {
 			else
 				System.arraycopy(p[o], p[o].length - pBytes, msg_p, o * pBytes,
 						pBytes);
+			*/
 		}
 		localTiming.stopwatch[PID.ssxot][TID.online].stop();
 
 		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
-		charlie.write(msg_j, PID.ssxot);
-		charlie.write(msg_p, PID.ssxot);
+		//charlie.write(msg_j, PID.ssxot);
+		for (int o = 0; o < k; o++) {
+			charlie.write(j_bytes[o], PID.ssxot);
+		}
+		//charlie.write(msg_p, PID.ssxot);
+		for (int o = 0; o < k; o++) {
+			charlie.write(p[o], PID.ssxot);
+		}
 		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
 	}
 
@@ -150,32 +185,49 @@ public class SSXOT extends Operation {
 			int l, BigInteger[] sE_m) {
 		// XOT 2
 		localTiming.stopwatch[PID.ssxot][TID.online].start();
-		int aBytes = (l + 7) / 8;
+		//int aBytes = (l + 7) / 8;
 		byte[][] a = new byte[N][];
-		byte[] msg_a = new byte[N * aBytes];
+		//byte[] msg_a = new byte[N * aBytes];
 
 		for (int o = 0; o < N; o++) {
 			a[o] = sE_m[PreData.xot_pi[0][i].get(o)]
 					.xor(PreData.xot_r[0][i][o]).toByteArray();
+			/*
 			if (a[o].length < aBytes)
 				System.arraycopy(a[o], 0, msg_a,
 						(o + 1) * aBytes - a[o].length, a[o].length);
 			else
 				System.arraycopy(a[o], a[o].length - aBytes, msg_a, o * aBytes,
 						aBytes);
+			*/
 		}
 		localTiming.stopwatch[PID.ssxot][TID.online].stop();
 
 		localTiming.stopwatch[PID.ssxot][TID.online_write].start();
-		charlie.write(msg_a, PID.ssxot);
+		//charlie.write(msg_a, PID.ssxot);
+		for (int o = 0; o < N; o++) {
+			charlie.write(a[o], PID.ssxot);
+		}
 		localTiming.stopwatch[PID.ssxot][TID.online_write].stop();
 
 		// XOT 1
+		byte[][] j_bytes = new byte[k][];
+		byte[][] p_bytes = new byte[k][];
+		
 		localTiming.stopwatch[PID.ssxot][TID.online_read].start();
-		msg_a = charlie.read();
+		//msg_a = charlie.read();
+		for (int o = 0; o < N; o++) {
+			a[o] = charlie.read();
+		}
 
-		byte[] msg_j = debbie.read();
-		byte[] msg_p = debbie.read();
+		//byte[] msg_j = debbie.read();
+		for (int o = 0; o < k; o++) {
+			j_bytes[o] = debbie.read();
+		}
+		//byte[] msg_p = debbie.read();
+		for (int o = 0; o < k; o++) {
+			p_bytes[o] = debbie.read();
+		}
 		localTiming.stopwatch[PID.ssxot][TID.online_read].stop();
 
 		localTiming.stopwatch[PID.ssxot][TID.online].start();
@@ -183,18 +235,22 @@ public class SSXOT extends Operation {
 		BigInteger[] p = new BigInteger[k];
 		BigInteger[] aa = new BigInteger[N];
 		BigInteger[] z = new BigInteger[k];
-		int pBytes = (l + 7) / 8;
+		//int pBytes = (l + 7) / 8;
 
 		for (int o = 0; o < N; o++) {
-			aa[o] = new BigInteger(1, Arrays.copyOfRange(msg_a, o * pBytes,
-					(o + 1) * pBytes));
+			//aa[o] = new BigInteger(1, Arrays.copyOfRange(msg_a, o * pBytes,	(o + 1) * pBytes));
+			aa[o] = new BigInteger(1, a[o]);
 		}
 
 		for (int o = 0; o < k; o++) {
+			/*
 			j[o] = new BigInteger(1, Arrays.copyOfRange(msg_j, o * 4,
 					(o + 1) * 4)).intValue();
 			p[o] = new BigInteger(1, Arrays.copyOfRange(msg_p, o * pBytes,
 					(o + 1) * pBytes));
+			*/
+			j[o] = new BigInteger(1, j_bytes[o]).intValue();
+			p[o] = new BigInteger(1, p_bytes[o]);
 			z[o] = aa[j[o]].xor(p[o]);
 		}
 		localTiming.stopwatch[PID.ssxot][TID.online].stop();
