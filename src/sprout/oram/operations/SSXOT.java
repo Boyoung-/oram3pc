@@ -28,19 +28,6 @@ public class SSXOT extends Operation {
 	public BigInteger[] executeCharlie(Communication debbie,
 			Communication eddie, Timing localTiming, int i, int N, int k,
 			int l, BigInteger[] sC_m) {
-		/*
-		 * XOT xot = new XOT(debbie, eddie);
-		 * 
-		 * // protocol // step 1 xot.executeEddie(eddie, debbie, localTiming, 0,
-		 * i, N, k, l, sC_m);
-		 * 
-		 * 
-		 * // step 2 BigInteger[] b = xot.executeCharlie(debbie, eddie,
-		 * localTiming, 1, i, N, k, l);
-		 * 
-		 * return b;
-		 */
-
 		// XOT 1
 		localTiming.stopwatch[PID.ssxot][TID.online].start();
 		int aBytes = (l + 7) / 8;
@@ -97,17 +84,6 @@ public class SSXOT extends Operation {
 
 	public void executeDebbie(Communication charlie, Communication eddie,
 			Timing localTiming, int i, int N, int k, int l, Integer[] ii) {
-		/*
-		 * XOT xot = new XOT(charlie, eddie);
-		 * 
-		 * // protocol // step 1 xot.executeDebbie(eddie, charlie, localTiming,
-		 * 0, i, N, k, l, ii, PreData.ssxot_delta[i]);
-		 * 
-		 * 
-		 * // step 2 xot.executeDebbie(charlie, eddie, localTiming, 1, i, N, k,
-		 * l, ii, PreData.ssxot_delta[i]);
-		 */
-
 		// XOT 1
 		localTiming.stopwatch[PID.ssxot][TID.online].start();
 		int pBytes = (l + 7) / 8;
@@ -172,19 +148,6 @@ public class SSXOT extends Operation {
 	public BigInteger[] executeEddie(Communication charlie,
 			Communication debbie, Timing localTiming, int i, int N, int k,
 			int l, BigInteger[] sE_m) {
-		/*
-		 * XOT xot = new XOT(charlie, debbie);
-		 * 
-		 * // protocol // step 1 BigInteger[] a = xot.executeCharlie(debbie,
-		 * charlie, localTiming, 0, i, N, k, l);
-		 * 
-		 * 
-		 * // step 2 xot.executeEddie(charlie, debbie, localTiming, 1, i, N, k,
-		 * l, sE_m);
-		 * 
-		 * return a;
-		 */
-
 		// XOT 2
 		localTiming.stopwatch[PID.ssxot][TID.online].start();
 		int aBytes = (l + 7) / 8;

@@ -116,15 +116,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i == 0) {
 			sC_Ti = z;
 			sC_sig_P_p = null;
-			
-			/*
-			BigInteger sE_Ti = eddie.readBigInteger();
-			BigInteger sE_sig_P_p = eddie.readBigInteger();
-			BigInteger Ti = sE_Ti.xor(sC_Ti);
-			BigInteger originalTi = sE_sig_P_p.xor(sC_sig_P_all_p);
-			if (originalTi.compareTo(Ti) != 0)
-				System.err.println("Ti ERROR!!!!!!!!!!!!");
-				*/
 		} else {
 			sC_Ti = sC_Ni.shiftLeft(lBits + aBits).xor(z).setBit(tupleBits - 1);
 
@@ -134,26 +125,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			if (flipBit)
 				newTuple = newTuple.setBit(tupleBits - 1);
 			sC_sig_P_p = Util.setSubBits(sC_sig_P_all_p, newTuple, (pathTuples - j_1 - 1) * tupleBits, (pathTuples - j_1) * tupleBits);
-			
-			/*
-			BigInteger sE_Ti = eddie.readBigInteger();
-			BigInteger sE_sig_P_p = eddie.readBigInteger();
-			
-			BigInteger originalPath = sE_sig_P_p.xor(sC_sig_P_all_p);
-			BigInteger originalTi = Util.getSubBits(originalPath, (pathTuples- j_1 - 1)	* tupleBits, (pathTuples - j_1) * tupleBits);
-			if (sE_Ti.xor(sC_Ti).compareTo(originalTi) != 0) {
-				System.err.println("Ti ERROR!!!!!!!!!!!!");
-				System.err.println(Util.addZero(sE_Ti.toString(2), tupleBits));
-				System.err.println(Util.addZero(sC_Ti.toString(2), tupleBits));
-				System.err.println(Util.addZero(sE_Ti.xor(sC_Ti).toString(2), tupleBits));
-				System.err.println(Util.addZero(originalTi.toString(2), tupleBits));
-			}
-			
-			BigInteger newPath = sE_sig_P_p.xor(sC_sig_P_p);
-			if (newPath.compareTo(originalPath) == 0 ||
-					Util.setSubBits(newPath, originalTi, (pathTuples- j_1 - 1)* tupleBits, (pathTuples - j_1) * tupleBits).compareTo(originalPath) != 0)
-				System.err.println("Path ERROR!!!!!!!!!!!!");
-				*/
 		}
 		timing.stopwatch[PID.access][TID.online].stop();
 
@@ -204,7 +175,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		BigInteger sD_sig_P_all = sD_sig_P[0];
 		for (int j = 1; j < sD_sig_P.length; j++)
 			sD_sig_P_all = sD_sig_P_all.shiftLeft(bucketBits).xor(sD_sig_P[j]);
-		//BigInteger sD_sig_P_all_p = sD_sig_P_all.xor(PreData.access_p[i]);
 		
 		byte[] msg_path = sD_sig_P_all.toByteArray();
 		timing.stopwatch[PID.access][TID.online].stop();
@@ -227,8 +197,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i > 0) {
 			helper = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
 					BigInteger.ONE);
-			//tmp = sD_sig_P_all.shiftRight(lBits + aBits);
-			//for (int j = pathTuples - 1; j >= 0; j--) {
 			for (int j=0; j<pathBuckets; j++) {
 				tmp = sD_sig_P[j].shiftRight(lBits + aBits);
 				for (int t = w - 1; t >= 0; t--) {
@@ -299,7 +267,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		BigInteger sE_sig_P_all = sE_sig_P[0];
 		for (int j = 1; j < sE_sig_P.length; j++)
 			sE_sig_P_all = sE_sig_P_all.shiftLeft(bucketBits).xor(sE_sig_P[j]);
-		//BigInteger sE_sig_P_all_p = sE_sig_P_all.xor(PreData.access_p[i]);
 		
 		BigInteger[] y = new BigInteger[twotaupow];
 		BigInteger y_all;
@@ -333,8 +300,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 			helper1N = BigInteger.ONE.shiftLeft(1 + nBits).subtract(
 					BigInteger.ONE);
 			helperA = BigInteger.ONE.shiftLeft(aBits).subtract(BigInteger.ONE);
-			//tmp = sE_sig_P_all;
-			//for (int j = pathTuples - 1; j >= 0; j--) {
 			for (int j=0; j<pathBuckets; j++) {
 				tmp = sE_sig_P[j];
 				for (int t = w - 1; t >= 0; t--) {
@@ -370,20 +335,10 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		if (i == 0) {
 			sE_Ti = y_all;
 			sE_sig_P_p = null;
-			
-			/*
-			charlie.write(sE_Ti);
-			charlie.write(sE_sig_P_all_p);
-			*/
 		} else {
 			sE_Ti = sE_Ni.shiftLeft(lBits + aBits)
 					.xor(PreData.access_Li[i].shiftLeft(aBits)).xor(y_all);
 			sE_sig_P_p = sE_sig_P_all;
-			
-			/*
-			charlie.write(sE_Ti);
-			charlie.write(sE_sig_P_p);
-			*/
 		}
 		timing.stopwatch[PID.access][TID.online].stop();
 

@@ -30,17 +30,11 @@ public class GCF extends Operation {
 			Timing localTiming, int i, int level, int n, BigInteger sC_X) {
 		// protocol
 		// step 1
-		// localTiming.stopwatch[PID.gcf][TID.online_read].start();
-		// byte[] msg_A = eddie.read();
-		// localTiming.stopwatch[PID.gcf][TID.online_read].stop();
-
 		localTiming.stopwatch[PID.gcf][TID.online].start();
 		byte[] msg_K_C = new byte[n * Wire.labelBytes];
 
 		for (int j = 0; j < n; j++) {
 			int beta = sC_X.testBit(n - j - 1) ? 1 : 0;
-			// System.arraycopy(msg_A, (beta*n+j)*Wire.labelBytes, msg_K_C,
-			// j*Wire.labelBytes, Wire.labelBytes);
 			msg_K_C[(j + 1) * Wire.labelBytes - 1] = (byte) beta;
 		}
 		localTiming.stopwatch[PID.gcf][TID.online].stop();
@@ -65,8 +59,6 @@ public class GCF extends Operation {
 		localTiming.stopwatch[PID.gcf][TID.online].start();
 		BigInteger[] K_C = new BigInteger[n];
 		for (int j = 0; j < n; j++) {
-			// K_C[j] = new BigInteger(1, Arrays.copyOfRange(msg_K_C,
-			// j*Wire.labelBytes, (j+1)*Wire.labelBytes));
 			int beta = msg_K_C[(j + 1) * Wire.labelBytes - 1];
 			K_C[j] = new BigInteger(1, Arrays.copyOfRange(msg_A, (beta * n + j)
 					* Wire.labelBytes, (beta * n + j + 1) * Wire.labelBytes));
@@ -125,6 +117,7 @@ public class GCF extends Operation {
 		}
 		localTiming.stopwatch[PID.gcf][TID.online].stop();
 
+		// step 2
 		localTiming.stopwatch[PID.gcf][TID.online_write].start();
 		// charlie.write(msg_A);
 		debbie.write(msg_A, PID.gcf);
