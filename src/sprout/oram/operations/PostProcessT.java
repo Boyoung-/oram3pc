@@ -50,6 +50,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		localTiming.stopwatch[PID.ppt][TID.online].stop();
 
 		localTiming.stopwatch[PID.ppt][TID.online_write].start();
+		//eddie.write(delta);
 		eddie.write(msg_delta, PID.ppt);
 		localTiming.stopwatch[PID.ppt][TID.online_write].stop();
 
@@ -102,6 +103,7 @@ public class PostProcessT extends TreeOperation<BigInteger, BigInteger[]> {
 		// protocol
 		// step 1
 		localTiming.stopwatch[PID.ppt][TID.online_read].start();
+		//int delta = charlie.readInt();
 		byte[] msg_delta = charlie.read();
 		localTiming.stopwatch[PID.ppt][TID.online_read].stop();
 

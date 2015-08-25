@@ -2,7 +2,7 @@ package sprout.oram.operations;
 
 import java.math.BigInteger;
 
-//import org.bouncycastle.util.Arrays;
+import org.bouncycastle.util.Arrays;
 
 import sprout.communication.Communication;
 import sprout.crypto.SR;
@@ -30,6 +30,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			Timing localTiming) {
 		if (i == 0) {
 			localTiming.stopwatch[PID.evict][TID.online_write].start();
+			//debbie.write(args[1]);
 			debbie.write(sC_T_p.toByteArray(), PID.evict);
 			localTiming.stopwatch[PID.evict][TID.online_write].stop();
 
@@ -99,11 +100,9 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 				i, k + 2, k, tupleBits, sC_a);
 
 		localTiming.stopwatch[PID.evict][TID.online].start();
-		byte[][] tuples = new byte[pathTuples][];
-		//int tupleBytes = (tupleBits+7) / 8;
-		//byte[] msg_path = new byte[tupleBytes*pathTuples];
+		int tupleBytes = (tupleBits+7) / 8;
+		byte[] msg_path = new byte[tupleBytes*pathTuples];
 		for (int j=0; j<pathTuples; j++) {
-			/*
 			byte[] tuple = sC_P_pp[j].toByteArray();
 			if (tuple.length < tupleBytes)
 				System.arraycopy(tuple, 0, msg_path, (j + 1) * tupleBytes
@@ -111,17 +110,13 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 			else
 				System.arraycopy(tuple, tuple.length - tupleBytes, msg_path, j
 						* tupleBytes, tupleBytes);
-			*/
-			tuples[j] = sC_P_pp[j].toByteArray();
 		}
 		localTiming.stopwatch[PID.evict][TID.online].stop();
 
 		// step 6
 		localTiming.stopwatch[PID.evict][TID.online_write].start();
-		//debbie.write(msg_path, PID.evict);
-		for (int j=0; j<pathTuples; j++) {
-			debbie.write(tuples[j], PID.evict);
-		}
+		//debbie.write(secretC_P_pp);
+		debbie.write(msg_path, PID.evict);
 		localTiming.stopwatch[PID.evict][TID.online_write].stop();
 		
 		return null;
@@ -133,6 +128,7 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 		if (i == 0) {
 			byte[] msg_tuple = null;
 			localTiming.stopwatch[PID.evict][TID.online_read].start();
+			//BigInteger sD_Ti_p = charlie.readBigInteger();
 			msg_tuple = charlie.read();
 			localTiming.stopwatch[PID.evict][TID.online_read].stop();
 
@@ -226,23 +222,18 @@ public class Eviction extends TreeOperation<BigInteger, BigInteger[]> {
 				tupleBits, I);
 
 		// step 6
-		byte[][] tuples = new byte[pathTuples][];
-		
 		localTiming.stopwatch[PID.evict][TID.online_read].start();
-		//byte[] msg_path = charlie.read();
-		for (int j=0; j<pathTuples; j++) {
-			tuples[j] = charlie.read();
-		}
+		//BigInteger secretD_P_pp = charlie.readBigInteger();
+		byte[] msg_path = charlie.read();
 		localTiming.stopwatch[PID.evict][TID.online_read].stop();
 
 		localTiming.stopwatch[PID.evict][TID.online].start();
-		//int tupleBytes = (tupleBits+7)/8;
+		int tupleBytes = (tupleBits+7)/8;
 		Bucket[] buckets = new Bucket[pathBuckets];
 		for (int j=0; j<pathBuckets; j++) {
 			BigInteger content = BigInteger.ZERO;
 			for (int t=0; t<w; t++) {
-				//BigInteger tuple = new BigInteger(1, Arrays.copyOfRange(msg_path, (j*w+t)*tupleBytes, (j*w+t+1)*tupleBytes));
-				BigInteger tuple = new BigInteger(1, tuples[j*w+t]);
+				BigInteger tuple = new BigInteger(1, Arrays.copyOfRange(msg_path, (j*w+t)*tupleBytes, (j*w+t+1)*tupleBytes));
 				content = content.shiftLeft(tupleBits).xor(tuple);
 			}
 			content = content.xor(PreData.evict_upxi[i][j]);

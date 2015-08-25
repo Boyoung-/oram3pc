@@ -44,12 +44,15 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 
 		if (i > 0) {
 			timing.stopwatch[PID.access][TID.online_write].start();
+			// debbie.write(PreData.access_Li[i]);
+			// eddie.write(PreData.access_Li[i]);
 			debbie.write(msg_Li, PID.access);
 			eddie.write(msg_Li, PID.access);
 			timing.stopwatch[PID.access][TID.online_write].stop();
 		}
 
 		timing.stopwatch[PID.access][TID.online_read].start();
+		//BigInteger sC_sig_P_all_p = debbie.readBigInteger();
 		byte[] msg_path = debbie.read();
 		timing.stopwatch[PID.access][TID.online_read].stop();		
 
@@ -141,6 +144,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		
 		if (i > 0) {
 			timing.stopwatch[PID.access][TID.online_read].start();
+			// PreData.access_Li[i] = charlie.readBigInteger();
 			msg_Li = charlie.read();
 			timing.stopwatch[PID.access][TID.online_read].stop();
 		}
@@ -168,7 +172,6 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		for (int j=0; j<sD_sig_P.length; j++)
 			sD_sig_P[j] = sD_sig_P[j].xor(PreData.access_p[i][j]);
 
-		//TODO: optimize following shifting
 		BigInteger sD_sig_P_all = sD_sig_P[0];
 		for (int j = 1; j < sD_sig_P.length; j++)
 			sD_sig_P_all = sD_sig_P_all.shiftLeft(bucketBits).xor(sD_sig_P[j]);
@@ -177,6 +180,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		timing.stopwatch[PID.access][TID.online].stop();
 
 		timing.stopwatch[PID.access][TID.online_write].start();
+		//charlie.write(sD_sig_P_all);
 		charlie.write(msg_path, PID.access);
 		timing.stopwatch[PID.access][TID.online_write].stop();
 
@@ -231,6 +235,7 @@ public class Access extends TreeOperation<AOutput, BigInteger[]> {
 		
 		if (i > 0) {
 			timing.stopwatch[PID.access][TID.online_read].start();
+			// PreData.access_Li[i] = charlie.readBigInteger();
 			msg_Li = charlie.read();
 			timing.stopwatch[PID.access][TID.online_read].stop();
 		}
