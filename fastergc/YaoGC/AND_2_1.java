@@ -5,6 +5,8 @@ package YaoGC;
 import java.math.*;
 
 import Cipher.*;
+import sprout.oram.PID;
+import sprout.oram.TID;
 
 public abstract class AND_2_1 extends SimpleCircuit_2_1 {
 	public AND_2_1() {
@@ -52,8 +54,9 @@ public abstract class AND_2_1 extends SimpleCircuit_2_1 {
 		int cR = inWireR.lbl.testBit(0) ? 1 : 0;
 
 		BigInteger[] lb = new BigInteger[2];
-		lb[cL & cR] = Cipher
-				.encrypt(labelL[cL], labelR[cR], k, BigInteger.ZERO);
+		timing.stopwatch[PID.sha1][TID.offline].start();
+		lb[cL & cR] = Cipher.encrypt(labelL[cL], labelR[cR], k, BigInteger.ZERO);
+		timing.stopwatch[PID.sha1][TID.offline].stop();
 		lb[1 - (cL & cR)] = Wire.conjugate(lb[cL & cR]);
 		outWire.lbl = lb[0];
 
@@ -64,8 +67,10 @@ public abstract class AND_2_1 extends SimpleCircuit_2_1 {
 
 		int lsb = lb[0].testBit(0) ? 1 : 0;
 		if (outputWires[0].outBitEncPair != null) {
+			timing.stopwatch[PID.sha1][TID.offline].start();
 			outputWires[0].outBitEncPair[lsb] = Cipher.encrypt(k, lb[0], 0);
 			outputWires[0].outBitEncPair[1 - lsb] = Cipher.encrypt(k, lb[1], 1);
+			timing.stopwatch[PID.sha1][TID.offline].stop();
 		}
 	}
 

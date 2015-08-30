@@ -20,8 +20,10 @@ class G_XOR_2_1 extends XOR_2_1 {
 			lb[1] = Wire.conjugate(lb[0]);
 			int lsb = lb[0].testBit(0) ? 1 : 0;
 			int k = outputWires[0].serialNum;
+			timing.stopwatch[PID.sha1][TID.offline].start();
 			outputWires[0].outBitEncPair[lsb] = Cipher.encrypt(k, lb[0], 0);
 			outputWires[0].outBitEncPair[1 - lsb] = Cipher.encrypt(k, lb[1], 1);
+			timing.stopwatch[PID.sha1][TID.offline].stop();
 			timing.stopwatch[PID.gcf][TID.offline].stop();
 
 			timing.stopwatch[PID.gcf][TID.offline_write].start();

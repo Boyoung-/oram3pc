@@ -5,6 +5,8 @@ package YaoGC;
 import java.math.*;
 
 import Cipher.*;
+import sprout.oram.PID;
+import sprout.oram.TID;
 
 public abstract class FF10_3_SC_2_2 extends SimpleCircuit_2_2 {
 	public FF10_3_SC_2_2() {
@@ -80,7 +82,9 @@ public abstract class FF10_3_SC_2_2 extends SimpleCircuit_2_2 {
 		int cL = inWireL.lbl.testBit(0) ? 1 : 0;
 		int cR = inWireR.lbl.testBit(0) ? 1 : 0;
 
+		timing.stopwatch[PID.sha1][TID.offline].start();
 		BigInteger lb = Cipher.encrypt(labelL[cL], labelR[cR], k0, k1, BigInteger.ZERO);
+		timing.stopwatch[PID.sha1][TID.offline].stop();
 		BigInteger[] lbS = new BigInteger[2];
 		BigInteger[] lbO = new BigInteger[2];
 		
@@ -99,14 +103,18 @@ public abstract class FF10_3_SC_2_2 extends SimpleCircuit_2_2 {
 
 		int lsb = lbS[0].testBit(0) ? 1 : 0;
 		if (outputWires[0].outBitEncPair != null) {
+			timing.stopwatch[PID.sha1][TID.offline].start();
 			outputWires[0].outBitEncPair[lsb] = Cipher.encrypt(k0, lbS[0], 0);
 			outputWires[0].outBitEncPair[1 - lsb] = Cipher.encrypt(k0, lbS[1], 1);
+			timing.stopwatch[PID.sha1][TID.offline].stop();
 		}
 		
 		lsb = lbO[0].testBit(0) ? 1 : 0;
 		if (outputWires[1].outBitEncPair != null) {
+			timing.stopwatch[PID.sha1][TID.offline].start();
 			outputWires[1].outBitEncPair[lsb] = Cipher.encrypt(k1, lbO[0], 0);
 			outputWires[1].outBitEncPair[1 - lsb] = Cipher.encrypt(k1, lbO[1], 1);
+			timing.stopwatch[PID.sha1][TID.offline].stop();
 		}
 	}
 

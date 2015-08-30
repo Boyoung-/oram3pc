@@ -162,6 +162,7 @@ public abstract class SimpleCircuit_2_2 extends Circuit {
 		int cL = inWireL.lbl.testBit(0) ? 1 : 0;
 		int cR = inWireR.lbl.testBit(0) ? 1 : 0;
 
+		timing.stopwatch[PID.sha1][TID.offline].start();
 		if (cL != 0 || cR != 0)
 			gtt[0 ^ cL][0 ^ cR] = Cipher.encrypt(labelL[0], labelR[0], k0, k1,
 					gtt[0 ^ cL][0 ^ cR]);
@@ -174,5 +175,6 @@ public abstract class SimpleCircuit_2_2 extends Circuit {
 		if (cL != 1 || cR != 1)
 			gtt[1 ^ cL][1 ^ cR] = Cipher.encrypt(labelL[1], labelR[1], k0, k1,
 					gtt[1 ^ cL][1 ^ cR]);
+		timing.stopwatch[PID.sha1][TID.offline].stop();
 	}
 }

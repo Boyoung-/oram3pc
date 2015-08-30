@@ -53,8 +53,11 @@ public class SSCOT extends Operation {
 					* SR.kBytes);
 
 			if (new BigInteger(1, v[t]).compareTo(new BigInteger(1, w[t])) == 0) {
-				BigInteger m_t = new BigInteger(1, e[t]).xor(new BigInteger(1,
-						G.compute(p[t])));
+				//BigInteger m_t = new BigInteger(1, e[t]).xor(new BigInteger(1, G.compute(p[t])));
+				timing.stopwatch[PID.aes_prg][TID.online].start();
+				byte[] tmp = G.compute(p[t]);
+				timing.stopwatch[PID.aes_prg][TID.online].stop();
+				BigInteger m_t = new BigInteger(1, e[t]).xor(new BigInteger(1, tmp));
 				timing.stopwatch[PID.sscot][TID.online].stop();
 				return Pair.of(t, m_t);
 			}
@@ -81,8 +84,10 @@ public class SSCOT extends Operation {
 
 		for (int t = 0; t < N; t++) {
 			y[t] = PreData.sscot_r[i][t].xor(b[t].shiftLeft(diffBits));
+			timing.stopwatch[PID.aes_prf][TID.online].start();
 			pw[0][t] = F_k.compute(y[t].toByteArray());
 			pw[1][t] = F_k_p.compute(y[t].toByteArray());
+			timing.stopwatch[PID.aes_prf][TID.online].stop();
 			System.arraycopy(pw[0][t], 0, msg_pw, t * SR.kBytes, SR.kBytes);
 			System.arraycopy(pw[1][t], 0, msg_pw, (N + t) * SR.kBytes,
 					SR.kBytes);
@@ -112,9 +117,15 @@ public class SSCOT extends Operation {
 
 		for (int t = 0; t < N; t++) {
 			x[t] = PreData.sscot_r[i][t].xor(a[t].shiftLeft(diffBits));
-			ev[0][t] = new BigInteger(1, G.compute(F_k.compute(x[t]
-					.toByteArray()))).xor(m[t]).toByteArray();
+			//ev[0][t] = new BigInteger(1, G.compute(F_k.compute(x[t].toByteArray()))).xor(m[t]).toByteArray();
+			timing.stopwatch[PID.aes_prf][TID.online].start();
 			ev[1][t] = F_k_p.compute(x[t].toByteArray());
+			byte[] tmp = F_k.compute(x[t].toByteArray());
+			timing.stopwatch[PID.aes_prf][TID.online].stop();
+			timing.stopwatch[PID.aes_prg][TID.online].start();
+			tmp = G.compute(tmp);
+			timing.stopwatch[PID.aes_prg][TID.online].stop();
+			ev[0][t] = new BigInteger(1, tmp).xor(m[t]).toByteArray();
 			if (ev[0][t].length < gBytes)
 				System.arraycopy(ev[0][t], 0, msg_ev, (t + 1) * gBytes
 						- ev[0][t].length, ev[0][t].length);

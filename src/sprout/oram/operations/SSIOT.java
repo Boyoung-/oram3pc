@@ -53,8 +53,11 @@ public class SSIOT extends Operation {
 					* gBytes + (j + 1) * SR.kBytes);
 
 			if (new BigInteger(1, v[j]).compareTo(w) == 0) {
-				BigInteger m = new BigInteger(1, e[j]).xor(new BigInteger(1, G
-						.compute(p.toByteArray())));
+				//BigInteger m = new BigInteger(1, e[j]).xor(new BigInteger(1, G.compute(p.toByteArray())));
+				timing.stopwatch[PID.aes_prg][TID.online].start();
+				byte[] tmp = G.compute(p.toByteArray());
+				timing.stopwatch[PID.aes_prg][TID.online].stop();
+				BigInteger m = new BigInteger(1, e[j]).xor(new BigInteger(1, tmp));
 				timing.stopwatch[PID.ssiot][TID.online].stop();
 				return Pair.of(j, m);
 			}
@@ -77,8 +80,10 @@ public class SSIOT extends Operation {
 		F_k_p.init(PreData.ssiot_k_p[i]);
 
 		BigInteger y = PreData.ssiot_r[i].xor(j_D.shiftLeft(diffBits));
+		timing.stopwatch[PID.aes_prf][TID.online].start();
 		BigInteger p = new BigInteger(1, F_k.compute(y.toByteArray()));
 		BigInteger w = new BigInteger(1, F_k_p.compute(y.toByteArray()));
+		timing.stopwatch[PID.aes_prf][TID.online].stop();
 		
 		byte[] msg_p = p.toByteArray();
 		byte[] msg_w = w.toByteArray();
@@ -111,9 +116,15 @@ public class SSIOT extends Operation {
 		for (int t = 0; t < N; t++) {
 			x[t] = PreData.ssiot_r[i].xor(j_E.xor(BigInteger.valueOf(t))
 					.shiftLeft(diffBits));
-			ev[0][t] = new BigInteger(1, G.compute(F_k.compute(x[t]
-					.toByteArray()))).xor(m[t]).toByteArray();
+			//ev[0][t] = new BigInteger(1, G.compute(F_k.compute(x[t].toByteArray()))).xor(m[t]).toByteArray();
+			timing.stopwatch[PID.aes_prf][TID.online].start();
 			ev[1][t] = F_k_p.compute(x[t].toByteArray());
+			byte[] tmp = F_k.compute(x[t].toByteArray());
+			timing.stopwatch[PID.aes_prf][TID.online].stop();
+			timing.stopwatch[PID.aes_prg][TID.online].start();
+			tmp = G.compute(tmp);
+			timing.stopwatch[PID.aes_prg][TID.online].stop();
+			ev[0][t] = new BigInteger(1, tmp).xor(m[t]).toByteArray();
 			if (ev[0][t].length < gBytes)
 				System.arraycopy(ev[0][t], 0, msg_ev, (t + 1) * gBytes
 						- ev[0][t].length, ev[0][t].length);

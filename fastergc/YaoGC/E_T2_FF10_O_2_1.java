@@ -5,6 +5,8 @@ package YaoGC;
 import java.math.*;
 
 import Cipher.*;
+import sprout.oram.PID;
+import sprout.oram.TID;
 
 class E_T2_FF10_O_2_1 extends T2_FF10_O_2_1 {
 	public E_T2_FF10_O_2_1() {
@@ -23,8 +25,10 @@ class E_T2_FF10_O_2_1 extends T2_FF10_O_2_1 {
 		int i1 = Wire.getLSB(inWireR.lbl);
 		i1 = inWireR.invd ? (1 - i1) : i1;
 
+		timing.stopwatch[PID.sha1][TID.online].start();
 		BigInteger out = Cipher.decrypt(inWireL.lbl, inWireR.lbl,
 				outWire.serialNum, gtt[i0][i1]);
+		timing.stopwatch[PID.sha1][TID.online].stop();
 
 		outWire.setLabel(out);
 	}

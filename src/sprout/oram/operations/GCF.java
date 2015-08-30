@@ -73,11 +73,9 @@ public class GCF extends Operation {
 			BigInteger lb = PreData.gcf_gc_D[i][level].outputWires[j].lbl;
 			int lsb = lb.testBit(0) ? 1 : 0;
 			int k = PreData.gcf_gc_D[i][level].outputWires[j].serialNum;
-			int outBit = Cipher
-					.decrypt(
-							k,
-							lb,
-							PreData.gcf_gc_D[i][level].outputWires[j].outBitEncPair[lsb]);
+			timing.stopwatch[PID.sha1][TID.online].start();
+			int outBit = Cipher.decrypt(k, lb, PreData.gcf_gc_D[i][level].outputWires[j].outBitEncPair[lsb]);
+			timing.stopwatch[PID.sha1][TID.online].stop();
 			if (outBit == 1)
 				output = output.setBit(length - 1 - j);
 			else if (outBit != 0) {

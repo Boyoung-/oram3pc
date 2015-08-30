@@ -50,8 +50,10 @@ public class Precomputation extends TreeOperation<Object, Object> {
 		for (int index = 0; index < levels; index++) {
 			loadTreeSpecificParameters(index);
 			PRG G = new PRG(pathBuckets * bucketBits);
+			timing.stopwatch[PID.aes_prg][TID.offline].start();
 			PreData.reshuffle_p[i] = new BigInteger(1,
 					G.compute(reshuffle_s1[i]));
+			timing.stopwatch[PID.aes_prg][TID.offline].stop();
 		}
 		timing.stopwatch[PID.reshuf][TID.offline].stop();
 
@@ -187,10 +189,12 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			SR.rand.nextBytes(reshuffle_s1[i]);
 			SR.rand.nextBytes(reshuffle_s2[i]);
 			PRG G = new PRG(pathBuckets * bucketBits);
+			timing.stopwatch[PID.aes_prg][TID.offline].start();
 			PreData.reshuffle_p[i] = new BigInteger(1,
 					G.compute(reshuffle_s1[i]));
 			PreData.reshuffle_r[i] = new BigInteger(1,
 					G.compute(reshuffle_s2[i]));
+			timing.stopwatch[PID.aes_prg][TID.offline].stop();
 			BigInteger a_all = PreData.reshuffle_p[i]
 					.xor(PreData.reshuffle_r[i]);
 			PreData.reshuffle_a_p[i] = new BigInteger[pathBuckets];
@@ -398,8 +402,10 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.reshuffle_pi[i] = Util
 					.getInversePermutation(PreData.access_sigma[i]);
 			PRG G = new PRG(pathBuckets * bucketBits);
+			timing.stopwatch[PID.aes_prg][TID.offline].start();
 			PreData.reshuffle_r[i] = new BigInteger(1,
 					G.compute(reshuffle_s2[i]));
+			timing.stopwatch[PID.aes_prg][TID.offline].stop();
 		}
 		timing.stopwatch[PID.reshuf][TID.offline].stop();
 
