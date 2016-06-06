@@ -497,6 +497,8 @@ public class Precomputation extends TreeOperation<Object, Object> {
 			PreData.evict_upxi[index] = debbie.readBigIntegerArray();
 		}
 		timing.stopwatch[PID.evict][TID.offline_read].stop();
+		
+		System.out.println("K= " + Wire.K);
 
 		return null;
 	}
